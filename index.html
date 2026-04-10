@@ -2142,11 +2142,15 @@ function renderItemPage() {
     return;
   }
 
+  const IMG_BASE = 'https://maplestory.io/api/GMS/253/item';
   grid.innerHTML = page.map(([code, name, en]) =>
-    `<div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:default;transition:.15s;" onmouseover="this.style.background='var(--accent-light)'" onmouseout="this.style.background='#f9fafb'">
-      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">${name}</div>
-      <div style="font-size:11px;color:var(--text-sub);">${en}</div>
-      <div style="font-size:10px;color:#9ca3af;margin-top:2px;">#${code}</div>
+    `<div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:default;transition:.15s;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='var(--accent-light)'" onmouseout="this.style.background='#f9fafb'">
+      <img src="${IMG_BASE}/${code}/icon" width="36" height="36" style="object-fit:contain;flex-shrink:0;image-rendering:pixelated;" loading="lazy" onerror="this.style.display='none'">
+      <div style="min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+        <div style="font-size:11px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${en}</div>
+        <div style="font-size:10px;color:#9ca3af;margin-top:1px;">#${code}</div>
+      </div>
     </div>`
   ).join('');
 

@@ -143,29 +143,25 @@
   .autocomplete-empty { padding: 12px 14px; font-size: 13px; color: var(--text-sub); text-align: center; }
 
   /* ===== Horntail Phase Timer ===== */
-  #page-horntail-timer { background:#111318; margin:-24px; padding:24px; min-height:100%; }
-  #page-horntail-timer .top-bar { margin-bottom:20px; }
-  #page-horntail-timer .page-title { color:#fff; }
-  #page-horntail-timer .page-desc  { color:#9ca3af; }
-  .ht-section { border-radius:12px; overflow:hidden; border:1px solid #2a2d3e; }
+  .ht-section { border-radius:12px; overflow:hidden; border:1px solid var(--border); }
   .ht-section-header { padding:12px 20px; display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; color:#fff; }
-  .ht-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px; background:#1a1d28; }
-  .ht-card { background:#22253a; border-radius:12px; display:flex; overflow:hidden; height:110px; }
+  .ht-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px; background:#f8f9fa; }
+  .ht-card { background:#fff; border:1px solid var(--border); border-radius:12px; display:flex; overflow:hidden; height:110px; }
   .ht-card-body { flex:1; padding:12px 16px; display:flex; flex-direction:column; justify-content:space-between; min-width:0; }
   .ht-card-top { display:flex; align-items:center; justify-content:space-between; gap:6px; }
-  .ht-card-title { font-size:13px; color:#9ca3af; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:6px; }
-  .ht-card-time { font-size:38px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:2px; line-height:1; }
-  .ht-card-time.running { color:#a78bfa; }
-  .ht-card-time.done    { color:#34d399; }
+  .ht-card-title { font-size:13px; color:var(--text-sub); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:6px; }
+  .ht-card-time { font-size:38px; font-weight:800; color:var(--text); font-variant-numeric:tabular-nums; letter-spacing:2px; line-height:1; }
+  .ht-card-time.running { color:#5b5fef; }
+  .ht-card-time.done    { color:#059669; }
   .ht-start-col { width:74px; flex-shrink:0; display:flex; align-items:stretch; }
   .ht-start-btn { width:100%; border:none; font-size:17px; font-weight:800; cursor:pointer; transition:.15s; border-radius:0; }
   .ht-start-btn.idle    { background:#5b5fef; color:#fff; }
   .ht-start-btn.idle:hover { background:#4f53d8; }
   .ht-start-btn.running { background:#ef4444; color:#fff; }
-  .ht-start-btn.done    { background:#2d3047; color:#6b7280; }
-  .ht-edit-btn { padding:3px 8px; border-radius:5px; border:1px solid #3a3d50; background:transparent; color:#9ca3af; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
-  .ht-edit-btn:hover { background:#3a3d50; color:#fff; }
-  .ht-auto-icon { font-size:12px; color:#a78bfa; }
+  .ht-start-btn.done    { background:#e5e7eb; color:#9ca3af; }
+  .ht-edit-btn { padding:3px 8px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--text-sub); font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .ht-edit-btn:hover { background:#f3f4f6; color:var(--text); }
+  .ht-auto-icon { font-size:12px; color:#7c3aed; }
 
   /* Modal */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }

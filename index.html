@@ -140,34 +140,8 @@
 </head>
 <body>
 
-<!-- Loading -->
-<div id="loadingPage" class="loading">로딩 중...</div>
-
-<!-- Login -->
-<div id="loginPage" class="login-page" style="display:none;">
-  <div class="login-box">
-    <h1 style="color:#ffd32a;">메이플랜드 ERP</h1>
-    <p>메이플랜드 관리 시스템에 접속하세요</p>
-    <button onclick="discordLogin()" style="width:100%;padding:14px 24px;background:#5865F2;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s;">
-      <svg width="24" height="24" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
-      로그인
-    </button>
-  </div>
-</div>
-
-<!-- Pending Approval -->
-<div id="pendingPage" class="pending-page" style="display:none;">
-  <div class="pending-box">
-    <div style="font-size:48px; margin-bottom:16px;">⏳</div>
-    <h2>승인 대기 중</h2>
-    <p>공대장의 승인을 기다리고 있습니다.<br>승인이 완료되면 이용할 수 있습니다.</p>
-    <p style="margin-top:16px; font-size:12px; color:#b2bec3;" id="pendingEmail"></p>
-    <button class="btn btn-outline" style="margin-top:20px;" onclick="doLogout()">로그아웃</button>
-  </div>
-</div>
-
-<!-- Main App -->
-<div id="appWrap" style="display:none; width:100%; display:none;">
+<!-- Main App - 항상 표시 -->
+<div id="appWrap" style="display:flex; width:100%;">
 
 <aside class="sidebar">
   <div class="sidebar-header">
@@ -211,14 +185,24 @@
     <a onclick="showPage('users', this)" id="navUsers" style="display:none;"><span class="icon">🔐</span> 권한 관리</a>
   </nav>
   <div class="sidebar-footer">
-    <div class="user-info">
-      <img id="userPhoto" src="" alt="">
-      <div>
-        <div class="name" id="userName">-</div>
-        <span class="role-badge" id="userRoleBadge">-</span>
-      </div>
+    <!-- 비로그인 상태 -->
+    <div id="loginArea">
+      <button onclick="discordLogin()" style="width:100%;padding:10px;background:#5865F2;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
+        로그인
+      </button>
     </div>
-    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    <!-- 로그인 상태 -->
+    <div id="userArea" style="display:none;">
+      <div class="user-info">
+        <img id="userPhoto" src="" alt="">
+        <div>
+          <div class="name" id="userName">-</div>
+          <span class="role-badge" id="userRoleBadge">-</span>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
   </div>
 </aside>
 
@@ -643,9 +627,6 @@ function discordLogin() {
 
 async function handleDiscordCallback(code) {
   try {
-    document.getElementById('loadingPage').style.display = 'flex';
-    document.getElementById('loginPage').style.display = 'none';
-
     const res = await fetch(DISCORD_WORKER_URL + '/exchange', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -667,44 +648,6 @@ async function handleDiscordCallback(code) {
 
 let _pendingDiscord = null;
 
-function googleLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => alert('로그인 실패: ' + err.message));
-}
-
-async function enterAsGuest() {
-  try {
-    await auth.signInAnonymously();
-    // onAuthStateChanged에서 처리되지만, 익명은 role=none으로 강제
-    _pendingRole = 'none';
-    _pendingName = '방문자';
-  } catch(e) {
-    // 익명 인증 실패 시 로컬 모드
-    currentUser = null;
-    currentProfile = { id: 'anon', name: '방문자', email: '', photo: '', role: 'none' };
-    document.getElementById('loadingPage').style.display = 'none';
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('appWrap').style.display = 'flex';
-    initApp();
-  }
-}
-
-async function enterAsGuestWithName() {
-  const nick = document.getElementById('guestNickname').value.trim();
-  if (!nick) { alert('닉네임을 입력해 주세요.'); return; }
-  try {
-    _pendingRole = 'guest';
-    _pendingName = nick;
-    await auth.signInAnonymously();
-  } catch(e) {
-    currentUser = null;
-    currentProfile = { id: 'guest_' + Date.now(), name: nick, email: '', photo: '', role: 'guest' };
-    document.getElementById('loadingPage').style.display = 'none';
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('appWrap').style.display = 'flex';
-    initApp();
-  }
-}
 
 let _pendingRole = null;
 let _pendingName = null;
@@ -713,21 +656,37 @@ function doLogout() {
   auth.signOut();
   currentUser = null;
   currentProfile = null;
-  document.getElementById('appWrap').style.display = 'none';
-  document.getElementById('loginPage').style.display = '';
+  updateLoginUI();
+}
+
+function updateLoginUI() {
+  if (currentProfile) {
+    document.getElementById('loginArea').style.display = 'none';
+    document.getElementById('userArea').style.display = '';
+    document.getElementById('userName').textContent = currentProfile.name;
+    document.getElementById('userPhoto').src = currentProfile.photo || 'https://cdn.discordapp.com/embed/avatars/0.png';
+    const r = ROLES[currentProfile.role] || ROLES.none;
+    document.getElementById('userRoleBadge').textContent = r.label;
+    document.getElementById('navUsers').style.display = canManageUsers() ? '' : 'none';
+    document.getElementById('btnAddMember').style.display = canManageMembers() ? '' : 'none';
+  } else {
+    document.getElementById('loginArea').style.display = '';
+    document.getElementById('userArea').style.display = 'none';
+    document.getElementById('navUsers').style.display = 'none';
+    document.getElementById('btnAddMember').style.display = 'none';
+  }
 }
 
 auth.onAuthStateChanged(async (user) => {
-  document.getElementById('loadingPage').style.display = 'none';
   if (!user) {
     currentUser = null;
     currentProfile = null;
-    document.getElementById('loginPage').style.display = '';
-    document.getElementById('appWrap').style.display = 'none';
-    document.getElementById('pendingPage').style.display = 'none';
+    updateLoginUI();
+    // 비로그인 상태에서도 데이터 구독
+    subscribeMembers();
+    subscribePurchases();
     return;
   }
-  document.getElementById('loginPage').style.display = 'none';
   currentUser = user;
 
   // 유저 프로필 가져오기 또는 생성
@@ -788,8 +747,6 @@ auth.onAuthStateChanged(async (user) => {
 
   currentProfile = { id: doc.id, ...doc.data() };
 
-  document.getElementById('pendingPage').style.display = 'none';
-  document.getElementById('appWrap').style.display = 'flex';
   initApp();
 });
 
@@ -797,18 +754,7 @@ auth.onAuthStateChanged(async (user) => {
 // 앱 초기화
 // =============================================
 function initApp() {
-  // 사이드바 사용자 정보
-  document.getElementById('userName').textContent = currentProfile.name;
-  document.getElementById('userPhoto').src = currentProfile.photo || 'https://via.placeholder.com/32';
-  const r = ROLES[currentProfile.role] || ROLES.none;
-  document.getElementById('userRoleBadge').textContent = r.label;
-
-  // 권한 관리 메뉴 표시
-  document.getElementById('navUsers').style.display = canManageUsers() ? '' : 'none';
-
-  // 공대원 등록 버튼 표시
-  document.getElementById('btnAddMember').style.display = canManageMembers() ? '' : 'none';
-
+  updateLoginUI();
   // 실시간 데이터 구독
   subscribeMembers();
   subscribeUsers();

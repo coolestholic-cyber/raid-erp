@@ -254,7 +254,43 @@
     <!-- 캐릭터 정보 -->
     <div id="page-mychar" class="page-section">
       <div class="top-bar"><div><h1 class="page-title">캐릭터 정보</h1><p class="page-desc">내 캐릭터 기본 정보를 관리합니다</p></div></div>
-      <div class="panel"><div class="empty-state"><div class="icon">🍄</div><h3>준비 중</h3><p>캐릭터 정보 기능이 곧 추가됩니다</p></div></div>
+      <div class="panel" style="max-width:520px;">
+        <!-- 직업 선택 탭 + 콤보 -->
+        <div class="form-group">
+          <label>직업 선택</label>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;">
+            <button type="button" id="mctab-전사"   class="class-tab" onclick="mcSelectTab('전사')">⚔️ 전사</button>
+            <button type="button" id="mctab-마법사" class="class-tab" onclick="mcSelectTab('마법사')">🔮 마법사</button>
+            <button type="button" id="mctab-궁수"   class="class-tab" onclick="mcSelectTab('궁수')">🏹 궁수</button>
+            <button type="button" id="mctab-도적"   class="class-tab" onclick="mcSelectTab('도적')">🗡️ 도적</button>
+          </div>
+          <select id="mcClassCombo" onchange="mcOnComboChange()" style="display:none;margin-top:8px;width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#fff;color:var(--text);cursor:pointer;">
+            <option value="">직업 선택...</option>
+          </select>
+        </div>
+        <!-- 캐릭터명 + 레벨 -->
+        <div class="form-row">
+          <div class="form-group"><label>캐릭터명</label><input type="text" id="mcName" placeholder="캐릭터명 입력"></div>
+          <div class="form-group"><label>레벨</label><input type="number" id="mcLevel" placeholder="200"></div>
+        </div>
+        <!-- 역할 + 스킬공격력 -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>역할</label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <label style="flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--accent);background:var(--accent-light);border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;" id="mcRoleDealer" onclick="mcSelectRole('딜러')"><span style="font-size:18px;">⚔️</span> 딜러</label>
+              <label style="flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--border);background:#fff;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;" id="mcRoleSupport" onclick="mcSelectRole('서폿')"><span style="font-size:18px;">💚</span> 서폿</label>
+            </div>
+            <input type="hidden" id="mcRole" value="딜러">
+          </div>
+          <div class="form-group"><label>스킬공격력</label><input type="number" id="mcSkillAtk" placeholder="예) 25000"></div>
+        </div>
+        <!-- 버튼 -->
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="mcCancel()">취소</button>
+          <button class="btn btn-primary" onclick="mcSave()">저장</button>
+        </div>
+      </div>
     </div>
 
     <!-- 메소 가계부 -->
@@ -812,6 +848,7 @@ function showPage(id,el){
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
   if(el){el.classList.add('active');const b=el.closest('.acc-body');if(b&&!b.classList.contains('open')){b.classList.add('open');b.previousElementSibling.classList.add('open');}}
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
+  if(id==='mychar')mcLoadMyChar();
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -827,6 +864,66 @@ function exportMembers(){
   let csv='번호,캐릭터명,직업,역할,아이템레벨,주급골드,참여율,상태,비고\n';
   allMembers.forEach((m,i)=>{csv+=`${i+1},${m.name},${m.cls},${m.role},${m.level},${m.gold},${m.rate},${m.status},${m.note}\n`;});
   const b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='공대원목록.csv';a.click();
+}
+
+// =============================================
+// 내 캐릭터 정보
+// =============================================
+function mcSelectTab(group){
+  document.querySelectorAll('[id^="mctab-"]').forEach(b=>b.classList.remove('active'));
+  const t=document.getElementById('mctab-'+group);if(t)t.classList.add('active');
+  const combo=document.getElementById('mcClassCombo');
+  combo.innerHTML='<option value="">직업 선택...</option>'+JOB_4TH[group].map(j=>`<option value="${j.name}" data-type="${j.type}">${j.icon} ${j.name}</option>`).join('');
+  combo.style.display='';combo.value='';
+}
+function mcOnComboChange(){
+  const combo=document.getElementById('mcClassCombo');
+  const opt=combo.options[combo.selectedIndex];
+  if(opt&&opt.value){const type=opt.getAttribute('data-type');mcSelectRole(type);}
+}
+function mcSelectRole(role){
+  document.getElementById('mcRole').value=role;
+  const isD=role==='딜러';
+  document.getElementById('mcRoleDealer').style.cssText=`flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid ${isD?'var(--accent)':'var(--border)'};background:${isD?'var(--accent-light)':'#fff'};border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;`;
+  document.getElementById('mcRoleSupport').style.cssText=`flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid ${!isD?'var(--accent)':'var(--border)'};background:${!isD?'var(--accent-light)':'#fff'};border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;`;
+}
+function mcCancel(){
+  mcLoadMyChar();
+}
+async function mcSave(){
+  const cls=document.getElementById('mcClassCombo').value;
+  const name=document.getElementById('mcName').value.trim();
+  const level=parseInt(document.getElementById('mcLevel').value)||0;
+  const role=document.getElementById('mcRole').value;
+  const skillAtk=parseInt(document.getElementById('mcSkillAtk').value)||0;
+  if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
+  const uid=currentUser?currentUser.uid:'anon';
+  const data={myChar:{cls,name,level,role,skillAtk}};
+  if(currentUser){await db.collection('users').doc(uid).set(data,{merge:true});}
+  else{localStorage.setItem('myChar_'+uid,JSON.stringify({cls,name,level,role,skillAtk}));}
+  alert('저장되었습니다.');
+}
+async function mcLoadMyChar(){
+  let d=null;
+  if(currentUser){
+    const snap=await db.collection('users').doc(currentUser.uid).get();
+    if(snap.exists&&snap.data().myChar)d=snap.data().myChar;
+  } else {
+    const raw=localStorage.getItem('myChar_anon');if(raw)d=JSON.parse(raw);
+  }
+  if(d){
+    // 직업 탭 복원
+    let group=null;
+    for(const [g,jobs] of Object.entries(JOB_4TH)){if(jobs.find(j=>j.name===d.cls)){group=g;break;}}
+    if(group){
+      mcSelectTab(group);
+      document.getElementById('mcClassCombo').value=d.cls;
+    }
+    document.getElementById('mcName').value=d.name||'';
+    document.getElementById('mcLevel').value=d.level||'';
+    document.getElementById('mcSkillAtk').value=d.skillAtk||'';
+    mcSelectRole(d.role||'딜러');
+  }
 }
 
 // Modal close on overlay click

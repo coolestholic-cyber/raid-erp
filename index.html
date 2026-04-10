@@ -821,8 +821,23 @@ auth.onAuthStateChanged(async(user)=>{
   if(!doc.exists){
     if(user.isAnonymous&&_pendingDiscord){
       const d=_pendingDiscord;_pendingDiscord=null;
-      const snap=await db.collection('users').where('isAnonymous','!=',true).get();
-      await userRef.set({name:d.global_name||d.username,email:d.email||'',photo:d.avatar||'',role:snap.empty?'master':'none',discordId:d.id,discordUsername:d.username,isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      // 동일 discordId 기존 유저 확인 → 권한/데이터 재사용
+      const dupSnap=await db.collection('users').where('discordId','==',d.id).get();
+      const allSnap=await db.collection('users').where('isAnonymous','!=',true).get();
+      let role='none';
+      let existingMyChar=null;
+      if(dupSnap&&!dupSnap.empty){
+        const prev=dupSnap.docs[0].data();
+        role=prev.role||'none';
+        existingMyChar=prev.myChar||null;
+        // 이전 중복 문서들 삭제
+        for(const dd of dupSnap.docs){await db.collection('users').doc(dd.id).delete();}
+      } else {
+        role=allSnap.empty?'master':'none';
+      }
+      const newData={name:d.global_name||d.username,email:d.email||'',photo:d.avatar||'',role,discordId:d.id,discordUsername:d.username,isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+      if(existingMyChar)newData.myChar=existingMyChar;
+      await userRef.set(newData);
       doc=await userRef.get();
     }else if(user.isAnonymous&&_pendingRole){
       await userRef.set({name:_pendingName||'방문자',email:'',photo:'',role:_pendingRole,isAnonymous:true,loginType:'anonymous',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
@@ -1017,7 +1032,10 @@ async function deletePurchase(id){if(confirm('삭제?'))await db.collection('pur
 function subscribeUsers(){db.collection('users').orderBy('createdAt').onSnapshot(s=>{allUsers=s.docs.map(d=>({id:d.id,...d.data()}));renderUserTable();});}
 function renderUserTable(){
   const s=(document.getElementById('userSearch')?.value||'').toLowerCase(),rF=document.getElementById('userRoleFilter2')?.value||'';
-  let f=allUsers.filter(u=>{if(s&&!(u.name||'').toLowerCase().includes(s)&&!(u.email||'').toLowerCase().includes(s))return false;if(rF&&u.role!==rF)return false;return true;});
+  // discordId 중복 제거 (최신 1개만 유지)
+  const seen=new Set();
+  const deduped=allUsers.filter(u=>{const key=u.discordId||u.id;if(seen.has(key))return false;seen.add(key);return true;});
+  let f=deduped.filter(u=>{if(s&&!(u.name||'').toLowerCase().includes(s)&&!(u.email||'').toLowerCase().includes(s))return false;if(rF&&u.role!==rF)return false;return true;});
   const tb=document.getElementById('userTableBody');if(!tb)return;
   const ml=ROLES[currentProfile?.role]?.level||0;
   tb.innerHTML=f.map((u,i)=>{

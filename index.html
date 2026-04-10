@@ -210,6 +210,7 @@
     <div class="acc-body open">
       <a class="nav-item" onclick="showPage('raids',this)"><span class="nav-icon">🗡️</span> 공대 목록</a>
       <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon">👥</span> 공대원 목록</a>
+      <a class="nav-item" onclick="showPage('settlement',this)"><span class="nav-icon">📊</span> 보스 정산</a>
       <a class="nav-item" onclick="showPage('guestsettlement',this)"><span class="nav-icon">🧾</span> 손님정산</a>
       <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon">🛒</span> 판매내역</a>
       <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon">💎</span> 분배내역</a>
@@ -487,6 +488,98 @@
           <table><thead><tr>
             <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>아이템 레벨</th><th>주급 골드</th><th>참여율</th><th>상태</th><th>비고</th><th>관리</th>
           </tr></thead><tbody id="memberTableBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 보스 정산 -->
+    <div id="page-settlement" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">보스 정산</h1><p class="page-desc">레이드 클리어 골드를 정산하고 분배합니다</p></div>
+        <button class="btn btn-primary" onclick="openSettlementForm()">+ 새 정산</button>
+      </div>
+
+      <!-- 정산 입력 폼 (토글) -->
+      <div id="settlementForm" style="display:none;">
+        <div class="panel" style="margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">📊</span>
+            정산 정보 입력
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>날짜 *</label><input type="date" id="stDate"></div>
+            <div class="form-group"><label>보스 *</label>
+              <select id="stBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+                <option value="">보스 선택</option>
+                <option>카링</option><option>데미안</option><option>루시드</option><option>윌</option>
+                <option>진 힐라</option><option>칼로스</option><option>듄켈</option><option>기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>난이도</label>
+              <select id="stDiff" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+                <option>이지</option><option>노말</option><option selected>하드</option><option>카오스</option>
+              </select>
+            </div>
+            <div class="form-group"><label>클리어 골드 (만)</label><input type="number" id="stClearGold" placeholder="0" oninput="calcSettlement()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>판매 추가 골드 (만)</label><input type="number" id="stSaleGold" placeholder="0" oninput="calcSettlement()"></div>
+            <div class="form-group"><label>메모</label><input type="text" id="stNote" placeholder="선택사항"></div>
+          </div>
+        </div>
+
+        <!-- 공대원 참여 체크 -->
+        <div class="panel" style="margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">👥</span>
+              참여 공대원 선택
+            </span>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="stSelectAll(true)">전체 참여</button>
+              <button type="button" class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="stSelectAll(false)">전체 해제</button>
+            </div>
+          </div>
+          <div id="stMemberList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;"></div>
+        </div>
+
+        <!-- 계산 결과 -->
+        <div class="panel" style="margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:#ecfdf5;color:#059669;border-radius:8px;display:flex;align-items:center;justify-content:center;">💰</span>
+            분배 계산
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div style="background:var(--bg);border-radius:10px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">참여 인원</div>
+              <div id="stCountResult" style="font-size:24px;font-weight:700;color:var(--text);">0명</div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">총 골드</div>
+              <div id="stTotalResult" style="font-size:24px;font-weight:700;color:var(--text);">0만</div>
+            </div>
+            <div style="background:var(--accent-light);border-radius:10px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:var(--accent);margin-bottom:6px;font-weight:600;">1인당 수령</div>
+              <div id="stPerResult" style="font-size:24px;font-weight:700;color:var(--accent);">0만</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px;">
+          <button class="btn btn-outline" onclick="closeSettlementForm()">취소</button>
+          <button class="btn btn-primary" onclick="saveSettlement()">정산 저장</button>
+        </div>
+      </div>
+
+      <!-- 정산 히스토리 -->
+      <div class="panel">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">정산 내역</div>
+        <div class="table-wrap">
+          <table><thead><tr>
+            <th>날짜</th><th>보스</th><th>난이도</th><th>클리어골드</th><th>판매골드</th><th>총골드</th><th>참여인원</th><th>1인당</th><th>메모</th><th>관리</th>
+          </tr></thead><tbody id="settlementTableBody"></tbody></table>
         </div>
       </div>
     </div>
@@ -964,7 +1057,7 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리'};
+const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리'};
 
 function showPage(id,el){
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
@@ -975,6 +1068,7 @@ function showPage(id,el){
   if(id==='mychar')mcLoadMyChar();
   if(id==='raids')renderRaidList();
   if(id==='myraids')renderMyRaids();
+  if(id==='settlement'){renderSettlementHistory();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -1222,6 +1316,129 @@ async function renderMyRaids(){
 }
 
 // updateLoginUI에서 공대생성 버튼 연동은 renderRaidList 내부에서 처리
+
+// =============================================
+// 보스 정산
+// =============================================
+function openSettlementForm(){
+  document.getElementById('settlementForm').style.display='';
+  // 오늘 날짜 기본값
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('stDate').value=today;
+  document.getElementById('stClearGold').value='';
+  document.getElementById('stSaleGold').value='';
+  document.getElementById('stNote').value='';
+  document.getElementById('stBoss').value='';
+  renderStMemberList();
+  calcSettlement();
+  document.getElementById('settlementForm').scrollIntoView({behavior:'smooth'});
+}
+function closeSettlementForm(){
+  document.getElementById('settlementForm').style.display='none';
+}
+
+function renderStMemberList(){
+  const wrap=document.getElementById('stMemberList');
+  if(!wrap)return;
+  if(!allMembers.length){
+    wrap.innerHTML='<div style="color:var(--text-sub);font-size:14px;">등록된 공대원이 없습니다</div>';
+    return;
+  }
+  wrap.innerHTML=allMembers.map(m=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s;" id="stmLabel_${m.id}">
+      <input type="checkbox" id="stm_${m.id}" value="${m.id}" checked onchange="calcSettlement();stUpdateLabel('${m.id}')">
+      <span>
+        <span style="font-weight:600;font-size:14px;">${m.name||''}</span>
+        <span style="font-size:12px;color:var(--text-sub);margin-left:6px;">${m.cls||''}</span>
+        <span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}" style="margin-left:4px;font-size:11px;">${m.role||''}</span>
+      </span>
+    </label>
+  `).join('');
+  allMembers.forEach(m=>stUpdateLabel(m.id));
+}
+
+function stUpdateLabel(id){
+  const cb=document.getElementById('stm_'+id);
+  const lb=document.getElementById('stmLabel_'+id);
+  if(!cb||!lb)return;
+  lb.style.borderColor=cb.checked?'var(--accent)':'var(--border)';
+  lb.style.background=cb.checked?'var(--accent-light)':'#fff';
+}
+
+function stSelectAll(checked){
+  allMembers.forEach(m=>{
+    const cb=document.getElementById('stm_'+m.id);
+    if(cb){cb.checked=checked;stUpdateLabel(m.id);}
+  });
+  calcSettlement();
+}
+
+function calcSettlement(){
+  const clear=parseInt(document.getElementById('stClearGold')?.value)||0;
+  const sale=parseInt(document.getElementById('stSaleGold')?.value)||0;
+  const total=clear+sale;
+  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;});
+  const count=participants.length;
+  const per=count>0?Math.floor(total/count):0;
+  const cEl=document.getElementById('stCountResult');
+  const tEl=document.getElementById('stTotalResult');
+  const pEl=document.getElementById('stPerResult');
+  if(cEl)cEl.textContent=count+'명';
+  if(tEl)tEl.textContent=total.toLocaleString()+'만';
+  if(pEl)pEl.textContent=per.toLocaleString()+'만';
+}
+
+async function saveSettlement(){
+  const date=document.getElementById('stDate').value;
+  const boss=document.getElementById('stBoss').value;
+  if(!date||!boss){alert('날짜와 보스를 선택하세요.');return;}
+  const clear=parseInt(document.getElementById('stClearGold').value)||0;
+  const sale=parseInt(document.getElementById('stSaleGold').value)||0;
+  const total=clear+sale;
+  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
+  const count=participants.length;
+  const per=count>0?Math.floor(total/count):0;
+  if(!count){alert('참여 공대원을 1명 이상 선택하세요.');return;}
+  await db.collection('settlements').add({
+    date,boss,diff:document.getElementById('stDiff').value,
+    clearGold:clear,saleGold:sale,totalGold:total,
+    participants,count,perGold:per,
+    note:document.getElementById('stNote').value.trim(),
+    ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  closeSettlementForm();
+  renderSettlementHistory();
+}
+
+async function renderSettlementHistory(){
+  const tbody=document.getElementById('settlementTableBody');
+  if(!tbody)return;
+  const snap=await db.collection('settlements').orderBy('date','desc').get();
+  if(snap.empty){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;return;}
+  tbody.innerHTML=snap.docs.map(d=>{
+    const s={id:d.id,...d.data()};
+    const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
+    return `<tr>
+      <td>${s.date||''}</td>
+      <td><strong>${s.boss||''}</strong></td>
+      <td>${s.diff||''}</td>
+      <td>${(s.clearGold||0).toLocaleString()}만</td>
+      <td>${(s.saleGold||0).toLocaleString()}만</td>
+      <td><strong>${(s.totalGold||0).toLocaleString()}만</strong></td>
+      <td>${s.count||0}명</td>
+      <td style="color:var(--accent);font-weight:700;">${(s.perGold||0).toLocaleString()}만</td>
+      <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
+      <td>${canDel?`<button class="btn btn-danger" style="font-size:12px;padding:4px 10px;" onclick="deleteSettlement('${s.id}')">삭제</button>`:''}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteSettlement(id){
+  if(!confirm('정산 내역을 삭제하시겠습니까?'))return;
+  await db.collection('settlements').doc(id).delete();
+  renderSettlementHistory();
+}
 
 // Modal close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});

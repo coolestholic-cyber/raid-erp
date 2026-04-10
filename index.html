@@ -374,12 +374,8 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>난이도</label>
-            <select id="rDiff" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
-              <option>이지</option><option>노말</option><option selected>하드</option><option>카오스</option>
-            </select>
-          </div>
           <div class="form-group"><label>모집 인원</label><input type="number" id="rMax" placeholder="6" min="1" max="30"></div>
+          <div class="form-group"><label>클리어 시간</label><input type="text" id="rClearTime" placeholder="예) 약 1시간"></div>
         </div>
         <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 아이템 레벨, 조건 등 (선택)"></div>
         <div class="modal-actions">
@@ -1188,10 +1184,10 @@ function openRaidModal(id){
   document.getElementById('rEditId').value=id||'';
   if(id){
     const r=allRaids.find(x=>x.id===id);
-    if(r){document.getElementById('rName').value=r.name||'';document.getElementById('rBoss').value=r.boss||'';document.getElementById('rDiff').value=r.diff||'하드';document.getElementById('rMax').value=r.maxCount||'';document.getElementById('rDesc').value=r.desc||'';}
+    if(r){document.getElementById('rName').value=r.name||'';document.getElementById('rBoss').value=r.boss||'';document.getElementById('rMax').value=r.maxCount||'';document.getElementById('rClearTime').value=r.clearTime||'';document.getElementById('rDesc').value=r.desc||'';}
   }else{
-    ['rName','rDesc'].forEach(x=>document.getElementById(x).value='');
-    document.getElementById('rBoss').value='';document.getElementById('rDiff').value='하드';document.getElementById('rMax').value='';
+    ['rName','rDesc','rClearTime'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('rBoss').value='';document.getElementById('rMax').value='';
   }
   document.getElementById('raidModal').classList.add('show');
 }
@@ -1201,7 +1197,7 @@ async function saveRaid(){
   const name=document.getElementById('rName').value.trim();
   const boss=document.getElementById('rBoss').value;
   if(!name||!boss){alert('공대명과 보스를 입력하세요.');return;}
-  const d={name,boss,diff:document.getElementById('rDiff').value,maxCount:parseInt(document.getElementById('rMax').value)||6,desc:document.getElementById('rDesc').value.trim(),status:'모집중',ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  const d={name,boss,maxCount:parseInt(document.getElementById('rMax').value)||6,clearTime:document.getElementById('rClearTime').value.trim(),desc:document.getElementById('rDesc').value.trim(),status:'모집중',ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   const id=document.getElementById('rEditId').value;
   if(id){await db.collection('raids').doc(id).update(d);}
   else{d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('raids').add(d);}
@@ -1259,7 +1255,7 @@ async function renderRaidList(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
         <div>
           <div style="font-size:17px;font-weight:700;color:var(--text);">${r.name||''}</div>
-          <div style="font-size:13px;color:var(--text-sub);margin-top:2px;">${r.boss||''} · ${r.diff||''} · 최대 ${r.maxCount||0}인</div>
+          <div style="font-size:13px;color:var(--text-sub);margin-top:2px;">${r.boss||''} · 최대 ${r.maxCount||0}인${r.clearTime?' · '+r.clearTime:''}</div>
         </div>
         <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${statusColor}20;color:${statusColor};">${r.status||'모집중'}</span>
       </div>
@@ -1301,7 +1297,7 @@ async function renderMyRaids(){
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div>
           <div style="font-size:17px;font-weight:700;color:var(--text);">${r.name||'(삭제된 공대)'}</div>
-          <div style="font-size:13px;color:var(--text-sub);margin-top:2px;">${r.boss||''} · ${r.diff||''}</div>
+          <div style="font-size:13px;color:var(--text-sub);margin-top:2px;">${r.boss||''}${r.clearTime?' · '+r.clearTime:''}</div>
         </div>
         <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${a.status}</span>
       </div>

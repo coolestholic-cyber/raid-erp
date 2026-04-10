@@ -142,22 +142,23 @@
   .autocomplete-item .ac-en { font-size: 12px; color: var(--text-sub); }
   .autocomplete-empty { padding: 12px 14px; font-size: 13px; color: var(--text-sub); text-align: center; }
 
-  /* ===== Horntail Timer ===== */
-  .ht-row { display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #f3f4f6; gap:12px; flex-wrap:wrap; }
-  .ht-row:last-child { border-bottom:none; }
-  .ht-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-  .ht-name { font-size:14px; font-weight:600; min-width:90px; }
-  .ht-cls { font-size:12px; color:var(--text-sub); min-width:80px; }
-  .ht-countdown { font-size:13px; font-weight:700; min-width:110px; }
-  .ht-cleartime { font-size:11px; color:var(--text-sub); }
-  .ht-badge { padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
-  .ht-badge-ready { background:#ecfdf5; color:#059669; }
-  .ht-badge-wait  { background:#fffbeb; color:#d97706; }
-  .ht-badge-none  { background:#f3f4f6; color:#6b7280; }
-  .ht-btn { padding:5px 12px; border-radius:6px; border:1px solid var(--border); background:#fff; font-size:12px; font-weight:600; cursor:pointer; color:var(--text-sub); transition:.15s; }
-  .ht-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
-  .ht-btn-clear { background:var(--accent); color:#fff; border-color:var(--accent); }
-  .ht-btn-clear:hover { background:#094ab2; }
+  /* ===== Horntail Phase Timer ===== */
+  .ht-section { border-radius:12px; overflow:hidden; }
+  .ht-section-header { padding:10px 18px; display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; color:#fff; }
+  .ht-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; padding:14px; background:#1e2130; }
+  .ht-card { background:#2a2d3e; border-radius:10px; padding:14px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .ht-card-title { font-size:12px; color:#9ca3af; font-weight:600; text-align:center; }
+  .ht-card-time { font-size:30px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:1px; }
+  .ht-card-time.running { color:#a78bfa; }
+  .ht-card-time.done { color:#34d399; }
+  .ht-card-adj { display:flex; align-items:center; gap:6px; }
+  .ht-adj-btn { width:26px; height:26px; border-radius:6px; background:#3a3d50; border:none; color:#d1d5db; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s; }
+  .ht-adj-btn:hover { background:#5b5fef; color:#fff; }
+  .ht-start-btn { width:100%; padding:7px 0; border-radius:8px; border:none; font-size:13px; font-weight:700; cursor:pointer; transition:.15s; }
+  .ht-start-btn.idle { background:#5b5fef; color:#fff; }
+  .ht-start-btn.idle:hover { background:#4f53d8; }
+  .ht-start-btn.running { background:#ef4444; color:#fff; }
+  .ht-start-btn.done { background:#374151; color:#9ca3af; }
 
   /* Modal */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
@@ -527,58 +528,10 @@
     <!-- 혼테일 타이머 -->
     <div id="page-horntail-timer" class="page-section">
       <div class="top-bar">
-        <div><h1 class="page-title">혼테일 타이머</h1><p class="page-desc">공대원별 혼테일 클리어 시간을 기록하고 재도전 가능 시간을 확인합니다</p></div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-outline" onclick="htClearAll()">전체 초기화</button>
-          <button class="btn btn-primary" onclick="htMarkAll()">전원 클리어 등록</button>
-        </div>
+        <div><h1 class="page-title">혼테일 타이머</h1><p class="page-desc">보스전 단계별 타이머</p></div>
+        <button class="btn btn-outline" onclick="htResetAll()">전체 초기화</button>
       </div>
-
-      <!-- 요약 카드 -->
-      <div class="cards" style="margin-bottom:20px;">
-        <div class="card stat-card">
-          <div><h3 id="htStatReady" style="color:#059669;">0</h3><p>재도전 가능</p></div>
-          <div class="stat-icon" style="background:#ecfdf5;color:#059669;">✅</div>
-        </div>
-        <div class="card stat-card">
-          <div><h3 id="htStatWaiting" style="color:#d97706;">0</h3><p>대기 중</p></div>
-          <div class="stat-icon" style="background:#fffbeb;color:#d97706;">⏳</div>
-        </div>
-        <div class="card stat-card">
-          <div><h3 id="htStatNone">0</h3><p>미등록</p></div>
-          <div class="stat-icon" style="background:#f3f4f6;color:#6b7280;">➖</div>
-        </div>
-        <div class="card stat-card">
-          <div><h3 id="htStatTotal">0</h3><p>전체 공대원</p></div>
-          <div class="stat-icon" style="background:#eff6ff;color:#3b82f6;">👥</div>
-        </div>
-      </div>
-
-      <!-- 쿨타임 설정 -->
-      <div class="panel" style="margin-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-          <span style="font-size:14px;font-weight:600;">쿨타임 설정</span>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
-            <input type="radio" name="htCooltime" value="24" onchange="htSetCooltime(24)" checked> 24시간
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
-            <input type="radio" name="htCooltime" value="48" onchange="htSetCooltime(48)"> 48시간
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
-            <input type="radio" name="htCooltime" value="72" onchange="htSetCooltime(72)"> 72시간
-          </label>
-          <span style="margin-left:auto;font-size:13px;color:var(--text-sub);">현재: <strong id="htCooltimeLabel">24시간</strong> 쿨타임</span>
-        </div>
-      </div>
-
-      <!-- 타이머 목록 -->
-      <div class="panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <h2 style="font-size:17px;font-weight:700;">공대원 타이머</h2>
-          <span style="font-size:13px;color:var(--text-sub);" id="htLastUpdate"></span>
-        </div>
-        <div id="htTimerList"></div>
-      </div>
+      <div id="htBoard" style="display:flex;flex-direction:column;gap:20px;"></div>
     </div>
 
     <!-- 공대원 목록 -->
@@ -1450,7 +1403,7 @@ function showPage(id,el){
   if(id==='myraids')renderMyRaids();
   if(id==='settlement'){renderSettlementHistory();}
   if(id==='guestsettlement'){renderGuestSettlementHistory();}
-  if(id==='horntail-timer'){renderHtTimerList();startHtLiveClock();}
+  if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
@@ -2268,141 +2221,158 @@ function itemGoPage(p) {
 }
 
 // =============================================
-// 혼테일 타이머
+// 혼테일 단계별 타이머
 // =============================================
-const JOB_ICON_MAP={
-  '히어로':'⚔️','팔라딘':'🛡️','다크나이트':'🌑',
-  '아크메이지(불)':'🔥','아크메이지(얼)':'❄️','비숍':'✨',
-  '보우마스터':'🏹','신궁':'🎯','나이트로드':'⭐','섀도어':'🗡️'
-};
-let htCooltime=24; // 시간
-let htTimer=null;
-
-function htSetCooltime(h){
-  htCooltime=h;
-  document.getElementById('htCooltimeLabel').textContent=h+'시간';
-  renderHtTimerList();
-}
-
-function htGetData(){
-  try{return JSON.parse(localStorage.getItem('ht_timer_data')||'{}');}catch{return {};}
-}
-function htSaveData(d){localStorage.setItem('ht_timer_data',JSON.stringify(d));}
-
-function htMarkClear(memberId){
-  const d=htGetData();
-  d[memberId]=Date.now();
-  htSaveData(d);
-  renderHtTimerList();
-}
-
-function htResetMember(memberId){
-  const d=htGetData();
-  delete d[memberId];
-  htSaveData(d);
-  renderHtTimerList();
-}
-
-function htMarkAll(){
-  if(!allMembers.length){alert('공대원 목록을 먼저 등록해주세요.');return;}
-  if(!confirm('전원 클리어 등록 하시겠습니까?'))return;
-  const d=htGetData();
-  const now=Date.now();
-  allMembers.forEach(m=>{d[m.id]=now;});
-  htSaveData(d);
-  renderHtTimerList();
-}
-
-function htClearAll(){
-  if(!confirm('전체 초기화 하시겠습니까?'))return;
-  localStorage.removeItem('ht_timer_data');
-  renderHtTimerList();
-}
-
-function htFormatCountdown(ms){
-  if(ms<=0)return null;
-  const h=Math.floor(ms/3600000);
-  const m=Math.floor((ms%3600000)/60000);
-  const s=Math.floor((ms%60000)/1000);
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-function renderHtTimerList(){
-  const el=document.getElementById('htTimerList');
-  if(!el)return;
-  if(!allMembers.length){
-    el.innerHTML=`<div class="empty-state" style="padding:40px;"><div class="icon">🐉</div><h3>공대원이 없습니다</h3><p>공대원 목록에서 먼저 공대원을 등록해주세요</p></div>`;
-    return;
+const HT_SECTIONS = [
+  { label:'리치백선', icon:'👑', color:'#5b5fef',
+    timers:[
+      {name:'리치백선 1', sec:1800},{name:'리치백선 2', sec:1800},{name:'리치백선 3', sec:1800},
+      {name:'리치백선 4', sec:1800},{name:'리치백선 5', sec:1800}
+    ]
+  },
+  { label:'사냥 & 버프', icon:'🌟', color:'#d97706',
+    timers:[
+      {name:'사냥 1', sec:900},{name:'사냥 2', sec:900},{name:'하비타임', sec:360}
+    ]
+  },
+  { label:'공무', icon:'⚔️', color:'#059669',
+    timers:[
+      {name:'공무 공격 1', sec:45},{name:'공무 공격 2', sec:45},{name:'공무 공격 3', sec:45}
+    ]
+  },
+  { label:'버드제제', icon:'🦅', color:'#7c3aed',
+    timers:[
+      {name:'버드제제 1', sec:300},{name:'버드제제 2', sec:180},{name:'버드제제 3', sec:300}
+    ]
+  },
+  { label:'유혹상담', icon:'💜', color:'#db2777',
+    timers:[
+      {name:'유혹 1', sec:120},{name:'유혹 2', sec:120}
+    ]
+  },
+  { label:'클리어', icon:'🏆', color:'#0b5cd5',
+    timers:[
+      {name:'클리어 1', sec:50},{name:'클리어 2', sec:50},{name:'클리어 타임', sec:600}
+    ]
   }
-  const d=htGetData();
-  const now=Date.now();
-  const coolMs=htCooltime*3600000;
-  let cntReady=0,cntWait=0,cntNone=0;
+];
 
-  const rows=allMembers.map(m=>{
-    const icon=JOB_ICON_MAP[m.cls]||'👤';
-    const roleColor=m.role==='서폿'?'#eff6ff':'#ecfdf5';
-    const clearTime=d[m.id];
+// 타이머 상태: { sectionIdx_timerIdx: { preset, remain, running, intervalId } }
+const htState = {};
 
-    let badge,countdown,clearLabel,actionBtn;
-    if(!clearTime){
-      cntNone++;
-      badge=`<span class="ht-badge ht-badge-none">미등록</span>`;
-      countdown=`<span class="ht-countdown" style="color:var(--text-sub);">-</span>`;
-      clearLabel=`<span class="ht-cleartime"></span>`;
-      actionBtn=`<button class="ht-btn ht-btn-clear" onclick="htMarkClear('${m.id}')">클리어 등록</button>`;
-    } else {
-      const elapsed=now-clearTime;
-      const remaining=coolMs-elapsed;
-      const dt=new Date(clearTime);
-      const clearStr=`${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
-      clearLabel=`<span class="ht-cleartime">클리어: ${clearStr}</span>`;
-      if(remaining<=0){
-        cntReady++;
-        badge=`<span class="ht-badge ht-badge-ready">재도전 가능</span>`;
-        countdown=`<span class="ht-countdown" style="color:#059669;">완료</span>`;
-      } else {
-        cntWait++;
-        badge=`<span class="ht-badge ht-badge-wait">대기중</span>`;
-        const fmt=htFormatCountdown(remaining);
-        countdown=`<span class="ht-countdown ht-live-cd" data-end="${clearTime+coolMs}" style="color:#d97706;">${fmt}</span>`;
-      }
-      actionBtn=`<button class="ht-btn" onclick="htMarkClear('${m.id}')">재등록</button>
-                 <button class="ht-btn" style="color:#ef4444;" onclick="htResetMember('${m.id}')">초기화</button>`;
-    }
+function htKey(si, ti) { return `${si}_${ti}`; }
 
-    return `<div class="ht-row">
-      <div class="ht-avatar" style="background:${roleColor};">${icon}</div>
-      <div class="ht-name">${m.name||''}</div>
-      <div class="ht-cls">${m.cls||'-'}</div>
-      ${badge}
-      ${countdown}
-      ${clearLabel}
-      <div style="margin-left:auto;display:flex;gap:6px;">${actionBtn}</div>
-    </div>`;
-  }).join('');
-
-  el.innerHTML=rows;
-  document.getElementById('htStatReady').textContent=cntReady;
-  document.getElementById('htStatWaiting').textContent=cntWait;
-  document.getElementById('htStatNone').textContent=cntNone;
-  document.getElementById('htStatTotal').textContent=allMembers.length;
-  document.getElementById('htLastUpdate').textContent='갱신: '+new Date().toLocaleTimeString();
+function htFmt(sec) {
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-function startHtLiveClock(){
-  if(htTimer)clearInterval(htTimer);
-  htTimer=setInterval(()=>{
-    document.querySelectorAll('.ht-live-cd').forEach(el=>{
-      const end=parseInt(el.dataset.end);
-      const rem=end-Date.now();
-      if(rem<=0){
-        renderHtTimerList(); // 상태 변경 → 전체 재렌더
-      } else {
-        el.textContent=htFormatCountdown(rem);
-      }
+function htInitState() {
+  HT_SECTIONS.forEach((sec, si) => {
+    sec.timers.forEach((t, ti) => {
+      const k = htKey(si, ti);
+      if (!htState[k]) htState[k] = { preset: t.sec, remain: t.sec, running: false, intervalId: null };
     });
-  },1000);
+  });
+}
+
+function htRender() {
+  const board = document.getElementById('htBoard');
+  if (!board) return;
+  htInitState();
+  board.innerHTML = HT_SECTIONS.map((sec, si) => `
+    <div class="ht-section">
+      <div class="ht-section-header" style="background:${sec.color};">
+        <span>${sec.icon}</span><span>${sec.label}</span>
+      </div>
+      <div class="ht-cards">
+        ${sec.timers.map((t, ti) => {
+          const k = htKey(si, ti);
+          const st = htState[k];
+          const timeClass = st.running ? 'running' : st.remain === 0 ? 'done' : '';
+          const btnClass = st.running ? 'running' : st.remain === 0 ? 'done' : 'idle';
+          const btnLabel = st.running ? '정지' : st.remain === 0 ? '완료' : '시작';
+          return `<div class="ht-card" id="htcard-${k}">
+            <div class="ht-card-title">${t.name}</div>
+            <div class="ht-card-adj">
+              <button class="ht-adj-btn" onclick="htAdjust('${k}',-10)">−</button>
+              <div class="ht-card-time ${timeClass}" id="httime-${k}">${htFmt(st.remain)}</div>
+              <button class="ht-adj-btn" onclick="htAdjust('${k}',10)">+</button>
+            </div>
+            <button class="ht-start-btn ${btnClass}" id="htbtn-${k}" onclick="htToggle('${k}')">${btnLabel}</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function htToggle(k) {
+  const st = htState[k];
+  if (!st) return;
+  if (st.remain === 0) { htReset(k); return; }
+  if (st.running) {
+    clearInterval(st.intervalId);
+    st.running = false;
+  } else {
+    st.running = true;
+    st.intervalId = setInterval(() => {
+      st.remain--;
+      const el = document.getElementById(`httime-${k}`);
+      const btn = document.getElementById(`htbtn-${k}`);
+      if (el) { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${st.remain===0?'done':'running'}`; }
+      if (st.remain <= 0) {
+        clearInterval(st.intervalId);
+        st.running = false;
+        if (btn) { btn.textContent = '완료'; btn.className = 'ht-start-btn done'; }
+        if (el) el.className = 'ht-card-time done';
+        htPlayBeep();
+      }
+    }, 1000);
+  }
+  const btn = document.getElementById(`htbtn-${k}`);
+  if (btn) { btn.textContent = st.running ? '정지' : '시작'; btn.className = `ht-start-btn ${st.running?'running':'idle'}`; }
+  const el = document.getElementById(`httime-${k}`);
+  if (el) el.className = `ht-card-time ${st.running?'running':''}`;
+}
+
+function htAdjust(k, delta) {
+  const st = htState[k];
+  if (!st || st.running) return;
+  st.remain = Math.max(0, st.preset + delta);
+  st.preset = st.remain;
+  const el = document.getElementById(`httime-${k}`);
+  if (el) el.textContent = htFmt(st.remain);
+}
+
+function htReset(k) {
+  const st = htState[k];
+  if (!st) return;
+  clearInterval(st.intervalId);
+  st.running = false;
+  st.remain = st.preset;
+  const el = document.getElementById(`httime-${k}`);
+  const btn = document.getElementById(`htbtn-${k}`);
+  if (el) { el.textContent = htFmt(st.remain); el.className = 'ht-card-time'; }
+  if (btn) { btn.textContent = '시작'; btn.className = 'ht-start-btn idle'; }
+}
+
+function htResetAll() {
+  if (!confirm('전체 초기화 하시겠습니까?')) return;
+  Object.keys(htState).forEach(k => htReset(k));
+}
+
+function htPlayBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    o.start(); o.stop(ctx.currentTime + 0.6);
+  } catch(e) {}
 }
 
 // Discord callback

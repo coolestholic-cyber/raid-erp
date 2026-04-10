@@ -663,7 +663,7 @@ function updateLoginUI(){
 }
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();return;}
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharData=null;mcRenderCard(null);return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();

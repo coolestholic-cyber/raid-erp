@@ -6,6 +6,7 @@
 <title>메랜ERP</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ef5a25'/%3E%3Cstop offset='100%25' stop-color='%23b8321a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4c-4 8-16 14-24 18 6 2 14 0 18-2-2 8-8 16-14 22 8-2 16-8 20-14 0 8-2 18-4 26 4-6 8-14 10-22 2 8 6 16 10 22-2-8-4-18-4-26 4 6 12 12 20 14-6-6-12-14-14-22 4 2 12 4 18 2C60 18 48 12 44 4c-2 6-6 10-12 14C26 14 34 10 32 4z'/%3E%3C/svg%3E">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
   :root { --sidebar-w: 240px; --header-h: 60px; --bg: #f8f9fa; --sidebar-bg: #1a1d23; --sidebar-hover: #25282f; --sidebar-active: #2d3139; --accent: #0b5cd5; --accent-light: #e8f0fe; --text: #212529; --text-sub: #6c757d; --border: #dee2e6; --card-bg: #fff; --radius: 8px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,7 +24,9 @@
   .nav-item { display: flex; align-items: center; padding: 11px 16px; margin: 2px 8px; color: #9ca3af; font-size: 15px; cursor: pointer; border-radius: 8px; transition: all .15s; gap: 10px; text-decoration: none; }
   .nav-item:hover { background: var(--sidebar-hover); color: #e5e7eb; }
   .nav-item.active { background: var(--sidebar-active); color: #fff; font-weight: 600; }
-  .nav-item .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .nav-item .nav-icon { width: 20px; text-align: center; font-size: 16px; display:flex; align-items:center; justify-content:center; }
+  .nav-item .nav-icon .material-icons,
+  .nav-accordion .nav-icon .material-icons { font-size: 18px; }
 
   .nav-accordion { cursor: pointer; display: flex; align-items: center; padding: 11px 16px; margin: 2px 8px; color: #9ca3af; font-size: 15px; border-radius: 8px; transition: all .15s; gap: 10px; user-select: none; }
   .nav-accordion:hover { background: var(--sidebar-hover); color: #e5e7eb; }
@@ -248,44 +251,44 @@
 
     <!-- 1. 내 캐릭터 -->
     <div class="nav-accordion" onclick="toggleAccordion(this)">
-      <span class="nav-icon">🍄</span> 내 캐릭터 <span class="arr">▶</span>
+      <span class="nav-icon"><span class="material-icons">person</span></span> 내 캐릭터 <span class="arr">▶</span>
     </div>
     <div class="acc-body">
-      <a class="nav-item" onclick="showPage('mychar',this)"><span class="nav-icon">📋</span> 캐릭터 정보</a>
-      <a class="nav-item" onclick="showPage('myraids',this)"><span class="nav-icon">🏕️</span> 내 공대 현황</a>
-      <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon">⚔️</span> 내 장비관리</a>
-      <a class="nav-item" onclick="showPage('mysettlement',this)"><span class="nav-icon">💰</span> 내 정산내역</a>
+      <a class="nav-item" onclick="showPage('mychar',this)"><span class="nav-icon"><span class="material-icons">badge</span></span> 캐릭터 정보</a>
+      <a class="nav-item" onclick="showPage('myraids',this)"><span class="nav-icon"><span class="material-icons">event_available</span></span> 내 공대 현황</a>
+      <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon"><span class="material-icons">build</span></span> 내 장비관리</a>
+      <a class="nav-item" onclick="showPage('mysettlement',this)"><span class="nav-icon"><span class="material-icons">receipt_long</span></span> 내 정산내역</a>
     </div>
 
     <!-- 2. 공대관리 -->
     <div class="nav-accordion open" onclick="toggleAccordion(this)">
-      <span class="nav-icon">⚔️</span> 공대관리 <span class="arr">▶</span>
+      <span class="nav-icon"><span class="material-icons">groups</span></span> 공대관리 <span class="arr">▶</span>
     </div>
     <div class="acc-body open">
-      <a class="nav-item" onclick="showPage('raids',this)"><span class="nav-icon">🗡️</span> 공대 목록</a>
-      <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon">👥</span> 공대원 목록</a>
-      <a class="nav-item" onclick="showPage('settlement',this)"><span class="nav-icon">📊</span> 보스 정산</a>
-      <a class="nav-item" onclick="showPage('guestsettlement',this)"><span class="nav-icon">🧾</span> 손님정산</a>
-      <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon">🛒</span> 판매내역</a>
-      <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon">💎</span> 분배내역</a>
+      <a class="nav-item" onclick="showPage('raids',this)"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span> 공대 목록</a>
+      <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon"><span class="material-icons">group</span></span> 공대원 목록</a>
+      <a class="nav-item" onclick="showPage('settlement',this)"><span class="nav-icon"><span class="material-icons">calculate</span></span> 보스 정산</a>
+      <a class="nav-item" onclick="showPage('guestsettlement',this)"><span class="nav-icon"><span class="material-icons">receipt</span></span> 손님정산</a>
+      <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon"><span class="material-icons">shopping_cart</span></span> 판매내역</a>
+      <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon"><span class="material-icons">paid</span></span> 분배내역</a>
     </div>
 
     <!-- 3. 혼테일 -->
     <div class="nav-accordion" onclick="toggleAccordion(this)">
-      <span class="nav-icon">🐉</span> 혼테일 <span class="arr">▶</span>
+      <span class="nav-icon"><span class="material-icons">sports_martial_arts</span></span> 혼테일 <span class="arr">▶</span>
     </div>
     <div class="acc-body">
-      <a class="nav-item" onclick="showPage('horntail-timer',this)"><span class="nav-icon">⏱️</span> 타이머</a>
+      <a class="nav-item" onclick="showPage('horntail-timer',this)"><span class="nav-icon"><span class="material-icons">timer</span></span> 타이머</a>
     </div>
 
     <!-- 4. 아이템 정보 -->
-    <div class="nav-item" onclick="showPage('items',this)"><span class="nav-icon">🎒</span> 아이템 정보</div>
+    <div class="nav-item" onclick="showPage('items',this)"><span class="nav-icon"><span class="material-icons">inventory_2</span></span> 아이템 정보</div>
 
     <!-- 5. 길드관리 -->
-    <div class="nav-item" onclick="showPage('guild-promo',this)"><span class="nav-icon">🏰</span> 길드관리</div>
+    <div class="nav-item" onclick="showPage('guild-promo',this)"><span class="nav-icon"><span class="material-icons">castle</span></span> 길드관리</div>
 
     <div class="nav-section">시스템</div>
-    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span> 권한 관리</a>
   </nav>
 </aside>
 
@@ -2228,7 +2231,7 @@ function itemGoPage(p) {
 // 혼테일 단계별 타이머
 // =============================================
 const HT_SECTIONS = [
-  { label:'리저렉션', icon:'👑', color:'#5b5fef',
+  { label:'리저렉션', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">autorenew</span>', color:'#5b5fef',
     timers:[
       {name:'갠유용 사용중', sec:1800},
       {name:'리저렉션-2',   sec:1800},
@@ -2238,28 +2241,28 @@ const HT_SECTIONS = [
       {name:'리저렉션-6',   sec:1800}
     ]
   },
-  { label:'사망 & 버프', icon:'💀', color:'#d97706',
+  { label:'사망 & 버프', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">monitor_heart</span>', color:'#d97706',
     timers:[
       {name:'사망 팅-1', sec:900},
       {name:'사망 팅-2', sec:900},
       {name:'인레이지',   sec:360}
     ]
   },
-  { label:'공무', icon:'⚔️', color:'#059669',
+  { label:'공무', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">sports_kabaddi</span>', color:'#059669',
     timers:[
       {name:'좌머리 공무', sec:45},
       {name:'중머리 공무', sec:45},
       {name:'우머리 공무', sec:45}
     ]
   },
-  { label:'버프해제', icon:'🔄', color:'#7c3aed', autoRestart:true,
+  { label:'버프해제', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">remove_circle_outline</span>', color:'#7c3aed', autoRestart:true,
     timers:[
       {name:'중머리 5갈',    sec:300, auto:true},
       {name:'중머리 3갈',    sec:180, auto:true},
       {name:'좌팔 HP:60%', sec:300, auto:true}
     ]
   },
-  { label:'유혹담당', icon:'💜', color:'#db2777',
+  { label:'유혹담당', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">psychology</span>', color:'#db2777',
     timers:[
       {name:'유혹 1', sec:120},
       {name:'유혹 2', sec:120},

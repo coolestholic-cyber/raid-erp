@@ -139,10 +139,23 @@
 <div id="loginPage" class="login-page" style="display:none;">
   <div class="login-box">
     <h1 style="color:#ffd32a;">공대 관리 ERP</h1>
-    <p>공대 관리 시스템에 로그인하세요</p>
+    <p>공대 관리 시스템에 접속하세요</p>
+    <button class="google-btn" onclick="enterAsGuest()" style="margin-bottom:10px;">
+      👁 그냥 둘러보기 (권한없음)
+    </button>
+    <div style="display:flex;align-items:center;gap:8px;margin:12px 0;">
+      <input type="text" id="guestNickname" placeholder="닉네임 입력" style="flex:1;padding:10px 14px;border:1px solid #dfe6e9;border-radius:10px;font-size:14px;outline:none;">
+      <button class="google-btn" onclick="enterAsGuestWithName()" style="width:auto;padding:10px 18px;white-space:nowrap;">
+        🛒 손님 접속
+      </button>
+    </div>
+    <div style="position:relative;margin:16px 0;text-align:center;">
+      <hr style="border:none;border-top:1px solid #dfe6e9;">
+      <span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#fff;padding:0 12px;color:#b2bec3;font-size:12px;">또는</span>
+    </div>
     <button class="google-btn" onclick="googleLogin()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-      Google 계정으로 로그인
+      Google 계정으로 로그인 (공대원 이상)
     </button>
   </div>
 </div>
@@ -505,8 +518,49 @@ function googleLogin() {
   auth.signInWithPopup(provider).catch(err => alert('로그인 실패: ' + err.message));
 }
 
+async function enterAsGuest() {
+  try {
+    await auth.signInAnonymously();
+    // onAuthStateChanged에서 처리되지만, 익명은 role=none으로 강제
+    _pendingRole = 'none';
+    _pendingName = '방문자';
+  } catch(e) {
+    // 익명 인증 실패 시 로컬 모드
+    currentUser = null;
+    currentProfile = { id: 'anon', name: '방문자', email: '', photo: '', role: 'none' };
+    document.getElementById('loadingPage').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'flex';
+    initApp();
+  }
+}
+
+async function enterAsGuestWithName() {
+  const nick = document.getElementById('guestNickname').value.trim();
+  if (!nick) { alert('닉네임을 입력해 주세요.'); return; }
+  try {
+    _pendingRole = 'guest';
+    _pendingName = nick;
+    await auth.signInAnonymously();
+  } catch(e) {
+    currentUser = null;
+    currentProfile = { id: 'guest_' + Date.now(), name: nick, email: '', photo: '', role: 'guest' };
+    document.getElementById('loadingPage').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'flex';
+    initApp();
+  }
+}
+
+let _pendingRole = null;
+let _pendingName = null;
+
 function doLogout() {
   auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  document.getElementById('appWrap').style.display = 'none';
+  document.getElementById('loginPage').style.display = '';
 }
 
 auth.onAuthStateChanged(async (user) => {
@@ -527,18 +581,34 @@ auth.onAuthStateChanged(async (user) => {
   let doc = await userRef.get();
 
   if (!doc.exists) {
-    // 첫 번째 가입자는 사이트마스터
-    const usersSnap = await db.collection('users').get();
-    const isFirst = usersSnap.empty;
-    const newProfile = {
-      name: user.displayName || '이름없음',
-      email: user.email,
-      photo: user.photoURL || '',
-      role: isFirst ? 'master' : 'none',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    await userRef.set(newProfile);
-    doc = await userRef.get();
+    if (user.isAnonymous && _pendingRole) {
+      // 익명 접속 (방문자/손님)
+      const newProfile = {
+        name: _pendingName || '방문자',
+        email: '',
+        photo: '',
+        role: _pendingRole,
+        isAnonymous: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await userRef.set(newProfile);
+      _pendingRole = null;
+      _pendingName = null;
+      doc = await userRef.get();
+    } else {
+      // Google 로그인 사용자
+      const usersSnap = await db.collection('users').where('isAnonymous','!=',true).get();
+      const isFirst = usersSnap.empty;
+      const newProfile = {
+        name: user.displayName || '이름없음',
+        email: user.email,
+        photo: user.photoURL || '',
+        role: isFirst ? 'master' : 'none',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await userRef.set(newProfile);
+      doc = await userRef.get();
+    }
   }
 
   currentProfile = { id: doc.id, ...doc.data() };
@@ -665,7 +735,7 @@ async function saveMember() {
     await db.collection('members').doc(id).update(data);
   } else {
     data.rate = 100;
-    data.ownerUid = currentUser.uid;
+    data.ownerUid = currentUser ? currentUser.uid : (currentProfile.id || 'anon');
     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
     await db.collection('members').add(data);
   }
@@ -740,7 +810,7 @@ async function savePurchase() {
     price: parseInt(document.getElementById('pPrice').value) || 0,
     date: document.getElementById('pDate').value,
     memo: document.getElementById('pMemo').value.trim(),
-    uid: currentUser.uid,
+    uid: currentUser ? currentUser.uid : (currentProfile.id || 'anon'),
     userName: currentProfile.name,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };

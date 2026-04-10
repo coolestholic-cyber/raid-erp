@@ -207,7 +207,7 @@
     <div class="accordion-body open">
       <a onclick="showPage('members', this)"><span class="icon">👥</span> 공대원 관리</a>
       <a onclick="showPage('gold', this)"><span class="icon">💎</span> 골드 분배</a>
-      <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 판매 등록</a>
+      <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 판매 기록</a>
     </div>
 
     <!-- 길드 어코디언 -->
@@ -435,14 +435,14 @@
     </div>
   </div>
 
-  <!-- ========== 판매 등록 (손님) ========== -->
+  <!-- ========== 판매 기록 (손님) ========== -->
   <div id="page-purchase" class="page-section">
     <div class="top-bar">
       <div>
-        <h1>판매 등록</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">판매 가격을 등록합니다</p>
+        <h1>판매 기록</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">판매 내역을 기록하고 확인합니다</p>
       </div>
-      <button class="btn btn-primary" onclick="openPurchaseModal()">+ 판매 등록</button>
+      <button class="btn btn-primary" onclick="openPurchaseModal()">+ 판매 기록</button>
     </div>
     <div class="panel">
       <div class="table-wrap">
@@ -466,7 +466,7 @@
     </div>
     <div class="alert alert-info" style="margin-bottom:20px;">
       <span class="icon">ℹ️</span>
-      <span><strong>권한 안내:</strong> 사이트마스터=전체 권한 | 공대장/부공대장=권한등록+시트등록 | 공대원=자기정보 | 손님=판매가격 등록</span>
+      <span><strong>권한 안내:</strong> 사이트마스터=전체 권한 | 공대장/부공대장=권한등록+시트등록 | 공대원=자기정보 | 손님=판매기록 열람</span>
     </div>
     <div class="panel">
       <div class="filter-bar">
@@ -554,7 +554,7 @@
 <!-- Purchase Modal -->
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
-    <h2>판매 등록</h2>
+    <h2>판매 기록</h2>
     <div class="form-group">
       <label>아이템명 *</label>
       <input type="text" id="pItem" placeholder="아이템 이름">
@@ -894,7 +894,7 @@ function renderGoldTable() {
 }
 
 // =============================================
-// 판매 등록
+// 판매 기록
 // =============================================
 function subscribePurchases() {
   db.collection('purchases').orderBy('createdAt','desc').onSnapshot(snap => {

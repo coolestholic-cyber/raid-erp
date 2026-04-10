@@ -819,6 +819,21 @@
   </div>
 </div>
 
+<!-- Raid Applicants Modal -->
+<div class="modal-overlay" id="raidApplicantsModal">
+  <div class="modal" style="width:580px;">
+    <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📋</span>
+      신청자 관리
+    </h2>
+    <div id="raidApplicantsRaidName" style="font-size:14px;color:var(--text-sub);margin-bottom:20px;"></div>
+    <div id="raidApplicantsList"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="document.getElementById('raidApplicantsModal').classList.remove('show')">닫기</button>
+    </div>
+  </div>
+</div>
+
 <!-- Purchase Modal -->
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
@@ -1398,10 +1413,18 @@ async function renderRaidList(){
     grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🗡️</div><h3>등록된 공대가 없습니다</h3><p>공대장이 공대를 생성하면 여기에 표시됩니다</p></div>`;
     return;
   }
+  // 신청자 수 미리 가져오기
+  const pendingSnap=await db.collection('raidApplications').where('status','==','대기').get();
+  const pendingCount={};
+  pendingSnap.docs.forEach(d=>{const rid=d.data().raidId;pendingCount[rid]=(pendingCount[rid]||0)+1;});
+
+  const isMaster=currentProfile&&currentProfile.role==='master';
   grid.innerHTML=raids.map(r=>{
     const isMine=r.ownerUid===currentUser?.uid;
+    const canManage=isMine||isMaster;
     const applied=myApps[r.id];
     const statusColor=r.status==='모집중'?'#059669':r.status==='마감'?'#dc2626':'#d97706';
+    const pCount=pendingCount[r.id]||0;
     return `<div class="panel" style="margin-bottom:0;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
         <div>
@@ -1412,9 +1435,15 @@ async function renderRaidList(){
       </div>
       ${r.desc?`<div style="font-size:13px;color:var(--text-sub);margin-bottom:12px;padding:8px 10px;background:var(--bg);border-radius:6px;">${r.desc}</div>`:''}
       <div style="font-size:12px;color:var(--text-sub);margin-bottom:12px;">공대장: ${r.ownerName||'-'}</div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;">
-        ${isMine?`<button class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="openRaidModal('${r.id}')">수정</button><button class="btn btn-danger" style="font-size:13px;padding:6px 12px;" onclick="deleteRaid('${r.id}')">삭제</button>`:''}
-        ${!isMine&&r.status==='모집중'?applied
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+        ${canManage?`
+          <button class="btn btn-outline" style="font-size:13px;padding:6px 12px;position:relative;" onclick="openApplicantsModal('${r.id}','${r.name.replace(/'/g,"\'")}')">
+            📋 신청 관리${pCount>0?` <span style="background:#ef4444;color:#fff;border-radius:20px;font-size:11px;padding:1px 6px;margin-left:2px;">${pCount}</span>`:''}
+          </button>
+          <button class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="openRaidModal('${r.id}')">수정</button>
+          <button class="btn btn-danger" style="font-size:13px;padding:6px 12px;" onclick="deleteRaid('${r.id}')">삭제</button>
+        `:''}
+        ${!canManage&&r.status==='모집중'?applied
           ?`<button class="btn btn-outline" style="font-size:13px;padding:6px 12px;color:#dc2626;border-color:#dc2626;" onclick="cancelApply('${applied}')">신청취소</button>`
           :`<button class="btn btn-primary" style="font-size:13px;padding:6px 12px;" onclick="applyRaid('${r.id}')">가입 신청</button>`
         :''}
@@ -1458,6 +1487,65 @@ async function renderMyRaids(){
       </div>
     </div>`;
   }).join('');
+}
+
+// =============================================
+// 공대 신청 관리 (공대장/마스터)
+// =============================================
+async function openApplicantsModal(raidId, raidName){
+  document.getElementById('raidApplicantsRaidName').textContent='공대: '+raidName;
+  document.getElementById('raidApplicantsList').innerHTML='<div style="text-align:center;padding:20px;color:var(--text-sub);">불러오는 중...</div>';
+  document.getElementById('raidApplicantsModal').classList.add('show');
+  await renderApplicants(raidId);
+}
+
+async function renderApplicants(raidId){
+  const snap=await db.collection('raidApplications').where('raidId','==',raidId).orderBy('createdAt','desc').get();
+  const el=document.getElementById('raidApplicantsList');
+  if(!el)return;
+  if(snap.empty){
+    el.innerHTML='<div class="empty-state" style="padding:30px;"><div class="icon">📭</div><h3>신청자가 없습니다</h3></div>';
+    return;
+  }
+  const apps=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const statusStyle={대기:{bg:'#fffbeb',color:'#d97706'},승인:{bg:'#ecfdf5',color:'#059669'},거절:{bg:'#fef2f2',color:'#dc2626'}};
+  el.innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${apps.map(a=>{
+        const ss=statusStyle[a.status]||statusStyle['대기'];
+        return `<div style="border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+              <div>
+                <div style="font-weight:700;font-size:15px;">${a.name||''}</div>
+                <div style="font-size:12px;color:var(--text-sub);margin-top:2px;">${a.cls||''} · Lv.${a.level||0} · 스킬공격력 ${(a.skillAtk||0).toLocaleString()}</div>
+              </div>
+              <span class="badge ${a.role==='서폿'?'badge-blue':'badge-green'}" style="font-size:11px;">${a.role||''}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+              <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${a.status}</span>
+              ${a.status==='대기'?`
+                <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;" onclick="approveApp('${a.id}','${raidId}')">승인</button>
+                <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;" onclick="rejectApp('${a.id}','${raidId}')">거절</button>
+              `:''}
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+async function approveApp(appId, raidId){
+  await db.collection('raidApplications').doc(appId).update({status:'승인'});
+  await renderApplicants(raidId);
+  renderRaidList();
+}
+
+async function rejectApp(appId, raidId){
+  await db.collection('raidApplications').doc(appId).update({status:'거절'});
+  await renderApplicants(raidId);
+  renderRaidList();
 }
 
 // updateLoginUI에서 공대생성 버튼 연동은 renderRaidList 내부에서 처리

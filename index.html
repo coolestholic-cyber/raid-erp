@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+그<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -994,11 +994,10 @@ async function mcSave(){
   const level=parseInt(document.getElementById('mcLevel').value)||0;
   const role=document.getElementById('mcRole').value;
   const skillAtk=parseInt(document.getElementById('mcSkillAtk').value)||0;
+  if(!currentUser){discordLogin();return;}
   if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
   const d={cls,name,level,role,skillAtk};
-  const uid=currentUser?currentUser.uid:'anon';
-  if(currentUser){await db.collection('users').doc(uid).set({myChar:d},{merge:true});}
-  else{localStorage.setItem('myChar_anon',JSON.stringify(d));}
+  await db.collection('users').doc(currentUser.uid).set({myChar:d},{merge:true});
   window._myCharData=d;
   mcRenderCard(d);
   closeMyCharModal();

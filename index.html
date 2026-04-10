@@ -99,6 +99,24 @@
   .badge-purple { background: #faf5ff; color: #7c3aed; }
   .badge-gray { background: #f3f4f6; color: #6b7280; }
 
+  /* ===== Member Grid View ===== */
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .member-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: box-shadow .15s, transform .15s; cursor: default; position: relative; }
+  .member-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .member-card .mc-status-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; }
+  .member-card .mc-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .member-card .mc-name { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .member-card .mc-cls { font-size: 11px; color: var(--text-sub); }
+  .member-card .mc-level { font-size: 11px; color: var(--text-sub); }
+  .member-card .mc-gold { font-size: 12px; font-weight: 600; color: #d97706; }
+  .member-card .mc-rate-bar { width: 100%; height: 4px; background: #f3f4f6; border-radius: 2px; overflow: hidden; }
+  .member-card .mc-rate-fill { height: 100%; border-radius: 2px; }
+  .member-card .mc-actions { display: flex; gap: 4px; margin-top: 4px; }
+  .view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .view-toggle button { padding: 7px 12px; background: #fff; border: none; cursor: pointer; font-size: 14px; color: var(--text-sub); transition: .15s; }
+  .view-toggle button.active { background: var(--accent); color: #fff; }
+  .view-toggle button:hover:not(.active) { background: #f3f4f6; }
+
   .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
   .search-input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; width: 220px; outline: none; background: #fff; }
   .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(11,92,213,.12); }
@@ -477,12 +495,19 @@
           <select class="filter-select" id="memberStatusFilter" onchange="renderMemberTable()">
             <option value="">상태 전체</option><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option>
           </select>
-          <span style="margin-left:auto;font-size:13px;color:var(--text-sub);" id="memberCount">0명</span>
+          <span style="font-size:13px;color:var(--text-sub);" id="memberCount">0명</span>
+          <div class="view-toggle" style="margin-left:auto;">
+            <button id="btnViewTable" class="active" onclick="setMemberView('table')" title="테이블 보기">☰</button>
+            <button id="btnViewGrid" onclick="setMemberView('grid')" title="그리드 보기">⊞</button>
+          </div>
         </div>
-        <div class="table-wrap">
+        <div id="memberTableWrap" class="table-wrap">
           <table><thead><tr>
             <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>아이템 레벨</th><th>주급 골드</th><th>참여율</th><th>상태</th><th>비고</th><th>관리</th>
           </tr></thead><tbody id="memberTableBody"></tbody></table>
+        </div>
+        <div id="memberGridWrap" style="display:none;">
+          <div id="memberGridBody" class="member-grid"></div>
         </div>
       </div>
     </div>
@@ -1020,22 +1045,69 @@ function renderStats(){
   if(ss)ss.innerHTML=[{l:'참여',c:a,co:'#059669'},{l:'미정',c:allMembers.filter(m=>m.status==='미정').length,co:'#d97706'},{l:'불참',c:allMembers.filter(m=>m.status==='불참').length,co:'#dc2626'}].map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:10px;height:10px;border-radius:50%;background:${s.co};"></span><span style="flex:1;font-size:14px;">${s.l}</span><strong style="font-size:14px;">${s.c}명</strong></div>`).join('');
 }
 
+let memberViewMode='table';
+function setMemberView(mode){
+  memberViewMode=mode;
+  document.getElementById('btnViewTable').classList.toggle('active',mode==='table');
+  document.getElementById('btnViewGrid').classList.toggle('active',mode==='grid');
+  document.getElementById('memberTableWrap').style.display=mode==='table'?'':'none';
+  document.getElementById('memberGridWrap').style.display=mode==='grid'?'':'none';
+  renderMemberTable();
+}
+
 function renderMemberTable(){
   const s=(document.getElementById('memberSearch')?.value||'').toLowerCase(),rF=document.getElementById('memberRoleFilter')?.value||'',sF=document.getElementById('memberStatusFilter')?.value||'';
   let f=allMembers.filter(m=>{if(s&&!m.name.toLowerCase().includes(s)&&!(m.cls||'').toLowerCase().includes(s))return false;if(rF&&m.role!==rF)return false;if(sF&&m.status!==sF)return false;return true;});
   const ce=canManageMembers(),tb=document.getElementById('memberTableBody');
-  if(!tb)return;
-  tb.innerHTML=f.map((m,i)=>{
-    const sc=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
-    const rt=m.rate||0,rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
-    const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
-    return `<tr><td>${i+1}</td><td><strong>${m.name||''}</strong></td><td>${m.cls||''}</td>
-    <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
-    <td>${(m.level||0).toLocaleString()}</td><td>${m.gold||0}만</td>
-    <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
-    <td><span class="badge ${sc}">${m.status||''}</span></td><td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
-    <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td></tr>`;
-  }).join('');
+  if(tb){
+    tb.innerHTML=f.map((m,i)=>{
+      const sc=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
+      const rt=m.rate||0,rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
+      const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
+      return `<tr><td>${i+1}</td><td><strong>${m.name||''}</strong></td><td>${m.cls||''}</td>
+      <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
+      <td>${(m.level||0).toLocaleString()}</td><td>${m.gold||0}만</td>
+      <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
+      <td><span class="badge ${sc}">${m.status||''}</span></td><td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
+      <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td></tr>`;
+    }).join('');
+  }
+  // 그리드 뷰 렌더
+  const gb=document.getElementById('memberGridBody');
+  if(gb){
+    const JOB_ICON={
+      '히어로':'⚔️','팔라딘':'🛡️','다크나이트':'🌑',
+      '아크메이지(불)':'🔥','아크메이지(얼)':'❄️','비숍':'✨',
+      '보우마스터':'🏹','신궁':'🎯',
+      '나이트로드':'⭐','섀도어':'🗡️'
+    };
+    if(!f.length){
+      gb.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="icon">👥</div><h3>공대원이 없습니다</h3></div>`;
+    } else {
+      gb.innerHTML=f.map(m=>{
+        const rt=m.rate||0;
+        const rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
+        const dotColor=m.status==='참여'?'#059669':m.status==='미정'?'#d97706':'#ef4444';
+        const roleColor=m.role==='서폿'?'#eff6ff':'#ecfdf5';
+        const icon=JOB_ICON[m.cls]||'👤';
+        const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
+        return `<div class="member-card">
+          <div class="mc-status-dot" style="background:${dotColor};" title="${m.status||''}"></div>
+          <div class="mc-icon" style="background:${roleColor};">${icon}</div>
+          <div class="mc-name" title="${m.name||''}">${m.name||''}</div>
+          <div class="mc-cls">${m.cls||'-'}</div>
+          <div class="mc-level">Lv.${(m.level||0).toLocaleString()}</div>
+          <div class="mc-gold">💰 ${m.gold||0}만</div>
+          <div class="mc-rate-bar" style="width:90%;"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
+          <div style="font-size:10px;color:${rc};">${rt}%</div>
+          ${canE||ce?`<div class="mc-actions">
+            ${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')" style="padding:3px 8px;font-size:11px;">수정</button>`:''}
+            ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')" style="padding:3px 8px;font-size:11px;">삭제</button>`:''}
+          </div>`:''}
+        </div>`;
+      }).join('');
+    }
+  }
   document.getElementById('memberCount').textContent=f.length+'명';
 }
 

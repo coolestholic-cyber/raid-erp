@@ -253,8 +253,68 @@
 
     <!-- 캐릭터 정보 -->
     <div id="page-mychar" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">캐릭터 정보</h1><p class="page-desc">내 캐릭터 기본 정보를 관리합니다</p></div></div>
-      <div class="panel" style="max-width:520px;">
+      <div class="top-bar">
+        <div><h1 class="page-title">캐릭터 정보</h1><p class="page-desc">내 캐릭터 기본 정보를 관리합니다</p></div>
+        <button class="btn btn-primary" onclick="openMyCharModal()" style="gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          내 정보 등록
+        </button>
+      </div>
+      <!-- 2단 레이아웃 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+        <!-- 왼쪽: 장비 스테이터스 -->
+        <div class="panel" style="min-height:320px;">
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">⚔️</span>
+            장비 스테이터스
+          </div>
+          <div class="empty-state" style="padding:40px 0;">
+            <div class="icon">🔧</div>
+            <h3>업데이트 예정</h3>
+            <p>장비 관리 기능이 곧 추가됩니다</p>
+          </div>
+        </div>
+        <!-- 오른쪽: 캐릭터 정보 출력 -->
+        <div class="panel" style="min-height:320px;" id="myCharCard">
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">👤</span>
+            내 캐릭터
+          </div>
+          <div id="myCharEmpty" style="text-align:center;padding:40px 0;color:var(--text-sub);">
+            <div style="font-size:40px;margin-bottom:12px;">🍄</div>
+            <p style="font-size:14px;">등록된 캐릭터가 없습니다<br><span style="color:var(--accent);cursor:pointer;font-weight:600;" onclick="openMyCharModal()">내 정보 등록</span>을 눌러주세요</p>
+          </div>
+          <div id="myCharInfo" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+              <div id="mcCardIcon" style="width:52px;height:52px;background:var(--accent-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;">⚔️</div>
+              <div>
+                <div id="mcCardName" style="font-size:20px;font-weight:700;color:var(--text);"></div>
+                <div id="mcCardCls" style="font-size:13px;color:var(--text-sub);margin-top:2px;"></div>
+              </div>
+              <div id="mcCardRoleBadge" style="margin-left:auto;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="background:var(--bg);border-radius:10px;padding:14px 16px;">
+                <div style="font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:6px;letter-spacing:.5px;">레벨</div>
+                <div id="mcCardLevel" style="font-size:22px;font-weight:700;color:var(--text);"></div>
+              </div>
+              <div style="background:var(--bg);border-radius:10px;padding:14px 16px;">
+                <div style="font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:6px;letter-spacing:.5px;">스킬공격력</div>
+                <div id="mcCardSkillAtk" style="font-size:22px;font-weight:700;color:var(--accent);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 내 캐릭터 등록 모달 -->
+    <div class="modal-overlay" id="myCharModal">
+      <div class="modal" style="max-width:460px;">
+        <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">👤</span>
+          내 정보 등록
+        </h2>
         <!-- 직업 선택 탭 + 콤보 -->
         <div class="form-group">
           <label>직업 선택</label>
@@ -285,9 +345,8 @@
           </div>
           <div class="form-group"><label>스킬공격력</label><input type="number" id="mcSkillAtk" placeholder="예) 25000"></div>
         </div>
-        <!-- 버튼 -->
         <div class="modal-actions">
-          <button class="btn btn-outline" onclick="mcCancel()">취소</button>
+          <button class="btn btn-outline" onclick="closeMyCharModal()">취소</button>
           <button class="btn btn-primary" onclick="mcSave()">저장</button>
         </div>
       </div>
@@ -869,6 +928,13 @@ function exportMembers(){
 // =============================================
 // 내 캐릭터 정보
 // =============================================
+function openMyCharModal(){
+  mcLoadFormFromCache();
+  document.getElementById('myCharModal').classList.add('show');
+}
+function closeMyCharModal(){
+  document.getElementById('myCharModal').classList.remove('show');
+}
 function mcSelectTab(group){
   document.querySelectorAll('[id^="mctab-"]').forEach(b=>b.classList.remove('active'));
   const t=document.getElementById('mctab-'+group);if(t)t.classList.add('active');
@@ -887,8 +953,39 @@ function mcSelectRole(role){
   document.getElementById('mcRoleDealer').style.cssText=`flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid ${isD?'var(--accent)':'var(--border)'};background:${isD?'var(--accent-light)':'#fff'};border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;`;
   document.getElementById('mcRoleSupport').style.cssText=`flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid ${!isD?'var(--accent)':'var(--border)'};background:${!isD?'var(--accent-light)':'#fff'};border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;`;
 }
-function mcCancel(){
-  mcLoadMyChar();
+// 저장된 데이터를 폼에 채우기
+function mcLoadFormFromCache(){
+  const d=window._myCharData;
+  if(!d)return;
+  let group=null;
+  for(const [g,jobs] of Object.entries(JOB_4TH)){if(jobs.find(j=>j.name===d.cls)){group=g;break;}}
+  if(group){mcSelectTab(group);document.getElementById('mcClassCombo').value=d.cls;}
+  document.getElementById('mcName').value=d.name||'';
+  document.getElementById('mcLevel').value=d.level||'';
+  document.getElementById('mcSkillAtk').value=d.skillAtk||'';
+  mcSelectRole(d.role||'딜러');
+}
+// 카드 UI 업데이트
+function mcRenderCard(d){
+  if(!d){
+    document.getElementById('myCharEmpty').style.display='';
+    document.getElementById('myCharInfo').style.display='none';
+    return;
+  }
+  document.getElementById('myCharEmpty').style.display='none';
+  document.getElementById('myCharInfo').style.display='';
+  // 직업 아이콘
+  let icon='🍄';
+  for(const jobs of Object.values(JOB_4TH)){const j=jobs.find(x=>x.name===d.cls);if(j){icon=j.icon;break;}}
+  document.getElementById('mcCardIcon').textContent=icon;
+  document.getElementById('mcCardName').textContent=d.name||'-';
+  document.getElementById('mcCardCls').textContent=d.cls||'-';
+  document.getElementById('mcCardLevel').textContent=d.level?`Lv.${d.level}`:'—';
+  document.getElementById('mcCardSkillAtk').textContent=d.skillAtk?(Number(d.skillAtk).toLocaleString()):'—';
+  const badge=document.getElementById('mcCardRoleBadge');
+  const isD=d.role==='딜러';
+  badge.textContent=d.role||'딜러';
+  badge.style.cssText=`margin-left:auto;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:${isD?'#ecfdf5':'#eff6ff'};color:${isD?'#059669':'#2563eb'};`;
 }
 async function mcSave(){
   const cls=document.getElementById('mcClassCombo').value;
@@ -897,11 +994,13 @@ async function mcSave(){
   const role=document.getElementById('mcRole').value;
   const skillAtk=parseInt(document.getElementById('mcSkillAtk').value)||0;
   if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
+  const d={cls,name,level,role,skillAtk};
   const uid=currentUser?currentUser.uid:'anon';
-  const data={myChar:{cls,name,level,role,skillAtk}};
-  if(currentUser){await db.collection('users').doc(uid).set(data,{merge:true});}
-  else{localStorage.setItem('myChar_'+uid,JSON.stringify({cls,name,level,role,skillAtk}));}
-  alert('저장되었습니다.');
+  if(currentUser){await db.collection('users').doc(uid).set({myChar:d},{merge:true});}
+  else{localStorage.setItem('myChar_anon',JSON.stringify(d));}
+  window._myCharData=d;
+  mcRenderCard(d);
+  closeMyCharModal();
 }
 async function mcLoadMyChar(){
   let d=null;
@@ -911,19 +1010,8 @@ async function mcLoadMyChar(){
   } else {
     const raw=localStorage.getItem('myChar_anon');if(raw)d=JSON.parse(raw);
   }
-  if(d){
-    // 직업 탭 복원
-    let group=null;
-    for(const [g,jobs] of Object.entries(JOB_4TH)){if(jobs.find(j=>j.name===d.cls)){group=g;break;}}
-    if(group){
-      mcSelectTab(group);
-      document.getElementById('mcClassCombo').value=d.cls;
-    }
-    document.getElementById('mcName').value=d.name||'';
-    document.getElementById('mcLevel').value=d.level||'';
-    document.getElementById('mcSkillAtk').value=d.skillAtk||'';
-    mcSelectRole(d.role||'딜러');
-  }
+  window._myCharData=d||null;
+  mcRenderCard(d);
 }
 
 // Modal close on overlay click

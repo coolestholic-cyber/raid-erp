@@ -198,6 +198,7 @@
     </div>
     <div class="acc-body">
       <a class="nav-item" onclick="showPage('mychar',this)"><span class="nav-icon">📋</span> 캐릭터 정보</a>
+      <a class="nav-item" onclick="showPage('myraids',this)"><span class="nav-icon">🏕️</span> 내 공대 현황</a>
       <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon">⚔️</span> 내 장비관리</a>
       <a class="nav-item" onclick="showPage('mysettlement',this)"><span class="nav-icon">💰</span> 내 정산내역</a>
     </div>
@@ -207,6 +208,7 @@
       <span class="nav-icon">⚔️</span> 공대관리 <span class="arr">▶</span>
     </div>
     <div class="acc-body open">
+      <a class="nav-item" onclick="showPage('raids',this)"><span class="nav-icon">🗡️</span> 공대 목록</a>
       <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon">👥</span> 공대원 목록</a>
       <a class="nav-item" onclick="showPage('guestsettlement',this)"><span class="nav-icon">🧾</span> 손님정산</a>
       <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon">🛒</span> 판매내역</a>
@@ -354,6 +356,40 @@
       </div>
     </div>
 
+    <!-- 공대 생성 모달 -->
+    <div class="modal-overlay" id="raidModal">
+      <div class="modal" style="max-width:480px;">
+        <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🗡️</span>
+          공대 생성
+        </h2>
+        <div class="form-row">
+          <div class="form-group"><label>공대명 *</label><input type="text" id="rName" placeholder="예) 카링 하드 공대"></div>
+          <div class="form-group"><label>보스 *</label>
+            <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+              <option value="">보스 선택</option>
+              <option>카링</option><option>데미안</option><option>루시드</option><option>윌</option>
+              <option>진 힐라</option><option>칼로스</option><option>듄켈</option><option>기타</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>난이도</label>
+            <select id="rDiff" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+              <option>이지</option><option>노말</option><option selected>하드</option><option>카오스</option>
+            </select>
+          </div>
+          <div class="form-group"><label>모집 인원</label><input type="number" id="rMax" placeholder="6" min="1" max="30"></div>
+        </div>
+        <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 아이템 레벨, 조건 등 (선택)"></div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="closeRaidModal()">취소</button>
+          <button class="btn btn-primary" onclick="saveRaid()">생성</button>
+        </div>
+        <input type="hidden" id="rEditId">
+      </div>
+    </div>
+
     <!-- 내 장비관리 -->
     <div id="page-equip" class="page-section">
       <div class="top-bar"><div><h1 class="page-title">내 장비관리</h1><p class="page-desc">착용 장비를 등록하고 관리합니다</p></div></div>
@@ -364,6 +400,21 @@
     <div id="page-mysettlement" class="page-section">
       <div class="top-bar"><div><h1 class="page-title">내 정산내역</h1><p class="page-desc">내 골드 정산 내역을 확인합니다</p></div></div>
       <div class="panel"><div class="empty-state"><div class="icon">💰</div><h3>준비 중</h3><p>정산내역 기능이 곧 추가됩니다</p></div></div>
+    </div>
+
+    <!-- 공대 목록 -->
+    <div id="page-raids" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">공대 목록</h1><p class="page-desc">공대를 조회하고 가입 신청하세요</p></div>
+        <button class="btn btn-primary" id="btnCreateRaid" onclick="openRaidModal()" style="display:none;">+ 공대 생성</button>
+      </div>
+      <div id="raidListGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+    </div>
+
+    <!-- 내 공대 현황 -->
+    <div id="page-myraids" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">내 공대 현황</h1><p class="page-desc">내가 신청하거나 가입된 공대 목록입니다</p></div></div>
+      <div id="myRaidListGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
     </div>
 
     <!-- 길드관리 -->
@@ -913,7 +964,7 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',members:'공대관리 / 공대원 목록',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리'};
+const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리'};
 
 function showPage(id,el){
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
@@ -922,6 +973,8 @@ function showPage(id,el){
   if(el){el.classList.add('active');const b=el.closest('.acc-body');if(b&&!b.classList.contains('open')){b.classList.add('open');b.previousElementSibling.classList.add('open');}}
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
   if(id==='mychar')mcLoadMyChar();
+  if(id==='raids')renderRaidList();
+  if(id==='myraids')renderMyRaids();
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -1026,6 +1079,149 @@ async function mcLoadMyChar(){
   window._myCharData=d||null;
   mcRenderCard(d);
 }
+
+// =============================================
+// 공대 목록
+// =============================================
+let allRaids=[];
+
+function subscribeRaids(){
+  db.collection('raids').orderBy('createdAt','desc').onSnapshot(snap=>{
+    allRaids=snap.docs.map(d=>({id:d.id,...d.data()}));
+  });
+}
+subscribeRaids();
+
+function openRaidModal(id){
+  document.getElementById('rEditId').value=id||'';
+  if(id){
+    const r=allRaids.find(x=>x.id===id);
+    if(r){document.getElementById('rName').value=r.name||'';document.getElementById('rBoss').value=r.boss||'';document.getElementById('rDiff').value=r.diff||'하드';document.getElementById('rMax').value=r.maxCount||'';document.getElementById('rDesc').value=r.desc||'';}
+  }else{
+    ['rName','rDesc'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('rBoss').value='';document.getElementById('rDiff').value='하드';document.getElementById('rMax').value='';
+  }
+  document.getElementById('raidModal').classList.add('show');
+}
+function closeRaidModal(){document.getElementById('raidModal').classList.remove('show');}
+
+async function saveRaid(){
+  const name=document.getElementById('rName').value.trim();
+  const boss=document.getElementById('rBoss').value;
+  if(!name||!boss){alert('공대명과 보스를 입력하세요.');return;}
+  const d={name,boss,diff:document.getElementById('rDiff').value,maxCount:parseInt(document.getElementById('rMax').value)||6,desc:document.getElementById('rDesc').value.trim(),status:'모집중',ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  const id=document.getElementById('rEditId').value;
+  if(id){await db.collection('raids').doc(id).update(d);}
+  else{d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('raids').add(d);}
+  closeRaidModal();
+  renderRaidList();
+}
+
+async function deleteRaid(id){
+  if(!confirm('공대를 삭제하시겠습니까?'))return;
+  await db.collection('raids').doc(id).delete();
+  renderRaidList();
+}
+
+async function applyRaid(raidId){
+  if(!currentUser){discordLogin();return;}
+  const mc=window._myCharData;
+  if(!mc||!mc.name){alert('먼저 내 캐릭터 정보를 등록해주세요.');showPage('mychar',null);return;}
+  const existing=await db.collection('raidApplications').where('raidId','==',raidId).where('uid','==',currentUser.uid).get();
+  if(!existing.empty){alert('이미 신청한 공대입니다.');return;}
+  await db.collection('raidApplications').add({raidId,uid:currentUser.uid,name:mc.name,cls:mc.cls,role:mc.role,level:mc.level,skillAtk:mc.skillAtk,status:'대기',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  alert('가입 신청이 완료됐습니다!');
+  renderRaidList();
+}
+
+async function cancelApply(appId){
+  if(!confirm('신청을 취소하시겠습니까?'))return;
+  await db.collection('raidApplications').doc(appId).delete();
+  renderMyRaids();
+}
+
+async function renderRaidList(){
+  const grid=document.getElementById('raidListGrid');
+  if(!grid)return;
+  const snap=await db.collection('raids').orderBy('createdAt','desc').get();
+  const raids=snap.docs.map(d=>({id:d.id,...d.data()}));
+  // 내 신청 목록
+  let myApps={};
+  if(currentUser){
+    const aSnap=await db.collection('raidApplications').where('uid','==',currentUser.uid).get();
+    aSnap.docs.forEach(d=>{myApps[d.data().raidId]=d.id;});
+  }
+  const canCreate=currentProfile&&['master','leader','vice'].includes(currentProfile.role);
+  const btn=document.getElementById('btnCreateRaid');
+  if(btn)btn.style.display=canCreate?'':'none';
+
+  if(!raids.length){
+    grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🗡️</div><h3>등록된 공대가 없습니다</h3><p>공대장이 공대를 생성하면 여기에 표시됩니다</p></div>`;
+    return;
+  }
+  grid.innerHTML=raids.map(r=>{
+    const isMine=r.ownerUid===currentUser?.uid;
+    const applied=myApps[r.id];
+    const statusColor=r.status==='모집중'?'#059669':r.status==='마감'?'#dc2626':'#d97706';
+    return `<div class="panel" style="margin-bottom:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--text);">${r.name||''}</div>
+          <div style="font-size:13px;color:var(--text-sub);margin-top:2px;">${r.boss||''} · ${r.diff||''} · 최대 ${r.maxCount||0}인</div>
+        </div>
+        <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${statusColor}20;color:${statusColor};">${r.status||'모집중'}</span>
+      </div>
+      ${r.desc?`<div style="font-size:13px;color:var(--text-sub);margin-bottom:12px;padding:8px 10px;background:var(--bg);border-radius:6px;">${r.desc}</div>`:''}
+      <div style="font-size:12px;color:var(--text-sub);margin-bottom:12px;">공대장: ${r.ownerName||'-'}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        ${isMine?`<button class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="openRaidModal('${r.id}')">수정</button><button class="btn btn-danger" style="font-size:13px;padding:6px 12px;" onclick="deleteRaid('${r.id}')">삭제</button>`:''}
+        ${!isMine&&r.status==='모집중'?applied
+          ?`<button class="btn btn-outline" style="font-size:13px;padding:6px 12px;color:#dc2626;border-color:#dc2626;" onclick="cancelApply('${applied}')">신청취소</button>`
+          :`<button class="btn btn-primary" style="font-size:13px;padding:6px 12px;" onclick="applyRaid('${r.id}')">가입 신청</button>`
+        :''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function renderMyRaids(){
+  const grid=document.getElementById('myRaidListGrid');
+  if(!grid)return;
+  if(!currentUser){
+    grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🏕️</div><h3>로그인이 필요합니다</h3><p><span style="color:var(--accent);cursor:pointer;font-weight:600;" onclick="discordLogin()">Discord 로그인</span> 후 이용해주세요</p></div>`;
+    return;
+  }
+  const snap=await db.collection('raidApplications').where('uid','==',currentUser.uid).orderBy('createdAt','desc').get();
+  if(snap.empty){
+    grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🏕️</div><h3>신청한 공대가 없습니다</h3><p><span style="color:var(--accent);cursor:pointer;font-weight:600;" onclick="showPage('raids',null)">공대 목록</span>에서 가입 신청해보세요</p></div>`;
+    return;
+  }
+  const apps=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const raidIds=[...new Set(apps.map(a=>a.raidId))];
+  const raidMap={};
+  await Promise.all(raidIds.map(async id=>{const d=await db.collection('raids').doc(id).get();if(d.exists)raidMap[id]={id:d.id,...d.data()};}));
+
+  const statusStyle={대기:{bg:'#fffbeb',color:'#d97706'},승인:{bg:'#ecfdf5',color:'#059669'},거절:{bg:'#fef2f2',color:'#dc2626'}};
+  grid.innerHTML=apps.map(a=>{
+    const r=raidMap[a.raidId]||{};
+    const ss=statusStyle[a.status]||statusStyle['대기'];
+    return `<div class="panel" style="margin-bottom:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--text);">${r.name||'(삭제된 공대)'}</div>
+          <div style="font-size:13px;color:var(--text-sub);margin-top:2px;">${r.boss||''} · ${r.diff||''}</div>
+        </div>
+        <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${a.status}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-sub);margin-bottom:12px;">내 캐릭터: ${a.name||''} (${a.cls||''}) · Lv.${a.level||0}</div>
+      <div style="display:flex;justify-content:flex-end;">
+        ${a.status==='대기'?`<button class="btn btn-outline" style="font-size:13px;padding:6px 12px;color:#dc2626;border-color:#dc2626;" onclick="cancelApply('${a.id}')">신청취소</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// updateLoginUI에서 공대생성 버튼 연동은 renderRaidList 내부에서 처리
 
 // Modal close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});

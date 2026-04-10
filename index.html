@@ -66,6 +66,9 @@
   .btn-outline { background: #fff; color: var(--text-sub); border: 1px solid var(--border); }
   .btn-outline:hover { background: #f9fafb; }
   .btn-danger { background: #ef4444; color: #fff; }
+  .class-tab { padding:8px 4px; border:1.5px solid var(--border); border-radius:8px; background:#fff; color:var(--text-sub); font-size:13px; font-weight:500; cursor:pointer; transition:.15s; font-family:inherit; }
+  .class-tab:hover { border-color:var(--accent); color:var(--accent); }
+  .class-tab.active { border-color:var(--accent); background:var(--accent-light); color:var(--accent); font-weight:700; }
   .btn-danger:hover { background: #dc2626; }
   .btn-sm { padding: 5px 12px; font-size: 12px; }
 
@@ -396,11 +399,18 @@
       공대원 등록
     </h2>
 
-    <!-- 직업 선택 (아이콘 그리드) -->
+    <!-- 직업 선택 (탭 + 콤보) -->
     <div class="form-group">
       <label>직업 선택 *</label>
-      <div id="classGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;">
+        <button type="button" id="tab-전사"   class="class-tab" onclick="selectClassTab('전사')">⚔️ 전사</button>
+        <button type="button" id="tab-마법사" class="class-tab" onclick="selectClassTab('마법사')">🔮 마법사</button>
+        <button type="button" id="tab-궁수"   class="class-tab" onclick="selectClassTab('궁수')">🏹 궁수</button>
+        <button type="button" id="tab-도적"   class="class-tab" onclick="selectClassTab('도적')">🗡️ 도적</button>
       </div>
+      <select id="classCombo" onchange="onClassComboChange()" style="display:none;margin-top:8px;width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#fff;color:var(--text);cursor:pointer;">
+        <option value="">직업 선택...</option>
+      </select>
       <input type="hidden" id="fClass" value="">
     </div>
 
@@ -620,58 +630,51 @@ function renderMemberTable(){
   document.getElementById('memberCount').textContent=f.length+'명';
 }
 
-// 메이플랜드 직업 목록 (구메이플 기반)
-const JOB_LIST = [
-  {name:'전사',icon:'⚔️',type:'딜러'},
-  {name:'파이터',icon:'🗡️',type:'딜러'},
-  {name:'페이지',icon:'🛡️',type:'딜러'},
-  {name:'스피어맨',icon:'🔱',type:'딜러'},
-  {name:'크루세이더',icon:'⚔️',type:'딜러'},
-  {name:'나이트',icon:'🛡️',type:'딜러'},
-  {name:'버서커',icon:'🪓',type:'딜러'},
-  {name:'히어로',icon:'⚔️',type:'딜러'},
-  {name:'팔라딘',icon:'🛡️',type:'서폿'},
-  {name:'다크나이트',icon:'🌑',type:'딜러'},
-  {name:'마법사',icon:'🔮',type:'딜러'},
-  {name:'위자드(불)',icon:'🔥',type:'딜러'},
-  {name:'위자드(얼)',icon:'❄️',type:'딜러'},
-  {name:'클레릭',icon:'✝️',type:'서폿'},
-  {name:'메이지(불)',icon:'🔥',type:'딜러'},
-  {name:'메이지(얼)',icon:'❄️',type:'딜러'},
-  {name:'프리스트',icon:'💚',type:'서폿'},
-  {name:'아크메이지(불)',icon:'🔥',type:'딜러'},
-  {name:'아크메이지(얼)',icon:'❄️',type:'딜러'},
-  {name:'비숍',icon:'✨',type:'서폿'},
-  {name:'궁수',icon:'🏹',type:'딜러'},
-  {name:'헌터',icon:'🏹',type:'딜러'},
-  {name:'사수',icon:'🎯',type:'딜러'},
-  {name:'레인저',icon:'🏹',type:'딜러'},
-  {name:'저격수',icon:'🎯',type:'딜러'},
-  {name:'보우마스터',icon:'🏹',type:'딜러'},
-  {name:'신궁',icon:'🎯',type:'딜러'},
-  {name:'도적',icon:'🗡️',type:'딜러'},
-  {name:'어쌔신',icon:'⭐',type:'딜러'},
-  {name:'시프',icon:'🗡️',type:'딜러'},
-  {name:'허밋',icon:'⭐',type:'딜러'},
-  {name:'시프마스터',icon:'🗡️',type:'딜러'},
-  {name:'나이트로드',icon:'⭐',type:'딜러'},
-  {name:'섀도어',icon:'🗡️',type:'딜러'},
-  {name:'해적',icon:'🏴‍☠️',type:'딜러'},
-  {name:'인파이터',icon:'👊',type:'딜러'},
-  {name:'건슬링거',icon:'🔫',type:'딜러'},
-  {name:'바이퍼',icon:'👊',type:'딜러'},
-  {name:'캡틴',icon:'🔫',type:'딜러'},
-];
+// 메이플랜드 4차 직업 목록
+const JOB_4TH = {
+  '전사':  [{name:'히어로',icon:'⚔️',type:'딜러'},{name:'팔라딘',icon:'🛡️',type:'서폿'},{name:'다크나이트',icon:'🌑',type:'딜러'}],
+  '마법사':[{name:'아크메이지(불)',icon:'🔥',type:'딜러'},{name:'아크메이지(얼)',icon:'❄️',type:'딜러'},{name:'비숍',icon:'✨',type:'서폿'}],
+  '궁수':  [{name:'보우마스터',icon:'🏹',type:'딜러'},{name:'신궁',icon:'🎯',type:'딜러'}],
+  '도적':  [{name:'나이트로드',icon:'⭐',type:'딜러'},{name:'섀도어',icon:'🗡️',type:'딜러'}],
+};
+// 하위호환용
+const JOB_LIST = Object.values(JOB_4TH).flat();
+
+function selectClassTab(group){
+  document.querySelectorAll('.class-tab').forEach(b=>b.classList.remove('active'));
+  const tabEl=document.getElementById('tab-'+group);
+  if(tabEl)tabEl.classList.add('active');
+  const combo=document.getElementById('classCombo');
+  combo.innerHTML='<option value="">직업 선택...</option>'+JOB_4TH[group].map(j=>`<option value="${j.name}" data-type="${j.type}">${j.icon} ${j.name}</option>`).join('');
+  combo.style.display='';
+  combo.value='';
+  document.getElementById('fClass').value='';
+}
+
+function onClassComboChange(){
+  const combo=document.getElementById('classCombo');
+  const opt=combo.options[combo.selectedIndex];
+  if(opt&&opt.value){
+    document.getElementById('fClass').value=opt.value;
+    const type=opt.getAttribute('data-type');
+    document.getElementById('fRole').value=type;
+    selectRole(type);
+  }
+}
 
 function renderClassGrid(selected){
-  const grid=document.getElementById('classGrid');
-  grid.innerHTML=JOB_LIST.map(j=>{
-    const sel=j.name===selected;
-    return `<div onclick="selectClass('${j.name}','${j.type}')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:2px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'var(--accent-light)':'#fff'};border-radius:8px;cursor:pointer;transition:.15s;font-size:11px;text-align:center;min-height:56px;justify-content:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='${sel?'var(--accent)':'var(--border)'}'"">
-      <span style="font-size:18px;">${j.icon}</span>
-      <span style="color:${sel?'var(--accent)':'var(--text-sub)'};font-weight:${sel?'600':'400'};line-height:1.2;">${j.name}</span>
-    </div>`;
-  }).join('');
+  document.querySelectorAll('.class-tab').forEach(b=>b.classList.remove('active'));
+  const combo=document.getElementById('classCombo');
+  if(!selected){combo.innerHTML='<option value="">직업 선택...</option>';combo.style.display='none';return;}
+  let group=null;
+  for(const [g,jobs] of Object.entries(JOB_4TH)){if(jobs.find(j=>j.name===selected)){group=g;break;}}
+  if(group){
+    const tabEl=document.getElementById('tab-'+group);
+    if(tabEl)tabEl.classList.add('active');
+    combo.innerHTML='<option value="">직업 선택...</option>'+JOB_4TH[group].map(j=>`<option value="${j.name}" data-type="${j.type}">${j.icon} ${j.name}</option>`).join('');
+    combo.value=selected;
+    combo.style.display='';
+  }
 }
 
 function selectClass(name,type){

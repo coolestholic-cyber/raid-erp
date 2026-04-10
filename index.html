@@ -543,7 +543,7 @@ function updateLoginUI(){
   document.getElementById('loginArea').style.display=ok?'none':'';
   document.getElementById('userArea').style.display=ok?'':'none';
   const ba=document.getElementById('btnAddMember'),bg=document.getElementById('btnCreateGuild');
-  if(ba)ba.style.display=ok&&canManageMembers()?'':'none';
+  if(ba)ba.style.display='flex';
   if(bg)bg.style.display=ok?'':'none';
   if(ok){
     document.getElementById('userName').textContent=currentProfile.name;

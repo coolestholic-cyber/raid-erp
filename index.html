@@ -338,7 +338,7 @@
           <option value="vice">부공대장</option>
           <option value="member">공대원</option>
           <option value="guest">손님</option>
-          <option value="pending">승인대기</option>
+          <option value="none">권한없음</option>
         </select>
       </div>
       <div class="table-wrap">
@@ -478,7 +478,7 @@ const ROLES = {
   vice:   { label: '부공대장', badge: 'badge-blue', level: 3 },
   member: { label: '공대원', badge: 'badge-green', level: 2 },
   guest:  { label: '손님', badge: 'badge-yellow', level: 1 },
-  pending:{ label: '승인대기', badge: 'badge-gray', level: 0 },
+  none:   { label: '권한없음', badge: 'badge-gray', level: 0 },
 };
 
 function canManageUsers() {
@@ -534,7 +534,7 @@ auth.onAuthStateChanged(async (user) => {
       name: user.displayName || '이름없음',
       email: user.email,
       photo: user.photoURL || '',
-      role: isFirst ? 'master' : 'pending',
+      role: isFirst ? 'master' : 'none',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     await userRef.set(newProfile);
@@ -542,13 +542,6 @@ auth.onAuthStateChanged(async (user) => {
   }
 
   currentProfile = { id: doc.id, ...doc.data() };
-
-  if (currentProfile.role === 'pending') {
-    document.getElementById('pendingPage').style.display = '';
-    document.getElementById('pendingEmail').textContent = user.email;
-    document.getElementById('appWrap').style.display = 'none';
-    return;
-  }
 
   document.getElementById('pendingPage').style.display = 'none';
   document.getElementById('appWrap').style.display = 'flex';
@@ -562,7 +555,7 @@ function initApp() {
   // 사이드바 사용자 정보
   document.getElementById('userName').textContent = currentProfile.name;
   document.getElementById('userPhoto').src = currentProfile.photo || 'https://via.placeholder.com/32';
-  const r = ROLES[currentProfile.role] || ROLES.pending;
+  const r = ROLES[currentProfile.role] || ROLES.none;
   document.getElementById('userRoleBadge').textContent = r.label;
 
   // 권한 관리 메뉴 표시
@@ -786,7 +779,7 @@ function renderUserTable() {
   const myLevel = ROLES[currentProfile?.role]?.level || 0;
 
   tbody.innerHTML = filtered.map((u, i) => {
-    const r = ROLES[u.role] || ROLES.pending;
+    const r = ROLES[u.role] || ROLES.none;
     const uLevel = r.level;
     const canChange = canManageUsers() && uLevel < myLevel && u.id !== currentUser.uid;
     const created = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString('ko') : '-';

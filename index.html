@@ -161,9 +161,12 @@
       <hr style="border:none;border-top:1px solid #dfe6e9;">
       <span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#fff;padding:0 12px;color:#b2bec3;font-size:12px;">또는</span>
     </div>
-    <button class="google-btn" onclick="googleLogin()">
+    <button class="google-btn" onclick="discordLogin()" style="background:#5865F2;color:#fff;border-color:#5865F2;">
+      🎮 Discord로 로그인 (공대원 이상)
+    </button>
+    <button class="google-btn" onclick="googleLogin()" style="margin-top:8px;">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-      Google 계정으로 로그인 (공대원 이상)
+      Google 계정으로 로그인
     </button>
   </div>
 </div>
@@ -640,6 +643,46 @@ function isGuest() {
 // =============================================
 // 인증
 // =============================================
+const DISCORD_CLIENT_ID = '1491978282105835530';
+const DISCORD_REDIRECT_URI = 'https://coolestholic-cyber.github.io/raid-erp/';
+const DISCORD_WORKER_URL = 'https://mapleland-auth.coolestholic.workers.dev';
+
+function discordLogin() {
+  const params = new URLSearchParams({
+    client_id: DISCORD_CLIENT_ID,
+    redirect_uri: DISCORD_REDIRECT_URI,
+    response_type: 'code',
+    scope: 'identify',
+  });
+  window.location.href = `https://discord.com/api/oauth2/authorize?${params}`;
+}
+
+async function handleDiscordCallback(code) {
+  try {
+    document.getElementById('loadingPage').style.display = 'flex';
+    document.getElementById('loginPage').style.display = 'none';
+
+    const res = await fetch(DISCORD_WORKER_URL + '/exchange', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const discord = await res.json();
+    if (discord.error) { alert('Discord 로그인 실패: ' + discord.error); location.href = DISCORD_REDIRECT_URI; return; }
+
+    // Firebase 익명 인증 후 Discord 정보 저장
+    _pendingRole = null;
+    _pendingName = null;
+    _pendingDiscord = discord;
+    await auth.signInAnonymously();
+  } catch (e) {
+    alert('Discord 로그인 실패: ' + e.message);
+    location.href = DISCORD_REDIRECT_URI;
+  }
+}
+
+let _pendingDiscord = null;
+
 function googleLogin() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(err => alert('로그인 실패: ' + err.message));
@@ -708,7 +751,26 @@ auth.onAuthStateChanged(async (user) => {
   let doc = await userRef.get();
 
   if (!doc.exists) {
-    if (user.isAnonymous && _pendingRole) {
+    if (user.isAnonymous && _pendingDiscord) {
+      // Discord 로그인 사용자
+      const discord = _pendingDiscord;
+      _pendingDiscord = null;
+      const usersSnap = await db.collection('users').where('isAnonymous','!=',true).get();
+      const hasRealUsers = !usersSnap.empty;
+      const newProfile = {
+        name: discord.global_name || discord.username,
+        email: discord.email || '',
+        photo: discord.avatar || '',
+        role: hasRealUsers ? 'none' : 'master',
+        discordId: discord.id,
+        discordUsername: discord.username,
+        isAnonymous: true,
+        loginType: 'discord',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await userRef.set(newProfile);
+      doc = await userRef.get();
+    } else if (user.isAnonymous && _pendingRole) {
       // 익명 접속 (방문자/손님)
       const newProfile = {
         name: _pendingName || '방문자',
@@ -716,6 +778,7 @@ auth.onAuthStateChanged(async (user) => {
         photo: '',
         role: _pendingRole,
         isAnonymous: true,
+        loginType: 'anonymous',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       await userRef.set(newProfile);
@@ -731,6 +794,7 @@ auth.onAuthStateChanged(async (user) => {
         email: user.email,
         photo: user.photoURL || '',
         role: isFirst ? 'master' : 'none',
+        loginType: 'google',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       await userRef.set(newProfile);
@@ -1089,6 +1153,17 @@ function exportMembers() {
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 });
+
+// Discord OAuth2 콜백 처리
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    // URL에서 code 파라미터 제거
+    window.history.replaceState({}, '', window.location.pathname);
+    handleDiscordCallback(code);
+  }
+})();
 </script>
 </body>
 </html>

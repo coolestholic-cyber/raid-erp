@@ -5,546 +5,322 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>메랜ERP</title>
 <style>
+  :root { --sidebar-w: 240px; --header-h: 56px; --bg: #f0f2f5; --sidebar-bg: #1a1d23; --sidebar-hover: #25282f; --sidebar-active: #2d3139; --accent: #3b82f6; --text: #1f2937; --text-sub: #6b7280; --border: #e5e7eb; --card-bg: #fff; --radius: 10px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f5f6fa; color: #2d3436; min-height: 100vh; }
+  body { font-family: -apple-system, 'Malgun Gothic', sans-serif; background: var(--bg); color: var(--text); }
 
-  /* Sidebar */
-  .sidebar { width: 220px; background: #1e272e; color: #fff; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 50; }
-  .sidebar-header { padding: 20px; border-bottom: 1px solid #3d4f5f; }
-  .sidebar-header h2 { font-size: 16px; color: #ffd32a; }
-  .sidebar-header small { color: #95afc0; font-size: 11px; }
-  .sidebar nav { flex: 1; padding: 10px 0; }
-  .sidebar nav a { display: flex; align-items: center; padding: 12px 20px; color: #dfe6e9; text-decoration: none; font-size: 14px; transition: .2s; gap: 10px; cursor: pointer; }
-  .sidebar nav a:hover, .sidebar nav a.active { background: #2f3d4a; color: #ffd32a; }
-  .sidebar nav a .icon { width: 20px; text-align: center; }
-  .accordion-btn { display: flex; align-items: center; padding: 10px 20px; color: #b2bec3; font-size: 12px; cursor: pointer; transition: .2s; gap: 8px; user-select: none; letter-spacing: 0.5px; }
-  .accordion-btn:hover { color: #ffd32a; }
-  .accordion-btn .arrow { transition: transform .2s; font-size: 10px; margin-left: auto; }
-  .accordion-btn.open .arrow { transform: rotate(90deg); }
-  .accordion-btn.open { color: #ffd32a; }
-  .accordion-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
-  .accordion-body.open { max-height: 300px; }
-  .accordion-body a { padding-left: 36px !important; font-size: 13px !important; }
-  .sidebar-footer { padding: 16px 20px; border-top: 1px solid #3d4f5f; }
-  .sidebar-footer .user-info { display: flex; align-items: center; gap: 10px; }
-  .sidebar-footer .user-info img { width: 32px; height: 32px; border-radius: 50%; }
-  .sidebar-footer .user-info .name { font-size: 13px; }
-  .sidebar-footer .user-info .role-badge { font-size: 10px; padding: 2px 6px; border-radius: 10px; background: #ffd32a; color: #1e272e; font-weight: 700; }
-  .sidebar-footer .logout-btn { margin-top: 10px; width: 100%; padding: 6px; background: #d63031; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  /* ===== LEFT: Sidebar (공통) ===== */
+  .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; z-index: 50; overflow-y: auto; }
+  .sidebar-logo { padding: 20px 20px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #2d3139; }
+  .sidebar-logo .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; }
+  .sidebar-logo .logo-text { color: #fff; font-size: 16px; font-weight: 700; }
+  .sidebar-logo .logo-ver { color: #6b7280; font-size: 11px; }
 
-  /* Layout Container */
-  .layout { display: flex; flex-direction: column; margin-left: 220px; min-height: 100vh; }
+  .sidebar-nav { flex: 1; padding: 12px 0; }
+  .nav-section { padding: 16px 16px 6px; font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
+  .nav-item { display: flex; align-items: center; padding: 10px 16px; margin: 1px 8px; color: #9ca3af; font-size: 13px; cursor: pointer; border-radius: 8px; transition: all .15s; gap: 10px; text-decoration: none; }
+  .nav-item:hover { background: var(--sidebar-hover); color: #e5e7eb; }
+  .nav-item.active { background: var(--sidebar-active); color: #fff; font-weight: 600; }
+  .nav-item .nav-icon { width: 18px; text-align: center; font-size: 15px; }
 
-  /* Top Header - 공통 */
-  .top-header { height: 52px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: flex-end; padding: 0 24px; position: sticky; top: 0; z-index: 40; flex-shrink: 0; }
-  .discord-login-btn { padding: 8px 16px; background: #5865F2; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: .2s; }
-  .discord-login-btn:hover { background: #4752c4; }
-  .top-header .user-profile { display: flex; align-items: center; gap: 10px; }
-  .top-header .user-profile img { width: 30px; height: 30px; border-radius: 50%; }
-  .top-header .user-profile .name { font-size: 13px; font-weight: 600; }
-  .top-header .user-profile .role-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-left: 4px; }
-  .top-header .logout-link { font-size: 12px; color: #b2bec3; cursor: pointer; margin-left: 12px; }
-  .top-header .logout-link:hover { color: #d63031; }
+  .nav-accordion { cursor: pointer; display: flex; align-items: center; padding: 10px 16px; margin: 1px 8px; color: #9ca3af; font-size: 13px; border-radius: 8px; transition: all .15s; gap: 10px; user-select: none; }
+  .nav-accordion:hover { background: var(--sidebar-hover); color: #e5e7eb; }
+  .nav-accordion.open { color: #fff; }
+  .nav-accordion .arr { margin-left: auto; font-size: 10px; transition: transform .2s; }
+  .nav-accordion.open .arr { transform: rotate(90deg); }
+  .acc-body { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+  .acc-body.open { max-height: 200px; }
+  .acc-body .nav-item { padding-left: 44px; font-size: 12.5px; }
 
-  /* Main Content - 공통 */
-  .main { flex: 1; padding: 24px 32px; }
-  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  .top-bar h1 { font-size: 22px; }
-  .btn { padding: 8px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: .2s; display: inline-flex; align-items: center; gap: 6px; }
-  .btn-primary { background: #0984e3; color: #fff; }
-  .btn-primary:hover { background: #0768b5; }
-  .btn-success { background: #00b894; color: #fff; }
-  .btn-success:hover { background: #009975; }
-  .btn-warning { background: #fdcb6e; color: #2d3436; }
-  .btn-danger { background: #d63031; color: #fff; }
-  .btn-danger:hover { background: #b52020; }
-  .btn-outline { background: #fff; color: #636e72; border: 1px solid #dfe6e9; }
-  .btn-outline:hover { background: #f5f6fa; }
+  /* ===== RIGHT: Layout ===== */
+  .layout { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ===== TOP: Header (공통) ===== */
+  .header { height: var(--header-h); background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 40; }
+  .header-left { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-sub); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .discord-btn { padding: 8px 16px; background: #5865F2; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: .15s; }
+  .discord-btn:hover { background: #4752c4; }
+  .user-chip { display: flex; align-items: center; gap: 8px; }
+  .user-chip img { width: 32px; height: 32px; border-radius: 50%; }
+  .user-chip .uname { font-size: 13px; font-weight: 600; color: var(--text); }
+  .user-chip .urole { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #eff6ff; color: var(--accent); font-weight: 600; }
+  .logout-link { font-size: 12px; color: var(--text-sub); cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+  .logout-link:hover { color: #ef4444; background: #fef2f2; }
+
+  /* ===== MAIN: Content (페이지별 변경) ===== */
+  .main { flex: 1; padding: 24px; }
+  .page-section { display: none; }
+  .page-section.active { display: block; }
+
+  .page-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .page-desc { font-size: 13px; color: var(--text-sub); margin-bottom: 20px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+
+  /* ===== Components ===== */
+  .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: .15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-outline { background: #fff; color: var(--text-sub); border: 1px solid var(--border); }
+  .btn-outline:hover { background: #f9fafb; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn-danger:hover { background: #dc2626; }
   .btn-sm { padding: 4px 10px; font-size: 11px; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* Cards */
-  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-  .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); display: flex; justify-content: space-between; align-items: center; }
-  .card-info h3 { font-size: 26px; margin-bottom: 4px; }
-  .card-info p { font-size: 12px; color: #636e72; }
-  .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .card-icon.blue { background: #dfe6e9; color: #0984e3; }
-  .card-icon.green { background: #dfe6e9; color: #00b894; }
-  .card-icon.red { background: #dfe6e9; color: #d63031; }
-  .card-icon.orange { background: #dfe6e9; color: #e17055; }
+  .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { display: flex; justify-content: space-between; align-items: center; }
+  .stat-card h3 { font-size: 24px; font-weight: 700; }
+  .stat-card p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+  .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
-  /* Panel */
-  .panel { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 20px; }
+  .panel { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
   .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .panel-header h2 { font-size: 16px; }
+  .panel-header h2 { font-size: 15px; font-weight: 700; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid #dfe6e9; }
-  .tab { padding: 8px 16px; cursor: pointer; font-size: 13px; border-bottom: 2px solid transparent; margin-bottom: -2px; color: #636e72; }
-  .tab.active { color: #0984e3; border-bottom-color: #0984e3; font-weight: 600; }
-
-  /* Table */
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { background: #f5f6fa; padding: 10px 12px; text-align: left; font-weight: 600; color: #636e72; white-space: nowrap; position: sticky; top: 0; }
-  tbody td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
-  tbody tr:hover { background: #f8f9ff; }
-  .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
-  .badge-green { background: #e8f8f5; color: #00b894; }
-  .badge-yellow { background: #fef9e7; color: #f39c12; }
-  .badge-red { background: #fdedec; color: #e74c3c; }
-  .badge-blue { background: #ebf5fb; color: #2980b9; }
-  .badge-purple { background: #f4ecf7; color: #8e44ad; }
-  .badge-gray { background: #f0f0f0; color: #636e72; }
+  thead th { background: #f9fafb; padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-sub); font-size: 12px; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid #f3f4f6; }
+  tbody tr:hover { background: #f9fafb; }
 
-  /* Filter */
+  .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .badge-green { background: #ecfdf5; color: #059669; }
+  .badge-yellow { background: #fffbeb; color: #d97706; }
+  .badge-red { background: #fef2f2; color: #dc2626; }
+  .badge-blue { background: #eff6ff; color: #2563eb; }
+  .badge-purple { background: #faf5ff; color: #7c3aed; }
+  .badge-gray { background: #f3f4f6; color: #6b7280; }
+
   .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
-  .search-input { padding: 8px 14px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 13px; width: 220px; outline: none; }
-  .search-input:focus { border-color: #0984e3; }
-  select.filter-select { padding: 8px 12px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+  .search-input { padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; width: 220px; outline: none; background: #fff; }
+  .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+  select.filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; background: #fff; }
+
+  .progress-bar { height: 6px; background: #f3f4f6; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; }
+
+  .alert { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .alert-info { background: #eff6ff; border-color: #bfdbfe; }
 
   /* Modal */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.4); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
   .modal-overlay.show { display: flex; }
-  .modal { background: #fff; border-radius: 14px; padding: 28px; width: 560px; max-height: 85vh; overflow-y: auto; }
-  .modal h2 { font-size: 18px; margin-bottom: 20px; }
+  .modal { background: #fff; border-radius: 14px; padding: 28px; width: 520px; max-height: 85vh; overflow-y: auto; }
+  .modal h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
   .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 13px; font-weight: 600; color: #636e72; margin-bottom: 4px; }
-  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; }
-  .form-group input:focus, .form-group select:focus { border-color: #0984e3; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
+  .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
-  /* Grid */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-  /* Alert */
-  .alert { background: #fef9e7; border: 1px solid #f9e79f; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-  .alert-info { background: #ebf5fb; border-color: #aed6f1; }
-
-  /* Progress */
-  .progress-bar { height: 8px; background: #ecf0f1; border-radius: 4px; overflow: hidden; width: 100%; }
-  .progress-fill { height: 100%; border-radius: 4px; transition: width .3s; }
-
-  /* Page sections */
-  .page-section { display: none; }
-  .page-section.active { display: block; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sub); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state h3 { font-size: 15px; margin-bottom: 4px; color: var(--text); }
+  .empty-state p { font-size: 13px; }
 
   @media (max-width: 1100px) { .cards { grid-template-columns: repeat(2, 1fr); } .grid-2 { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<!-- ===== APP LAYOUT ===== -->
-<div id="appWrap">
-
 <!-- ===== LEFT: Sidebar (공통) ===== -->
-
 <aside class="sidebar">
-  <div class="sidebar-header">
-    <h2>메랜ERP</h2>
-    <small>v2.0</small>
+  <div class="sidebar-logo">
+    <div class="logo-icon">ERP</div>
+    <div>
+      <div class="logo-text">메랜ERP</div>
+      <div class="logo-ver">v2.1</div>
+    </div>
   </div>
-  <nav id="sidebarNav">
-    <!-- 공개 메뉴 -->
-    <a class="active" onclick="showPage('raid-list', this)"><span class="icon">📋</span> 공대 목록</a>
-    <a onclick="showPage('guild-promo', this)"><span class="icon">📢</span> 길드 홍보</a>
+  <nav class="sidebar-nav">
+    <div class="nav-section">메뉴</div>
 
-    <!-- 내 캐릭터 어코디언 -->
-    <div class="accordion-btn" onclick="toggleAccordion(this)">
-      <span>🍄</span> 내 캐릭터 <span class="arrow">▶</span>
+    <!-- 1. 내 캐릭터 -->
+    <div class="nav-accordion" onclick="toggleAccordion(this)">
+      <span class="nav-icon">🍄</span> 내 캐릭터 <span class="arr">▶</span>
     </div>
-    <div class="accordion-body">
-      <a onclick="showPage('mychar', this)"><span class="icon">📋</span> 캐릭터 정보</a>
-      <a onclick="showPage('meso', this)"><span class="icon">💰</span> 메소 가계부</a>
-      <a onclick="showPage('equip', this)"><span class="icon">⚔️</span> 장비 관리</a>
+    <div class="acc-body">
+      <a class="nav-item" onclick="showPage('mychar',this)"><span class="nav-icon">📋</span> 캐릭터 정보</a>
+      <a class="nav-item" onclick="showPage('meso',this)"><span class="nav-icon">💰</span> 메소 가계부</a>
+      <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon">⚔️</span> 내 장비 관리</a>
     </div>
 
-    <!-- 내 공대 관리 (로그인 후 공대장만) -->
-    <div class="accordion-btn" onclick="toggleAccordion(this)" id="navMyRaid" style="display:none;">
-      <span>⚔️</span> 내 공대 관리 <span class="arrow">▶</span>
+    <!-- 2. 길드관리 -->
+    <div class="nav-item" onclick="showPage('guild-promo',this)"><span class="nav-icon">🏰</span> 길드관리</div>
+
+    <!-- 3. 공대관리 -->
+    <div class="nav-accordion open" onclick="toggleAccordion(this)">
+      <span class="nav-icon">⚔️</span> 공대관리 <span class="arr">▶</span>
     </div>
-    <div class="accordion-body" id="navMyRaidBody">
-      <a onclick="showPage('members', this)"><span class="icon">👥</span> 공대원 관리</a>
-      <a onclick="showPage('gold', this)"><span class="icon">💎</span> 골드 분배</a>
-      <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 판매 기록</a>
+    <div class="acc-body open">
+      <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon">👥</span> 공대원 목록</a>
+      <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon">💎</span> 분배내역</a>
+      <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon">🛒</span> 판매내역</a>
     </div>
 
-    <!-- 시스템 -->
-    <a onclick="showPage('users', this)" id="navUsers" style="display:none;"><span class="icon">🔐</span> 권한 관리</a>
+    <div class="nav-section">시스템</div>
+    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;"><span class="nav-icon">🔐</span> 권한 관리</a>
   </nav>
 </aside>
 
-<!-- ===== RIGHT: Layout (공통 header + main) ===== -->
+<!-- ===== RIGHT: Layout ===== -->
 <div class="layout">
 
-<!-- ===== TOP: Header (공통) ===== -->
-<div class="top-header">
-  <!-- 비로그인 -->
-  <div id="loginArea">
-    <button class="discord-login-btn" onclick="discordLogin()">
-      <svg width="18" height="14" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
-      로그인
-    </button>
-  </div>
-  <!-- 로그인 상태 -->
-  <div id="userArea" style="display:none;">
-    <div class="user-profile">
-      <img id="userPhoto" src="" alt="">
-      <span class="name" id="userName">-</span>
-      <span class="role-tag badge" id="userRoleBadge">-</span>
-      <span class="logout-link" onclick="doLogout()">로그아웃</span>
+  <!-- ===== TOP: Header (공통) ===== -->
+  <header class="header">
+    <div class="header-left" id="breadcrumb">공대관리 / 공대원 목록</div>
+    <div class="header-right">
+      <div id="loginArea">
+        <button class="discord-btn" onclick="discordLogin()">
+          <svg width="16" height="12" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
+          로그인
+        </button>
+      </div>
+      <div id="userArea" style="display:none;">
+        <div class="user-chip">
+          <img id="userPhoto" src="" alt="">
+          <span class="uname" id="userName">-</span>
+          <span class="urole" id="userRoleBadge">-</span>
+          <span class="logout-link" onclick="doLogout()">로그아웃</span>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  </header>
 
-<!-- ===== MAIN: Content (페이지별 변경) ===== -->
-<div class="main">
+  <!-- ===== MAIN: Content ===== -->
+  <div class="main">
 
-  <!-- ========== 대시보드 ========== -->
-  <!-- ========== 공대 목록 (공개) ========== -->
-  <div id="page-raid-list" class="page-section active">
-    <div class="top-bar">
-      <div>
-        <h1>공대 목록</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">등록된 공대를 확인하고 참여하세요</p>
-      </div>
-      <button class="btn btn-primary" id="btnCreateRaid" onclick="openRaidModal()" style="display:none;">+ 공대 등록</button>
+    <!-- 캐릭터 정보 -->
+    <div id="page-mychar" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">캐릭터 정보</h1><p class="page-desc">내 캐릭터 기본 정보를 관리합니다</p></div></div>
+      <div class="panel"><div class="empty-state"><div class="icon">🍄</div><h3>준비 중</h3><p>캐릭터 정보 기능이 곧 추가됩니다</p></div></div>
     </div>
-    <div class="filter-bar">
-      <input type="text" class="search-input" placeholder="공대명, 보스 검색..." id="raidSearch" oninput="renderRaidList()">
-      <select class="filter-select" id="raidStatusFilter" onchange="renderRaidList()">
-        <option value="">전체</option>
-        <option value="모집중">모집중</option>
-        <option value="마감">마감</option>
-      </select>
-      <span style="margin-left:auto;font-size:12px;color:#636e72;" id="raidCount">0개</span>
-    </div>
-    <div id="raidListCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
-    </div>
-  </div>
 
-  <!-- ========== 길드 홍보 (공개) ========== -->
-  <div id="page-guild-promo" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>길드 홍보</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드를 홍보하고 길드원을 모집하세요</p>
-      </div>
-      <button class="btn btn-primary" id="btnCreateGuild" onclick="openGuildPromoModal()" style="display:none;">+ 길드 홍보 등록</button>
+    <!-- 메소 가계부 -->
+    <div id="page-meso" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">메소 가계부</h1><p class="page-desc">메소 입출금을 기록하고 관리합니다</p></div></div>
+      <div class="panel"><div class="empty-state"><div class="icon">💰</div><h3>준비 중</h3><p>메소 가계부 기능이 곧 추가됩니다</p></div></div>
     </div>
-    <div id="guildPromoList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
-    </div>
-  </div>
 
-  <!-- ========== 대시보드 (내 공대) ========== -->
-  <div id="page-dashboard" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>대시보드</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">내 공대 현황을 한눈에 확인합니다</p>
-      </div>
+    <!-- 내 장비 관리 -->
+    <div id="page-equip" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">내 장비 관리</h1><p class="page-desc">착용 장비를 등록하고 관리합니다</p></div></div>
+      <div class="panel"><div class="empty-state"><div class="icon">⚔️</div><h3>준비 중</h3><p>장비 관리 기능이 곧 추가됩니다</p></div></div>
     </div>
-    <div class="cards">
-      <div class="card">
-        <div class="card-info"><h3 id="statTotal">0</h3><p>전체 공대원</p></div>
-        <div class="card-icon blue">👥</div>
+
+    <!-- 길드관리 -->
+    <div id="page-guild-promo" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">길드관리</h1><p class="page-desc">길드를 홍보하고 길드원을 모집하세요</p></div>
+        <button class="btn btn-primary" id="btnCreateGuild" onclick="openGuildPromoModal()" style="display:none;">+ 길드 홍보 등록</button>
       </div>
-      <div class="card">
-        <div class="card-info"><h3 id="statActive">0</h3><p>참여 가능</p></div>
-        <div class="card-icon green">✅</div>
-      </div>
-      <div class="card">
-        <div class="card-info"><h3 id="statGold">0</h3><p>총 골드 수입</p></div>
-        <div class="card-icon orange">💰</div>
-      </div>
-      <div class="card">
-        <div class="card-info"><h3 id="statAvg">0</h3><p>평균 1인 수입</p></div>
-        <div class="card-icon red">📊</div>
-      </div>
+      <div id="guildPromoList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
     </div>
-    <div class="grid-2">
-      <div class="panel">
-        <div class="panel-header"><h2>역할 분포</h2></div>
-        <div id="roleChart" style="display:flex;align-items:flex-end;gap:20px;height:160px;padding:10px 20px;"></div>
+
+    <!-- 공대원 목록 -->
+    <div id="page-members" class="page-section active">
+      <div class="top-bar">
+        <div><h1 class="page-title">공대원 목록</h1><p class="page-desc">공대원 정보를 등록하고 관리합니다</p></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline" onclick="exportMembers()">내보내기</button>
+          <button class="btn btn-primary" id="btnAddMember" onclick="openMemberModal()" style="display:none;">+ 공대원 등록</button>
+        </div>
       </div>
       <div class="panel">
-        <div class="panel-header"><h2>참여 상태 요약</h2></div>
-        <div id="statusSummary"></div>
+        <div class="filter-bar">
+          <input type="text" class="search-input" placeholder="캐릭터명, 직업 검색..." id="memberSearch" oninput="renderMemberTable()">
+          <select class="filter-select" id="memberRoleFilter" onchange="renderMemberTable()">
+            <option value="">역할 전체</option><option value="딜러">딜러</option><option value="서폿">서폿</option>
+          </select>
+          <select class="filter-select" id="memberStatusFilter" onchange="renderMemberTable()">
+            <option value="">상태 전체</option><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option>
+          </select>
+          <span style="margin-left:auto;font-size:12px;color:var(--text-sub);" id="memberCount">0명</span>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr>
+            <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>아이템 레벨</th><th>주급 골드</th><th>참여율</th><th>상태</th><th>비고</th><th>관리</th>
+          </tr></thead><tbody id="memberTableBody"></tbody></table>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ========== 캐릭터 정보 ========== -->
-  <div id="page-mychar" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>캐릭터 정보</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">내 캐릭터 기본 정보를 관리합니다</p>
+    <!-- 분배내역 -->
+    <div id="page-gold" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">분배내역</h1><p class="page-desc">레이드 골드 분배를 관리합니다</p></div></div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table><thead><tr><th>#</th><th>캐릭터명</th><th>역할</th><th>기본 골드</th><th>보너스</th><th>총 수령</th></tr></thead>
+          <tbody id="goldTableBody"></tbody></table>
+        </div>
       </div>
     </div>
-    <div class="panel" style="text-align:center; padding:60px 20px;">
-      <div style="font-size:48px; margin-bottom:16px;">🍄</div>
-      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
-      <p style="color:#b2bec3;">캐릭터 정보 기능이 곧 추가됩니다</p>
-    </div>
-  </div>
 
-  <!-- ========== 메소 가계부 ========== -->
-  <div id="page-meso" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>메소 가계부</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">메소 입출금을 기록하고 관리합니다</p>
+    <!-- 판매내역 -->
+    <div id="page-purchase" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">판매내역</h1><p class="page-desc">판매 내역을 기록하고 확인합니다</p></div>
+        <button class="btn btn-primary" onclick="openPurchaseModal()">+ 판매 기록</button>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table><thead><tr><th>#</th><th>등록자</th><th>아이템명</th><th>가격</th><th>날짜</th><th>메모</th><th>관리</th></tr></thead>
+          <tbody id="purchaseTableBody"></tbody></table>
+        </div>
       </div>
     </div>
-    <div class="panel" style="text-align:center; padding:60px 20px;">
-      <div style="font-size:48px; margin-bottom:16px;">💰</div>
-      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
-      <p style="color:#b2bec3;">메소 가계부 기능이 곧 추가됩니다</p>
-    </div>
-  </div>
 
-  <!-- ========== 장비 관리 ========== -->
-  <div id="page-equip" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>장비 관리</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">착용 장비를 등록하고 관리합니다</p>
+    <!-- 권한 관리 -->
+    <div id="page-users" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">권한 관리</h1><p class="page-desc">사용자 권한을 관리합니다</p></div></div>
+      <div class="alert alert-info">
+        <span>ℹ️</span> <strong>권한:</strong> 사이트마스터=전체 | 공대장/부공대장=관리+등록 | 공대원=자기정보 | 손님=판매기록 열람
+      </div>
+      <div class="panel">
+        <div class="filter-bar">
+          <input type="text" class="search-input" placeholder="이름, 이메일 검색..." id="userSearch" oninput="renderUserTable()">
+          <select class="filter-select" id="userRoleFilter2" onchange="renderUserTable()">
+            <option value="">전체</option><option value="master">사이트마스터</option><option value="leader">공대장</option><option value="vice">부공대장</option><option value="member">공대원</option><option value="guest">손님</option><option value="none">권한없음</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>#</th><th>프로필</th><th>이름</th><th>이메일</th><th>권한</th><th>가입일</th><th>변경</th></tr></thead>
+          <tbody id="userTableBody"></tbody></table>
+        </div>
       </div>
     </div>
-    <div class="panel" style="text-align:center; padding:60px 20px;">
-      <div style="font-size:48px; margin-bottom:16px;">⚔️</div>
-      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
-      <p style="color:#b2bec3;">장비 관리 기능이 곧 추가됩니다</p>
-    </div>
-  </div>
 
-  <!-- ========== 길드원 목록 ========== -->
-  <div id="page-guild-members" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>길드원 목록</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드원 정보를 관리합니다</p>
-      </div>
-    </div>
-    <div class="panel" style="text-align:center; padding:60px 20px;">
-      <div style="font-size:48px; margin-bottom:16px;">🏰</div>
-      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
-      <p style="color:#b2bec3;">길드원 목록 기능이 곧 추가됩니다</p>
-    </div>
-  </div>
-
-  <!-- ========== 출석 관리 ========== -->
-  <div id="page-guild-attend" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>출석 관리</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드원 출석을 관리합니다</p>
-      </div>
-    </div>
-    <div class="panel" style="text-align:center; padding:60px 20px;">
-      <div style="font-size:48px; margin-bottom:16px;">📅</div>
-      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
-      <p style="color:#b2bec3;">출석 관리 기능이 곧 추가됩니다</p>
-    </div>
-  </div>
-
-  <!-- ========== 길드 공지 ========== -->
-  <div id="page-guild-notice" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>길드 공지</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드 공지사항을 관리합니다</p>
-      </div>
-    </div>
-    <div class="panel" style="text-align:center; padding:60px 20px;">
-      <div style="font-size:48px; margin-bottom:16px;">📢</div>
-      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
-      <p style="color:#b2bec3;">길드 공지 기능이 곧 추가됩니다</p>
-    </div>
-  </div>
-
-  <!-- ========== 공대원 관리 ========== -->
-  <div id="page-members" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>공대원 관리</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">공대원 정보를 등록하고 관리합니다</p>
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-outline" onclick="exportMembers()">📥 내보내기</button>
-        <button class="btn btn-primary" id="btnAddMember" onclick="openMemberModal()">+ 공대원 등록</button>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="filter-bar">
-        <input type="text" class="search-input" placeholder="캐릭터명, 직업 검색..." id="memberSearch" oninput="renderMemberTable()">
-        <select class="filter-select" id="memberRoleFilter" onchange="renderMemberTable()">
-          <option value="">역할 전체</option>
-          <option value="딜러">딜러</option>
-          <option value="서폿">서폿</option>
-        </select>
-        <select class="filter-select" id="memberStatusFilter" onchange="renderMemberTable()">
-          <option value="">상태 전체</option>
-          <option value="참여">참여</option>
-          <option value="미정">미정</option>
-          <option value="불참">불참</option>
-        </select>
-        <span style="margin-left:auto;font-size:12px;color:#636e72;" id="memberCount">0명</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>캐릭터명</th>
-              <th>직업</th>
-              <th>역할</th>
-              <th>아이템 레벨</th>
-              <th>주급 골드</th>
-              <th>참여율</th>
-              <th>상태</th>
-              <th>비고</th>
-              <th>관리</th>
-            </tr>
-          </thead>
-          <tbody id="memberTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== 골드 분배 ========== -->
-  <div id="page-gold" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>골드 분배</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">레이드 골드 분배를 관리합니다</p>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>#</th><th>캐릭터명</th><th>역할</th><th>기본 골드</th><th>보너스</th><th>총 수령</th></tr>
-          </thead>
-          <tbody id="goldTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== 판매 기록 (손님) ========== -->
-  <div id="page-purchase" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>판매 기록</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">판매 내역을 기록하고 확인합니다</p>
-      </div>
-      <button class="btn btn-primary" onclick="openPurchaseModal()">+ 판매 기록</button>
-    </div>
-    <div class="panel">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>#</th><th>등록자</th><th>아이템명</th><th>가격 (골드)</th><th>날짜</th><th>메모</th><th>관리</th></tr>
-          </thead>
-          <tbody id="purchaseTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== 권한 관리 (마스터/공대장만) ========== -->
-  <div id="page-users" class="page-section">
-    <div class="top-bar">
-      <div>
-        <h1>권한 관리</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">사용자 권한을 관리합니다</p>
-      </div>
-    </div>
-    <div class="alert alert-info" style="margin-bottom:20px;">
-      <span class="icon">ℹ️</span>
-      <span><strong>권한 안내:</strong> 사이트마스터=전체 권한 | 공대장/부공대장=권한등록+시트등록 | 공대원=자기정보 | 손님=판매기록 열람</span>
-    </div>
-    <div class="panel">
-      <div class="filter-bar">
-        <input type="text" class="search-input" placeholder="이름, 이메일 검색..." id="userSearch" oninput="renderUserTable()">
-        <select class="filter-select" id="userRoleFilter2" onchange="renderUserTable()">
-          <option value="">전체</option>
-          <option value="master">사이트마스터</option>
-          <option value="leader">공대장</option>
-          <option value="vice">부공대장</option>
-          <option value="member">공대원</option>
-          <option value="guest">손님</option>
-          <option value="none">권한없음</option>
-        </select>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>#</th><th>프로필</th><th>이름</th><th>이메일</th><th>현재 권한</th><th>가입일</th><th>권한 변경</th></tr>
-          </thead>
-          <tbody id="userTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-</div><!-- .main -->
+  </div><!-- .main -->
 </div><!-- .layout -->
-</div><!-- #appWrap -->
 
 <!-- Member Modal -->
 <div class="modal-overlay" id="memberModal">
   <div class="modal">
     <h2 id="memberModalTitle">공대원 등록</h2>
     <div class="form-row">
-      <div class="form-group">
-        <label>캐릭터명 *</label>
-        <input type="text" id="fName" placeholder="캐릭터명">
-      </div>
-      <div class="form-group">
-        <label>직업 *</label>
-        <select id="fClass">
-          <option value="">선택</option>
-          <option>버서커</option><option>디스트로이어</option><option>워로드</option>
-          <option>홀리나이트</option><option>슬레이어</option><option>인파이터</option>
-          <option>배틀마스터</option><option>기공사</option><option>소울이터</option>
-          <option>데빌헌터</option><option>블래스터</option><option>호크아이</option>
-          <option>스카우터</option><option>건슬링어</option><option>아르카나</option>
-          <option>서머너</option><option>바드</option><option>소서리스</option>
-          <option>리퍼</option><option>블레이드</option><option>데모닉</option>
-          <option>도화가</option><option>기상술사</option><option>브레이커</option>
+      <div class="form-group"><label>캐릭터명 *</label><input type="text" id="fName" placeholder="캐릭터명"></div>
+      <div class="form-group"><label>직업 *</label>
+        <select id="fClass"><option value="">선택</option>
+          <option>버서커</option><option>디스트로이어</option><option>워로드</option><option>홀리나이트</option><option>슬레이어</option>
+          <option>인파이터</option><option>배틀마스터</option><option>기공사</option><option>소울이터</option><option>데빌헌터</option>
+          <option>블래스터</option><option>호크아이</option><option>스카우터</option><option>건슬링어</option><option>아르카나</option>
+          <option>서머너</option><option>바드</option><option>소서리스</option><option>리퍼</option><option>블레이드</option>
+          <option>데모닉</option><option>도화가</option><option>기상술사</option><option>브레이커</option>
         </select>
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>역할</label>
-        <select id="fRole"><option value="딜러">딜러</option><option value="서폿">서폿</option></select>
-      </div>
-      <div class="form-group">
-        <label>아이템 레벨</label>
-        <input type="number" id="fLevel" placeholder="1620">
-      </div>
+      <div class="form-group"><label>역할</label><select id="fRole"><option value="딜러">딜러</option><option value="서폿">서폿</option></select></div>
+      <div class="form-group"><label>아이템 레벨</label><input type="number" id="fLevel" placeholder="1620"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label>주급 골드 (만)</label>
-        <input type="number" id="fGold" placeholder="150">
-      </div>
-      <div class="form-group">
-        <label>상태</label>
-        <select id="fStatus"><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option></select>
-      </div>
+      <div class="form-group"><label>주급 골드 (만)</label><input type="number" id="fGold" placeholder="150"></div>
+      <div class="form-group"><label>상태</label><select id="fStatus"><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option></select></div>
     </div>
-    <div class="form-group">
-      <label>비고</label>
-      <input type="text" id="fNote" placeholder="메모">
-    </div>
+    <div class="form-group"><label>비고</label><input type="text" id="fNote" placeholder="메모"></div>
     <input type="hidden" id="fEditId" value="">
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeMemberModal()">취소</button>
@@ -553,96 +329,17 @@
   </div>
 </div>
 
-<!-- Raid Create Modal -->
-<div class="modal-overlay" id="raidModal">
-  <div class="modal">
-    <h2>공대 등록</h2>
-    <div class="form-group">
-      <label>공대 이름 *</label>
-      <input type="text" id="rName" placeholder="예: 불사조 공대">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>보스 *</label>
-        <select id="rBoss">
-          <option value="">선택</option>
-          <option>자쿰</option>
-          <option>혼테일</option>
-          <option>핑크빈</option>
-          <option>시그너스</option>
-          <option>기타</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>난이도</label>
-        <select id="rDiff">
-          <option value="노말">노말</option>
-          <option value="하드">하드</option>
-          <option value="카오스">카오스</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>정원</label>
-        <input type="number" id="rMax" placeholder="16" value="16">
-      </div>
-      <div class="form-group">
-        <label>상태</label>
-        <select id="rStatus">
-          <option value="모집중">모집중</option>
-          <option value="마감">마감</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>공대 소개</label>
-      <input type="text" id="rDesc" placeholder="간단한 공대 소개">
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeRaidModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveRaid()">등록</button>
-    </div>
-  </div>
-</div>
-
 <!-- Guild Promo Modal -->
 <div class="modal-overlay" id="guildPromoModal">
   <div class="modal">
     <h2>길드 홍보 등록</h2>
-    <div class="form-group">
-      <label>길드 이름 *</label>
-      <input type="text" id="gName" placeholder="길드명">
-    </div>
+    <div class="form-group"><label>길드 이름 *</label><input type="text" id="gName" placeholder="길드명"></div>
     <div class="form-row">
-      <div class="form-group">
-        <label>서버</label>
-        <select id="gServer">
-          <option>스카니아</option>
-          <option>베라</option>
-          <option>루나</option>
-          <option>제니스</option>
-          <option>크로아</option>
-          <option>유니온</option>
-          <option>엘리시움</option>
-          <option>이노시스</option>
-          <option>레드</option>
-          <option>오로라</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>가입 조건</label>
-        <input type="text" id="gReq" placeholder="예: Lv200+">
-      </div>
+      <div class="form-group"><label>서버</label><select id="gServer"><option>스카니아</option><option>베라</option><option>루나</option><option>제니스</option><option>크로아</option><option>유니온</option><option>엘리시움</option><option>이노시스</option><option>레드</option><option>오로라</option></select></div>
+      <div class="form-group"><label>가입 조건</label><input type="text" id="gReq" placeholder="예: Lv200+"></div>
     </div>
-    <div class="form-group">
-      <label>길드 소개 *</label>
-      <input type="text" id="gDesc" placeholder="길드를 소개해 주세요">
-    </div>
-    <div class="form-group">
-      <label>연락처 (디스코드 등)</label>
-      <input type="text" id="gContact" placeholder="예: discord.gg/xxxx">
-    </div>
+    <div class="form-group"><label>길드 소개 *</label><input type="text" id="gDesc" placeholder="길드를 소개해 주세요"></div>
+    <div class="form-group"><label>연락처</label><input type="text" id="gContact" placeholder="예: discord.gg/xxxx"></div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeGuildPromoModal()">취소</button>
       <button class="btn btn-primary" onclick="saveGuildPromo()">등록</button>
@@ -654,24 +351,12 @@
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
     <h2>판매 기록</h2>
-    <div class="form-group">
-      <label>아이템명 *</label>
-      <input type="text" id="pItem" placeholder="아이템 이름">
-    </div>
+    <div class="form-group"><label>아이템명 *</label><input type="text" id="pItem" placeholder="아이템 이름"></div>
     <div class="form-row">
-      <div class="form-group">
-        <label>가격 (골드) *</label>
-        <input type="number" id="pPrice" placeholder="10000">
-      </div>
-      <div class="form-group">
-        <label>날짜</label>
-        <input type="date" id="pDate">
-      </div>
+      <div class="form-group"><label>가격 (골드) *</label><input type="number" id="pPrice" placeholder="10000"></div>
+      <div class="form-group"><label>날짜</label><input type="date" id="pDate"></div>
     </div>
-    <div class="form-group">
-      <label>메모</label>
-      <input type="text" id="pMemo" placeholder="메모">
-    </div>
+    <div class="form-group"><label>메모</label><input type="text" id="pMemo" placeholder="메모"></div>
     <input type="hidden" id="pEditId" value="">
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closePurchaseModal()">취소</button>
@@ -687,7 +372,7 @@
 
 <script>
 // =============================================
-// Firebase 설정 - 여기에 본인 config를 넣으세요
+// Firebase
 // =============================================
 const firebaseConfig = {
   apiKey: "AIzaSyCyNCRF-zFIQWx13aKGYEqYrQGNDD70r_4",
@@ -697,674 +382,229 @@ const firebaseConfig = {
   messagingSenderId: "254863239269",
   appId: "1:254863239269:web:6951adeeb9d0bd71ec3e8c"
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
 // =============================================
-// 전역 상태
+// State
 // =============================================
-let currentUser = null;   // Firebase auth user
-let currentProfile = null; // Firestore user profile { role, name, ... }
-let allMembers = [];
-let allUsers = [];
-let allPurchases = [];
-
+let currentUser = null, currentProfile = null;
+let allMembers = [], allUsers = [], allPurchases = [], allGuildPromos = [];
 const ROLES = {
-  master: { label: '사이트마스터', badge: 'badge-red', level: 4 },
-  leader: { label: '공대장', badge: 'badge-purple', level: 3 },
-  vice:   { label: '부공대장', badge: 'badge-blue', level: 3 },
-  member: { label: '공대원', badge: 'badge-green', level: 2 },
-  guest:  { label: '손님', badge: 'badge-yellow', level: 1 },
-  none:   { label: '권한없음', badge: 'badge-gray', level: 0 },
+  master:{label:'사이트마스터',badge:'badge-red',level:4},
+  leader:{label:'공대장',badge:'badge-purple',level:3},
+  vice:{label:'부공대장',badge:'badge-blue',level:3},
+  member:{label:'공대원',badge:'badge-green',level:2},
+  guest:{label:'손님',badge:'badge-yellow',level:1},
+  none:{label:'권한없음',badge:'badge-gray',level:0},
 };
-
-function canManageUsers() {
-  if (!currentProfile) return false;
-  return ['master','leader','vice'].includes(currentProfile.role);
-}
-function canManageMembers() {
-  if (!currentProfile) return false;
-  return ['master','leader','vice'].includes(currentProfile.role);
-}
-function canEditSelf() {
-  if (!currentProfile) return false;
-  return currentProfile.role === 'member';
-}
-function isGuest() {
-  return currentProfile && currentProfile.role === 'guest';
-}
+function canManageUsers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
+function canManageMembers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
+function canEditSelf(){return currentProfile&&currentProfile.role==='member';}
 
 // =============================================
-// 인증
+// Auth
 // =============================================
-const DISCORD_CLIENT_ID = '1491978282105835530';
-const DISCORD_REDIRECT_URI = 'https://coolestholic-cyber.github.io/raid-erp/';
-const DISCORD_WORKER_URL = 'https://mapleland-auth.coolestholic.workers.dev';
+const DISCORD_CLIENT_ID='1491978282105835530';
+const DISCORD_REDIRECT_URI='https://coolestholic-cyber.github.io/raid-erp/';
+const DISCORD_WORKER_URL='https://mapleland-auth.coolestholic.workers.dev';
 
-function discordLogin() {
-  const params = new URLSearchParams({
-    client_id: DISCORD_CLIENT_ID,
-    redirect_uri: DISCORD_REDIRECT_URI,
-    response_type: 'code',
-    scope: 'identify',
-  });
-  window.location.href = `https://discord.com/api/oauth2/authorize?${params}`;
+function discordLogin(){
+  const p=new URLSearchParams({client_id:DISCORD_CLIENT_ID,redirect_uri:DISCORD_REDIRECT_URI,response_type:'code',scope:'identify'});
+  window.location.href=`https://discord.com/api/oauth2/authorize?${p}`;
 }
+async function handleDiscordCallback(code){
+  try{
+    const res=await fetch(DISCORD_WORKER_URL+'/exchange',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    const discord=await res.json();
+    if(discord.error){alert('Discord 로그인 실패: '+discord.error);location.href=DISCORD_REDIRECT_URI;return;}
+    _pendingDiscord=discord;await auth.signInAnonymously();
+  }catch(e){alert('Discord 로그인 실패: '+e.message);location.href=DISCORD_REDIRECT_URI;}
+}
+let _pendingDiscord=null,_pendingRole=null,_pendingName=null;
 
-async function handleDiscordCallback(code) {
-  try {
-    const res = await fetch(DISCORD_WORKER_URL + '/exchange', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
-    });
-    const discord = await res.json();
-    if (discord.error) { alert('Discord 로그인 실패: ' + discord.error); location.href = DISCORD_REDIRECT_URI; return; }
+function doLogout(){auth.signOut();currentUser=null;currentProfile=null;updateLoginUI();}
 
-    // Firebase 익명 인증 후 Discord 정보 저장
-    _pendingRole = null;
-    _pendingName = null;
-    _pendingDiscord = discord;
-    await auth.signInAnonymously();
-  } catch (e) {
-    alert('Discord 로그인 실패: ' + e.message);
-    location.href = DISCORD_REDIRECT_URI;
+function updateLoginUI(){
+  const ok=!!currentProfile;
+  document.getElementById('loginArea').style.display=ok?'none':'';
+  document.getElementById('userArea').style.display=ok?'':'none';
+  const ba=document.getElementById('btnAddMember'),bg=document.getElementById('btnCreateGuild');
+  if(ba)ba.style.display=ok&&canManageMembers()?'':'none';
+  if(bg)bg.style.display=ok?'':'none';
+  if(ok){
+    document.getElementById('userName').textContent=currentProfile.name;
+    document.getElementById('userPhoto').src=currentProfile.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
+    const r=ROLES[currentProfile.role]||ROLES.none;
+    document.getElementById('userRoleBadge').textContent=r.label;
+    document.getElementById('navUsers').style.display=canManageUsers()?'':'none';
+  }else{
+    document.getElementById('navUsers').style.display='none';
   }
 }
 
-let _pendingDiscord = null;
-
-
-let _pendingRole = null;
-let _pendingName = null;
-
-function doLogout() {
-  auth.signOut();
-  currentUser = null;
-  currentProfile = null;
-  updateLoginUI();
-}
-
-function updateLoginUI() {
-  const loggedIn = !!currentProfile;
-  document.getElementById('loginArea').style.display = loggedIn ? 'none' : '';
-  document.getElementById('userArea').style.display = loggedIn ? '' : 'none';
-  // 공대/길드 등록 버튼 (로그인 시 표시)
-  const btnRaid = document.getElementById('btnCreateRaid');
-  const btnGuild = document.getElementById('btnCreateGuild');
-  const btnAdd = document.getElementById('btnAddMember');
-  if (btnRaid) btnRaid.style.display = loggedIn ? '' : 'none';
-  if (btnGuild) btnGuild.style.display = loggedIn ? '' : 'none';
-  if (btnAdd) btnAdd.style.display = loggedIn && canManageMembers() ? '' : 'none';
-  if (loggedIn) {
-    document.getElementById('userName').textContent = currentProfile.name;
-    document.getElementById('userPhoto').src = currentProfile.photo || 'https://cdn.discordapp.com/embed/avatars/0.png';
-    const r = ROLES[currentProfile.role] || ROLES.none;
-    document.getElementById('userRoleBadge').textContent = r.label;
-    document.getElementById('navUsers').style.display = canManageUsers() ? '' : 'none';
-  } else {
-    document.getElementById('navUsers').style.display = 'none';
-    document.getElementById('navMyRaid').style.display = 'none';
-  }
-  updateMyRaidNav();
-}
-
-auth.onAuthStateChanged(async (user) => {
-  if (!user) {
-    currentUser = null;
-    currentProfile = null;
-    updateLoginUI();
-    // 비로그인 상태에서도 공개 데이터 구독
-    subscribeRaids();
-    subscribeGuildPromos();
-    return;
-  }
-  currentUser = user;
-
-  // 유저 프로필 가져오기 또는 생성
-  const userRef = db.collection('users').doc(user.uid);
-  let doc = await userRef.get();
-
-  if (!doc.exists) {
-    if (user.isAnonymous && _pendingDiscord) {
-      // Discord 로그인 사용자
-      const discord = _pendingDiscord;
-      _pendingDiscord = null;
-      const usersSnap = await db.collection('users').where('isAnonymous','!=',true).get();
-      const hasRealUsers = !usersSnap.empty;
-      const newProfile = {
-        name: discord.global_name || discord.username,
-        email: discord.email || '',
-        photo: discord.avatar || '',
-        role: hasRealUsers ? 'none' : 'master',
-        discordId: discord.id,
-        discordUsername: discord.username,
-        isAnonymous: true,
-        loginType: 'discord',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      await userRef.set(newProfile);
-      doc = await userRef.get();
-    } else if (user.isAnonymous && _pendingRole) {
-      // 익명 접속 (방문자/손님)
-      const newProfile = {
-        name: _pendingName || '방문자',
-        email: '',
-        photo: '',
-        role: _pendingRole,
-        isAnonymous: true,
-        loginType: 'anonymous',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      await userRef.set(newProfile);
-      _pendingRole = null;
-      _pendingName = null;
-      doc = await userRef.get();
-    } else {
-      // Google 로그인 사용자
-      const usersSnap = await db.collection('users').where('isAnonymous','!=',true).get();
-      const isFirst = usersSnap.empty;
-      const newProfile = {
-        name: user.displayName || '이름없음',
-        email: user.email,
-        photo: user.photoURL || '',
-        role: isFirst ? 'master' : 'none',
-        loginType: 'google',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      await userRef.set(newProfile);
-      doc = await userRef.get();
+auth.onAuthStateChanged(async(user)=>{
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();return;}
+  currentUser=user;
+  const userRef=db.collection('users').doc(user.uid);
+  let doc=await userRef.get();
+  if(!doc.exists){
+    if(user.isAnonymous&&_pendingDiscord){
+      const d=_pendingDiscord;_pendingDiscord=null;
+      const snap=await db.collection('users').where('isAnonymous','!=',true).get();
+      await userRef.set({name:d.global_name||d.username,email:d.email||'',photo:d.avatar||'',role:snap.empty?'master':'none',discordId:d.id,discordUsername:d.username,isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      doc=await userRef.get();
+    }else if(user.isAnonymous&&_pendingRole){
+      await userRef.set({name:_pendingName||'방문자',email:'',photo:'',role:_pendingRole,isAnonymous:true,loginType:'anonymous',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      _pendingRole=null;_pendingName=null;doc=await userRef.get();
+    }else{
+      const snap=await db.collection('users').where('isAnonymous','!=',true).get();
+      await userRef.set({name:user.displayName||'이름없음',email:user.email,photo:user.photoURL||'',role:snap.empty?'master':'none',loginType:'google',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      doc=await userRef.get();
     }
   }
-
-  currentProfile = { id: doc.id, ...doc.data() };
-
-  initApp();
+  currentProfile={id:doc.id,...doc.data()};
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();
 });
 
 // =============================================
-// 앱 초기화
+// Members
 // =============================================
-function initApp() {
-  updateLoginUI();
-  // 실시간 데이터 구독
-  subscribeRaids();
-  subscribeGuildPromos();
-  subscribeMembers();
-  subscribeUsers();
-  subscribePurchases();
-}
+function subscribeMembers(){db.collection('members').orderBy('name').onSnapshot(s=>{allMembers=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberTable();renderGoldTable();});}
 
-// =============================================
-// 실시간 구독 - Members
-// =============================================
-function subscribeMembers() {
-  db.collection('members').orderBy('name').onSnapshot(snap => {
-    allMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderMemberTable();
-    renderGoldTable();
-    renderDashboard();
-  });
-}
-
-function renderMemberTable() {
-  const search = document.getElementById('memberSearch').value.toLowerCase();
-  const roleF = document.getElementById('memberRoleFilter').value;
-  const statusF = document.getElementById('memberStatusFilter').value;
-
-  let filtered = allMembers.filter(m => {
-    if (search && !m.name.toLowerCase().includes(search) && !(m.cls||'').toLowerCase().includes(search)) return false;
-    if (roleF && m.role !== roleF) return false;
-    if (statusF && m.status !== statusF) return false;
-    return true;
-  });
-
-  const canEdit = canManageMembers();
-  const tbody = document.getElementById('memberTableBody');
-  tbody.innerHTML = filtered.map((m, i) => {
-    const sc = m.status === '참여' ? 'badge-green' : m.status === '미정' ? 'badge-yellow' : 'badge-red';
-    const rate = m.rate || 0;
-    const rc = rate >= 90 ? '#00b894' : rate >= 70 ? '#fdcb6e' : '#e74c3c';
-    const isMine = m.ownerUid === (currentUser && currentUser.uid);
-    const canEditThis = canEdit || (canEditSelf() && isMine);
-    return `<tr>
-      <td>${i+1}</td>
-      <td><strong>${m.name||''}</strong></td>
-      <td>${m.cls||''}</td>
-      <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
-      <td>${(m.level||0).toLocaleString()}</td>
-      <td>${m.gold||0}만</td>
-      <td><div style="display:flex;align-items:center;gap:8px;">
-        <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rate}%;background:${rc};"></div></div>
-        <span style="font-size:12px;">${rate}%</span>
-      </div></td>
-      <td><span class="badge ${sc}">${m.status||''}</span></td>
-      <td style="color:#636e72;font-size:12px;">${m.note||''}</td>
-      <td>${canEditThis ? `<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>` : ''}
-          ${canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>` : ''}</td>
-    </tr>`;
+function renderMemberTable(){
+  const s=(document.getElementById('memberSearch')?.value||'').toLowerCase(),rF=document.getElementById('memberRoleFilter')?.value||'',sF=document.getElementById('memberStatusFilter')?.value||'';
+  let f=allMembers.filter(m=>{if(s&&!m.name.toLowerCase().includes(s)&&!(m.cls||'').toLowerCase().includes(s))return false;if(rF&&m.role!==rF)return false;if(sF&&m.status!==sF)return false;return true;});
+  const ce=canManageMembers(),tb=document.getElementById('memberTableBody');
+  if(!tb)return;
+  tb.innerHTML=f.map((m,i)=>{
+    const sc=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
+    const rt=m.rate||0,rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
+    const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
+    return `<tr><td>${i+1}</td><td><strong>${m.name||''}</strong></td><td>${m.cls||''}</td>
+    <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
+    <td>${(m.level||0).toLocaleString()}</td><td>${m.gold||0}만</td>
+    <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
+    <td><span class="badge ${sc}">${m.status||''}</span></td><td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
+    <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td></tr>`;
   }).join('');
-  document.getElementById('memberCount').textContent = filtered.length + '명';
+  document.getElementById('memberCount').textContent=f.length+'명';
 }
 
-function openMemberModal(id) {
-  document.getElementById('fEditId').value = id || '';
-  document.getElementById('memberModalTitle').textContent = id ? '공대원 수정' : '공대원 등록';
-  if (id) {
-    const m = allMembers.find(x => x.id === id);
-    if (m) {
-      document.getElementById('fName').value = m.name || '';
-      document.getElementById('fClass').value = m.cls || '';
-      document.getElementById('fRole').value = m.role || '딜러';
-      document.getElementById('fLevel').value = m.level || '';
-      document.getElementById('fGold').value = m.gold || '';
-      document.getElementById('fStatus').value = m.status || '참여';
-      document.getElementById('fNote').value = m.note || '';
-    }
-  } else {
-    ['fName','fClass','fLevel','fGold','fNote'].forEach(x => document.getElementById(x).value = '');
-    document.getElementById('fRole').value = '딜러';
-    document.getElementById('fStatus').value = '참여';
-  }
+function openMemberModal(id){
+  document.getElementById('fEditId').value=id||'';
+  document.getElementById('memberModalTitle').textContent=id?'공대원 수정':'공대원 등록';
+  if(id){const m=allMembers.find(x=>x.id===id);if(m){document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fGold').value=m.gold||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';}}
+  else{['fName','fClass','fLevel','fGold','fNote'].forEach(x=>document.getElementById(x).value='');document.getElementById('fRole').value='딜러';document.getElementById('fStatus').value='참여';}
   document.getElementById('memberModal').classList.add('show');
 }
-function closeMemberModal() { document.getElementById('memberModal').classList.remove('show'); }
-
-function editMember(id) { openMemberModal(id); }
-
-async function saveMember() {
-  const id = document.getElementById('fEditId').value;
-  const data = {
-    name: document.getElementById('fName').value.trim(),
-    cls: document.getElementById('fClass').value,
-    role: document.getElementById('fRole').value,
-    level: parseInt(document.getElementById('fLevel').value) || 0,
-    gold: parseInt(document.getElementById('fGold').value) || 0,
-    status: document.getElementById('fStatus').value,
-    note: document.getElementById('fNote').value.trim(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  if (!data.name || !data.cls) { alert('캐릭터명과 직업을 입력하세요.'); return; }
-
-  if (id) {
-    await db.collection('members').doc(id).update(data);
-  } else {
-    data.rate = 100;
-    data.ownerUid = currentUser ? currentUser.uid : (currentProfile.id || 'anon');
-    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-    await db.collection('members').add(data);
-  }
+function closeMemberModal(){document.getElementById('memberModal').classList.remove('show');}
+function editMember(id){openMemberModal(id);}
+async function saveMember(){
+  const id=document.getElementById('fEditId').value;
+  const d={name:document.getElementById('fName').value.trim(),cls:document.getElementById('fClass').value,role:document.getElementById('fRole').value,level:parseInt(document.getElementById('fLevel').value)||0,gold:parseInt(document.getElementById('fGold').value)||0,status:document.getElementById('fStatus').value,note:document.getElementById('fNote').value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(!d.name||!d.cls){alert('캐릭터명과 직업을 입력하세요.');return;}
+  if(id){await db.collection('members').doc(id).update(d);}else{d.rate=100;d.ownerUid=currentUser?currentUser.uid:'anon';d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('members').add(d);}
   closeMemberModal();
 }
-
-async function deleteMember(id, name) {
-  if (confirm(`"${name}" 공대원을 삭제하시겠습니까?`)) {
-    await db.collection('members').doc(id).delete();
-  }
-}
+async function deleteMember(id,name){if(confirm(`"${name}" 삭제?`))await db.collection('members').doc(id).delete();}
 
 // =============================================
-// 골드 분배
+// Gold
 // =============================================
-function renderGoldTable() {
-  const tbody = document.getElementById('goldTableBody');
-  tbody.innerHTML = allMembers.filter(m => m.status === '참여').map((m, i) => {
-    const bonus = m.role === '서폿' ? 20 : 0;
-    return `<tr>
-      <td>${i+1}</td>
-      <td><strong>${m.name}</strong></td>
-      <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role}</span></td>
-      <td>${m.gold||0}만</td>
-      <td>${bonus ? '+'+bonus+'만' : '-'}</td>
-      <td><strong>${(m.gold||0)+bonus}만</strong></td>
-    </tr>`;
+function renderGoldTable(){
+  const tb=document.getElementById('goldTableBody');if(!tb)return;
+  tb.innerHTML=allMembers.filter(m=>m.status==='참여').map((m,i)=>{
+    const b=m.role==='서폿'?20:0;
+    return `<tr><td>${i+1}</td><td><strong>${m.name}</strong></td><td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role}</span></td><td>${m.gold||0}만</td><td>${b?'+'+b+'만':'-'}</td><td><strong>${(m.gold||0)+b}만</strong></td></tr>`;
   }).join('');
 }
 
 // =============================================
-// 판매 기록
+// Purchases
 // =============================================
-function subscribePurchases() {
-  db.collection('purchases').orderBy('createdAt','desc').onSnapshot(snap => {
-    allPurchases = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderPurchaseTable();
-  });
-}
-
-function renderPurchaseTable() {
-  const tbody = document.getElementById('purchaseTableBody');
-  const canDeleteAll = canManageMembers();
-  tbody.innerHTML = allPurchases.map((p, i) => {
-    const isMine = p.uid === (currentUser && currentUser.uid);
-    const canDel = canDeleteAll || isMine;
-    return `<tr>
-      <td>${i+1}</td>
-      <td>${p.userName||''}</td>
-      <td>${p.item||''}</td>
-      <td>${(p.price||0).toLocaleString()}</td>
-      <td>${p.date||''}</td>
-      <td style="color:#636e72;font-size:12px;">${p.memo||''}</td>
-      <td>${canDel ? `<button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button>` : ''}</td>
-    </tr>`;
+function subscribePurchases(){db.collection('purchases').orderBy('createdAt','desc').onSnapshot(s=>{allPurchases=s.docs.map(d=>({id:d.id,...d.data()}));renderPurchaseTable();});}
+function renderPurchaseTable(){
+  const tb=document.getElementById('purchaseTableBody');if(!tb)return;
+  const ca=canManageMembers();
+  tb.innerHTML=allPurchases.map((p,i)=>{
+    const mine=p.uid===(currentUser&&currentUser.uid),cd=ca||mine;
+    return `<tr><td>${i+1}</td><td>${p.userName||''}</td><td>${p.item||''}</td><td>${(p.price||0).toLocaleString()}</td><td>${p.date||''}</td><td style="color:var(--text-sub);font-size:12px;">${p.memo||''}</td><td>${cd?`<button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button>`:''}</td></tr>`;
   }).join('');
 }
-
-function openPurchaseModal() {
-  document.getElementById('pItem').value = '';
-  document.getElementById('pPrice').value = '';
-  document.getElementById('pDate').value = new Date().toISOString().slice(0,10);
-  document.getElementById('pMemo').value = '';
-  document.getElementById('pEditId').value = '';
-  document.getElementById('purchaseModal').classList.add('show');
+function openPurchaseModal(){document.getElementById('pItem').value='';document.getElementById('pPrice').value='';document.getElementById('pDate').value=new Date().toISOString().slice(0,10);document.getElementById('pMemo').value='';document.getElementById('purchaseModal').classList.add('show');}
+function closePurchaseModal(){document.getElementById('purchaseModal').classList.remove('show');}
+async function savePurchase(){
+  const d={item:document.getElementById('pItem').value.trim(),price:parseInt(document.getElementById('pPrice').value)||0,date:document.getElementById('pDate').value,memo:document.getElementById('pMemo').value.trim(),uid:currentUser?currentUser.uid:'anon',userName:currentProfile?.name||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(!d.item||!d.price){alert('아이템명과 가격을 입력하세요.');return;}
+  await db.collection('purchases').add(d);closePurchaseModal();
 }
-function closePurchaseModal() { document.getElementById('purchaseModal').classList.remove('show'); }
-
-async function savePurchase() {
-  const data = {
-    item: document.getElementById('pItem').value.trim(),
-    price: parseInt(document.getElementById('pPrice').value) || 0,
-    date: document.getElementById('pDate').value,
-    memo: document.getElementById('pMemo').value.trim(),
-    uid: currentUser ? currentUser.uid : (currentProfile.id || 'anon'),
-    userName: currentProfile.name,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  if (!data.item || !data.price) { alert('아이템명과 가격을 입력하세요.'); return; }
-  await db.collection('purchases').add(data);
-  closePurchaseModal();
-}
-
-async function deletePurchase(id) {
-  if (confirm('삭제하시겠습니까?')) await db.collection('purchases').doc(id).delete();
-}
+async function deletePurchase(id){if(confirm('삭제?'))await db.collection('purchases').doc(id).delete();}
 
 // =============================================
-// 권한 관리
+// Users
 // =============================================
-function subscribeUsers() {
-  db.collection('users').orderBy('createdAt').onSnapshot(snap => {
-    allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderUserTable();
-  });
-}
-
-function renderUserTable() {
-  const search = (document.getElementById('userSearch')?.value || '').toLowerCase();
-  const roleF = document.getElementById('userRoleFilter2')?.value || '';
-
-  let filtered = allUsers.filter(u => {
-    if (search && !(u.name||'').toLowerCase().includes(search) && !(u.email||'').toLowerCase().includes(search)) return false;
-    if (roleF && u.role !== roleF) return false;
-    return true;
-  });
-
-  const tbody = document.getElementById('userTableBody');
-  if (!tbody) return;
-
-  const myLevel = ROLES[currentProfile?.role]?.level || 0;
-
-  tbody.innerHTML = filtered.map((u, i) => {
-    const r = ROLES[u.role] || ROLES.none;
-    const uLevel = r.level;
-    const canChange = canManageUsers() && uLevel < myLevel && u.id !== currentUser.uid;
-    const created = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString('ko') : '-';
-
-    let selectHtml = '-';
-    if (canChange) {
-      const options = Object.entries(ROLES)
-        .filter(([k,v]) => v.level < myLevel)
-        .map(([k,v]) => `<option value="${k}" ${u.role===k?'selected':''}>${v.label}</option>`)
-        .join('');
-      selectHtml = `<select class="filter-select" onchange="changeRole('${u.id}',this.value)" style="font-size:12px;padding:4px 8px;">${options}</select>`;
-    }
-
-    return `<tr>
-      <td>${i+1}</td>
-      <td><img src="${u.photo||'https://via.placeholder.com/28'}" style="width:28px;height:28px;border-radius:50%;vertical-align:middle;"></td>
-      <td>${u.name||''}</td>
-      <td style="font-size:12px;color:#636e72;">${u.email||''}</td>
-      <td><span class="badge ${r.badge}">${r.label}</span></td>
-      <td style="font-size:12px;">${created}</td>
-      <td>${selectHtml}</td>
-    </tr>`;
+function subscribeUsers(){db.collection('users').orderBy('createdAt').onSnapshot(s=>{allUsers=s.docs.map(d=>({id:d.id,...d.data()}));renderUserTable();});}
+function renderUserTable(){
+  const s=(document.getElementById('userSearch')?.value||'').toLowerCase(),rF=document.getElementById('userRoleFilter2')?.value||'';
+  let f=allUsers.filter(u=>{if(s&&!(u.name||'').toLowerCase().includes(s)&&!(u.email||'').toLowerCase().includes(s))return false;if(rF&&u.role!==rF)return false;return true;});
+  const tb=document.getElementById('userTableBody');if(!tb)return;
+  const ml=ROLES[currentProfile?.role]?.level||0;
+  tb.innerHTML=f.map((u,i)=>{
+    const r=ROLES[u.role]||ROLES.none,ul=r.level,cc=canManageUsers()&&ul<ml&&u.id!==currentUser?.uid;
+    const cr=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko'):'-';
+    let sel='-';if(cc){const opts=Object.entries(ROLES).filter(([k,v])=>v.level<ml).map(([k,v])=>`<option value="${k}" ${u.role===k?'selected':''}>${v.label}</option>`).join('');sel=`<select class="filter-select" onchange="changeRole('${u.id}',this.value)" style="font-size:11px;padding:4px 8px;">${opts}</select>`;}
+    return `<tr><td>${i+1}</td><td><img src="${u.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:28px;height:28px;border-radius:50%;"></td><td>${u.name||''}</td><td style="font-size:12px;color:var(--text-sub);">${u.email||''}</td><td><span class="badge ${r.badge}">${r.label}</span></td><td style="font-size:12px;">${cr}</td><td>${sel}</td></tr>`;
   }).join('');
 }
+async function changeRole(uid,r){if(confirm(`권한을 "${ROLES[r].label}"(으)로 변경?`))await db.collection('users').doc(uid).update({role:r});}
 
-async function changeRole(uid, newRole) {
-  if (confirm(`권한을 "${ROLES[newRole].label}"(으)로 변경하시겠습니까?`)) {
-    await db.collection('users').doc(uid).update({ role: newRole });
-  }
+// =============================================
+// Guild Promos
+// =============================================
+function subscribeGuildPromos(){db.collection('guildPromos').orderBy('createdAt','desc').onSnapshot(s=>{allGuildPromos=s.docs.map(d=>({id:d.id,...d.data()}));renderGuildPromoList();});}
+function renderGuildPromoList(){
+  const c=document.getElementById('guildPromoList');if(!c)return;
+  c.innerHTML=allGuildPromos.length?allGuildPromos.map(g=>`<div class="panel" style="margin:0;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><h3 style="font-size:15px;">🏰 ${g.name||''}</h3><span class="badge badge-blue">${g.server||''}</span></div>
+    <div style="font-size:13px;color:var(--text-sub);display:flex;flex-direction:column;gap:4px;"><div>📋 가입 조건: ${g.req||'없음'}</div><div style="color:var(--text);">${g.desc||''}</div>${g.contact?`<div>💬 ${g.contact}</div>`:''}<div style="font-size:11px;color:#9ca3af;margin-top:4px;">등록: ${g.ownerName||''}</div></div>
+  </div>`).join(''):'<div class="empty-state"><div class="icon">🏰</div><h3>등록된 길드가 없습니다</h3><p>길드를 홍보해 보세요</p></div>';
+}
+function openGuildPromoModal(){if(!currentProfile){alert('로그인이 필요합니다.');return;}['gName','gDesc','gReq','gContact'].forEach(x=>document.getElementById(x).value='');document.getElementById('gServer').value='스카니아';document.getElementById('guildPromoModal').classList.add('show');}
+function closeGuildPromoModal(){document.getElementById('guildPromoModal').classList.remove('show');}
+async function saveGuildPromo(){
+  const d={name:document.getElementById('gName').value.trim(),server:document.getElementById('gServer').value,req:document.getElementById('gReq').value.trim(),desc:document.getElementById('gDesc').value.trim(),contact:document.getElementById('gContact').value.trim(),ownerUid:currentUser.uid,ownerName:currentProfile.name,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(!d.name||!d.desc){alert('길드 이름과 소개를 입력하세요.');return;}
+  await db.collection('guildPromos').add(d);closeGuildPromoModal();
 }
 
 // =============================================
-// 대시보드
+// Navigation
 // =============================================
-function renderDashboard() {
-  const total = allMembers.length;
-  const active = allMembers.filter(m => m.status === '참여').length;
-  const totalGold = allMembers.reduce((s,m) => s + (m.gold||0), 0);
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statActive').textContent = active;
-  document.getElementById('statGold').textContent = totalGold.toLocaleString() + '만';
-  document.getElementById('statAvg').textContent = total ? Math.round(totalGold/total) + '만' : '0';
+const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',meso:'내 캐릭터 / 메소 가계부',equip:'내 캐릭터 / 내 장비 관리','guild-promo':'길드관리',members:'공대관리 / 공대원 목록',gold:'공대관리 / 분배내역',purchase:'공대관리 / 판매내역',users:'시스템 / 권한 관리'};
 
-  // 역할 분포
-  const dealers = allMembers.filter(m => m.role === '딜러').length;
-  const supports = allMembers.filter(m => m.role === '서폿').length;
-  const maxR = Math.max(dealers, supports, 1);
-  document.getElementById('roleChart').innerHTML = [
-    { label: '딜러', count: dealers, color: '#00b894' },
-    { label: '서폿', count: supports, color: '#0984e3' },
-  ].map(r => `<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;">
-    <span style="font-size:14px;font-weight:700;">${r.count}명</span>
-    <div style="width:60px;height:${Math.max((r.count/maxR)*120,10)}px;background:${r.color};border-radius:8px 8px 0 0;"></div>
-    <span style="font-size:13px;color:#636e72;">${r.label}</span>
-  </div>`).join('');
-
-  // 상태 요약
-  const statuses = [
-    { label: '참여', count: active, color: '#00b894' },
-    { label: '미정', count: allMembers.filter(m=>m.status==='미정').length, color: '#fdcb6e' },
-    { label: '불참', count: allMembers.filter(m=>m.status==='불참').length, color: '#e74c3c' },
-  ];
-  document.getElementById('statusSummary').innerHTML = statuses.map(s =>
-    `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-      <span style="width:10px;height:10px;border-radius:50%;background:${s.color};display:inline-block;"></span>
-      <span style="flex:1;">${s.label}</span><strong>${s.count}명</strong>
-    </div>`
-  ).join('');
+function showPage(id,el){
+  document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
+  const t=document.getElementById('page-'+id);if(t)t.classList.add('active');
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
+  if(el){el.classList.add('active');const b=el.closest('.acc-body');if(b&&!b.classList.contains('open')){b.classList.add('open');b.previousElementSibling.classList.add('open');}}
+  document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
 }
 
-// =============================================
-// 페이지 전환
-// =============================================
-function showPage(pageId, el) {
-  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + pageId);
-  if (target) target.classList.add('active');
-  document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-  if (el) {
-    el.classList.add('active');
-    // 해당 아코디언 자동 열기
-    const body = el.closest('.accordion-body');
-    if (body && !body.classList.contains('open')) {
-      body.classList.add('open');
-      body.previousElementSibling.classList.add('open');
-    }
-  }
+function toggleAccordion(btn){btn.classList.toggle('open');btn.nextElementSibling.classList.toggle('open');}
+
+function exportMembers(){
+  let csv='번호,캐릭터명,직업,역할,아이템레벨,주급골드,참여율,상태,비고\n';
+  allMembers.forEach((m,i)=>{csv+=`${i+1},${m.name},${m.cls},${m.role},${m.level},${m.gold},${m.rate},${m.status},${m.note}\n`;});
+  const b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='공대원목록.csv';a.click();
 }
 
-function toggleAccordion(btn) {
-  btn.classList.toggle('open');
-  const body = btn.nextElementSibling;
-  body.classList.toggle('open');
-}
+// Modal close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});
 
-// =============================================
-// 공대 목록 (공개)
-// =============================================
-let allRaids = [];
-let allGuildPromos = [];
-
-function subscribeRaids() {
-  db.collection('raids').orderBy('createdAt','desc').onSnapshot(snap => {
-    allRaids = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderRaidList();
-    updateMyRaidNav();
-  });
-}
-
-function renderRaidList() {
-  const search = (document.getElementById('raidSearch')?.value || '').toLowerCase();
-  const statusF = document.getElementById('raidStatusFilter')?.value || '';
-  let filtered = allRaids.filter(r => {
-    if (search && !(r.name||'').toLowerCase().includes(search) && !(r.boss||'').toLowerCase().includes(search)) return false;
-    if (statusF && r.status !== statusF) return false;
-    return true;
-  });
-  const container = document.getElementById('raidListCards');
-  if (!container) return;
-  container.innerHTML = filtered.length ? filtered.map(r => {
-    const sc = r.status === '모집중' ? 'badge-green' : 'badge-red';
-    return `<div class="panel" style="margin:0;cursor:default;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <h3 style="font-size:16px;">${r.name||''}</h3>
-        <span class="badge ${sc}">${r.status||''}</span>
-      </div>
-      <div style="font-size:13px;color:#636e72;display:flex;flex-direction:column;gap:4px;">
-        <div>⚔️ ${r.boss||''} ${r.diff||''}</div>
-        <div>👥 ${r.currentCount||0} / ${r.maxCount||16}명</div>
-        <div>👑 ${r.ownerName||''}</div>
-        ${r.desc ? `<div style="margin-top:4px;color:#2d3436;">${r.desc}</div>` : ''}
-      </div>
-    </div>`;
-  }).join('') : '<p style="color:#b2bec3;text-align:center;padding:40px;">등록된 공대가 없습니다</p>';
-  document.getElementById('raidCount').textContent = filtered.length + '개';
-}
-
-function updateMyRaidNav() {
-  const nav = document.getElementById('navMyRaid');
-  if (!nav) return;
-  if (currentProfile && currentUser) {
-    const myRaids = allRaids.filter(r => r.ownerUid === currentUser.uid);
-    nav.style.display = myRaids.length > 0 ? '' : 'none';
-  } else {
-    nav.style.display = 'none';
-  }
-}
-
-function openRaidModal() {
-  if (!currentProfile) { alert('로그인이 필요합니다.'); return; }
-  ['rName','rDesc'].forEach(x => document.getElementById(x).value = '');
-  document.getElementById('rBoss').value = '';
-  document.getElementById('rDiff').value = '노말';
-  document.getElementById('rMax').value = '16';
-  document.getElementById('rStatus').value = '모집중';
-  document.getElementById('raidModal').classList.add('show');
-}
-function closeRaidModal() { document.getElementById('raidModal').classList.remove('show'); }
-
-async function saveRaid() {
-  const data = {
-    name: document.getElementById('rName').value.trim(),
-    boss: document.getElementById('rBoss').value,
-    diff: document.getElementById('rDiff').value,
-    maxCount: parseInt(document.getElementById('rMax').value) || 16,
-    currentCount: 0,
-    status: document.getElementById('rStatus').value,
-    desc: document.getElementById('rDesc').value.trim(),
-    ownerUid: currentUser.uid,
-    ownerName: currentProfile.name,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  if (!data.name || !data.boss) { alert('공대 이름과 보스를 입력하세요.'); return; }
-  await db.collection('raids').add(data);
-  closeRaidModal();
-}
-
-// =============================================
-// 길드 홍보 (공개)
-// =============================================
-function subscribeGuildPromos() {
-  db.collection('guildPromos').orderBy('createdAt','desc').onSnapshot(snap => {
-    allGuildPromos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderGuildPromoList();
-  });
-}
-
-function renderGuildPromoList() {
-  const container = document.getElementById('guildPromoList');
-  if (!container) return;
-  container.innerHTML = allGuildPromos.length ? allGuildPromos.map(g => {
-    return `<div class="panel" style="margin:0;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <h3 style="font-size:16px;">🏰 ${g.name||''}</h3>
-        <span class="badge badge-blue">${g.server||''}</span>
-      </div>
-      <div style="font-size:13px;color:#636e72;display:flex;flex-direction:column;gap:4px;">
-        <div>📋 가입 조건: ${g.req||'없음'}</div>
-        <div style="color:#2d3436;">${g.desc||''}</div>
-        ${g.contact ? `<div style="margin-top:4px;">💬 ${g.contact}</div>` : ''}
-        <div style="font-size:11px;color:#b2bec3;margin-top:4px;">등록자: ${g.ownerName||''}</div>
-      </div>
-    </div>`;
-  }).join('') : '<p style="color:#b2bec3;text-align:center;padding:40px;">등록된 길드 홍보가 없습니다</p>';
-}
-
-function openGuildPromoModal() {
-  if (!currentProfile) { alert('로그인이 필요합니다.'); return; }
-  ['gName','gDesc','gReq','gContact'].forEach(x => document.getElementById(x).value = '');
-  document.getElementById('gServer').value = '스카니아';
-  document.getElementById('guildPromoModal').classList.add('show');
-}
-function closeGuildPromoModal() { document.getElementById('guildPromoModal').classList.remove('show'); }
-
-async function saveGuildPromo() {
-  const data = {
-    name: document.getElementById('gName').value.trim(),
-    server: document.getElementById('gServer').value,
-    req: document.getElementById('gReq').value.trim(),
-    desc: document.getElementById('gDesc').value.trim(),
-    contact: document.getElementById('gContact').value.trim(),
-    ownerUid: currentUser.uid,
-    ownerName: currentProfile.name,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  if (!data.name || !data.desc) { alert('길드 이름과 소개를 입력하세요.'); return; }
-  await db.collection('guildPromos').add(data);
-  closeGuildPromoModal();
-}
-
-// CSV 내보내기
-function exportMembers() {
-  let csv = '번호,캐릭터명,직업,역할,아이템레벨,주급골드,참여율,상태,비고\n';
-  allMembers.forEach((m, i) => {
-    csv += `${i+1},${m.name},${m.cls},${m.role},${m.level},${m.gold},${m.rate},${m.status},${m.note}\n`;
-  });
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = '공대원목록.csv';
-  a.click();
-}
-
-// 모달 바깥 클릭 닫기
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
-});
-
-// Discord OAuth2 콜백 처리
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (code) {
-    // URL에서 code 파라미터 제거
-    window.history.replaceState({}, '', window.location.pathname);
-    handleDiscordCallback(code);
-  }
-})();
+// Discord callback
+(function(){const p=new URLSearchParams(window.location.search);const c=p.get('code');if(c){window.history.replaceState({},'',window.location.pathname);handleDiscordCallback(c);}})();
 </script>
 </body>
 </html>

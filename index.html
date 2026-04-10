@@ -198,8 +198,8 @@
     </div>
     <div class="acc-body">
       <a class="nav-item" onclick="showPage('mychar',this)"><span class="nav-icon">📋</span> 캐릭터 정보</a>
-      <a class="nav-item" onclick="showPage('meso',this)"><span class="nav-icon">💰</span> 메소 가계부</a>
-      <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon">⚔️</span> 내 장비 관리</a>
+      <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon">⚔️</span> 내 장비관리</a>
+      <a class="nav-item" onclick="showPage('mysettlement',this)"><span class="nav-icon">💰</span> 내 정산내역</a>
     </div>
 
     <!-- 2. 길드관리 -->
@@ -211,8 +211,9 @@
     </div>
     <div class="acc-body open">
       <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon">👥</span> 공대원 목록</a>
-      <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon">💎</span> 분배내역</a>
+      <a class="nav-item" onclick="showPage('guestsettlement',this)"><span class="nav-icon">🧾</span> 손님정산</a>
       <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon">🛒</span> 판매내역</a>
+      <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon">💎</span> 분배내역</a>
     </div>
 
     <div class="nav-section">시스템</div>
@@ -353,16 +354,16 @@
       </div>
     </div>
 
-    <!-- 메소 가계부 -->
-    <div id="page-meso" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">메소 가계부</h1><p class="page-desc">메소 입출금을 기록하고 관리합니다</p></div></div>
-      <div class="panel"><div class="empty-state"><div class="icon">💰</div><h3>준비 중</h3><p>메소 가계부 기능이 곧 추가됩니다</p></div></div>
+    <!-- 내 장비관리 -->
+    <div id="page-equip" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">내 장비관리</h1><p class="page-desc">착용 장비를 등록하고 관리합니다</p></div></div>
+      <div class="panel"><div class="empty-state"><div class="icon">⚔️</div><h3>준비 중</h3><p>장비 관리 기능이 곧 추가됩니다</p></div></div>
     </div>
 
-    <!-- 내 장비 관리 -->
-    <div id="page-equip" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">내 장비 관리</h1><p class="page-desc">착용 장비를 등록하고 관리합니다</p></div></div>
-      <div class="panel"><div class="empty-state"><div class="icon">⚔️</div><h3>준비 중</h3><p>장비 관리 기능이 곧 추가됩니다</p></div></div>
+    <!-- 내 정산내역 -->
+    <div id="page-mysettlement" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">내 정산내역</h1><p class="page-desc">내 골드 정산 내역을 확인합니다</p></div></div>
+      <div class="panel"><div class="empty-state"><div class="icon">💰</div><h3>준비 중</h3><p>정산내역 기능이 곧 추가됩니다</p></div></div>
     </div>
 
     <!-- 길드관리 -->
@@ -437,6 +438,12 @@
           </tr></thead><tbody id="memberTableBody"></tbody></table>
         </div>
       </div>
+    </div>
+
+    <!-- 손님정산 -->
+    <div id="page-guestsettlement" class="page-section">
+      <div class="top-bar"><div><h1 class="page-title">손님정산</h1><p class="page-desc">손님 레이드 정산을 관리합니다</p></div></div>
+      <div class="panel"><div class="empty-state"><div class="icon">🧾</div><h3>준비 중</h3><p>손님정산 기능이 곧 추가됩니다</p></div></div>
     </div>
 
     <!-- 분배내역 -->
@@ -906,7 +913,7 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',meso:'내 캐릭터 / 메소 가계부',equip:'내 캐릭터 / 내 장비 관리','guild-promo':'길드관리',members:'공대관리 / 공대원 목록',gold:'공대관리 / 분배내역',purchase:'공대관리 / 판매내역',users:'시스템 / 권한 관리'};
+const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',members:'공대관리 / 공대원 목록',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리'};
 
 function showPage(id,el){
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));

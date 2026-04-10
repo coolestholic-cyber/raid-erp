@@ -991,6 +991,9 @@
   </div>
 </div>
 
+<!-- 아이템 DB -->
+<script src="item_db.js"></script>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -2024,10 +2027,17 @@ let ITEM_DB = [];
 
 async function loadItemDB() {
   if (ITEM_DB.length) return;
+  // 1순위: 인라인 JS (item_db.js) - 로컬/GitHub Pages 모두 작동
+  if (typeof ITEM_DB_INLINE !== 'undefined' && ITEM_DB_INLINE.length) {
+    ITEM_DB = ITEM_DB_INLINE;
+    console.log(`아이템 DB 로드 (inline): ${ITEM_DB.length}개`);
+    return;
+  }
+  // 2순위: fetch (GitHub Pages)
   try {
     const res = await fetch('./items.json');
-    ITEM_DB = await res.json(); // [[code, name, name_en], ...]
-    console.log(`아이템 DB 로드: ${ITEM_DB.length}개`);
+    ITEM_DB = await res.json();
+    console.log(`아이템 DB 로드 (fetch): ${ITEM_DB.length}개`);
   } catch(e) {
     console.warn('아이템 DB 로드 실패:', e);
   }

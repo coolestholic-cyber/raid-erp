@@ -17,6 +17,14 @@
   .sidebar nav a { display: flex; align-items: center; padding: 12px 20px; color: #dfe6e9; text-decoration: none; font-size: 14px; transition: .2s; gap: 10px; cursor: pointer; }
   .sidebar nav a:hover, .sidebar nav a.active { background: #2f3d4a; color: #ffd32a; }
   .sidebar nav a .icon { width: 20px; text-align: center; }
+  .accordion-btn { display: flex; align-items: center; padding: 10px 20px; color: #b2bec3; font-size: 12px; cursor: pointer; transition: .2s; gap: 8px; user-select: none; letter-spacing: 0.5px; }
+  .accordion-btn:hover { color: #ffd32a; }
+  .accordion-btn .arrow { transition: transform .2s; font-size: 10px; margin-left: auto; }
+  .accordion-btn.open .arrow { transform: rotate(90deg); }
+  .accordion-btn.open { color: #ffd32a; }
+  .accordion-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+  .accordion-body.open { max-height: 300px; }
+  .accordion-body a { padding-left: 36px !important; font-size: 13px !important; }
   .sidebar-footer { padding: 16px 20px; border-top: 1px solid #3d4f5f; }
   .sidebar-footer .user-info { display: flex; align-items: center; gap: 10px; }
   .sidebar-footer .user-info img { width: 32px; height: 32px; border-radius: 50%; }
@@ -182,17 +190,37 @@
   <nav id="sidebarNav">
     <a class="active" onclick="showPage('dashboard', this)"><span class="icon">📊</span> 대시보드</a>
 
-    <div style="padding:10px 20px 4px;font-size:11px;color:#636e72;letter-spacing:1px;">내 캐릭터</div>
-    <a onclick="showPage('mychar', this)"><span class="icon">🍄</span> 캐릭터 정보</a>
-    <a onclick="showPage('meso', this)"><span class="icon">💰</span> 메소 가계부</a>
-    <a onclick="showPage('equip', this)"><span class="icon">⚔️</span> 장비 관리</a>
+    <!-- 내 캐릭터 어코디언 -->
+    <div class="accordion-btn" onclick="toggleAccordion(this)">
+      <span>🍄</span> 내 캐릭터 <span class="arrow">▶</span>
+    </div>
+    <div class="accordion-body">
+      <a onclick="showPage('mychar', this)"><span class="icon">📋</span> 캐릭터 정보</a>
+      <a onclick="showPage('meso', this)"><span class="icon">💰</span> 메소 가계부</a>
+      <a onclick="showPage('equip', this)"><span class="icon">⚔️</span> 장비 관리</a>
+    </div>
 
-    <div style="padding:10px 20px 4px;font-size:11px;color:#636e72;letter-spacing:1px;">공대</div>
-    <a onclick="showPage('members', this)"><span class="icon">👥</span> 공대원 관리</a>
-    <a onclick="showPage('gold', this)"><span class="icon">💎</span> 골드 분배</a>
-    <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 구매 등록</a>
+    <!-- 공대 어코디언 -->
+    <div class="accordion-btn open" onclick="toggleAccordion(this)">
+      <span>⚔️</span> 공대 관리 <span class="arrow">▶</span>
+    </div>
+    <div class="accordion-body open">
+      <a onclick="showPage('members', this)"><span class="icon">👥</span> 공대원 관리</a>
+      <a onclick="showPage('gold', this)"><span class="icon">💎</span> 골드 분배</a>
+      <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 구매 등록</a>
+    </div>
 
-    <div style="padding:10px 20px 4px;font-size:11px;color:#636e72;letter-spacing:1px;">시스템</div>
+    <!-- 길드 어코디언 -->
+    <div class="accordion-btn" onclick="toggleAccordion(this)">
+      <span>🏰</span> 길드 관리 <span class="arrow">▶</span>
+    </div>
+    <div class="accordion-body">
+      <a onclick="showPage('guild-members', this)"><span class="icon">👥</span> 길드원 목록</a>
+      <a onclick="showPage('guild-attend', this)"><span class="icon">📅</span> 출석 관리</a>
+      <a onclick="showPage('guild-notice', this)"><span class="icon">📢</span> 길드 공지</a>
+    </div>
+
+    <!-- 시스템 -->
     <a onclick="showPage('users', this)" id="navUsers" style="display:none;"><span class="icon">🔐</span> 권한 관리</a>
   </nav>
   <div class="sidebar-footer">
@@ -289,6 +317,51 @@
       <div style="font-size:48px; margin-bottom:16px;">⚔️</div>
       <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
       <p style="color:#b2bec3;">장비 관리 기능이 곧 추가됩니다</p>
+    </div>
+  </div>
+
+  <!-- ========== 길드원 목록 ========== -->
+  <div id="page-guild-members" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>길드원 목록</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드원 정보를 관리합니다</p>
+      </div>
+    </div>
+    <div class="panel" style="text-align:center; padding:60px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">🏰</div>
+      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
+      <p style="color:#b2bec3;">길드원 목록 기능이 곧 추가됩니다</p>
+    </div>
+  </div>
+
+  <!-- ========== 출석 관리 ========== -->
+  <div id="page-guild-attend" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>출석 관리</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드원 출석을 관리합니다</p>
+      </div>
+    </div>
+    <div class="panel" style="text-align:center; padding:60px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">📅</div>
+      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
+      <p style="color:#b2bec3;">출석 관리 기능이 곧 추가됩니다</p>
+    </div>
+  </div>
+
+  <!-- ========== 길드 공지 ========== -->
+  <div id="page-guild-notice" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>길드 공지</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드 공지사항을 관리합니다</p>
+      </div>
+    </div>
+    <div class="panel" style="text-align:center; padding:60px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">📢</div>
+      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
+      <p style="color:#b2bec3;">길드 공지 기능이 곧 추가됩니다</p>
     </div>
   </div>
 
@@ -979,9 +1052,24 @@ function renderDashboard() {
 // =============================================
 function showPage(pageId, el) {
   document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + pageId).classList.add('active');
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
   document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-  if (el) el.classList.add('active');
+  if (el) {
+    el.classList.add('active');
+    // 해당 아코디언 자동 열기
+    const body = el.closest('.accordion-body');
+    if (body && !body.classList.contains('open')) {
+      body.classList.add('open');
+      body.previousElementSibling.classList.add('open');
+    }
+  }
+}
+
+function toggleAccordion(btn) {
+  btn.classList.toggle('open');
+  const body = btn.nextElementSibling;
+  body.classList.toggle('open');
 }
 
 // CSV 내보내기

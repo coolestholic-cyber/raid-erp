@@ -9,20 +9,25 @@
   body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f5f6fa; color: #2d3436; display: flex; min-height: 100vh; }
 
   /* Sidebar */
-  .sidebar { width: 220px; background: #1e272e; color: #fff; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+  .sidebar { width: 220px; background: #1e272e; color: #fff; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 50; }
   .sidebar-header { padding: 20px; border-bottom: 1px solid #3d4f5f; }
   .sidebar-header h2 { font-size: 16px; color: #ffd32a; }
   .sidebar-header small { color: #95afc0; font-size: 11px; }
   .sidebar nav { flex: 1; padding: 10px 0; }
-  .sidebar nav a { display: flex; align-items: center; padding: 12px 20px; color: #dfe6e9; text-decoration: none; font-size: 14px; transition: .2s; gap: 10px; }
+  .sidebar nav a { display: flex; align-items: center; padding: 12px 20px; color: #dfe6e9; text-decoration: none; font-size: 14px; transition: .2s; gap: 10px; cursor: pointer; }
   .sidebar nav a:hover, .sidebar nav a.active { background: #2f3d4a; color: #ffd32a; }
   .sidebar nav a .icon { width: 20px; text-align: center; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid #3d4f5f; }
+  .sidebar-footer .user-info { display: flex; align-items: center; gap: 10px; }
+  .sidebar-footer .user-info img { width: 32px; height: 32px; border-radius: 50%; }
+  .sidebar-footer .user-info .name { font-size: 13px; }
+  .sidebar-footer .user-info .role-badge { font-size: 10px; padding: 2px 6px; border-radius: 10px; background: #ffd32a; color: #1e272e; font-weight: 700; }
+  .sidebar-footer .logout-btn { margin-top: 10px; width: 100%; padding: 6px; background: #d63031; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
   /* Main */
   .main { margin-left: 220px; flex: 1; padding: 24px 32px; }
   .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
   .top-bar h1 { font-size: 22px; }
-  .top-bar .actions { display: flex; gap: 10px; }
   .btn { padding: 8px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: .2s; display: inline-flex; align-items: center; gap: 6px; }
   .btn-primary { background: #0984e3; color: #fff; }
   .btn-primary:hover { background: #0768b5; }
@@ -33,6 +38,8 @@
   .btn-danger:hover { background: #b52020; }
   .btn-outline { background: #fff; color: #636e72; border: 1px solid #dfe6e9; }
   .btn-outline:hover { background: #f5f6fa; }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   /* Cards */
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -61,13 +68,15 @@
   thead th { background: #f5f6fa; padding: 10px 12px; text-align: left; font-weight: 600; color: #636e72; white-space: nowrap; position: sticky; top: 0; }
   tbody td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
   tbody tr:hover { background: #f8f9ff; }
-  .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
   .badge-green { background: #e8f8f5; color: #00b894; }
   .badge-yellow { background: #fef9e7; color: #f39c12; }
   .badge-red { background: #fdedec; color: #e74c3c; }
   .badge-blue { background: #ebf5fb; color: #2980b9; }
+  .badge-purple { background: #f4ecf7; color: #8e44ad; }
+  .badge-gray { background: #f0f0f0; color: #636e72; }
 
-  /* Search & Filter */
+  /* Filter */
   .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
   .search-input { padding: 8px 14px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 13px; width: 220px; outline: none; }
   .search-input:focus { border-color: #0984e3; }
@@ -76,259 +85,304 @@
   /* Modal */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.4); z-index: 100; align-items: center; justify-content: center; }
   .modal-overlay.show { display: flex; }
-  .modal { background: #fff; border-radius: 14px; padding: 28px; width: 520px; max-height: 80vh; overflow-y: auto; }
+  .modal { background: #fff; border-radius: 14px; padding: 28px; width: 560px; max-height: 85vh; overflow-y: auto; }
   .modal h2 { font-size: 18px; margin-bottom: 20px; }
   .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 13px; font-weight: 600; color: #636e72; margin-bottom: 4px; }
-  .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 13px; outline: none; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 12px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; }
   .form-group input:focus, .form-group select:focus { border-color: #0984e3; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
-  /* Grid layout for two panels */
+  /* Grid */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-  /* Alert bar */
+  /* Alert */
   .alert { background: #fef9e7; border: 1px solid #f9e79f; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-  .alert .icon { font-size: 16px; }
+  .alert-info { background: #ebf5fb; border-color: #aed6f1; }
 
-  /* Progress bar */
+  /* Progress */
   .progress-bar { height: 8px; background: #ecf0f1; border-radius: 4px; overflow: hidden; width: 100%; }
   .progress-fill { height: 100%; border-radius: 4px; transition: width .3s; }
-  .progress-fill.green { background: #00b894; }
-  .progress-fill.yellow { background: #fdcb6e; }
-  .progress-fill.red { background: #e74c3c; }
 
-  /* Editable cell */
-  td input { border: none; background: transparent; font-size: 13px; width: 100%; padding: 2px 0; outline: none; }
-  td input:focus { border-bottom: 1px solid #0984e3; }
+  /* Login Page */
+  .login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%; background: linear-gradient(135deg, #1e272e 0%, #2f3d4a 100%); }
+  .login-box { background: #fff; border-radius: 16px; padding: 40px; width: 400px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+  .login-box h1 { font-size: 24px; margin-bottom: 8px; color: #1e272e; }
+  .login-box p { color: #636e72; font-size: 14px; margin-bottom: 24px; }
+  .login-box .google-btn { width: 100%; padding: 12px; border: 1px solid #dfe6e9; border-radius: 10px; background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: .2s; }
+  .login-box .google-btn:hover { background: #f5f6fa; border-color: #0984e3; }
+  .login-box .google-btn img { width: 20px; height: 20px; }
 
-  /* Responsive */
+  /* Loading */
+  .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%; font-size: 16px; color: #636e72; }
+
+  /* Page sections */
+  .page-section { display: none; }
+  .page-section.active { display: block; }
+
+  /* Pending approval */
+  .pending-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; width: 100%; }
+  .pending-box { background: #fff; border-radius: 16px; padding: 40px; width: 420px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+  .pending-box h2 { margin-bottom: 12px; }
+  .pending-box p { color: #636e72; font-size: 14px; line-height: 1.6; }
+
   @media (max-width: 1100px) { .cards { grid-template-columns: repeat(2, 1fr); } .grid-2 { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <h2>공대 관리 ERP</h2>
-    <small>v1.0</small>
-  </div>
-  <nav>
-    <a href="#" class="active"><span class="icon">📊</span> 대시보드</a>
-    <a href="#" onclick="showTab('members')"><span class="icon">👥</span> 공대원 관리</a>
-    <a href="#" onclick="showTab('schedule')"><span class="icon">📅</span> 일정 관리</a>
-    <a href="#" onclick="showTab('items')"><span class="icon">🎁</span> 분배 관리</a>
-    <a href="#" onclick="showTab('stats')"><span class="icon">📈</span> 통계</a>
-  </nav>
-</aside>
+<!-- Loading -->
+<div id="loadingPage" class="loading">로딩 중...</div>
 
-<!-- Main Content -->
-<div class="main">
-  <div class="top-bar">
-    <div>
-      <h1>공대 발일 꼬산 (템플릿)</h1>
-      <p style="color:#636e72; font-size:13px; margin-top:4px;">공대원 현황 및 발일 관리를 수행합니다</p>
-    </div>
-    <div class="actions">
-      <button class="btn btn-outline" onclick="exportData()">📥 내보내기</button>
-      <button class="btn btn-primary" onclick="openModal()">+ 공대원 등록</button>
-    </div>
-  </div>
-
-  <!-- Summary Cards -->
-  <div class="cards">
-    <div class="card">
-      <div class="card-info">
-        <h3 id="totalMembers">16</h3>
-        <p>전체 공대원</p>
-      </div>
-      <div class="card-icon blue">👥</div>
-    </div>
-    <div class="card">
-      <div class="card-info">
-        <h3 id="activeCount">14</h3>
-        <p>참여 가능</p>
-      </div>
-      <div class="card-icon green">✅</div>
-    </div>
-    <div class="card">
-      <div class="card-info">
-        <h3 id="totalGold">2,450만</h3>
-        <p>총 골드 수입</p>
-      </div>
-      <div class="card-icon orange">💰</div>
-    </div>
-    <div class="card">
-      <div class="card-info">
-        <h3 id="avgDPS">153만</h3>
-        <p>평균 1인 수입</p>
-      </div>
-      <div class="card-icon red">📊</div>
-    </div>
-  </div>
-
-  <!-- Alert -->
-  <div class="alert">
-    <span class="icon">⚠️</span>
-    <span>서폿 2명 부족합니다. 현재 딜러 10명 / 서폿 4명 (권장 비율 8:8)</span>
-    <a href="#" style="margin-left:auto; color:#0984e3; font-size:13px;">모집 공고 →</a>
-  </div>
-
-  <!-- Two Column Layout -->
-  <div class="grid-2" style="margin-bottom:20px;">
-    <!-- 직업 분포 -->
-    <div class="panel">
-      <div class="panel-header">
-        <h2>직업별 분포</h2>
-      </div>
-      <div id="classChart" style="display:flex; align-items:flex-end; gap:16px; height:180px; padding: 10px 20px;">
-        <!-- JS로 채움 -->
-      </div>
-    </div>
-    <!-- 최근 활동 -->
-    <div class="panel">
-      <div class="panel-header">
-        <h2>참여 상태 요약</h2>
-      </div>
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:#00b894;display:inline-block;"></span>
-          <span style="flex:1;">참여 가능</span><strong>14명</strong>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:#fdcb6e;display:inline-block;"></span>
-          <span style="flex:1;">미정</span><strong>1명</strong>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:#e74c3c;display:inline-block;"></span>
-          <span style="flex:1;">불참</span><strong>1명</strong>
-        </div>
-      </div>
-      <hr style="margin:16px 0; border:none; border-top:1px solid #f0f0f0;">
-      <div style="font-size:13px; color:#636e72;">
-        <p style="margin-bottom:6px;"><strong>최근 레이드</strong></p>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>🔴 카멘 하드</span><span>2,450만 골드</span></div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>🟡 아브 하드</span><span>1,200만 골드</span></div>
-        <div style="display:flex;justify-content:space-between;"><span>🟢 일리아칸 노말</span><span>800만 골드</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Table -->
-  <div class="panel">
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab(this,'member-table')">공대원 목록</div>
-      <div class="tab" onclick="switchTab(this,'gold-table')">골드 분배</div>
-    </div>
-
-    <div class="filter-bar">
-      <input type="text" class="search-input" placeholder="🔍 캐릭터명, 직업 검색..." id="searchInput" oninput="filterTable()">
-      <select class="filter-select" id="roleFilter" onchange="filterTable()">
-        <option value="">역할 전체</option>
-        <option value="딜러">딜러</option>
-        <option value="서폿">서폿</option>
-      </select>
-      <select class="filter-select" id="statusFilter" onchange="filterTable()">
-        <option value="">상태 전체</option>
-        <option value="참여">참여</option>
-        <option value="미정">미정</option>
-        <option value="불참">불참</option>
-      </select>
-      <span style="margin-left:auto; font-size:12px; color:#636e72;" id="rowCount">16명</span>
-    </div>
-
-    <!-- 공대원 목록 -->
-    <div class="table-wrap" id="member-table">
-      <table>
-        <thead>
-          <tr>
-            <th>번호</th>
-            <th>캐릭터명</th>
-            <th>직업</th>
-            <th>역할</th>
-            <th>아이템 레벨</th>
-            <th>주급 골드</th>
-            <th>참여율</th>
-            <th>상태</th>
-            <th>비고</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-        <tbody id="memberBody">
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 골드 분배 -->
-    <div class="table-wrap" id="gold-table" style="display:none;">
-      <table>
-        <thead>
-          <tr>
-            <th>번호</th>
-            <th>캐릭터명</th>
-            <th>레이드</th>
-            <th>분배 골드</th>
-            <th>추가 보너스</th>
-            <th>총 수령</th>
-            <th>상태</th>
-          </tr>
-        </thead>
-        <tbody id="goldBody">
-        </tbody>
-      </table>
-    </div>
+<!-- Login -->
+<div id="loginPage" class="login-page" style="display:none;">
+  <div class="login-box">
+    <h1 style="color:#ffd32a;">공대 관리 ERP</h1>
+    <p>공대 관리 시스템에 로그인하세요</p>
+    <button class="google-btn" onclick="googleLogin()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+      Google 계정으로 로그인
+    </button>
   </div>
 </div>
 
-<!-- Modal: 공대원 등록 -->
-<div class="modal-overlay" id="modal">
+<!-- Pending Approval -->
+<div id="pendingPage" class="pending-page" style="display:none;">
+  <div class="pending-box">
+    <div style="font-size:48px; margin-bottom:16px;">⏳</div>
+    <h2>승인 대기 중</h2>
+    <p>공대장의 승인을 기다리고 있습니다.<br>승인이 완료되면 이용할 수 있습니다.</p>
+    <p style="margin-top:16px; font-size:12px; color:#b2bec3;" id="pendingEmail"></p>
+    <button class="btn btn-outline" style="margin-top:20px;" onclick="doLogout()">로그아웃</button>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="appWrap" style="display:none; width:100%; display:none;">
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>공대 관리 ERP</h2>
+    <small>v2.0 - Firebase</small>
+  </div>
+  <nav id="sidebarNav">
+    <a class="active" onclick="showPage('dashboard', this)"><span class="icon">📊</span> 대시보드</a>
+    <a onclick="showPage('members', this)"><span class="icon">👥</span> 공대원 관리</a>
+    <a onclick="showPage('gold', this)"><span class="icon">💰</span> 골드 분배</a>
+    <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 구매 등록</a>
+    <a onclick="showPage('users', this)" id="navUsers" style="display:none;"><span class="icon">🔐</span> 권한 관리</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <img id="userPhoto" src="" alt="">
+      <div>
+        <div class="name" id="userName">-</div>
+        <span class="role-badge" id="userRoleBadge">-</span>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+</aside>
+
+<div class="main">
+
+  <!-- ========== 대시보드 ========== -->
+  <div id="page-dashboard" class="page-section active">
+    <div class="top-bar">
+      <div>
+        <h1>대시보드</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">공대 현황을 한눈에 확인합니다</p>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-info"><h3 id="statTotal">0</h3><p>전체 공대원</p></div>
+        <div class="card-icon blue">👥</div>
+      </div>
+      <div class="card">
+        <div class="card-info"><h3 id="statActive">0</h3><p>참여 가능</p></div>
+        <div class="card-icon green">✅</div>
+      </div>
+      <div class="card">
+        <div class="card-info"><h3 id="statGold">0</h3><p>총 골드 수입</p></div>
+        <div class="card-icon orange">💰</div>
+      </div>
+      <div class="card">
+        <div class="card-info"><h3 id="statAvg">0</h3><p>평균 1인 수입</p></div>
+        <div class="card-icon red">📊</div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-header"><h2>역할 분포</h2></div>
+        <div id="roleChart" style="display:flex;align-items:flex-end;gap:20px;height:160px;padding:10px 20px;"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>참여 상태 요약</h2></div>
+        <div id="statusSummary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 공대원 관리 ========== -->
+  <div id="page-members" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>공대원 관리</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">공대원 정보를 등록하고 관리합니다</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" onclick="exportMembers()">📥 내보내기</button>
+        <button class="btn btn-primary" id="btnAddMember" onclick="openMemberModal()">+ 공대원 등록</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <input type="text" class="search-input" placeholder="캐릭터명, 직업 검색..." id="memberSearch" oninput="renderMemberTable()">
+        <select class="filter-select" id="memberRoleFilter" onchange="renderMemberTable()">
+          <option value="">역할 전체</option>
+          <option value="딜러">딜러</option>
+          <option value="서폿">서폿</option>
+        </select>
+        <select class="filter-select" id="memberStatusFilter" onchange="renderMemberTable()">
+          <option value="">상태 전체</option>
+          <option value="참여">참여</option>
+          <option value="미정">미정</option>
+          <option value="불참">불참</option>
+        </select>
+        <span style="margin-left:auto;font-size:12px;color:#636e72;" id="memberCount">0명</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>캐릭터명</th>
+              <th>직업</th>
+              <th>역할</th>
+              <th>아이템 레벨</th>
+              <th>주급 골드</th>
+              <th>참여율</th>
+              <th>상태</th>
+              <th>비고</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody id="memberTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 골드 분배 ========== -->
+  <div id="page-gold" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>골드 분배</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">레이드 골드 분배를 관리합니다</p>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>캐릭터명</th><th>역할</th><th>기본 골드</th><th>보너스</th><th>총 수령</th></tr>
+          </thead>
+          <tbody id="goldTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 구매 등록 (손님) ========== -->
+  <div id="page-purchase" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>구매 등록</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">구매 가격을 등록합니다</p>
+      </div>
+      <button class="btn btn-primary" onclick="openPurchaseModal()">+ 구매 등록</button>
+    </div>
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>등록자</th><th>아이템명</th><th>가격 (골드)</th><th>날짜</th><th>메모</th><th>관리</th></tr>
+          </thead>
+          <tbody id="purchaseTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 권한 관리 (마스터/공대장만) ========== -->
+  <div id="page-users" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>권한 관리</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">사용자 권한을 관리합니다</p>
+      </div>
+    </div>
+    <div class="alert alert-info" style="margin-bottom:20px;">
+      <span class="icon">ℹ️</span>
+      <span><strong>권한 안내:</strong> 사이트마스터=전체 권한 | 공대장/부공대장=권한등록+시트등록 | 공대원=자기정보 | 손님=구매가격 등록</span>
+    </div>
+    <div class="panel">
+      <div class="filter-bar">
+        <input type="text" class="search-input" placeholder="이름, 이메일 검색..." id="userSearch" oninput="renderUserTable()">
+        <select class="filter-select" id="userRoleFilter2" onchange="renderUserTable()">
+          <option value="">전체</option>
+          <option value="master">사이트마스터</option>
+          <option value="leader">공대장</option>
+          <option value="vice">부공대장</option>
+          <option value="member">공대원</option>
+          <option value="guest">손님</option>
+          <option value="pending">승인대기</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>프로필</th><th>이름</th><th>이메일</th><th>현재 권한</th><th>가입일</th><th>권한 변경</th></tr>
+          </thead>
+          <tbody id="userTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .main -->
+</div><!-- #appWrap -->
+
+<!-- Member Modal -->
+<div class="modal-overlay" id="memberModal">
   <div class="modal">
-    <h2 id="modalTitle">공대원 등록</h2>
+    <h2 id="memberModalTitle">공대원 등록</h2>
     <div class="form-row">
       <div class="form-group">
-        <label>캐릭터명</label>
-        <input type="text" id="fName" placeholder="캐릭터명 입력">
+        <label>캐릭터명 *</label>
+        <input type="text" id="fName" placeholder="캐릭터명">
       </div>
       <div class="form-group">
-        <label>직업</label>
+        <label>직업 *</label>
         <select id="fClass">
           <option value="">선택</option>
-          <option>버서커</option>
-          <option>디스트로이어</option>
-          <option>워로드</option>
-          <option>홀리나이트</option>
-          <option>슬레이어</option>
-          <option>인파이터</option>
-          <option>배틀마스터</option>
-          <option>기공사</option>
-          <option>소울이터</option>
-          <option>데빌헌터</option>
-          <option>블래스터</option>
-          <option>호크아이</option>
-          <option>스카우터</option>
-          <option>건슬링어</option>
-          <option>아르카나</option>
-          <option>서머너</option>
-          <option>바드</option>
-          <option>소서리스</option>
-          <option>리퍼</option>
-          <option>블레이드</option>
-          <option>데모닉</option>
-          <option>도화가</option>
-          <option>기상술사</option>
-          <option>브레이커</option>
+          <option>버서커</option><option>디스트로이어</option><option>워로드</option>
+          <option>홀리나이트</option><option>슬레이어</option><option>인파이터</option>
+          <option>배틀마스터</option><option>기공사</option><option>소울이터</option>
+          <option>데빌헌터</option><option>블래스터</option><option>호크아이</option>
+          <option>스카우터</option><option>건슬링어</option><option>아르카나</option>
+          <option>서머너</option><option>바드</option><option>소서리스</option>
+          <option>리퍼</option><option>블레이드</option><option>데모닉</option>
+          <option>도화가</option><option>기상술사</option><option>브레이커</option>
         </select>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
         <label>역할</label>
-        <select id="fRole">
-          <option value="딜러">딜러</option>
-          <option value="서폿">서폿</option>
-        </select>
+        <select id="fRole"><option value="딜러">딜러</option><option value="서폿">서폿</option></select>
       </div>
       <div class="form-group">
         <label>아이템 레벨</label>
@@ -337,191 +391,486 @@
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>주급 골드</label>
+        <label>주급 골드 (만)</label>
         <input type="number" id="fGold" placeholder="150">
       </div>
       <div class="form-group">
         <label>상태</label>
-        <select id="fStatus">
-          <option value="참여">참여</option>
-          <option value="미정">미정</option>
-          <option value="불참">불참</option>
-        </select>
+        <select id="fStatus"><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option></select>
       </div>
     </div>
     <div class="form-group">
       <label>비고</label>
-      <input type="text" id="fNote" placeholder="메모 (선택사항)">
+      <input type="text" id="fNote" placeholder="메모">
     </div>
+    <input type="hidden" id="fEditId" value="">
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">취소</button>
+      <button class="btn btn-outline" onclick="closeMemberModal()">취소</button>
       <button class="btn btn-primary" onclick="saveMember()">저장</button>
     </div>
   </div>
 </div>
 
+<!-- Purchase Modal -->
+<div class="modal-overlay" id="purchaseModal">
+  <div class="modal">
+    <h2>구매 등록</h2>
+    <div class="form-group">
+      <label>아이템명 *</label>
+      <input type="text" id="pItem" placeholder="아이템 이름">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>가격 (골드) *</label>
+        <input type="number" id="pPrice" placeholder="10000">
+      </div>
+      <div class="form-group">
+        <label>날짜</label>
+        <input type="date" id="pDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>메모</label>
+      <input type="text" id="pMemo" placeholder="메모">
+    </div>
+    <input type="hidden" id="pEditId" value="">
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closePurchaseModal()">취소</button>
+      <button class="btn btn-primary" onclick="savePurchase()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
-// 데이터
-let members = [
-  { name: "광폭전사", cls: "버서커", role: "딜러", level: 1640, gold: 180, rate: 95, status: "참여", note: "공대장" },
-  { name: "파괴신", cls: "디스트로이어", role: "딜러", level: 1635, gold: 170, rate: 90, status: "참여", note: "" },
-  { name: "철벽방패", cls: "워로드", role: "딜러", level: 1630, gold: 160, rate: 88, status: "참여", note: "" },
-  { name: "성기사님", cls: "홀리나이트", role: "서폿", level: 1645, gold: 190, rate: 100, status: "참여", note: "메인 서폿" },
-  { name: "질풍권", cls: "인파이터", role: "딜러", level: 1625, gold: 150, rate: 85, status: "참여", note: "" },
-  { name: "번개주먹", cls: "배틀마스터", role: "딜러", level: 1630, gold: 155, rate: 92, status: "참여", note: "" },
-  { name: "기의달인", cls: "기공사", role: "딜러", level: 1620, gold: 140, rate: 80, status: "참여", note: "" },
-  { name: "영혼사냥", cls: "소울이터", role: "딜러", level: 1638, gold: 175, rate: 93, status: "참여", note: "" },
-  { name: "매의눈", cls: "호크아이", role: "딜러", level: 1625, gold: 148, rate: 87, status: "참여", note: "" },
-  { name: "기계공학", cls: "스카우터", role: "딜러", level: 1632, gold: 162, rate: 91, status: "참여", note: "" },
-  { name: "노래하는숲", cls: "바드", role: "서폿", level: 1650, gold: 200, rate: 98, status: "참여", note: "서브 서폿" },
-  { name: "얼음마법사", cls: "소서리스", role: "딜러", level: 1628, gold: 152, rate: 86, status: "참여", note: "" },
-  { name: "그림자칼", cls: "블레이드", role: "딜러", level: 1635, gold: 168, rate: 94, status: "참여", note: "" },
-  { name: "악마사냥꾼", cls: "데모닉", role: "딜러", level: 1622, gold: 145, rate: 82, status: "참여", note: "" },
-  { name: "붓의달인", cls: "도화가", role: "서폿", level: 1640, gold: 185, rate: 96, status: "미정", note: "이번주 미확정" },
-  { name: "폭풍소환", cls: "기상술사", role: "서폿", level: 1618, gold: 135, rate: 70, status: "불참", note: "개인 사정" },
-];
+// =============================================
+// Firebase 설정 - 여기에 본인 config를 넣으세요
+// =============================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCyNCRF-zFIQWx13aKGYEqYrQGNDD70r_4",
+  authDomain: "raid-erp.firebaseapp.com",
+  projectId: "raid-erp",
+  storageBucket: "raid-erp.firebasestorage.app",
+  messagingSenderId: "254863239269",
+  appId: "1:254863239269:web:6951adeeb9d0bd71ec3e8c"
+};
 
-let editIndex = -1;
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-function renderTable() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const roleF = document.getElementById('roleFilter').value;
-  const statusF = document.getElementById('statusFilter').value;
+// =============================================
+// 전역 상태
+// =============================================
+let currentUser = null;   // Firebase auth user
+let currentProfile = null; // Firestore user profile { role, name, ... }
+let allMembers = [];
+let allUsers = [];
+let allPurchases = [];
 
-  let filtered = members.filter((m, i) => {
-    if (search && !m.name.toLowerCase().includes(search) && !m.cls.toLowerCase().includes(search)) return false;
+const ROLES = {
+  master: { label: '사이트마스터', badge: 'badge-red', level: 4 },
+  leader: { label: '공대장', badge: 'badge-purple', level: 3 },
+  vice:   { label: '부공대장', badge: 'badge-blue', level: 3 },
+  member: { label: '공대원', badge: 'badge-green', level: 2 },
+  guest:  { label: '손님', badge: 'badge-yellow', level: 1 },
+  pending:{ label: '승인대기', badge: 'badge-gray', level: 0 },
+};
+
+function canManageUsers() {
+  if (!currentProfile) return false;
+  return ['master','leader','vice'].includes(currentProfile.role);
+}
+function canManageMembers() {
+  if (!currentProfile) return false;
+  return ['master','leader','vice'].includes(currentProfile.role);
+}
+function canEditSelf() {
+  if (!currentProfile) return false;
+  return currentProfile.role === 'member';
+}
+function isGuest() {
+  return currentProfile && currentProfile.role === 'guest';
+}
+
+// =============================================
+// 인증
+// =============================================
+function googleLogin() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err => alert('로그인 실패: ' + err.message));
+}
+
+function doLogout() {
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(async (user) => {
+  document.getElementById('loadingPage').style.display = 'none';
+  if (!user) {
+    currentUser = null;
+    currentProfile = null;
+    document.getElementById('loginPage').style.display = '';
+    document.getElementById('appWrap').style.display = 'none';
+    document.getElementById('pendingPage').style.display = 'none';
+    return;
+  }
+  document.getElementById('loginPage').style.display = 'none';
+  currentUser = user;
+
+  // 유저 프로필 가져오기 또는 생성
+  const userRef = db.collection('users').doc(user.uid);
+  let doc = await userRef.get();
+
+  if (!doc.exists) {
+    // 첫 번째 가입자는 사이트마스터
+    const usersSnap = await db.collection('users').get();
+    const isFirst = usersSnap.empty;
+    const newProfile = {
+      name: user.displayName || '이름없음',
+      email: user.email,
+      photo: user.photoURL || '',
+      role: isFirst ? 'master' : 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await userRef.set(newProfile);
+    doc = await userRef.get();
+  }
+
+  currentProfile = { id: doc.id, ...doc.data() };
+
+  if (currentProfile.role === 'pending') {
+    document.getElementById('pendingPage').style.display = '';
+    document.getElementById('pendingEmail').textContent = user.email;
+    document.getElementById('appWrap').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('pendingPage').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'flex';
+  initApp();
+});
+
+// =============================================
+// 앱 초기화
+// =============================================
+function initApp() {
+  // 사이드바 사용자 정보
+  document.getElementById('userName').textContent = currentProfile.name;
+  document.getElementById('userPhoto').src = currentProfile.photo || 'https://via.placeholder.com/32';
+  const r = ROLES[currentProfile.role] || ROLES.pending;
+  document.getElementById('userRoleBadge').textContent = r.label;
+
+  // 권한 관리 메뉴 표시
+  document.getElementById('navUsers').style.display = canManageUsers() ? '' : 'none';
+
+  // 공대원 등록 버튼 표시
+  document.getElementById('btnAddMember').style.display = canManageMembers() ? '' : 'none';
+
+  // 실시간 데이터 구독
+  subscribeMembers();
+  subscribeUsers();
+  subscribePurchases();
+}
+
+// =============================================
+// 실시간 구독 - Members
+// =============================================
+function subscribeMembers() {
+  db.collection('members').orderBy('name').onSnapshot(snap => {
+    allMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderMemberTable();
+    renderGoldTable();
+    renderDashboard();
+  });
+}
+
+function renderMemberTable() {
+  const search = document.getElementById('memberSearch').value.toLowerCase();
+  const roleF = document.getElementById('memberRoleFilter').value;
+  const statusF = document.getElementById('memberStatusFilter').value;
+
+  let filtered = allMembers.filter(m => {
+    if (search && !m.name.toLowerCase().includes(search) && !(m.cls||'').toLowerCase().includes(search)) return false;
     if (roleF && m.role !== roleF) return false;
     if (statusF && m.status !== statusF) return false;
     return true;
   });
 
-  const tbody = document.getElementById('memberBody');
-  tbody.innerHTML = filtered.map((m, fi) => {
-    const realIdx = members.indexOf(m);
-    const statusClass = m.status === '참여' ? 'badge-green' : m.status === '미정' ? 'badge-yellow' : 'badge-red';
-    const rateColor = m.rate >= 90 ? '#00b894' : m.rate >= 70 ? '#fdcb6e' : '#e74c3c';
-    return `<tr>
-      <td>${realIdx + 1}</td>
-      <td><strong>${m.name}</strong></td>
-      <td>${m.cls}</td>
-      <td><span class="badge ${m.role === '서폿' ? 'badge-blue' : 'badge-green'}">${m.role}</span></td>
-      <td>${m.level.toLocaleString()}</td>
-      <td>${m.gold}만</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="progress-bar" style="width:80px;">
-            <div class="progress-fill" style="width:${m.rate}%;background:${rateColor};"></div>
-          </div>
-          <span style="font-size:12px;">${m.rate}%</span>
-        </div>
-      </td>
-      <td><span class="badge ${statusClass}">${m.status}</span></td>
-      <td style="color:#636e72; font-size:12px;">${m.note}</td>
-      <td>
-        <button class="btn btn-outline" style="padding:4px 10px;font-size:11px;" onclick="editMember(${realIdx})">수정</button>
-        <button class="btn btn-danger" style="padding:4px 10px;font-size:11px;" onclick="deleteMember(${realIdx})">삭제</button>
-      </td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('rowCount').textContent = filtered.length + '명';
-  updateCards();
-  renderGoldTable(filtered);
-}
-
-function renderGoldTable(filtered) {
-  const tbody = document.getElementById('goldBody');
+  const canEdit = canManageMembers();
+  const tbody = document.getElementById('memberTableBody');
   tbody.innerHTML = filtered.map((m, i) => {
-    const bonus = m.role === '서폿' ? 20 : 0;
-    const total = m.gold + bonus;
+    const sc = m.status === '참여' ? 'badge-green' : m.status === '미정' ? 'badge-yellow' : 'badge-red';
+    const rate = m.rate || 0;
+    const rc = rate >= 90 ? '#00b894' : rate >= 70 ? '#fdcb6e' : '#e74c3c';
+    const isMine = m.ownerUid === (currentUser && currentUser.uid);
+    const canEditThis = canEdit || (canEditSelf() && isMine);
     return `<tr>
-      <td>${i + 1}</td>
-      <td><strong>${m.name}</strong></td>
-      <td>카멘 하드</td>
-      <td>${m.gold}만</td>
-      <td>${bonus > 0 ? '+' + bonus + '만 (서폿)' : '-'}</td>
-      <td><strong>${total}만</strong></td>
-      <td><span class="badge badge-green">지급 완료</span></td>
+      <td>${i+1}</td>
+      <td><strong>${m.name||''}</strong></td>
+      <td>${m.cls||''}</td>
+      <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
+      <td>${(m.level||0).toLocaleString()}</td>
+      <td>${m.gold||0}만</td>
+      <td><div style="display:flex;align-items:center;gap:8px;">
+        <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rate}%;background:${rc};"></div></div>
+        <span style="font-size:12px;">${rate}%</span>
+      </div></td>
+      <td><span class="badge ${sc}">${m.status||''}</span></td>
+      <td style="color:#636e72;font-size:12px;">${m.note||''}</td>
+      <td>${canEditThis ? `<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>` : ''}
+          ${canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>` : ''}</td>
     </tr>`;
   }).join('');
+  document.getElementById('memberCount').textContent = filtered.length + '명';
 }
 
-function updateCards() {
-  document.getElementById('totalMembers').textContent = members.length;
-  document.getElementById('activeCount').textContent = members.filter(m => m.status === '참여').length;
-  const totalGold = members.reduce((s, m) => s + m.gold, 0);
-  document.getElementById('totalGold').textContent = totalGold.toLocaleString() + '만';
-  document.getElementById('avgDPS').textContent = Math.round(totalGold / members.length) + '만';
+function openMemberModal(id) {
+  document.getElementById('fEditId').value = id || '';
+  document.getElementById('memberModalTitle').textContent = id ? '공대원 수정' : '공대원 등록';
+  if (id) {
+    const m = allMembers.find(x => x.id === id);
+    if (m) {
+      document.getElementById('fName').value = m.name || '';
+      document.getElementById('fClass').value = m.cls || '';
+      document.getElementById('fRole').value = m.role || '딜러';
+      document.getElementById('fLevel').value = m.level || '';
+      document.getElementById('fGold').value = m.gold || '';
+      document.getElementById('fStatus').value = m.status || '참여';
+      document.getElementById('fNote').value = m.note || '';
+    }
+  } else {
+    ['fName','fClass','fLevel','fGold','fNote'].forEach(x => document.getElementById(x).value = '');
+    document.getElementById('fRole').value = '딜러';
+    document.getElementById('fStatus').value = '참여';
+  }
+  document.getElementById('memberModal').classList.add('show');
 }
+function closeMemberModal() { document.getElementById('memberModal').classList.remove('show'); }
 
-function filterTable() { renderTable(); }
+function editMember(id) { openMemberModal(id); }
 
-function openModal() {
-  editIndex = -1;
-  document.getElementById('modalTitle').textContent = '공대원 등록';
-  document.getElementById('fName').value = '';
-  document.getElementById('fClass').value = '';
-  document.getElementById('fRole').value = '딜러';
-  document.getElementById('fLevel').value = '';
-  document.getElementById('fGold').value = '';
-  document.getElementById('fStatus').value = '참여';
-  document.getElementById('fNote').value = '';
-  document.getElementById('modal').classList.add('show');
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
-
-function editMember(idx) {
-  editIndex = idx;
-  const m = members[idx];
-  document.getElementById('modalTitle').textContent = '공대원 수정';
-  document.getElementById('fName').value = m.name;
-  document.getElementById('fClass').value = m.cls;
-  document.getElementById('fRole').value = m.role;
-  document.getElementById('fLevel').value = m.level;
-  document.getElementById('fGold').value = m.gold;
-  document.getElementById('fStatus').value = m.status;
-  document.getElementById('fNote').value = m.note;
-  document.getElementById('modal').classList.add('show');
-}
-
-function saveMember() {
-  const obj = {
-    name: document.getElementById('fName').value,
+async function saveMember() {
+  const id = document.getElementById('fEditId').value;
+  const data = {
+    name: document.getElementById('fName').value.trim(),
     cls: document.getElementById('fClass').value,
     role: document.getElementById('fRole').value,
     level: parseInt(document.getElementById('fLevel').value) || 0,
     gold: parseInt(document.getElementById('fGold').value) || 0,
-    rate: editIndex >= 0 ? members[editIndex].rate : 100,
     status: document.getElementById('fStatus').value,
-    note: document.getElementById('fNote').value,
+    note: document.getElementById('fNote').value.trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
-  if (!obj.name || !obj.cls) { alert('캐릭터명과 직업을 입력하세요.'); return; }
-  if (editIndex >= 0) { members[editIndex] = obj; }
-  else { members.push(obj); }
-  closeModal();
-  renderTable();
-  saveToStorage();
+  if (!data.name || !data.cls) { alert('캐릭터명과 직업을 입력하세요.'); return; }
+
+  if (id) {
+    await db.collection('members').doc(id).update(data);
+  } else {
+    data.rate = 100;
+    data.ownerUid = currentUser.uid;
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('members').add(data);
+  }
+  closeMemberModal();
 }
 
-function deleteMember(idx) {
-  if (confirm(members[idx].name + ' 공대원을 삭제하시겠습니까?')) {
-    members.splice(idx, 1);
-    renderTable();
-    saveToStorage();
+async function deleteMember(id, name) {
+  if (confirm(`"${name}" 공대원을 삭제하시겠습니까?`)) {
+    await db.collection('members').doc(id).delete();
   }
 }
 
-function switchTab(el, id) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('member-table').style.display = id === 'member-table' ? '' : 'none';
-  document.getElementById('gold-table').style.display = id === 'gold-table' ? '' : 'none';
+// =============================================
+// 골드 분배
+// =============================================
+function renderGoldTable() {
+  const tbody = document.getElementById('goldTableBody');
+  tbody.innerHTML = allMembers.filter(m => m.status === '참여').map((m, i) => {
+    const bonus = m.role === '서폿' ? 20 : 0;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><strong>${m.name}</strong></td>
+      <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role}</span></td>
+      <td>${m.gold||0}만</td>
+      <td>${bonus ? '+'+bonus+'만' : '-'}</td>
+      <td><strong>${(m.gold||0)+bonus}만</strong></td>
+    </tr>`;
+  }).join('');
 }
 
-function exportData() {
+// =============================================
+// 구매 등록
+// =============================================
+function subscribePurchases() {
+  db.collection('purchases').orderBy('createdAt','desc').onSnapshot(snap => {
+    allPurchases = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderPurchaseTable();
+  });
+}
+
+function renderPurchaseTable() {
+  const tbody = document.getElementById('purchaseTableBody');
+  const canDeleteAll = canManageMembers();
+  tbody.innerHTML = allPurchases.map((p, i) => {
+    const isMine = p.uid === (currentUser && currentUser.uid);
+    const canDel = canDeleteAll || isMine;
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${p.userName||''}</td>
+      <td>${p.item||''}</td>
+      <td>${(p.price||0).toLocaleString()}</td>
+      <td>${p.date||''}</td>
+      <td style="color:#636e72;font-size:12px;">${p.memo||''}</td>
+      <td>${canDel ? `<button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button>` : ''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openPurchaseModal() {
+  document.getElementById('pItem').value = '';
+  document.getElementById('pPrice').value = '';
+  document.getElementById('pDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('pMemo').value = '';
+  document.getElementById('pEditId').value = '';
+  document.getElementById('purchaseModal').classList.add('show');
+}
+function closePurchaseModal() { document.getElementById('purchaseModal').classList.remove('show'); }
+
+async function savePurchase() {
+  const data = {
+    item: document.getElementById('pItem').value.trim(),
+    price: parseInt(document.getElementById('pPrice').value) || 0,
+    date: document.getElementById('pDate').value,
+    memo: document.getElementById('pMemo').value.trim(),
+    uid: currentUser.uid,
+    userName: currentProfile.name,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (!data.item || !data.price) { alert('아이템명과 가격을 입력하세요.'); return; }
+  await db.collection('purchases').add(data);
+  closePurchaseModal();
+}
+
+async function deletePurchase(id) {
+  if (confirm('삭제하시겠습니까?')) await db.collection('purchases').doc(id).delete();
+}
+
+// =============================================
+// 권한 관리
+// =============================================
+function subscribeUsers() {
+  db.collection('users').orderBy('createdAt').onSnapshot(snap => {
+    allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderUserTable();
+  });
+}
+
+function renderUserTable() {
+  const search = (document.getElementById('userSearch')?.value || '').toLowerCase();
+  const roleF = document.getElementById('userRoleFilter2')?.value || '';
+
+  let filtered = allUsers.filter(u => {
+    if (search && !(u.name||'').toLowerCase().includes(search) && !(u.email||'').toLowerCase().includes(search)) return false;
+    if (roleF && u.role !== roleF) return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('userTableBody');
+  if (!tbody) return;
+
+  const myLevel = ROLES[currentProfile?.role]?.level || 0;
+
+  tbody.innerHTML = filtered.map((u, i) => {
+    const r = ROLES[u.role] || ROLES.pending;
+    const uLevel = r.level;
+    const canChange = canManageUsers() && uLevel < myLevel && u.id !== currentUser.uid;
+    const created = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString('ko') : '-';
+
+    let selectHtml = '-';
+    if (canChange) {
+      const options = Object.entries(ROLES)
+        .filter(([k,v]) => v.level < myLevel)
+        .map(([k,v]) => `<option value="${k}" ${u.role===k?'selected':''}>${v.label}</option>`)
+        .join('');
+      selectHtml = `<select class="filter-select" onchange="changeRole('${u.id}',this.value)" style="font-size:12px;padding:4px 8px;">${options}</select>`;
+    }
+
+    return `<tr>
+      <td>${i+1}</td>
+      <td><img src="${u.photo||'https://via.placeholder.com/28'}" style="width:28px;height:28px;border-radius:50%;vertical-align:middle;"></td>
+      <td>${u.name||''}</td>
+      <td style="font-size:12px;color:#636e72;">${u.email||''}</td>
+      <td><span class="badge ${r.badge}">${r.label}</span></td>
+      <td style="font-size:12px;">${created}</td>
+      <td>${selectHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function changeRole(uid, newRole) {
+  if (confirm(`권한을 "${ROLES[newRole].label}"(으)로 변경하시겠습니까?`)) {
+    await db.collection('users').doc(uid).update({ role: newRole });
+  }
+}
+
+// =============================================
+// 대시보드
+// =============================================
+function renderDashboard() {
+  const total = allMembers.length;
+  const active = allMembers.filter(m => m.status === '참여').length;
+  const totalGold = allMembers.reduce((s,m) => s + (m.gold||0), 0);
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statGold').textContent = totalGold.toLocaleString() + '만';
+  document.getElementById('statAvg').textContent = total ? Math.round(totalGold/total) + '만' : '0';
+
+  // 역할 분포
+  const dealers = allMembers.filter(m => m.role === '딜러').length;
+  const supports = allMembers.filter(m => m.role === '서폿').length;
+  const maxR = Math.max(dealers, supports, 1);
+  document.getElementById('roleChart').innerHTML = [
+    { label: '딜러', count: dealers, color: '#00b894' },
+    { label: '서폿', count: supports, color: '#0984e3' },
+  ].map(r => `<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;">
+    <span style="font-size:14px;font-weight:700;">${r.count}명</span>
+    <div style="width:60px;height:${Math.max((r.count/maxR)*120,10)}px;background:${r.color};border-radius:8px 8px 0 0;"></div>
+    <span style="font-size:13px;color:#636e72;">${r.label}</span>
+  </div>`).join('');
+
+  // 상태 요약
+  const statuses = [
+    { label: '참여', count: active, color: '#00b894' },
+    { label: '미정', count: allMembers.filter(m=>m.status==='미정').length, color: '#fdcb6e' },
+    { label: '불참', count: allMembers.filter(m=>m.status==='불참').length, color: '#e74c3c' },
+  ];
+  document.getElementById('statusSummary').innerHTML = statuses.map(s =>
+    `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="width:10px;height:10px;border-radius:50%;background:${s.color};display:inline-block;"></span>
+      <span style="flex:1;">${s.label}</span><strong>${s.count}명</strong>
+    </div>`
+  ).join('');
+}
+
+// =============================================
+// 페이지 전환
+// =============================================
+function showPage(pageId, el) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// CSV 내보내기
+function exportMembers() {
   let csv = '번호,캐릭터명,직업,역할,아이템레벨,주급골드,참여율,상태,비고\n';
-  members.forEach((m, i) => {
+  allMembers.forEach((m, i) => {
     csv += `${i+1},${m.name},${m.cls},${m.role},${m.level},${m.gold},${m.rate},${m.status},${m.note}\n`;
   });
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -531,40 +880,9 @@ function exportData() {
   a.click();
 }
 
-function renderClassChart() {
-  const counts = {};
-  members.forEach(m => { counts[m.cls] = (counts[m.cls] || 0) + 1; });
-  const roles = {};
-  members.forEach(m => { roles[m.cls] = m.role; });
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
-  const max = Math.max(...sorted.map(s => s[1]));
-  const container = document.getElementById('classChart');
-  container.innerHTML = sorted.map(([cls, cnt]) => {
-    const h = Math.max((cnt / max) * 140, 20);
-    const color = roles[cls] === '서폿' ? '#0984e3' : '#00b894';
-    return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;">
-      <span style="font-size:12px;font-weight:600;">${cnt}</span>
-      <div style="width:100%;max-width:40px;height:${h}px;background:${color};border-radius:6px 6px 0 0;"></div>
-      <span style="font-size:10px;color:#636e72;text-align:center;">${cls}</span>
-    </div>`;
-  }).join('');
-}
-
-// LocalStorage 저장/불러오기
-function saveToStorage() { localStorage.setItem('raidMembers', JSON.stringify(members)); }
-function loadFromStorage() {
-  const saved = localStorage.getItem('raidMembers');
-  if (saved) members = JSON.parse(saved);
-}
-
-// Init
-loadFromStorage();
-renderTable();
-renderClassChart();
-
-// Modal 바깥 클릭 닫기
-document.getElementById('modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
+// 모달 바깥 클릭 닫기
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
 });
 </script>
 </body>

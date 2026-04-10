@@ -32,8 +32,19 @@
   .sidebar-footer .user-info .role-badge { font-size: 10px; padding: 2px 6px; border-radius: 10px; background: #ffd32a; color: #1e272e; font-weight: 700; }
   .sidebar-footer .logout-btn { margin-top: 10px; width: 100%; padding: 6px; background: #d63031; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
 
+  /* Top Header */
+  .top-header { margin-left: 220px; height: 52px; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: flex-end; padding: 0 24px; position: sticky; top: 0; z-index: 40; }
+  .discord-login-btn { padding: 8px 16px; background: #5865F2; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: .2s; }
+  .discord-login-btn:hover { background: #4752c4; }
+  .top-header .user-profile { display: flex; align-items: center; gap: 10px; }
+  .top-header .user-profile img { width: 30px; height: 30px; border-radius: 50%; }
+  .top-header .user-profile .name { font-size: 13px; font-weight: 600; }
+  .top-header .user-profile .role-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-left: 4px; }
+  .top-header .logout-link { font-size: 12px; color: #b2bec3; cursor: pointer; margin-left: 12px; }
+  .top-header .logout-link:hover { color: #d63031; }
+
   /* Main */
-  .main { margin-left: 220px; flex: 1; padding: 24px 32px; }
+  .main { margin-left: 220px; flex: 1; padding: 24px 32px; padding-top: 16px; }
   .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
   .top-bar h1 { font-size: 22px; }
   .btn { padding: 8px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: .2s; display: inline-flex; align-items: center; gap: 6px; }
@@ -184,27 +195,27 @@
     <!-- 시스템 -->
     <a onclick="showPage('users', this)" id="navUsers" style="display:none;"><span class="icon">🔐</span> 권한 관리</a>
   </nav>
-  <div class="sidebar-footer">
-    <!-- 비로그인 상태 -->
-    <div id="loginArea">
-      <button onclick="discordLogin()" style="width:100%;padding:10px;background:#5865F2;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-        <svg width="18" height="18" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
-        로그인
-      </button>
-    </div>
-    <!-- 로그인 상태 -->
-    <div id="userArea" style="display:none;">
-      <div class="user-info">
-        <img id="userPhoto" src="" alt="">
-        <div>
-          <div class="name" id="userName">-</div>
-          <span class="role-badge" id="userRoleBadge">-</span>
-        </div>
-      </div>
-      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+</aside>
+
+<!-- 상단 헤더 -->
+<div class="top-header">
+  <!-- 비로그인 -->
+  <div id="loginArea">
+    <button class="discord-login-btn" onclick="discordLogin()">
+      <svg width="18" height="14" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
+      로그인
+    </button>
+  </div>
+  <!-- 로그인 상태 -->
+  <div id="userArea" style="display:none;">
+    <div class="user-profile">
+      <img id="userPhoto" src="" alt="">
+      <span class="name" id="userName">-</span>
+      <span class="role-tag badge" id="userRoleBadge">-</span>
+      <span class="logout-link" onclick="doLogout()">로그아웃</span>
     </div>
   </div>
-</aside>
+</div>
 
 <div class="main">
 

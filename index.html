@@ -128,6 +128,11 @@
   .alert { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
   .alert-info { background: #eff6ff; border-color: #bfdbfe; }
 
+  /* ===== Item Tab Filter ===== */
+  .item-tab { padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:#fff;color:var(--text-sub);font-size:13px;font-weight:500;cursor:pointer;transition:.15s;font-family:inherit; }
+  .item-tab:hover { border-color:var(--accent);color:var(--accent); }
+  .item-tab.active { border-color:var(--accent);background:var(--accent);color:#fff;font-weight:700; }
+
   /* ===== Item Autocomplete ===== */
   .autocomplete-wrap { position: relative; }
   .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
@@ -480,15 +485,42 @@
     <!-- 아이템 정보 -->
     <div id="page-items" class="page-section">
       <div class="top-bar">
-        <div><h1 class="page-title">아이템 정보</h1><p class="page-desc">메이플랜드 아이템을 검색하고 확인합니다 (총 2,732개)</p></div>
+        <div><h1 class="page-title">아이템 정보</h1><p class="page-desc">메이플랜드 아이템을 검색하고 확인합니다</p></div>
       </div>
       <div class="panel">
+        <!-- 대분류 탭 -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="itemMainTabs">
+          <button class="item-tab active" onclick="setItemFilter('main','전체')">전체</button>
+          <button class="item-tab" onclick="setItemFilter('main','장비')">장비</button>
+          <button class="item-tab" onclick="setItemFilter('main','소비')">소비</button>
+          <button class="item-tab" onclick="setItemFilter('main','설치')">설치</button>
+          <button class="item-tab" onclick="setItemFilter('main','기타')">기타</button>
+        </div>
+        <!-- 직업 필터 (장비 선택 시 표시) -->
+        <div id="itemJobFilter" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          <span style="font-size:12px;color:var(--text-sub);align-self:center;margin-right:4px;">직업</span>
+          <button class="item-tab active" onclick="setItemFilter('job','전체')">전체</button>
+          <button class="item-tab" onclick="setItemFilter('job','전사')">⚔️ 전사</button>
+          <button class="item-tab" onclick="setItemFilter('job','마법사')">✨ 마법사</button>
+          <button class="item-tab" onclick="setItemFilter('job','궁수')">🏹 궁수</button>
+          <button class="item-tab" onclick="setItemFilter('job','도적')">🗡️ 도적</button>
+          <button class="item-tab" onclick="setItemFilter('job','공용')">👥 공용</button>
+        </div>
+        <!-- 무기/방어구 구분 (장비 선택 시 표시) -->
+        <div id="itemSubFilter" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+          <span style="font-size:12px;color:var(--text-sub);align-self:center;margin-right:4px;">구분</span>
+          <button class="item-tab active" onclick="setItemFilter('sub','전체')">전체</button>
+          <button class="item-tab" onclick="setItemFilter('sub','무기')">무기</button>
+          <button class="item-tab" onclick="setItemFilter('sub','방어구')">방어구</button>
+          <button class="item-tab" onclick="setItemFilter('sub','장신구')">장신구</button>
+        </div>
+        <!-- 검색 -->
         <div class="filter-bar">
-          <input type="text" class="search-input" id="itemSearch" placeholder="🔍 아이템명 검색 (한글/영문)..." oninput="renderItemPage()" style="width:280px;">
+          <input type="text" class="search-input" id="itemSearch" placeholder="🔍 아이템명 검색 (한글/영문)..." oninput="itemPageNo=0;renderItemPage()" style="width:280px;">
           <span style="margin-left:auto;font-size:13px;color:var(--text-sub);" id="itemCount"></span>
         </div>
         <div id="itemPageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:600px;overflow-y:auto;padding:4px 0;"></div>
-        <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;" id="itemPager"></div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap;" id="itemPager"></div>
       </div>
     </div>
 
@@ -2118,6 +2150,53 @@ const _origOpenPurchaseModal = typeof openPurchaseModal === 'function' ? openPur
 // =============================================
 let itemPageNo = 0;
 const ITEM_PAGE_SIZE = 60;
+let itemFilter = { main: '전체', job: '전체', sub: '전체' };
+
+function getItemMeta(code) {
+  const s = String(code);
+  const p3 = parseInt(s.substring(0, 3));
+  const p2 = parseInt(s.substring(0, 2));
+
+  if (s.startsWith('2')) return { main: '소비', sub: '', job: '' };
+  if (s.startsWith('3')) return { main: '설치', sub: '', job: '' };
+  if (s.startsWith('4')) return { main: '기타', sub: '', job: '' };
+  if (s.startsWith('5')) return { main: '캐시', sub: '', job: '' };
+
+  if (s.startsWith('1')) {
+    // 무기 (130~149)
+    if (p3 >= 130 && p3 <= 149) {
+      let job = '공용';
+      if ([130,131,132,140,141,142,143].includes(p3)) job = '전사';
+      else if ([137,138].includes(p3)) job = '마법사';
+      else if ([145,146].includes(p3)) job = '궁수';
+      else if ([133,147].includes(p3)) job = '도적';
+      return { main: '장비', sub: '무기', job };
+    }
+    // 방어구 (100~109 기본 장비류)
+    if (p3 >= 100 && p3 <= 110) return { main: '장비', sub: '방어구', job: '공용' };
+    // 장신구 (111~129)
+    if (p3 >= 111 && p3 <= 129) return { main: '장비', sub: '장신구', job: '공용' };
+    return { main: '장비', sub: '기타', job: '공용' };
+  }
+  return { main: '기타', sub: '', job: '' };
+}
+
+function setItemFilter(type, val) {
+  itemFilter[type] = val;
+  itemPageNo = 0;
+  // 탭 UI 업데이트
+  const groupMap = { main: 'itemMainTabs', job: 'itemJobFilter', sub: 'itemSubFilter' };
+  const container = document.getElementById(groupMap[type]);
+  if (container) container.querySelectorAll('.item-tab').forEach(b => {
+    b.classList.toggle('active', b.textContent.replace(/[⚔️✨🏹🗡️👥]/g,'').trim() === val || b.textContent.trim() === val);
+  });
+  // 장비 선택 시 직업/구분 필터 표시
+  const showEquip = itemFilter.main === '장비';
+  document.getElementById('itemJobFilter').style.display = showEquip ? 'flex' : 'none';
+  document.getElementById('itemSubFilter').style.display = showEquip ? 'flex' : 'none';
+  if (!showEquip) { itemFilter.job = '전체'; itemFilter.sub = '전체'; }
+  renderItemPage();
+}
 
 function renderItemPage() {
   const grid = document.getElementById('itemPageGrid');
@@ -2131,9 +2210,16 @@ function renderItemPage() {
   }
 
   const q = (document.getElementById('itemSearch')?.value || '').trim().toLowerCase();
-  const filtered = q
-    ? ITEM_DB.filter(([c, n, e]) => n.toLowerCase().includes(q) || e.toLowerCase().includes(q))
-    : ITEM_DB;
+  const filtered = ITEM_DB.filter(([code, name, en]) => {
+    if (q && !name.toLowerCase().includes(q) && !en.toLowerCase().includes(q)) return false;
+    if (itemFilter.main !== '전체') {
+      const meta = getItemMeta(code);
+      if (meta.main !== itemFilter.main) return false;
+      if (itemFilter.job !== '전체' && meta.job !== itemFilter.job) return false;
+      if (itemFilter.sub !== '전체' && meta.sub !== itemFilter.sub) return false;
+    }
+    return true;
+  });
 
   // 검색 시 첫 페이지로
   if (q) itemPageNo = 0;

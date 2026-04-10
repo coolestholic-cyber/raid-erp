@@ -128,6 +128,23 @@
   .alert { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
   .alert-info { background: #eff6ff; border-color: #bfdbfe; }
 
+  /* ===== Horntail Timer ===== */
+  .ht-row { display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #f3f4f6; gap:12px; flex-wrap:wrap; }
+  .ht-row:last-child { border-bottom:none; }
+  .ht-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .ht-name { font-size:14px; font-weight:600; min-width:90px; }
+  .ht-cls { font-size:12px; color:var(--text-sub); min-width:80px; }
+  .ht-countdown { font-size:13px; font-weight:700; min-width:110px; }
+  .ht-cleartime { font-size:11px; color:var(--text-sub); }
+  .ht-badge { padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+  .ht-badge-ready { background:#ecfdf5; color:#059669; }
+  .ht-badge-wait  { background:#fffbeb; color:#d97706; }
+  .ht-badge-none  { background:#f3f4f6; color:#6b7280; }
+  .ht-btn { padding:5px 12px; border-radius:6px; border:1px solid var(--border); background:#fff; font-size:12px; font-weight:600; cursor:pointer; color:var(--text-sub); transition:.15s; }
+  .ht-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .ht-btn-clear { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .ht-btn-clear:hover { background:#094ab2; }
+
   /* Modal */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
   .modal-overlay.show { display: flex; }
@@ -234,7 +251,15 @@
       <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon">💎</span> 분배내역</a>
     </div>
 
-    <!-- 3. 길드관리 -->
+    <!-- 3. 혼테일 -->
+    <div class="nav-accordion" onclick="toggleAccordion(this)">
+      <span class="nav-icon">🐉</span> 혼테일 <span class="arr">▶</span>
+    </div>
+    <div class="acc-body">
+      <a class="nav-item" onclick="showPage('horntail-timer',this)"><span class="nav-icon">⏱️</span> 타이머</a>
+    </div>
+
+    <!-- 4. 길드관리 -->
     <div class="nav-item" onclick="showPage('guild-promo',this)"><span class="nav-icon">🏰</span> 길드관리</div>
 
     <div class="nav-section">시스템</div>
@@ -438,6 +463,63 @@
         <button class="btn btn-primary" id="btnCreateGuild" onclick="openGuildPromoModal()" style="display:none;">+ 길드 홍보 등록</button>
       </div>
       <div id="guildPromoList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
+    </div>
+
+    <!-- 혼테일 타이머 -->
+    <div id="page-horntail-timer" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">혼테일 타이머</h1><p class="page-desc">공대원별 혼테일 클리어 시간을 기록하고 재도전 가능 시간을 확인합니다</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" onclick="htClearAll()">전체 초기화</button>
+          <button class="btn btn-primary" onclick="htMarkAll()">전원 클리어 등록</button>
+        </div>
+      </div>
+
+      <!-- 요약 카드 -->
+      <div class="cards" style="margin-bottom:20px;">
+        <div class="card stat-card">
+          <div><h3 id="htStatReady" style="color:#059669;">0</h3><p>재도전 가능</p></div>
+          <div class="stat-icon" style="background:#ecfdf5;color:#059669;">✅</div>
+        </div>
+        <div class="card stat-card">
+          <div><h3 id="htStatWaiting" style="color:#d97706;">0</h3><p>대기 중</p></div>
+          <div class="stat-icon" style="background:#fffbeb;color:#d97706;">⏳</div>
+        </div>
+        <div class="card stat-card">
+          <div><h3 id="htStatNone">0</h3><p>미등록</p></div>
+          <div class="stat-icon" style="background:#f3f4f6;color:#6b7280;">➖</div>
+        </div>
+        <div class="card stat-card">
+          <div><h3 id="htStatTotal">0</h3><p>전체 공대원</p></div>
+          <div class="stat-icon" style="background:#eff6ff;color:#3b82f6;">👥</div>
+        </div>
+      </div>
+
+      <!-- 쿨타임 설정 -->
+      <div class="panel" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <span style="font-size:14px;font-weight:600;">쿨타임 설정</span>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="htCooltime" value="24" onchange="htSetCooltime(24)" checked> 24시간
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="htCooltime" value="48" onchange="htSetCooltime(48)"> 48시간
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="htCooltime" value="72" onchange="htSetCooltime(72)"> 72시간
+          </label>
+          <span style="margin-left:auto;font-size:13px;color:var(--text-sub);">현재: <strong id="htCooltimeLabel">24시간</strong> 쿨타임</span>
+        </div>
+      </div>
+
+      <!-- 타이머 목록 -->
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h2 style="font-size:17px;font-weight:700;">공대원 타이머</h2>
+          <span style="font-size:13px;color:var(--text-sub);" id="htLastUpdate"></span>
+        </div>
+        <div id="htTimerList"></div>
+      </div>
     </div>
 
     <!-- 공대원 목록 -->
@@ -1288,7 +1370,7 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리'};
+const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머'};
 
 function showPage(id,el){
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
@@ -1301,6 +1383,7 @@ function showPage(id,el){
   if(id==='myraids')renderMyRaids();
   if(id==='settlement'){renderSettlementHistory();}
   if(id==='guestsettlement'){renderGuestSettlementHistory();}
+  if(id==='horntail-timer'){renderHtTimerList();startHtLiveClock();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -1900,6 +1983,144 @@ async function deleteGuestSettlement(id){
 
 // Modal close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});
+
+// =============================================
+// 혼테일 타이머
+// =============================================
+const JOB_ICON_MAP={
+  '히어로':'⚔️','팔라딘':'🛡️','다크나이트':'🌑',
+  '아크메이지(불)':'🔥','아크메이지(얼)':'❄️','비숍':'✨',
+  '보우마스터':'🏹','신궁':'🎯','나이트로드':'⭐','섀도어':'🗡️'
+};
+let htCooltime=24; // 시간
+let htTimer=null;
+
+function htSetCooltime(h){
+  htCooltime=h;
+  document.getElementById('htCooltimeLabel').textContent=h+'시간';
+  renderHtTimerList();
+}
+
+function htGetData(){
+  try{return JSON.parse(localStorage.getItem('ht_timer_data')||'{}');}catch{return {};}
+}
+function htSaveData(d){localStorage.setItem('ht_timer_data',JSON.stringify(d));}
+
+function htMarkClear(memberId){
+  const d=htGetData();
+  d[memberId]=Date.now();
+  htSaveData(d);
+  renderHtTimerList();
+}
+
+function htResetMember(memberId){
+  const d=htGetData();
+  delete d[memberId];
+  htSaveData(d);
+  renderHtTimerList();
+}
+
+function htMarkAll(){
+  if(!allMembers.length){alert('공대원 목록을 먼저 등록해주세요.');return;}
+  if(!confirm('전원 클리어 등록 하시겠습니까?'))return;
+  const d=htGetData();
+  const now=Date.now();
+  allMembers.forEach(m=>{d[m.id]=now;});
+  htSaveData(d);
+  renderHtTimerList();
+}
+
+function htClearAll(){
+  if(!confirm('전체 초기화 하시겠습니까?'))return;
+  localStorage.removeItem('ht_timer_data');
+  renderHtTimerList();
+}
+
+function htFormatCountdown(ms){
+  if(ms<=0)return null;
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  const s=Math.floor((ms%60000)/1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function renderHtTimerList(){
+  const el=document.getElementById('htTimerList');
+  if(!el)return;
+  if(!allMembers.length){
+    el.innerHTML=`<div class="empty-state" style="padding:40px;"><div class="icon">🐉</div><h3>공대원이 없습니다</h3><p>공대원 목록에서 먼저 공대원을 등록해주세요</p></div>`;
+    return;
+  }
+  const d=htGetData();
+  const now=Date.now();
+  const coolMs=htCooltime*3600000;
+  let cntReady=0,cntWait=0,cntNone=0;
+
+  const rows=allMembers.map(m=>{
+    const icon=JOB_ICON_MAP[m.cls]||'👤';
+    const roleColor=m.role==='서폿'?'#eff6ff':'#ecfdf5';
+    const clearTime=d[m.id];
+
+    let badge,countdown,clearLabel,actionBtn;
+    if(!clearTime){
+      cntNone++;
+      badge=`<span class="ht-badge ht-badge-none">미등록</span>`;
+      countdown=`<span class="ht-countdown" style="color:var(--text-sub);">-</span>`;
+      clearLabel=`<span class="ht-cleartime"></span>`;
+      actionBtn=`<button class="ht-btn ht-btn-clear" onclick="htMarkClear('${m.id}')">클리어 등록</button>`;
+    } else {
+      const elapsed=now-clearTime;
+      const remaining=coolMs-elapsed;
+      const dt=new Date(clearTime);
+      const clearStr=`${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+      clearLabel=`<span class="ht-cleartime">클리어: ${clearStr}</span>`;
+      if(remaining<=0){
+        cntReady++;
+        badge=`<span class="ht-badge ht-badge-ready">재도전 가능</span>`;
+        countdown=`<span class="ht-countdown" style="color:#059669;">완료</span>`;
+      } else {
+        cntWait++;
+        badge=`<span class="ht-badge ht-badge-wait">대기중</span>`;
+        const fmt=htFormatCountdown(remaining);
+        countdown=`<span class="ht-countdown ht-live-cd" data-end="${clearTime+coolMs}" style="color:#d97706;">${fmt}</span>`;
+      }
+      actionBtn=`<button class="ht-btn" onclick="htMarkClear('${m.id}')">재등록</button>
+                 <button class="ht-btn" style="color:#ef4444;" onclick="htResetMember('${m.id}')">초기화</button>`;
+    }
+
+    return `<div class="ht-row">
+      <div class="ht-avatar" style="background:${roleColor};">${icon}</div>
+      <div class="ht-name">${m.name||''}</div>
+      <div class="ht-cls">${m.cls||'-'}</div>
+      ${badge}
+      ${countdown}
+      ${clearLabel}
+      <div style="margin-left:auto;display:flex;gap:6px;">${actionBtn}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML=rows;
+  document.getElementById('htStatReady').textContent=cntReady;
+  document.getElementById('htStatWaiting').textContent=cntWait;
+  document.getElementById('htStatNone').textContent=cntNone;
+  document.getElementById('htStatTotal').textContent=allMembers.length;
+  document.getElementById('htLastUpdate').textContent='갱신: '+new Date().toLocaleTimeString();
+}
+
+function startHtLiveClock(){
+  if(htTimer)clearInterval(htTimer);
+  htTimer=setInterval(()=>{
+    document.querySelectorAll('.ht-live-cd').forEach(el=>{
+      const end=parseInt(el.dataset.end);
+      const rem=end-Date.now();
+      if(rem<=0){
+        renderHtTimerList(); // 상태 변경 → 전체 재렌더
+      } else {
+        el.textContent=htFormatCountdown(rem);
+      }
+    });
+  },1000);
+}
 
 // Discord callback
 (function(){const p=new URLSearchParams(window.location.search);const c=p.get('code');if(c){window.history.replaceState({},'',window.location.pathname);handleDiscordCallback(c);}})();

@@ -128,6 +128,15 @@
   .alert { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
   .alert-info { background: #eff6ff; border-color: #bfdbfe; }
 
+  /* ===== Item Autocomplete ===== */
+  .autocomplete-wrap { position: relative; }
+  .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+  .autocomplete-item { padding: 9px 14px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .autocomplete-item:hover, .autocomplete-item.selected { background: var(--accent-light); }
+  .autocomplete-item .ac-name { font-weight: 600; color: var(--text); }
+  .autocomplete-item .ac-en { font-size: 12px; color: var(--text-sub); }
+  .autocomplete-empty { padding: 12px 14px; font-size: 13px; color: var(--text-sub); text-align: center; }
+
   /* ===== Horntail Timer ===== */
   .ht-row { display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #f3f4f6; gap:12px; flex-wrap:wrap; }
   .ht-row:last-child { border-bottom:none; }
@@ -945,7 +954,12 @@
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
     <h2>판매 기록</h2>
-    <div class="form-group"><label>아이템명 *</label><input type="text" id="pItem" placeholder="아이템 이름"></div>
+    <div class="form-group"><label>아이템명 *</label>
+      <div class="autocomplete-wrap">
+        <input type="text" id="pItem" placeholder="아이템 이름 검색..." autocomplete="off" oninput="acSearch(this,'pItemList')" onkeydown="acKeydown(event,'pItemList')">
+        <div class="autocomplete-list" id="pItemList" style="display:none;"></div>
+      </div>
+    </div>
     <div class="form-row">
       <div class="form-group"><label>가격 (골드) *</label><input type="number" id="pPrice" placeholder="10000"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="pDate"></div>
@@ -1318,7 +1332,7 @@ function renderPurchaseTable(){
     return `<tr><td>${i+1}</td><td>${p.userName||''}</td><td>${p.item||''}</td><td>${(p.price||0).toLocaleString()}</td><td>${p.date||''}</td><td style="color:var(--text-sub);font-size:12px;">${p.memo||''}</td><td>${cd?`<button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button>`:''}</td></tr>`;
   }).join('');
 }
-function openPurchaseModal(){document.getElementById('pItem').value='';document.getElementById('pPrice').value='';document.getElementById('pDate').value=new Date().toISOString().slice(0,10);document.getElementById('pMemo').value='';document.getElementById('purchaseModal').classList.add('show');}
+function openPurchaseModal(){document.getElementById('pItem').value='';document.getElementById('pPrice').value='';document.getElementById('pDate').value=new Date().toISOString().slice(0,10);document.getElementById('pMemo').value='';document.getElementById('pItemList').style.display='none';document.getElementById('purchaseModal').classList.add('show');loadItemDB();}
 function closePurchaseModal(){document.getElementById('purchaseModal').classList.remove('show');}
 async function savePurchase(){
   const d={item:document.getElementById('pItem').value.trim(),price:parseInt(document.getElementById('pPrice').value)||0,date:document.getElementById('pDate').value,memo:document.getElementById('pMemo').value.trim(),uid:currentUser?currentUser.uid:'anon',userName:currentProfile?.name||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
@@ -1983,6 +1997,92 @@ async function deleteGuestSettlement(id){
 
 // Modal close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});
+
+// =============================================
+// 아이템 자동완성
+// =============================================
+let ITEM_DB = [];
+
+async function loadItemDB() {
+  if (ITEM_DB.length) return;
+  try {
+    const res = await fetch('./items.json');
+    ITEM_DB = await res.json(); // [[code, name, name_en], ...]
+    console.log(`아이템 DB 로드: ${ITEM_DB.length}개`);
+  } catch(e) {
+    console.warn('아이템 DB 로드 실패:', e);
+  }
+}
+
+function acSearch(input, listId) {
+  const q = input.value.trim().toLowerCase();
+  const list = document.getElementById(listId);
+  if (!list) return;
+  if (!q) { list.style.display = 'none'; return; }
+
+  if (!ITEM_DB.length) {
+    loadItemDB().then(() => acSearch(input, listId));
+    return;
+  }
+
+  const results = ITEM_DB.filter(([code, name, en]) =>
+    name.toLowerCase().includes(q) || en.toLowerCase().includes(q)
+  ).slice(0, 30);
+
+  if (!results.length) {
+    list.innerHTML = `<div class="autocomplete-empty">검색 결과 없음</div>`;
+    list.style.display = '';
+    return;
+  }
+
+  list.innerHTML = results.map(([code, name, en], i) =>
+    `<div class="autocomplete-item" data-name="${name}" onclick="acSelect('${name}','${listId}',event)">
+      <span class="ac-name">${name}</span>
+      <span class="ac-en">${en}</span>
+    </div>`
+  ).join('');
+  list.style.display = '';
+}
+
+function acSelect(name, listId, e) {
+  if (e) e.stopPropagation();
+  const list = document.getElementById(listId);
+  // input은 list의 바로 앞 형제
+  const input = list.previousElementSibling;
+  if (input) input.value = name;
+  list.style.display = 'none';
+}
+
+function acKeydown(e, listId) {
+  const list = document.getElementById(listId);
+  if (!list || list.style.display === 'none') return;
+  const items = list.querySelectorAll('.autocomplete-item');
+  if (!items.length) return;
+  const cur = list.querySelector('.autocomplete-item.selected');
+  let idx = cur ? [...items].indexOf(cur) : -1;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (cur) cur.classList.remove('selected');
+    items[Math.min(idx + 1, items.length - 1)].classList.add('selected');
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (cur) cur.classList.remove('selected');
+    items[Math.max(idx - 1, 0)].classList.add('selected');
+  } else if (e.key === 'Enter') {
+    const sel = list.querySelector('.autocomplete-item.selected');
+    if (sel) { e.preventDefault(); sel.click(); }
+  } else if (e.key === 'Escape') {
+    list.style.display = 'none';
+  }
+}
+
+// 외부 클릭 시 자동완성 닫기
+document.addEventListener('click', () => {
+  document.querySelectorAll('.autocomplete-list').forEach(l => l.style.display = 'none');
+});
+
+// 판매 모달 열릴 때 DB 미리 로드
+const _origOpenPurchaseModal = typeof openPurchaseModal === 'function' ? openPurchaseModal : null;
 
 // =============================================
 // 혼테일 타이머

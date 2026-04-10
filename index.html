@@ -659,6 +659,12 @@ function updateLoginUI(){
     document.getElementById('navUsers').style.display=canManageUsers()?'':'none';
   }else{
     document.getElementById('navUsers').style.display='none';
+    // 로그아웃 상태면 캐릭터 카드 초기화
+    window._myCharData=null;
+    const empty=document.getElementById('myCharEmpty');
+    const info=document.getElementById('myCharInfo');
+    if(empty)empty.style.display='';
+    if(info)info.style.display='none';
   }
 }
 

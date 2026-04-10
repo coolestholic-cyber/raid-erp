@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>공대 관리 ERP</title>
+<title>메이플랜드 ERP</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: #f5f6fa; color: #2d3436; display: flex; min-height: 100vh; }
@@ -138,8 +138,8 @@
 <!-- Login -->
 <div id="loginPage" class="login-page" style="display:none;">
   <div class="login-box">
-    <h1 style="color:#ffd32a;">공대 관리 ERP</h1>
-    <p>공대 관리 시스템에 접속하세요</p>
+    <h1 style="color:#ffd32a;">메이플랜드 ERP</h1>
+    <p>메이플랜드 관리 시스템에 접속하세요</p>
     <button class="google-btn" onclick="enterAsGuest()" style="margin-bottom:10px;">
       👁 그냥 둘러보기 (권한없음)
     </button>
@@ -176,14 +176,23 @@
 
 <aside class="sidebar">
   <div class="sidebar-header">
-    <h2>공대 관리 ERP</h2>
-    <small>v2.0 - Firebase</small>
+    <h2>메이플랜드 ERP</h2>
+    <small>v2.0</small>
   </div>
   <nav id="sidebarNav">
     <a class="active" onclick="showPage('dashboard', this)"><span class="icon">📊</span> 대시보드</a>
+
+    <div style="padding:10px 20px 4px;font-size:11px;color:#636e72;letter-spacing:1px;">내 캐릭터</div>
+    <a onclick="showPage('mychar', this)"><span class="icon">🍄</span> 캐릭터 정보</a>
+    <a onclick="showPage('meso', this)"><span class="icon">💰</span> 메소 가계부</a>
+    <a onclick="showPage('equip', this)"><span class="icon">⚔️</span> 장비 관리</a>
+
+    <div style="padding:10px 20px 4px;font-size:11px;color:#636e72;letter-spacing:1px;">공대</div>
     <a onclick="showPage('members', this)"><span class="icon">👥</span> 공대원 관리</a>
-    <a onclick="showPage('gold', this)"><span class="icon">💰</span> 골드 분배</a>
+    <a onclick="showPage('gold', this)"><span class="icon">💎</span> 골드 분배</a>
     <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 구매 등록</a>
+
+    <div style="padding:10px 20px 4px;font-size:11px;color:#636e72;letter-spacing:1px;">시스템</div>
     <a onclick="showPage('users', this)" id="navUsers" style="display:none;"><span class="icon">🔐</span> 권한 관리</a>
   </nav>
   <div class="sidebar-footer">
@@ -235,6 +244,51 @@
         <div class="panel-header"><h2>참여 상태 요약</h2></div>
         <div id="statusSummary"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ========== 캐릭터 정보 ========== -->
+  <div id="page-mychar" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>캐릭터 정보</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">내 캐릭터 기본 정보를 관리합니다</p>
+      </div>
+    </div>
+    <div class="panel" style="text-align:center; padding:60px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">🍄</div>
+      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
+      <p style="color:#b2bec3;">캐릭터 정보 기능이 곧 추가됩니다</p>
+    </div>
+  </div>
+
+  <!-- ========== 메소 가계부 ========== -->
+  <div id="page-meso" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>메소 가계부</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">메소 입출금을 기록하고 관리합니다</p>
+      </div>
+    </div>
+    <div class="panel" style="text-align:center; padding:60px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">💰</div>
+      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
+      <p style="color:#b2bec3;">메소 가계부 기능이 곧 추가됩니다</p>
+    </div>
+  </div>
+
+  <!-- ========== 장비 관리 ========== -->
+  <div id="page-equip" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>장비 관리</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">착용 장비를 등록하고 관리합니다</p>
+      </div>
+    </div>
+    <div class="panel" style="text-align:center; padding:60px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">⚔️</div>
+      <h2 style="color:#636e72; margin-bottom:8px;">준비 중</h2>
+      <p style="color:#b2bec3;">장비 관리 기능이 곧 추가됩니다</p>
     </div>
   </div>
 

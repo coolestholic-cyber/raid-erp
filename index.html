@@ -6,7 +6,6 @@
 <title>메랜ERP</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ef5a25'/%3E%3Cstop offset='100%25' stop-color='%23b8321a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4c-4 8-16 14-24 18 6 2 14 0 18-2-2 8-8 16-14 22 8-2 16-8 20-14 0 8-2 18-4 26 4-6 8-14 10-22 2 8 6 16 10 22-2-8-4-18-4-26 4 6 12 12 20 14-6-6-12-14-14-22 4 2 12 4 18 2C60 18 48 12 44 4c-2 6-6 10-12 14C26 14 34 10 32 4z'/%3E%3C/svg%3E">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.min.css">
 <style>
   :root { --sidebar-w: 240px; --header-h: 60px; --bg: #f8f9fa; --sidebar-bg: #1a1d23; --sidebar-hover: #25282f; --sidebar-active: #2d3139; --accent: #0b5cd5; --accent-light: #e8f0fe; --text: #212529; --text-sub: #6c757d; --border: #dee2e6; --card-bg: #fff; --radius: 8px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -144,25 +143,26 @@
   .autocomplete-empty { padding: 12px 14px; font-size: 13px; color: var(--text-sub); text-align: center; }
 
   /* ===== Horntail Phase Timer ===== */
-  .ht-section { border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,.06); }
-  .ht-section-header { padding:13px 20px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; font-weight:700; color:#fff; letter-spacing:.3px; }
-  .ht-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px; background:#f8f9fa; }
-  .ht-card { background:#fff; border:1px solid var(--border); border-radius:12px; display:flex; overflow:hidden; height:116px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
-  .ht-card-body { flex:1; padding:12px 16px 12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-width:0; }
-  .ht-card-top { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; }
-  .ht-card-title { font-size:13px; color:var(--text-sub); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px; }
-  .ht-card-time { font-family:'DSEG7 Classic', 'DSEG7Classic', monospace; font-size:36px; font-weight:400; color:#1a1d23; letter-spacing:2px; line-height:1; text-align:center; }
+  .ht-section { border-radius:16px; overflow:hidden; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,0,0,.07); }
+  .ht-section-header { padding:14px 20px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; font-weight:700; color:#fff; letter-spacing:.3px; }
+  .ht-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:16px; background:#f3f4f6; }
+  .ht-card { background:#fff; border-radius:14px; display:flex; flex-direction:column; padding:16px 18px 14px; gap:10px; box-shadow:0 2px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05); }
+  .ht-card-top { display:flex; align-items:center; gap:6px; }
+  .ht-card-title { font-size:13px; color:var(--text-sub); font-weight:600; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px; }
+  .ht-card-time { font-size:42px; font-weight:800; color:#1a1d23; letter-spacing:1px; line-height:1; text-align:center; font-variant-numeric:tabular-nums; padding:6px 0; }
   .ht-card-time.running { color:#5b5fef; }
   .ht-card-time.done    { color:#059669; }
-  .ht-start-col { width:72px; flex-shrink:0; display:flex; align-items:stretch; }
-  .ht-start-btn { width:100%; border:none; font-size:16px; font-weight:800; cursor:pointer; transition:.15s; border-radius:0; font-family:inherit; letter-spacing:.5px; }
+  .ht-card-actions { display:flex; gap:8px; }
+  .ht-start-btn { flex:1; padding:10px 0; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; transition:.15s; font-family:inherit; }
   .ht-start-btn.idle    { background:#5b5fef; color:#fff; }
   .ht-start-btn.idle:hover { background:#4f53d8; }
-  .ht-start-btn.running { background:#ef4444; color:#fff; }
-  .ht-start-btn.done    { background:#e5e7eb; color:#9ca3af; }
-  .ht-edit-btn { padding:3px 9px; border-radius:6px; border:1px solid var(--border); background:#fff; color:var(--text-sub); font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; flex-shrink:0; font-family:inherit; }
-  .ht-edit-btn:hover { background:#f3f4f6; color:var(--text); }
-  .ht-auto-icon { font-size:12px; color:#7c3aed; font-family:inherit; }
+  .ht-stop-btn  { flex:1; padding:10px 0; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; background:#e5e7eb; color:#374151; }
+  .ht-stop-btn:hover { background:#d1d5db; }
+  .ht-reset-btn { flex:1; padding:10px 0; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; background:#fee2e2; color:#ef4444; }
+  .ht-reset-btn:hover { background:#fecaca; }
+  .ht-edit-btn { padding:3px 10px; border-radius:20px; border:none; background:#f0f0f2; color:#9ca3af; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; font-family:inherit; transition:.15s; }
+  .ht-edit-btn:hover { background:#e4e4e8; color:#6b7280; }
+  .ht-auto-icon { font-size:12px; color:#a78bfa; }
 
   /* Modal */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
@@ -2303,21 +2303,30 @@ function htRender() {
           const bc = st.running ? 'running' : st.remain===0 ? 'done' : 'idle';
           const bl = st.running ? '정지' : st.remain===0 ? '완료' : '시작';
           return `<div class="ht-card">
-            <div class="ht-card-body">
-              <div class="ht-card-top">
-                <span class="ht-card-title">${st.auto?'<span class="ht-auto-icon">↻</span>':''}<span id="httitle-${k}">${st.customName||t.name}</span></span>
-                <button class="ht-edit-btn" onclick="htEdit('${k}')">수정</button>
-              </div>
-              <div class="ht-card-time ${tc}" id="httime-${k}">${htFmt(st.remain)}</div>
+            <div class="ht-card-top">
+              <span class="ht-card-title">${st.auto?'<span class="ht-auto-icon">↻</span>':''}<span id="httitle-${k}">${st.customName||t.name}</span></span>
+              <button class="ht-edit-btn" onclick="htEdit('${k}')">수정</button>
             </div>
-            <div class="ht-start-col">
-              <button class="ht-start-btn ${bc}" id="htbtn-${k}" onclick="htToggle('${k}')">${bl}</button>
+            <div class="ht-card-time ${tc}" id="httime-${k}">${htFmt(st.remain)}</div>
+            <div class="ht-card-actions" id="htactions-${k}">
+              ${htActionHTML(k, st)}
             </div>
           </div>`;
         }).join('')}
       </div>
     </div>
   `).join('');
+}
+
+function htActionHTML(k, st) {
+  if (st.running) {
+    return `<button class="ht-stop-btn" onclick="htToggle('${k}')">정지</button>
+            <button class="ht-reset-btn" onclick="htReset('${k}')">초기화</button>`;
+  }
+  if (st.remain === 0) {
+    return `<button class="ht-start-btn idle" onclick="htReset('${k}')">초기화</button>`;
+  }
+  return `<button class="ht-start-btn idle" onclick="htToggle('${k}')">시작</button>`;
 }
 
 function htToggle(k) {
@@ -2351,14 +2360,12 @@ function htToggle(k) {
 
 function htUpdateCard(k) {
   const st = htState[k];
-  const el  = document.getElementById(`httime-${k}`);
-  const btn = document.getElementById(`htbtn-${k}`);
   if (!st) return;
-  const tc = st.running?'running':st.remain===0?'done':'';
-  const bc = st.running?'running':st.remain===0?'done':'idle';
-  const bl = st.running?'정지':st.remain===0?'완료':'시작';
-  if (el)  { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${tc}`; }
-  if (btn) { btn.textContent = bl; btn.className = `ht-start-btn ${bc}`; }
+  const el      = document.getElementById(`httime-${k}`);
+  const actions = document.getElementById(`htactions-${k}`);
+  const tc = st.running ? 'running' : st.remain === 0 ? 'done' : '';
+  if (el) { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${tc}`; }
+  if (actions) actions.innerHTML = htActionHTML(k, st);
 }
 
 function htEdit(k) {

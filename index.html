@@ -369,7 +369,7 @@
           <div class="form-group"><label>보스 *</label>
             <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
               <option value="">보스 선택</option>
-              <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>기타</option>
+              <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>쿠우파</option><option>기타</option>
             </select>
           </div>
         </div>
@@ -506,7 +506,7 @@
             <div class="form-group"><label>보스 *</label>
               <select id="stBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
                 <option value="">보스 선택</option>
-                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>기타</option>
+                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>쿠우파</option><option>기타</option>
               </select>
             </div>
           </div>
@@ -859,6 +859,17 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // =============================================
+// 슈퍼 관리자 화이트리스트 (항상 master 고정)
+// =============================================
+const SUPER_ADMINS = {
+  discordIds: ['355991127377313792'],
+  googleEmails: ['coolestholic@gmail.com'],
+};
+function isSuperAdmin(discordId, email){
+  return SUPER_ADMINS.discordIds.includes(discordId) || SUPER_ADMINS.googleEmails.includes(email);
+}
+
+// =============================================
 // State
 // =============================================
 let currentUser = null, currentProfile = null;
@@ -935,14 +946,19 @@ auth.onAuthStateChanged(async(user)=>{
       const allSnap=await db.collection('users').where('isAnonymous','!=',true).get();
       let role='none';
       let existingMyChar=null;
-      if(dupSnap&&!dupSnap.empty){
+      if(isSuperAdmin(d.id, d.email)){
+        role='master';
+      } else if(dupSnap&&!dupSnap.empty){
         const prev=dupSnap.docs[0].data();
         role=prev.role||'none';
         existingMyChar=prev.myChar||null;
-        // 이전 중복 문서들 삭제
-        for(const dd of dupSnap.docs){await db.collection('users').doc(dd.id).delete();}
       } else {
         role=allSnap.empty?'master':'none';
+      }
+      if(dupSnap&&!dupSnap.empty){
+        existingMyChar=existingMyChar||(dupSnap.docs[0].data().myChar||null);
+        // 이전 중복 문서들 삭제
+        for(const dd of dupSnap.docs){await db.collection('users').doc(dd.id).delete();}
       }
       const newData={name:d.global_name||d.username,email:d.email||'',photo:d.avatar||'',role,discordId:d.id,discordUsername:d.username,isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
       if(existingMyChar)newData.myChar=existingMyChar;
@@ -953,11 +969,18 @@ auth.onAuthStateChanged(async(user)=>{
       _pendingRole=null;_pendingName=null;doc=await userRef.get();
     }else{
       const snap=await db.collection('users').where('isAnonymous','!=',true).get();
-      await userRef.set({name:user.displayName||'이름없음',email:user.email,photo:user.photoURL||'',role:snap.empty?'master':'none',loginType:'google',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      const gRole=isSuperAdmin('',user.email)?'master':(snap.empty?'master':'none');
+      await userRef.set({name:user.displayName||'이름없음',email:user.email,photo:user.photoURL||'',role:gRole,loginType:'google',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       doc=await userRef.get();
     }
   }
-  currentProfile={id:doc.id,...doc.data()};
+  const profileData=doc.data();
+  // 슈퍼어드민이면 role 항상 master로 강제 유지
+  if(isSuperAdmin(profileData.discordId||'', profileData.email||'') && profileData.role!=='master'){
+    await userRef.update({role:'master'});
+    profileData.role='master';
+  }
+  currentProfile={id:doc.id,...profileData};
   updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();
 });
 

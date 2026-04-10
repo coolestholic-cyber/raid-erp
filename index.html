@@ -580,8 +580,117 @@
 
     <!-- 손님정산 -->
     <div id="page-guestsettlement" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">손님정산</h1><p class="page-desc">손님 레이드 정산을 관리합니다</p></div></div>
-      <div class="panel"><div class="empty-state"><div class="icon">🧾</div><h3>준비 중</h3><p>손님정산 기능이 곧 추가됩니다</p></div></div>
+      <div class="top-bar">
+        <div><h1 class="page-title">손님정산</h1><p class="page-desc">손님 거래 수수료 및 공대원 분배를 자동 계산합니다</p></div>
+        <button class="btn btn-primary" onclick="openGuestForm()">+ 새 정산</button>
+      </div>
+
+      <!-- 수수료 안내 -->
+      <div class="alert alert-info" style="margin-bottom:16px;">
+        <span>ℹ️</span>
+        <span><strong>메이플랜드 거래 수수료:</strong> &nbsp;
+          10만↑ <strong>0.8%</strong> &nbsp;|&nbsp;
+          100만↑ <strong>1.8%</strong> &nbsp;|&nbsp;
+          500만↑ <strong>3.0%</strong> &nbsp;|&nbsp;
+          1000만↑ <strong>4.0%</strong> &nbsp;|&nbsp;
+          2500만↑ <strong>5.0%</strong> &nbsp;|&nbsp;
+          1억↑ <strong>6.0%</strong>
+        </span>
+      </div>
+
+      <!-- 입력 폼 (토글) -->
+      <div id="guestForm" style="display:none;">
+
+        <!-- 기본 정보 입력 -->
+        <div class="panel" style="margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">🧾</span>
+            거래 정보 입력
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>날짜 *</label><input type="date" id="gsDate"></div>
+            <div class="form-group"><label>거래 내용 *</label><input type="text" id="gsItem" placeholder="예) 혼테일 알목, 자쿰 심장" oninput="calcGuestFee()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>손님 거래 금액 (만메소) *</label>
+              <input type="number" id="gsAmount" placeholder="예) 7000" min="0" oninput="calcGuestFee()">
+            </div>
+            <div class="form-group"><label>메모</label><input type="text" id="gsNote" placeholder="선택사항"></div>
+          </div>
+        </div>
+
+        <!-- 수수료 자동계산 결과 -->
+        <div class="panel" style="margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:#fffbeb;color:#d97706;border-radius:8px;display:flex;align-items:center;justify-content:center;">💸</span>
+            수수료 계산
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+            <div style="background:var(--bg);border-radius:10px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">손님 금액</div>
+              <div id="gsAmountResult" style="font-size:20px;font-weight:700;color:var(--text);">0만</div>
+            </div>
+            <div style="background:#fffbeb;border-radius:10px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:#d97706;margin-bottom:6px;font-weight:600;">수수료율</div>
+              <div id="gsFeeRate" style="font-size:20px;font-weight:700;color:#d97706;">0%</div>
+            </div>
+            <div style="background:#fef2f2;border-radius:10px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:#dc2626;margin-bottom:6px;font-weight:600;">수수료 금액</div>
+              <div id="gsFeeAmount" style="font-size:20px;font-weight:700;color:#dc2626;">0만</div>
+            </div>
+            <div style="background:var(--accent-light);border-radius:10px;padding:16px;text-align:center;">
+              <div style="font-size:12px;color:var(--accent);margin-bottom:6px;font-weight:600;">실수령 금액</div>
+              <div id="gsNetAmount" style="font-size:20px;font-weight:700;color:var(--accent);">0만</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 공대원 분배 -->
+        <div class="panel" style="margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">👥</span>
+              분배 공대원 선택
+            </span>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="gsSelectAll(true)">전체 참여</button>
+              <button type="button" class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="gsSelectAll(false)">전체 해제</button>
+            </div>
+          </div>
+          <div id="gsMemberList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:16px;"></div>
+          <!-- 분배 결과 -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px solid var(--border);padding-top:16px;">
+            <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">분배 인원</div>
+              <div id="gsCountResult" style="font-size:22px;font-weight:700;color:var(--text);">0명</div>
+            </div>
+            <div style="background:var(--bg);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">분배 총액 (실수령)</div>
+              <div id="gsTotalResult" style="font-size:22px;font-weight:700;color:var(--text);">0만</div>
+            </div>
+            <div style="background:var(--accent-light);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:12px;color:var(--accent);margin-bottom:6px;font-weight:600;">1인당 수령</div>
+              <div id="gsPerResult" style="font-size:22px;font-weight:700;color:var(--accent);">0만</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px;">
+          <button class="btn btn-outline" onclick="closeGuestForm()">취소</button>
+          <button class="btn btn-primary" onclick="saveGuestSettlement()">정산 저장</button>
+        </div>
+      </div>
+
+      <!-- 정산 히스토리 -->
+      <div class="panel">
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">손님정산 내역</div>
+        <div class="table-wrap">
+          <table><thead><tr>
+            <th>날짜</th><th>거래내용</th><th>손님금액</th><th>수수료율</th><th>수수료</th><th>실수령</th><th>분배인원</th><th>1인당</th><th>메모</th><th>관리</th>
+          </tr></thead><tbody id="guestSettlementTableBody"></tbody></table>
+        </div>
+      </div>
     </div>
 
     <!-- 분배내역 -->
@@ -814,7 +923,7 @@ function updateLoginUI(){
 }
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharData=null;mcRenderCard(null);return;}
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();window._myCharData=null;mcRenderCard(null);return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -849,7 +958,7 @@ auth.onAuthStateChanged(async(user)=>{
     }
   }
   currentProfile={id:doc.id,...doc.data()};
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();
 });
 
 // =============================================
@@ -1081,6 +1190,7 @@ function showPage(id,el){
   if(id==='raids')renderRaidList();
   if(id==='myraids')renderMyRaids();
   if(id==='settlement'){renderSettlementHistory();}
+  if(id==='guestsettlement'){renderGuestSettlementHistory();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -1450,6 +1560,159 @@ async function deleteSettlement(id){
   if(!confirm('정산 내역을 삭제하시겠습니까?'))return;
   await db.collection('settlements').doc(id).delete();
   renderSettlementHistory();
+}
+
+// =============================================
+// 손님정산
+// =============================================
+let allGuestSettlements = [];
+
+function subscribeGuestSettlements(){
+  db.collection('guestSettlements').orderBy('date','desc').onSnapshot(s=>{
+    allGuestSettlements=s.docs.map(d=>({id:d.id,...d.data()}));
+    renderGuestSettlementHistory();
+  });
+}
+
+function calcGuestFeeRate(amount){
+  // amount: 만메소 단위
+  if(amount>=10000)return 6.0;   // 1억 이상
+  if(amount>=2500) return 5.0;   // 2500만 이상
+  if(amount>=1000) return 4.0;   // 1000만 이상
+  if(amount>=500)  return 3.0;   // 500만 이상
+  if(amount>=100)  return 1.8;   // 100만 이상
+  if(amount>=10)   return 0.8;   // 10만 이상
+  return 0;
+}
+
+function calcGuestFee(){
+  const amt=parseFloat(document.getElementById('gsAmount')?.value)||0;
+  const rate=calcGuestFeeRate(amt);
+  const fee=Math.floor(amt*rate/100*10)/10; // 소수점 1자리
+  const net=Math.round((amt-fee)*10)/10;
+  // 4칸 결과
+  const fmt=v=>v%1===0?v.toLocaleString()+'만':(v.toLocaleString()+'만');
+  const el=id=>document.getElementById(id);
+  if(el('gsAmountResult'))el('gsAmountResult').textContent=amt.toLocaleString()+'만';
+  if(el('gsFeeRate'))el('gsFeeRate').textContent=rate+'%';
+  if(el('gsFeeAmount'))el('gsFeeAmount').textContent=fee.toLocaleString()+'만';
+  if(el('gsNetAmount'))el('gsNetAmount').textContent=net.toLocaleString()+'만';
+  // 분배 재계산
+  calcGuestDist(net);
+}
+
+function calcGuestDist(net){
+  const participants=allMembers.filter(m=>{const cb=document.getElementById('gsm_'+m.id);return cb&&cb.checked;});
+  const count=participants.length;
+  const per=count>0?Math.floor(net/count*10)/10:0;
+  const el=id=>document.getElementById(id);
+  if(el('gsCountResult'))el('gsCountResult').textContent=count+'명';
+  if(el('gsTotalResult'))el('gsTotalResult').textContent=(net||0).toLocaleString()+'만';
+  if(el('gsPerResult'))el('gsPerResult').textContent=per.toLocaleString()+'만';
+}
+
+function renderGsMemberList(){
+  const wrap=document.getElementById('gsMemberList');
+  if(!wrap)return;
+  if(!allMembers.length){
+    wrap.innerHTML='<div style="color:var(--text-sub);font-size:14px;">등록된 공대원이 없습니다</div>';
+    return;
+  }
+  wrap.innerHTML=allMembers.map(m=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s;" id="gsmLabel_${m.id}">
+      <input type="checkbox" id="gsm_${m.id}" value="${m.id}" checked onchange="calcGuestFee();gsUpdateLabel('${m.id}')">
+      <span>
+        <span style="font-weight:600;font-size:14px;">${m.name||''}</span>
+        <span style="font-size:12px;color:var(--text-sub);margin-left:6px;">${m.cls||''}</span>
+        <span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}" style="margin-left:4px;font-size:11px;">${m.role||''}</span>
+      </span>
+    </label>
+  `).join('');
+  allMembers.forEach(m=>gsUpdateLabel(m.id));
+}
+
+function gsUpdateLabel(id){
+  const cb=document.getElementById('gsm_'+id);
+  const lb=document.getElementById('gsmLabel_'+id);
+  if(!cb||!lb)return;
+  lb.style.borderColor=cb.checked?'var(--accent)':'var(--border)';
+  lb.style.background=cb.checked?'var(--accent-light)':'#fff';
+}
+
+function gsSelectAll(checked){
+  allMembers.forEach(m=>{
+    const cb=document.getElementById('gsm_'+m.id);
+    if(cb){cb.checked=checked;gsUpdateLabel(m.id);}
+  });
+  calcGuestFee();
+}
+
+function openGuestForm(){
+  document.getElementById('guestForm').style.display='';
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('gsDate').value=today;
+  document.getElementById('gsItem').value='';
+  document.getElementById('gsAmount').value='';
+  document.getElementById('gsNote').value='';
+  renderGsMemberList();
+  calcGuestFee();
+  document.getElementById('guestForm').scrollIntoView({behavior:'smooth'});
+}
+
+function closeGuestForm(){
+  document.getElementById('guestForm').style.display='none';
+}
+
+async function saveGuestSettlement(){
+  const date=document.getElementById('gsDate').value;
+  const item=document.getElementById('gsItem').value.trim();
+  const amt=parseFloat(document.getElementById('gsAmount').value)||0;
+  if(!date||!item||!amt){alert('날짜, 거래내용, 금액을 모두 입력하세요.');return;}
+  const rate=calcGuestFeeRate(amt);
+  const fee=Math.floor(amt*rate/100*10)/10;
+  const net=Math.round((amt-fee)*10)/10;
+  const participants=allMembers.filter(m=>{const cb=document.getElementById('gsm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
+  const count=participants.length;
+  const per=count>0?Math.floor(net/count*10)/10:0;
+  if(!count){alert('분배 공대원을 1명 이상 선택하세요.');return;}
+  await db.collection('guestSettlements').add({
+    date,item,amount:amt,feeRate:rate,feeAmount:fee,netAmount:net,
+    participants,count,perGold:per,
+    note:document.getElementById('gsNote').value.trim(),
+    ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  closeGuestForm();
+  renderGuestSettlementHistory();
+}
+
+async function renderGuestSettlementHistory(){
+  const tbody=document.getElementById('guestSettlementTableBody');
+  if(!tbody)return;
+  if(!allGuestSettlements.length){
+    tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=allGuestSettlements.map(s=>{
+    const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
+    return `<tr>
+      <td>${s.date||''}</td>
+      <td><strong>${s.item||''}</strong></td>
+      <td>${(s.amount||0).toLocaleString()}만</td>
+      <td><span class="badge badge-yellow">${s.feeRate||0}%</span></td>
+      <td style="color:#dc2626;">${(s.feeAmount||0).toLocaleString()}만</td>
+      <td style="color:var(--accent);font-weight:700;">${(s.netAmount||0).toLocaleString()}만</td>
+      <td>${s.count||0}명</td>
+      <td style="color:var(--accent);font-weight:700;">${(s.perGold||0).toLocaleString()}만</td>
+      <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
+      <td>${canDel?`<button class="btn btn-danger" style="font-size:12px;padding:4px 10px;" onclick="deleteGuestSettlement('${s.id}')">삭제</button>`:''}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteGuestSettlement(id){
+  if(!confirm('정산 내역을 삭제하시겠습니까?'))return;
+  await db.collection('guestSettlements').doc(id).delete();
 }
 
 // Modal close on overlay click

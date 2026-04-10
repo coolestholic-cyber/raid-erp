@@ -160,7 +160,9 @@
     <small>v2.0</small>
   </div>
   <nav id="sidebarNav">
-    <a class="active" onclick="showPage('dashboard', this)"><span class="icon">📊</span> 대시보드</a>
+    <!-- 공개 메뉴 -->
+    <a class="active" onclick="showPage('raid-list', this)"><span class="icon">📋</span> 공대 목록</a>
+    <a onclick="showPage('guild-promo', this)"><span class="icon">📢</span> 길드 홍보</a>
 
     <!-- 내 캐릭터 어코디언 -->
     <div class="accordion-btn" onclick="toggleAccordion(this)">
@@ -172,24 +174,14 @@
       <a onclick="showPage('equip', this)"><span class="icon">⚔️</span> 장비 관리</a>
     </div>
 
-    <!-- 공대 어코디언 -->
-    <div class="accordion-btn open" onclick="toggleAccordion(this)">
-      <span>⚔️</span> 공대 관리 <span class="arrow">▶</span>
+    <!-- 내 공대 관리 (로그인 후 공대장만) -->
+    <div class="accordion-btn" onclick="toggleAccordion(this)" id="navMyRaid" style="display:none;">
+      <span>⚔️</span> 내 공대 관리 <span class="arrow">▶</span>
     </div>
-    <div class="accordion-body open">
+    <div class="accordion-body" id="navMyRaidBody">
       <a onclick="showPage('members', this)"><span class="icon">👥</span> 공대원 관리</a>
       <a onclick="showPage('gold', this)"><span class="icon">💎</span> 골드 분배</a>
       <a onclick="showPage('purchase', this)"><span class="icon">🛒</span> 판매 기록</a>
-    </div>
-
-    <!-- 길드 어코디언 -->
-    <div class="accordion-btn" onclick="toggleAccordion(this)">
-      <span>🏰</span> 길드 관리 <span class="arrow">▶</span>
-    </div>
-    <div class="accordion-body">
-      <a onclick="showPage('guild-members', this)"><span class="icon">👥</span> 길드원 목록</a>
-      <a onclick="showPage('guild-attend', this)"><span class="icon">📅</span> 출석 관리</a>
-      <a onclick="showPage('guild-notice', this)"><span class="icon">📢</span> 길드 공지</a>
     </div>
 
     <!-- 시스템 -->
@@ -220,11 +212,47 @@
 <div class="main">
 
   <!-- ========== 대시보드 ========== -->
-  <div id="page-dashboard" class="page-section active">
+  <!-- ========== 공대 목록 (공개) ========== -->
+  <div id="page-raid-list" class="page-section active">
+    <div class="top-bar">
+      <div>
+        <h1>공대 목록</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">등록된 공대를 확인하고 참여하세요</p>
+      </div>
+      <button class="btn btn-primary" id="btnCreateRaid" onclick="openRaidModal()" style="display:none;">+ 공대 등록</button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" class="search-input" placeholder="공대명, 보스 검색..." id="raidSearch" oninput="renderRaidList()">
+      <select class="filter-select" id="raidStatusFilter" onchange="renderRaidList()">
+        <option value="">전체</option>
+        <option value="모집중">모집중</option>
+        <option value="마감">마감</option>
+      </select>
+      <span style="margin-left:auto;font-size:12px;color:#636e72;" id="raidCount">0개</span>
+    </div>
+    <div id="raidListCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
+    </div>
+  </div>
+
+  <!-- ========== 길드 홍보 (공개) ========== -->
+  <div id="page-guild-promo" class="page-section">
+    <div class="top-bar">
+      <div>
+        <h1>길드 홍보</h1>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">길드를 홍보하고 길드원을 모집하세요</p>
+      </div>
+      <button class="btn btn-primary" id="btnCreateGuild" onclick="openGuildPromoModal()" style="display:none;">+ 길드 홍보 등록</button>
+    </div>
+    <div id="guildPromoList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
+    </div>
+  </div>
+
+  <!-- ========== 대시보드 (내 공대) ========== -->
+  <div id="page-dashboard" class="page-section">
     <div class="top-bar">
       <div>
         <h1>대시보드</h1>
-        <p style="color:#636e72; font-size:13px; margin-top:4px;">공대 현황을 한눈에 확인합니다</p>
+        <p style="color:#636e72; font-size:13px; margin-top:4px;">내 공대 현황을 한눈에 확인합니다</p>
       </div>
     </div>
     <div class="cards">
@@ -533,6 +561,103 @@
   </div>
 </div>
 
+<!-- Raid Create Modal -->
+<div class="modal-overlay" id="raidModal">
+  <div class="modal">
+    <h2>공대 등록</h2>
+    <div class="form-group">
+      <label>공대 이름 *</label>
+      <input type="text" id="rName" placeholder="예: 불사조 공대">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>보스 *</label>
+        <select id="rBoss">
+          <option value="">선택</option>
+          <option>자쿰</option>
+          <option>혼테일</option>
+          <option>핑크빈</option>
+          <option>시그너스</option>
+          <option>기타</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>난이도</label>
+        <select id="rDiff">
+          <option value="노말">노말</option>
+          <option value="하드">하드</option>
+          <option value="카오스">카오스</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>정원</label>
+        <input type="number" id="rMax" placeholder="16" value="16">
+      </div>
+      <div class="form-group">
+        <label>상태</label>
+        <select id="rStatus">
+          <option value="모집중">모집중</option>
+          <option value="마감">마감</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>공대 소개</label>
+      <input type="text" id="rDesc" placeholder="간단한 공대 소개">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeRaidModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveRaid()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- Guild Promo Modal -->
+<div class="modal-overlay" id="guildPromoModal">
+  <div class="modal">
+    <h2>길드 홍보 등록</h2>
+    <div class="form-group">
+      <label>길드 이름 *</label>
+      <input type="text" id="gName" placeholder="길드명">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>서버</label>
+        <select id="gServer">
+          <option>스카니아</option>
+          <option>베라</option>
+          <option>루나</option>
+          <option>제니스</option>
+          <option>크로아</option>
+          <option>유니온</option>
+          <option>엘리시움</option>
+          <option>이노시스</option>
+          <option>레드</option>
+          <option>오로라</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>가입 조건</label>
+        <input type="text" id="gReq" placeholder="예: Lv200+">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>길드 소개 *</label>
+      <input type="text" id="gDesc" placeholder="길드를 소개해 주세요">
+    </div>
+    <div class="form-group">
+      <label>연락처 (디스코드 등)</label>
+      <input type="text" id="gContact" placeholder="예: discord.gg/xxxx">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeGuildPromoModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveGuildPromo()">등록</button>
+    </div>
+  </div>
+</div>
+
 <!-- Purchase Modal -->
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
@@ -671,21 +796,27 @@ function doLogout() {
 }
 
 function updateLoginUI() {
-  if (currentProfile) {
-    document.getElementById('loginArea').style.display = 'none';
-    document.getElementById('userArea').style.display = '';
+  const loggedIn = !!currentProfile;
+  document.getElementById('loginArea').style.display = loggedIn ? 'none' : '';
+  document.getElementById('userArea').style.display = loggedIn ? '' : 'none';
+  // 공대/길드 등록 버튼 (로그인 시 표시)
+  const btnRaid = document.getElementById('btnCreateRaid');
+  const btnGuild = document.getElementById('btnCreateGuild');
+  const btnAdd = document.getElementById('btnAddMember');
+  if (btnRaid) btnRaid.style.display = loggedIn ? '' : 'none';
+  if (btnGuild) btnGuild.style.display = loggedIn ? '' : 'none';
+  if (btnAdd) btnAdd.style.display = loggedIn && canManageMembers() ? '' : 'none';
+  if (loggedIn) {
     document.getElementById('userName').textContent = currentProfile.name;
     document.getElementById('userPhoto').src = currentProfile.photo || 'https://cdn.discordapp.com/embed/avatars/0.png';
     const r = ROLES[currentProfile.role] || ROLES.none;
     document.getElementById('userRoleBadge').textContent = r.label;
     document.getElementById('navUsers').style.display = canManageUsers() ? '' : 'none';
-    document.getElementById('btnAddMember').style.display = canManageMembers() ? '' : 'none';
   } else {
-    document.getElementById('loginArea').style.display = '';
-    document.getElementById('userArea').style.display = 'none';
     document.getElementById('navUsers').style.display = 'none';
-    document.getElementById('btnAddMember').style.display = 'none';
+    document.getElementById('navMyRaid').style.display = 'none';
   }
+  updateMyRaidNav();
 }
 
 auth.onAuthStateChanged(async (user) => {
@@ -693,9 +824,9 @@ auth.onAuthStateChanged(async (user) => {
     currentUser = null;
     currentProfile = null;
     updateLoginUI();
-    // 비로그인 상태에서도 데이터 구독
-    subscribeMembers();
-    subscribePurchases();
+    // 비로그인 상태에서도 공개 데이터 구독
+    subscribeRaids();
+    subscribeGuildPromos();
     return;
   }
   currentUser = user;
@@ -767,6 +898,8 @@ auth.onAuthStateChanged(async (user) => {
 function initApp() {
   updateLoginUI();
   // 실시간 데이터 구독
+  subscribeRaids();
+  subscribeGuildPromos();
   subscribeMembers();
   subscribeUsers();
   subscribePurchases();
@@ -1075,6 +1208,141 @@ function toggleAccordion(btn) {
   btn.classList.toggle('open');
   const body = btn.nextElementSibling;
   body.classList.toggle('open');
+}
+
+// =============================================
+// 공대 목록 (공개)
+// =============================================
+let allRaids = [];
+let allGuildPromos = [];
+
+function subscribeRaids() {
+  db.collection('raids').orderBy('createdAt','desc').onSnapshot(snap => {
+    allRaids = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderRaidList();
+    updateMyRaidNav();
+  });
+}
+
+function renderRaidList() {
+  const search = (document.getElementById('raidSearch')?.value || '').toLowerCase();
+  const statusF = document.getElementById('raidStatusFilter')?.value || '';
+  let filtered = allRaids.filter(r => {
+    if (search && !(r.name||'').toLowerCase().includes(search) && !(r.boss||'').toLowerCase().includes(search)) return false;
+    if (statusF && r.status !== statusF) return false;
+    return true;
+  });
+  const container = document.getElementById('raidListCards');
+  if (!container) return;
+  container.innerHTML = filtered.length ? filtered.map(r => {
+    const sc = r.status === '모집중' ? 'badge-green' : 'badge-red';
+    return `<div class="panel" style="margin:0;cursor:default;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 style="font-size:16px;">${r.name||''}</h3>
+        <span class="badge ${sc}">${r.status||''}</span>
+      </div>
+      <div style="font-size:13px;color:#636e72;display:flex;flex-direction:column;gap:4px;">
+        <div>⚔️ ${r.boss||''} ${r.diff||''}</div>
+        <div>👥 ${r.currentCount||0} / ${r.maxCount||16}명</div>
+        <div>👑 ${r.ownerName||''}</div>
+        ${r.desc ? `<div style="margin-top:4px;color:#2d3436;">${r.desc}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('') : '<p style="color:#b2bec3;text-align:center;padding:40px;">등록된 공대가 없습니다</p>';
+  document.getElementById('raidCount').textContent = filtered.length + '개';
+}
+
+function updateMyRaidNav() {
+  const nav = document.getElementById('navMyRaid');
+  if (!nav) return;
+  if (currentProfile && currentUser) {
+    const myRaids = allRaids.filter(r => r.ownerUid === currentUser.uid);
+    nav.style.display = myRaids.length > 0 ? '' : 'none';
+  } else {
+    nav.style.display = 'none';
+  }
+}
+
+function openRaidModal() {
+  if (!currentProfile) { alert('로그인이 필요합니다.'); return; }
+  ['rName','rDesc'].forEach(x => document.getElementById(x).value = '');
+  document.getElementById('rBoss').value = '';
+  document.getElementById('rDiff').value = '노말';
+  document.getElementById('rMax').value = '16';
+  document.getElementById('rStatus').value = '모집중';
+  document.getElementById('raidModal').classList.add('show');
+}
+function closeRaidModal() { document.getElementById('raidModal').classList.remove('show'); }
+
+async function saveRaid() {
+  const data = {
+    name: document.getElementById('rName').value.trim(),
+    boss: document.getElementById('rBoss').value,
+    diff: document.getElementById('rDiff').value,
+    maxCount: parseInt(document.getElementById('rMax').value) || 16,
+    currentCount: 0,
+    status: document.getElementById('rStatus').value,
+    desc: document.getElementById('rDesc').value.trim(),
+    ownerUid: currentUser.uid,
+    ownerName: currentProfile.name,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (!data.name || !data.boss) { alert('공대 이름과 보스를 입력하세요.'); return; }
+  await db.collection('raids').add(data);
+  closeRaidModal();
+}
+
+// =============================================
+// 길드 홍보 (공개)
+// =============================================
+function subscribeGuildPromos() {
+  db.collection('guildPromos').orderBy('createdAt','desc').onSnapshot(snap => {
+    allGuildPromos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderGuildPromoList();
+  });
+}
+
+function renderGuildPromoList() {
+  const container = document.getElementById('guildPromoList');
+  if (!container) return;
+  container.innerHTML = allGuildPromos.length ? allGuildPromos.map(g => {
+    return `<div class="panel" style="margin:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 style="font-size:16px;">🏰 ${g.name||''}</h3>
+        <span class="badge badge-blue">${g.server||''}</span>
+      </div>
+      <div style="font-size:13px;color:#636e72;display:flex;flex-direction:column;gap:4px;">
+        <div>📋 가입 조건: ${g.req||'없음'}</div>
+        <div style="color:#2d3436;">${g.desc||''}</div>
+        ${g.contact ? `<div style="margin-top:4px;">💬 ${g.contact}</div>` : ''}
+        <div style="font-size:11px;color:#b2bec3;margin-top:4px;">등록자: ${g.ownerName||''}</div>
+      </div>
+    </div>`;
+  }).join('') : '<p style="color:#b2bec3;text-align:center;padding:40px;">등록된 길드 홍보가 없습니다</p>';
+}
+
+function openGuildPromoModal() {
+  if (!currentProfile) { alert('로그인이 필요합니다.'); return; }
+  ['gName','gDesc','gReq','gContact'].forEach(x => document.getElementById(x).value = '');
+  document.getElementById('gServer').value = '스카니아';
+  document.getElementById('guildPromoModal').classList.add('show');
+}
+function closeGuildPromoModal() { document.getElementById('guildPromoModal').classList.remove('show'); }
+
+async function saveGuildPromo() {
+  const data = {
+    name: document.getElementById('gName').value.trim(),
+    server: document.getElementById('gServer').value,
+    req: document.getElementById('gReq').value.trim(),
+    desc: document.getElementById('gDesc').value.trim(),
+    contact: document.getElementById('gContact').value.trim(),
+    ownerUid: currentUser.uid,
+    ownerName: currentProfile.name,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (!data.name || !data.desc) { alert('길드 이름과 소개를 입력하세요.'); return; }
+  await db.collection('guildPromos').add(data);
+  closeGuildPromoModal();
 }
 
 // CSV 내보내기

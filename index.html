@@ -279,9 +279,12 @@
     <div id="page-members" class="page-section active">
       <div class="top-bar">
         <div><h1 class="page-title">공대원 목록</h1><p class="page-desc">공대원 정보를 등록하고 관리합니다</p></div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:center;">
           <button class="btn btn-outline" onclick="exportMembers()">📥 내보내기</button>
-          <button class="btn btn-primary" id="btnAddMember" onclick="openMemberModal()" style="display:none;">+ 공대원 등록</button>
+          <button class="btn btn-primary" id="btnAddMember" onclick="openMemberModal()" style="display:none;gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+            공대원 등록
+          </button>
         </div>
       </div>
 
@@ -387,33 +390,53 @@
 
 <!-- Member Modal -->
 <div class="modal-overlay" id="memberModal">
-  <div class="modal">
-    <h2 id="memberModalTitle">공대원 등록</h2>
-    <div class="form-row">
-      <div class="form-group"><label>캐릭터명 *</label><input type="text" id="fName" placeholder="캐릭터명"></div>
-      <div class="form-group"><label>직업 *</label>
-        <select id="fClass"><option value="">선택</option>
-          <option>버서커</option><option>디스트로이어</option><option>워로드</option><option>홀리나이트</option><option>슬레이어</option>
-          <option>인파이터</option><option>배틀마스터</option><option>기공사</option><option>소울이터</option><option>데빌헌터</option>
-          <option>블래스터</option><option>호크아이</option><option>스카우터</option><option>건슬링어</option><option>아르카나</option>
-          <option>서머너</option><option>바드</option><option>소서리스</option><option>리퍼</option><option>블레이드</option>
-          <option>데모닉</option><option>도화가</option><option>기상술사</option><option>브레이커</option>
-        </select>
+  <div class="modal" style="width:600px;">
+    <h2 id="memberModalTitle" style="display:flex;align-items:center;gap:10px;">
+      <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">👥</span>
+      공대원 등록
+    </h2>
+
+    <!-- 직업 선택 (아이콘 그리드) -->
+    <div class="form-group">
+      <label>직업 선택 *</label>
+      <div id="classGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px;">
+      </div>
+      <input type="hidden" id="fClass" value="">
+    </div>
+
+    <div class="form-row" style="margin-top:16px;">
+      <div class="form-group"><label>캐릭터명 *</label><input type="text" id="fName" placeholder="캐릭터명 입력"></div>
+      <div class="form-group"><label>역할</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <label style="flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;" id="roleDealer" onclick="selectRole('딜러')">
+            <span style="font-size:18px;">⚔️</span> 딜러
+          </label>
+          <label style="flex:1;display:flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.15s;" id="roleSupport" onclick="selectRole('서폿')">
+            <span style="font-size:18px;">💚</span> 서폿
+          </label>
+        </div>
+        <input type="hidden" id="fRole" value="딜러">
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>역할</label><select id="fRole"><option value="딜러">딜러</option><option value="서폿">서폿</option></select></div>
-      <div class="form-group"><label>아이템 레벨</label><input type="number" id="fLevel" placeholder="1620"></div>
+      <div class="form-group"><label>레벨</label><input type="number" id="fLevel" placeholder="200"></div>
+      <div class="form-group"><label>주급 골드 (만)</label><input type="number" id="fGold" placeholder="150"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>주급 골드 (만)</label><input type="number" id="fGold" placeholder="150"></div>
-      <div class="form-group"><label>상태</label><select id="fStatus"><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option></select></div>
+      <div class="form-group"><label>상태</label>
+        <div style="display:flex;gap:6px;margin-top:4px;">
+          <button type="button" class="status-btn active" onclick="selectStatus('참여',this)" style="flex:1;padding:8px;border:2px solid #059669;background:#ecfdf5;color:#059669;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">참여</button>
+          <button type="button" class="status-btn" onclick="selectStatus('미정',this)" style="flex:1;padding:8px;border:2px solid var(--border);background:#fff;color:var(--text-sub);border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">미정</button>
+          <button type="button" class="status-btn" onclick="selectStatus('불참',this)" style="flex:1;padding:8px;border:2px solid var(--border);background:#fff;color:var(--text-sub);border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">불참</button>
+        </div>
+        <input type="hidden" id="fStatus" value="참여">
+      </div>
+      <div class="form-group"><label>비고</label><input type="text" id="fNote" placeholder="메모 (선택)"></div>
     </div>
-    <div class="form-group"><label>비고</label><input type="text" id="fNote" placeholder="메모"></div>
     <input type="hidden" id="fEditId" value="">
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeMemberModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveMember()">저장</button>
+      <button class="btn btn-primary" onclick="saveMember()" style="padding:10px 28px;">저장</button>
     </div>
   </div>
 </div>
@@ -597,11 +620,102 @@ function renderMemberTable(){
   document.getElementById('memberCount').textContent=f.length+'명';
 }
 
+// 메이플랜드 직업 목록 (구메이플 기반)
+const JOB_LIST = [
+  {name:'전사',icon:'⚔️',type:'딜러'},
+  {name:'파이터',icon:'🗡️',type:'딜러'},
+  {name:'페이지',icon:'🛡️',type:'딜러'},
+  {name:'스피어맨',icon:'🔱',type:'딜러'},
+  {name:'크루세이더',icon:'⚔️',type:'딜러'},
+  {name:'나이트',icon:'🛡️',type:'딜러'},
+  {name:'버서커',icon:'🪓',type:'딜러'},
+  {name:'히어로',icon:'⚔️',type:'딜러'},
+  {name:'팔라딘',icon:'🛡️',type:'서폿'},
+  {name:'다크나이트',icon:'🌑',type:'딜러'},
+  {name:'마법사',icon:'🔮',type:'딜러'},
+  {name:'위자드(불)',icon:'🔥',type:'딜러'},
+  {name:'위자드(얼)',icon:'❄️',type:'딜러'},
+  {name:'클레릭',icon:'✝️',type:'서폿'},
+  {name:'메이지(불)',icon:'🔥',type:'딜러'},
+  {name:'메이지(얼)',icon:'❄️',type:'딜러'},
+  {name:'프리스트',icon:'💚',type:'서폿'},
+  {name:'아크메이지(불)',icon:'🔥',type:'딜러'},
+  {name:'아크메이지(얼)',icon:'❄️',type:'딜러'},
+  {name:'비숍',icon:'✨',type:'서폿'},
+  {name:'궁수',icon:'🏹',type:'딜러'},
+  {name:'헌터',icon:'🏹',type:'딜러'},
+  {name:'사수',icon:'🎯',type:'딜러'},
+  {name:'레인저',icon:'🏹',type:'딜러'},
+  {name:'저격수',icon:'🎯',type:'딜러'},
+  {name:'보우마스터',icon:'🏹',type:'딜러'},
+  {name:'신궁',icon:'🎯',type:'딜러'},
+  {name:'도적',icon:'🗡️',type:'딜러'},
+  {name:'어쌔신',icon:'⭐',type:'딜러'},
+  {name:'시프',icon:'🗡️',type:'딜러'},
+  {name:'허밋',icon:'⭐',type:'딜러'},
+  {name:'시프마스터',icon:'🗡️',type:'딜러'},
+  {name:'나이트로드',icon:'⭐',type:'딜러'},
+  {name:'섀도어',icon:'🗡️',type:'딜러'},
+  {name:'해적',icon:'🏴‍☠️',type:'딜러'},
+  {name:'인파이터',icon:'👊',type:'딜러'},
+  {name:'건슬링거',icon:'🔫',type:'딜러'},
+  {name:'바이퍼',icon:'👊',type:'딜러'},
+  {name:'캡틴',icon:'🔫',type:'딜러'},
+];
+
+function renderClassGrid(selected){
+  const grid=document.getElementById('classGrid');
+  grid.innerHTML=JOB_LIST.map(j=>{
+    const sel=j.name===selected;
+    return `<div onclick="selectClass('${j.name}','${j.type}')" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:2px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'var(--accent-light)':'#fff'};border-radius:8px;cursor:pointer;transition:.15s;font-size:11px;text-align:center;min-height:56px;justify-content:center;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='${sel?'var(--accent)':'var(--border)'}'"">
+      <span style="font-size:18px;">${j.icon}</span>
+      <span style="color:${sel?'var(--accent)':'var(--text-sub)'};font-weight:${sel?'600':'400'};line-height:1.2;">${j.name}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectClass(name,type){
+  document.getElementById('fClass').value=name;
+  document.getElementById('fRole').value=type;
+  renderClassGrid(name);
+  selectRole(type);
+}
+
+function selectRole(role){
+  document.getElementById('fRole').value=role;
+  const d=document.getElementById('roleDealer'),s=document.getElementById('roleSupport');
+  d.style.borderColor=role==='딜러'?'var(--accent)':'var(--border)';
+  d.style.background=role==='딜러'?'var(--accent-light)':'#fff';
+  d.style.color=role==='딜러'?'var(--accent)':'var(--text-sub)';
+  s.style.borderColor=role==='서폿'?'#059669':'var(--border)';
+  s.style.background=role==='서폿'?'#ecfdf5':'#fff';
+  s.style.color=role==='서폿'?'#059669':'var(--text-sub)';
+}
+
+function selectStatus(st,el){
+  document.getElementById('fStatus').value=st;
+  document.querySelectorAll('.status-btn').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='#fff';b.style.color='var(--text-sub)';});
+  const colors={참여:['#059669','#ecfdf5'],미정:['#d97706','#fffbeb'],불참:['#dc2626','#fef2f2']};
+  const c=colors[st];
+  el.style.borderColor=c[0];el.style.background=c[1];el.style.color=c[0];
+}
+
 function openMemberModal(id){
   document.getElementById('fEditId').value=id||'';
-  document.getElementById('memberModalTitle').textContent=id?'공대원 수정':'공대원 등록';
-  if(id){const m=allMembers.find(x=>x.id===id);if(m){document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fGold').value=m.gold||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';}}
-  else{['fName','fClass','fLevel','fGold','fNote'].forEach(x=>document.getElementById(x).value='');document.getElementById('fRole').value='딜러';document.getElementById('fStatus').value='참여';}
+  const titleEl=document.getElementById('memberModalTitle');
+  titleEl.innerHTML=id?'<span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">✏️</span> 공대원 수정':'<span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">👥</span> 공대원 등록';
+  if(id){
+    const m=allMembers.find(x=>x.id===id);
+    if(m){document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fGold').value=m.gold||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';
+      renderClassGrid(m.cls);selectRole(m.role||'딜러');
+      // 상태 버튼 복원
+      document.querySelectorAll('.status-btn').forEach(b=>{if(b.textContent===m.status){selectStatus(m.status,b);}});
+    }
+  }else{
+    ['fName','fLevel','fGold','fNote'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('fClass').value='';document.getElementById('fRole').value='딜러';document.getElementById('fStatus').value='참여';
+    renderClassGrid('');selectRole('딜러');
+  }
   document.getElementById('memberModal').classList.add('show');
 }
 function closeMemberModal(){document.getElementById('memberModal').classList.remove('show');}

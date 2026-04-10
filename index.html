@@ -148,25 +148,9 @@
   <div class="login-box">
     <h1 style="color:#ffd32a;">메이플랜드 ERP</h1>
     <p>메이플랜드 관리 시스템에 접속하세요</p>
-    <button class="google-btn" onclick="enterAsGuest()" style="margin-bottom:10px;">
-      👁 그냥 둘러보기 (권한없음)
-    </button>
-    <div style="display:flex;align-items:center;gap:8px;margin:12px 0;">
-      <input type="text" id="guestNickname" placeholder="닉네임 입력" style="flex:1;padding:10px 14px;border:1px solid #dfe6e9;border-radius:10px;font-size:14px;outline:none;">
-      <button class="google-btn" onclick="enterAsGuestWithName()" style="width:auto;padding:10px 18px;white-space:nowrap;">
-        🛒 손님 접속
-      </button>
-    </div>
-    <div style="position:relative;margin:16px 0;text-align:center;">
-      <hr style="border:none;border-top:1px solid #dfe6e9;">
-      <span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#fff;padding:0 12px;color:#b2bec3;font-size:12px;">또는</span>
-    </div>
-    <button class="google-btn" onclick="discordLogin()" style="background:#5865F2;color:#fff;border-color:#5865F2;">
-      🎮 Discord로 로그인 (공대원 이상)
-    </button>
-    <button class="google-btn" onclick="googleLogin()" style="margin-top:8px;">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
-      Google 계정으로 로그인
+    <button onclick="discordLogin()" style="width:100%;padding:14px 24px;background:#5865F2;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s;">
+      <svg width="24" height="24" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
+      로그인
     </button>
   </div>
 </div>

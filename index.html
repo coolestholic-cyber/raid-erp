@@ -143,22 +143,29 @@
   .autocomplete-empty { padding: 12px 14px; font-size: 13px; color: var(--text-sub); text-align: center; }
 
   /* ===== Horntail Phase Timer ===== */
-  .ht-section { border-radius:12px; overflow:hidden; }
-  .ht-section-header { padding:10px 18px; display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; color:#fff; }
-  .ht-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; padding:14px; background:#1e2130; }
-  .ht-card { background:#2a2d3e; border-radius:10px; padding:14px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .ht-card-title { font-size:12px; color:#9ca3af; font-weight:600; text-align:center; }
-  .ht-card-time { font-size:30px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:1px; }
+  #page-horntail-timer { background:#111318; margin:-24px; padding:24px; min-height:100%; }
+  #page-horntail-timer .top-bar { margin-bottom:20px; }
+  #page-horntail-timer .page-title { color:#fff; }
+  #page-horntail-timer .page-desc  { color:#9ca3af; }
+  .ht-section { border-radius:12px; overflow:hidden; border:1px solid #2a2d3e; }
+  .ht-section-header { padding:12px 20px; display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; color:#fff; }
+  .ht-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:16px; background:#1a1d28; }
+  .ht-card { background:#22253a; border-radius:12px; display:flex; overflow:hidden; height:110px; }
+  .ht-card-body { flex:1; padding:12px 16px; display:flex; flex-direction:column; justify-content:space-between; min-width:0; }
+  .ht-card-top { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .ht-card-title { font-size:13px; color:#9ca3af; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:6px; }
+  .ht-card-time { font-size:38px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:2px; line-height:1; }
   .ht-card-time.running { color:#a78bfa; }
-  .ht-card-time.done { color:#34d399; }
-  .ht-card-adj { display:flex; align-items:center; gap:6px; }
-  .ht-adj-btn { width:26px; height:26px; border-radius:6px; background:#3a3d50; border:none; color:#d1d5db; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s; }
-  .ht-adj-btn:hover { background:#5b5fef; color:#fff; }
-  .ht-start-btn { width:100%; padding:7px 0; border-radius:8px; border:none; font-size:13px; font-weight:700; cursor:pointer; transition:.15s; }
-  .ht-start-btn.idle { background:#5b5fef; color:#fff; }
+  .ht-card-time.done    { color:#34d399; }
+  .ht-start-col { width:74px; flex-shrink:0; display:flex; align-items:stretch; }
+  .ht-start-btn { width:100%; border:none; font-size:17px; font-weight:800; cursor:pointer; transition:.15s; border-radius:0; }
+  .ht-start-btn.idle    { background:#5b5fef; color:#fff; }
   .ht-start-btn.idle:hover { background:#4f53d8; }
   .ht-start-btn.running { background:#ef4444; color:#fff; }
-  .ht-start-btn.done { background:#374151; color:#9ca3af; }
+  .ht-start-btn.done    { background:#2d3047; color:#6b7280; }
+  .ht-edit-btn { padding:3px 8px; border-radius:5px; border:1px solid #3a3d50; background:transparent; color:#9ca3af; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .ht-edit-btn:hover { background:#3a3d50; color:#fff; }
+  .ht-auto-icon { font-size:12px; color:#a78bfa; }
 
   /* Modal */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
@@ -2224,46 +2231,52 @@ function itemGoPage(p) {
 // 혼테일 단계별 타이머
 // =============================================
 const HT_SECTIONS = [
-  { label:'리치백선', icon:'👑', color:'#5b5fef',
+  { label:'리저렉션', icon:'👑', color:'#5b5fef',
     timers:[
-      {name:'리치백선 1', sec:1800},{name:'리치백선 2', sec:1800},{name:'리치백선 3', sec:1800},
-      {name:'리치백선 4', sec:1800},{name:'리치백선 5', sec:1800}
+      {name:'갠유용 사용중', sec:1800},
+      {name:'리저렉션-2',   sec:1800},
+      {name:'리저렉션-3',   sec:1800},
+      {name:'리저렉션-4',   sec:1800},
+      {name:'리저렉션-5',   sec:1800},
+      {name:'리저렉션-6',   sec:1800}
     ]
   },
-  { label:'사냥 & 버프', icon:'🌟', color:'#d97706',
+  { label:'사망 & 버프', icon:'💀', color:'#d97706',
     timers:[
-      {name:'사냥 1', sec:900},{name:'사냥 2', sec:900},{name:'하비타임', sec:360}
+      {name:'사망 팅-1', sec:900},
+      {name:'사망 팅-2', sec:900},
+      {name:'인레이지',   sec:360}
     ]
   },
   { label:'공무', icon:'⚔️', color:'#059669',
     timers:[
-      {name:'공무 공격 1', sec:45},{name:'공무 공격 2', sec:45},{name:'공무 공격 3', sec:45}
+      {name:'좌머리 공무', sec:45},
+      {name:'중머리 공무', sec:45},
+      {name:'우머리 공무', sec:45}
     ]
   },
-  { label:'버드제제', icon:'🦅', color:'#7c3aed',
+  { label:'버프해제', icon:'🔄', color:'#7c3aed', autoRestart:true,
     timers:[
-      {name:'버드제제 1', sec:300},{name:'버드제제 2', sec:180},{name:'버드제제 3', sec:300}
+      {name:'중머리 5갈',    sec:300, auto:true},
+      {name:'중머리 3갈',    sec:180, auto:true},
+      {name:'좌팔 HP:60%', sec:300, auto:true}
     ]
   },
-  { label:'유혹상담', icon:'💜', color:'#db2777',
+  { label:'유혹담당', icon:'💜', color:'#db2777',
     timers:[
-      {name:'유혹 1', sec:120},{name:'유혹 2', sec:120}
-    ]
-  },
-  { label:'클리어', icon:'🏆', color:'#0b5cd5',
-    timers:[
-      {name:'클리어 1', sec:50},{name:'클리어 2', sec:50},{name:'클리어 타임', sec:600}
+      {name:'유혹 1', sec:120},
+      {name:'유혹 2', sec:120},
+      {name:'유혹 3', sec:120}
     ]
   }
 ];
 
-// 타이머 상태: { sectionIdx_timerIdx: { preset, remain, running, intervalId } }
 const htState = {};
 
 function htKey(si, ti) { return `${si}_${ti}`; }
 
 function htFmt(sec) {
-  const m = Math.floor(sec / 60), s = sec % 60;
+  const m = Math.floor(Math.abs(sec) / 60), s = Math.abs(sec) % 60;
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
@@ -2271,7 +2284,7 @@ function htInitState() {
   HT_SECTIONS.forEach((sec, si) => {
     sec.timers.forEach((t, ti) => {
       const k = htKey(si, ti);
-      if (!htState[k]) htState[k] = { preset: t.sec, remain: t.sec, running: false, intervalId: null };
+      if (!htState[k]) htState[k] = { preset:t.sec, remain:t.sec, running:false, intervalId:null, auto:!!t.auto };
     });
   });
 }
@@ -2289,17 +2302,20 @@ function htRender() {
         ${sec.timers.map((t, ti) => {
           const k = htKey(si, ti);
           const st = htState[k];
-          const timeClass = st.running ? 'running' : st.remain === 0 ? 'done' : '';
-          const btnClass = st.running ? 'running' : st.remain === 0 ? 'done' : 'idle';
-          const btnLabel = st.running ? '정지' : st.remain === 0 ? '완료' : '시작';
-          return `<div class="ht-card" id="htcard-${k}">
-            <div class="ht-card-title">${t.name}</div>
-            <div class="ht-card-adj">
-              <button class="ht-adj-btn" onclick="htAdjust('${k}',-10)">−</button>
-              <div class="ht-card-time ${timeClass}" id="httime-${k}">${htFmt(st.remain)}</div>
-              <button class="ht-adj-btn" onclick="htAdjust('${k}',10)">+</button>
+          const tc = st.running ? 'running' : st.remain===0 ? 'done' : '';
+          const bc = st.running ? 'running' : st.remain===0 ? 'done' : 'idle';
+          const bl = st.running ? '정지' : st.remain===0 ? '완료' : '시작';
+          return `<div class="ht-card">
+            <div class="ht-card-body">
+              <div class="ht-card-top">
+                <span class="ht-card-title">${st.auto?'<span class="ht-auto-icon">↻</span>':''}${t.name}</span>
+                <button class="ht-edit-btn" onclick="htEdit('${k}')">수정</button>
+              </div>
+              <div class="ht-card-time ${tc}" id="httime-${k}">${htFmt(st.remain)}</div>
             </div>
-            <button class="ht-start-btn ${btnClass}" id="htbtn-${k}" onclick="htToggle('${k}')">${btnLabel}</button>
+            <div class="ht-start-col">
+              <button class="ht-start-btn ${bc}" id="htbtn-${k}" onclick="htToggle('${k}')">${bl}</button>
+            </div>
           </div>`;
         }).join('')}
       </div>
@@ -2310,39 +2326,57 @@ function htRender() {
 function htToggle(k) {
   const st = htState[k];
   if (!st) return;
-  if (st.remain === 0) { htReset(k); return; }
+  if (st.remain === 0 && !st.running) { htReset(k); return; }
   if (st.running) {
     clearInterval(st.intervalId);
     st.running = false;
-  } else {
-    st.running = true;
-    st.intervalId = setInterval(() => {
-      st.remain--;
-      const el = document.getElementById(`httime-${k}`);
-      const btn = document.getElementById(`htbtn-${k}`);
-      if (el) { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${st.remain===0?'done':'running'}`; }
-      if (st.remain <= 0) {
-        clearInterval(st.intervalId);
-        st.running = false;
-        if (btn) { btn.textContent = '완료'; btn.className = 'ht-start-btn done'; }
-        if (el) el.className = 'ht-card-time done';
-        htPlayBeep();
-      }
-    }, 1000);
+    htUpdateCard(k);
+    return;
   }
-  const btn = document.getElementById(`htbtn-${k}`);
-  if (btn) { btn.textContent = st.running ? '정지' : '시작'; btn.className = `ht-start-btn ${st.running?'running':'idle'}`; }
-  const el = document.getElementById(`httime-${k}`);
-  if (el) el.className = `ht-card-time ${st.running?'running':''}`;
+  st.running = true;
+  htUpdateCard(k);
+  st.intervalId = setInterval(() => {
+    st.remain--;
+    const el = document.getElementById(`httime-${k}`);
+    if (el) { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${st.remain<=0?'done':'running'}`; }
+    if (st.remain <= 0) {
+      clearInterval(st.intervalId);
+      st.running = false;
+      htPlayBeep();
+      if (st.auto) {
+        setTimeout(() => { st.remain = st.preset; htToggle(k); }, 500);
+      } else {
+        htUpdateCard(k);
+      }
+    }
+  }, 1000);
 }
 
-function htAdjust(k, delta) {
+function htUpdateCard(k) {
+  const st = htState[k];
+  const el  = document.getElementById(`httime-${k}`);
+  const btn = document.getElementById(`htbtn-${k}`);
+  if (!st) return;
+  const tc = st.running?'running':st.remain===0?'done':'';
+  const bc = st.running?'running':st.remain===0?'done':'idle';
+  const bl = st.running?'정지':st.remain===0?'완료':'시작';
+  if (el)  { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${tc}`; }
+  if (btn) { btn.textContent = bl; btn.className = `ht-start-btn ${bc}`; }
+}
+
+function htEdit(k) {
   const st = htState[k];
   if (!st || st.running) return;
-  st.remain = Math.max(0, st.preset + delta);
-  st.preset = st.remain;
-  const el = document.getElementById(`httime-${k}`);
-  if (el) el.textContent = htFmt(st.remain);
+  const input = prompt('시간 입력 (MM:SS 또는 초)', htFmt(st.preset));
+  if (!input) return;
+  let sec = 0;
+  if (input.includes(':')) {
+    const [m, s] = input.split(':').map(Number);
+    sec = (m||0)*60 + (s||0);
+  } else {
+    sec = parseInt(input) || 0;
+  }
+  if (sec > 0) { st.preset = sec; st.remain = sec; htUpdateCard(k); }
 }
 
 function htReset(k) {
@@ -2351,10 +2385,7 @@ function htReset(k) {
   clearInterval(st.intervalId);
   st.running = false;
   st.remain = st.preset;
-  const el = document.getElementById(`httime-${k}`);
-  const btn = document.getElementById(`htbtn-${k}`);
-  if (el) { el.textContent = htFmt(st.remain); el.className = 'ht-card-time'; }
-  if (btn) { btn.textContent = '시작'; btn.className = 'ht-start-btn idle'; }
+  htUpdateCard(k);
 }
 
 function htResetAll() {
@@ -2365,8 +2396,7 @@ function htResetAll() {
 function htPlayBeep() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
     o.frequency.value = 880;
     g.gain.setValueAtTime(0.3, ctx.currentTime);

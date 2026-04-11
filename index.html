@@ -37,6 +37,35 @@
   .acc-body.open { max-height: 200px; }
   .acc-body .nav-item { padding-left: 48px; font-size: 14px; }
 
+  /* ===== Sidebar Collapse ===== */
+  .sidebar { transition: width .25s ease; }
+  .layout { transition: margin-left .25s ease; }
+
+  .sidebar-footer { padding: 12px 8px; border-top: 1px solid #2d3139; }
+  .sidebar-collapse-btn { width: 100%; display: flex; align-items: center; justify-content: flex-end; padding: 8px 10px; background: none; border: none; border-radius: 8px; color: #6b7280; cursor: pointer; gap: 8px; font-size: 13px; font-family: inherit; transition: .15s; white-space: nowrap; overflow: hidden; }
+  .sidebar-collapse-btn:hover { background: var(--sidebar-hover); color: #e5e7eb; }
+  .sidebar-collapse-btn .material-icons { font-size: 20px; flex-shrink: 0; transition: transform .25s; }
+  .sidebar-collapse-btn .collapse-label { font-size: 13px; color: #9ca3af; }
+
+  /* 접힌 상태 */
+  body.sidebar-collapsed { --sidebar-w: 64px; }
+  body.sidebar-collapsed .sidebar { overflow: hidden; }
+  body.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 18px 0 14px; }
+  body.sidebar-collapsed .sidebar-logo > div { display: none; }
+  body.sidebar-collapsed .nav-section { opacity: 0; height: 0; padding: 0; overflow: hidden; }
+  body.sidebar-collapsed .nav-label { display: none; }
+  body.sidebar-collapsed .arr { display: none; }
+  body.sidebar-collapsed .nav-item { justify-content: center; padding: 11px 0; margin: 2px 4px; }
+  body.sidebar-collapsed .nav-accordion { justify-content: center; padding: 11px 0; margin: 2px 4px; }
+  body.sidebar-collapsed .acc-body { max-height: 0 !important; }
+  body.sidebar-collapsed .collapse-label { display: none; }
+  body.sidebar-collapsed .sidebar-collapse-btn { justify-content: center; }
+  body.sidebar-collapsed .sidebar-collapse-btn .material-icons { transform: rotate(180deg); }
+
+  /* 접힌 상태에서 아이콘 툴팁 */
+  body.sidebar-collapsed .nav-item,
+  body.sidebar-collapsed .nav-accordion { position: relative; }
+
   /* ===== RIGHT: Layout ===== */
   .layout { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
 
@@ -272,6 +301,9 @@
     /* main 콘텐츠 하단 탭바 공간 확보 */
     .main { padding-bottom: 72px; }
 
+    /* 모바일에서 사이드바 접기 버튼 숨김 (탭바로 대체) */
+    .sidebar-footer { display: none; }
+
     /* 혼테일 타이머 모바일 1열 */
     .ht-cards { grid-template-columns: 1fr; gap: 10px; }
     .ht-card-time { font-size: 48px; }
@@ -312,46 +344,54 @@
     <div class="nav-section">메뉴</div>
 
     <!-- 1. 내 캐릭터 -->
-    <div class="nav-accordion" onclick="toggleAccordion(this)">
-      <span class="nav-icon"><span class="material-icons">person</span></span> 내 캐릭터 <span class="arr">▶</span>
+    <div class="nav-accordion" onclick="toggleAccordion(this)" title="내 캐릭터">
+      <span class="nav-icon"><span class="material-icons">person</span></span><span class="nav-label"> 내 캐릭터</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body">
-      <a class="nav-item" onclick="showPage('mychar',this)"><span class="nav-icon"><span class="material-icons">badge</span></span> 캐릭터 정보</a>
-      <a class="nav-item" onclick="showPage('myraids',this)"><span class="nav-icon"><span class="material-icons">event_available</span></span> 내 공대 현황</a>
-      <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon"><span class="material-icons">build</span></span> 내 장비관리</a>
-      <a class="nav-item" onclick="showPage('mysettlement',this)"><span class="nav-icon"><span class="material-icons">receipt_long</span></span> 내 정산내역</a>
+      <a class="nav-item" onclick="showPage('mychar',this)" title="캐릭터 정보"><span class="nav-icon"><span class="material-icons">badge</span></span><span class="nav-label"> 캐릭터 정보</span></a>
+      <a class="nav-item" onclick="showPage('myraids',this)" title="내 공대 현황"><span class="nav-icon"><span class="material-icons">event_available</span></span><span class="nav-label"> 내 공대 현황</span></a>
+      <a class="nav-item" onclick="showPage('equip',this)" title="내 장비관리"><span class="nav-icon"><span class="material-icons">build</span></span><span class="nav-label"> 내 장비관리</span></a>
+      <a class="nav-item" onclick="showPage('mysettlement',this)" title="내 정산내역"><span class="nav-icon"><span class="material-icons">receipt_long</span></span><span class="nav-label"> 내 정산내역</span></a>
     </div>
 
     <!-- 2. 공대관리 -->
-    <div class="nav-accordion open" onclick="toggleAccordion(this)">
-      <span class="nav-icon"><span class="material-icons">groups</span></span> 공대관리 <span class="arr">▶</span>
+    <div class="nav-accordion open" onclick="toggleAccordion(this)" title="공대관리">
+      <span class="nav-icon"><span class="material-icons">groups</span></span><span class="nav-label"> 공대관리</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body open">
-      <a class="nav-item" onclick="showPage('raids',this)"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span> 공대 목록</a>
-      <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon"><span class="material-icons">group</span></span> 공대원 목록</a>
-      <a class="nav-item" onclick="showPage('settlement',this)"><span class="nav-icon"><span class="material-icons">calculate</span></span> 보스 정산</a>
-      <a class="nav-item" onclick="showPage('guestsettlement',this)"><span class="nav-icon"><span class="material-icons">receipt</span></span> 손님정산</a>
-      <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon"><span class="material-icons">shopping_cart</span></span> 판매내역</a>
-      <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon"><span class="material-icons">paid</span></span> 분배내역</a>
+      <a class="nav-item" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
+      <a class="nav-item active" onclick="showPage('members',this)" title="공대원 목록"><span class="nav-icon"><span class="material-icons">group</span></span><span class="nav-label"> 공대원 목록</span></a>
+      <a class="nav-item" onclick="showPage('settlement',this)" title="보스 정산"><span class="nav-icon"><span class="material-icons">calculate</span></span><span class="nav-label"> 보스 정산</span></a>
+      <a class="nav-item" onclick="showPage('guestsettlement',this)" title="손님정산"><span class="nav-icon"><span class="material-icons">receipt</span></span><span class="nav-label"> 손님정산</span></a>
+      <a class="nav-item" onclick="showPage('purchase',this)" title="판매내역"><span class="nav-icon"><span class="material-icons">shopping_cart</span></span><span class="nav-label"> 판매내역</span></a>
+      <a class="nav-item" onclick="showPage('gold',this)" title="분배내역"><span class="nav-icon"><span class="material-icons">paid</span></span><span class="nav-label"> 분배내역</span></a>
     </div>
 
     <!-- 3. 혼테일 -->
-    <div class="nav-accordion" onclick="toggleAccordion(this)">
-      <span class="nav-icon"><span class="material-icons">sports_martial_arts</span></span> 혼테일 <span class="arr">▶</span>
+    <div class="nav-accordion" onclick="toggleAccordion(this)" title="혼테일">
+      <span class="nav-icon"><span class="material-icons">sports_martial_arts</span></span><span class="nav-label"> 혼테일</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body">
-      <a class="nav-item" onclick="showPage('horntail-timer',this)"><span class="nav-icon"><span class="material-icons">timer</span></span> 타이머</a>
+      <a class="nav-item" onclick="showPage('horntail-timer',this)" title="타이머"><span class="nav-icon"><span class="material-icons">timer</span></span><span class="nav-label"> 타이머</span></a>
     </div>
 
     <!-- 4. 아이템 정보 -->
-    <div class="nav-item" onclick="showPage('items',this)"><span class="nav-icon"><span class="material-icons">inventory_2</span></span> 아이템 정보</div>
+    <div class="nav-item" onclick="showPage('items',this)" title="아이템 정보"><span class="nav-icon"><span class="material-icons">inventory_2</span></span><span class="nav-label"> 아이템 정보</span></div>
 
     <!-- 5. 길드관리 -->
-    <div class="nav-item" onclick="showPage('guild-promo',this)"><span class="nav-icon"><span class="material-icons">castle</span></span> 길드관리</div>
+    <div class="nav-item" onclick="showPage('guild-promo',this)" title="길드관리"><span class="nav-icon"><span class="material-icons">castle</span></span><span class="nav-label"> 길드관리</span></div>
 
     <div class="nav-section">시스템</div>
-    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span> 권한 관리</a>
+    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span><span class="nav-label"> 권한 관리</span></a>
   </nav>
+
+  <!-- 사이드바 접기 버튼 -->
+  <div class="sidebar-footer">
+    <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn">
+      <span class="collapse-label">메뉴 접기</span>
+      <span class="material-icons">chevron_left</span>
+    </button>
+  </div>
 </aside>
 
 <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
@@ -1526,6 +1566,20 @@ function toggleSidebar(){
   document.querySelector('.sidebar').classList.toggle('open');
   document.getElementById('mobileOverlay').classList.toggle('show');
 }
+
+function toggleSidebarCollapse(){
+  // 모바일에서는 완전히 닫기
+  if(window.innerWidth <= 768){ toggleSidebar(); return; }
+  const collapsed = document.body.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+}
+
+// 페이지 로드 시 접힘 상태 복원
+(function(){
+  if(localStorage.getItem('sidebarCollapsed') === '1'){
+    document.body.classList.add('sidebar-collapsed');
+  }
+})();
 
 function exportMembers(){
   let csv='번호,캐릭터명,직업,역할,아이템레벨,주급골드,참여율,상태,비고\n';

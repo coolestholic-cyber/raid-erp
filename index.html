@@ -41,16 +41,17 @@
   .sidebar { transition: width .25s ease; }
   .layout { transition: margin-left .25s ease; }
 
-  .sidebar-collapse-btn { margin-left: auto; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; background: #2d3139; border: none; border-radius: 6px; color: #9ca3af; cursor: pointer; flex-shrink: 0; transition: background .15s, color .15s; }
-  .sidebar-collapse-btn:hover { background: #3d4149; color: #e5e7eb; }
-  .sidebar-collapse-btn .material-icons { font-size: 18px; transition: transform .25s; }
+  .sidebar-top-bar { height: 40px; display: flex; align-items: center; justify-content: flex-end; padding: 0 10px; border-bottom: 1px solid #2d3139; flex-shrink: 0; }
+  .sidebar-collapse-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; background: transparent; border: none; border-radius: 6px; color: #6b7280; cursor: pointer; flex-shrink: 0; transition: background .15s, color .15s; }
+  .sidebar-collapse-btn:hover { background: #2d3139; color: #e5e7eb; }
+  .sidebar-collapse-btn .material-icons { font-size: 20px; transition: transform .25s; }
 
   /* 접힌 상태 */
   body.sidebar-collapsed { --sidebar-w: 64px; }
   body.sidebar-collapsed .sidebar { overflow: hidden; }
+  body.sidebar-collapsed .sidebar-top-bar { justify-content: center; }
   body.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 18px 0 14px; gap: 0; }
-  body.sidebar-collapsed .sidebar-logo > div:not(:first-child):not(.sidebar-collapse-btn) { display: none; }
-  body.sidebar-collapsed .sidebar-collapse-btn { margin-left: 0; margin-top: 8px; }
+  body.sidebar-collapsed .sidebar-logo > div:not(:first-child) { display: none; }
   body.sidebar-collapsed .nav-section { opacity: 0; height: 0; padding: 0; overflow: hidden; }
   body.sidebar-collapsed .nav-label { display: none; }
   body.sidebar-collapsed .arr { display: none; }
@@ -299,7 +300,7 @@
     .main { padding-bottom: 72px; }
 
     /* 모바일에서 사이드바 접기 버튼 숨김 (탭바로 대체) */
-    .sidebar-collapse-btn { display: none; }
+    .sidebar-top-bar { display: none; }
 
     /* 혼테일 타이머 모바일 1열 */
     .ht-cards { grid-template-columns: 1fr; gap: 10px; }
@@ -330,15 +331,19 @@
 
 <!-- ===== LEFT: Sidebar (공통) ===== -->
 <aside class="sidebar">
+  <!-- 접기 버튼 (최상단 독립 영역) -->
+  <div class="sidebar-top-bar">
+    <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn" title="메뉴 접기">
+      <span class="material-icons">chevron_left</span>
+    </button>
+  </div>
+
   <div class="sidebar-logo">
     <div class="logo-icon" style="background:linear-gradient(135deg,#ef5a25,#b8321a);">🍁</div>
     <div>
       <div class="logo-text">메랜ERP</div>
       <div class="logo-ver">v2.1</div>
     </div>
-    <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn" title="메뉴 접기">
-      <span class="material-icons">chevron_left</span>
-    </button>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">메뉴</div>

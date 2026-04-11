@@ -285,10 +285,11 @@
   }
 
   /* 데스크탑에서 모바일 전용 요소 숨김 */
-  .hamburger { display: none; }
   .mobile-overlay { display: none; }
   .mobile-tab-bar { display: none; }
   .mobile-page-title { display: none; }
+  /* 햄버거는 모바일 미디어쿼리 안에서만 보이도록 — 아래 @media 블록에서 display:flex */
+  @media (min-width: 769px) { .hamburger { display: none; } }
 
   /* ===== Mobile Bottom Tab Bar ===== */
   @media (max-width: 768px) {

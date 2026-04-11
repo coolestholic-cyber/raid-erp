@@ -41,15 +41,17 @@
   .sidebar { transition: width .25s ease; }
   .layout { transition: margin-left .25s ease; }
 
-  .sidebar-top-bar { height: 40px; display: flex; align-items: center; justify-content: flex-end; padding: 0 10px; border-bottom: 1px solid #2d3139; flex-shrink: 0; }
-  .sidebar-collapse-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; background: transparent; border: none; border-radius: 6px; color: #6b7280; cursor: pointer; flex-shrink: 0; transition: background .15s, color .15s; }
+  .sidebar-top-bar { height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid #2d3139; flex-shrink: 0; }
+  .sidebar-top-label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1.2px; white-space: nowrap; overflow: hidden; }
+  .sidebar-collapse-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; background: transparent; border: none; border-radius: 8px; color: #9ca3af; cursor: pointer; flex-shrink: 0; transition: background .15s, color .15s; }
   .sidebar-collapse-btn:hover { background: #2d3139; color: #e5e7eb; }
-  .sidebar-collapse-btn .material-icons { font-size: 20px; transition: transform .25s; }
+  .sidebar-collapse-btn .material-icons { font-size: 24px; transition: transform .25s; }
 
   /* 접힌 상태 */
   body.sidebar-collapsed { --sidebar-w: 64px; }
   body.sidebar-collapsed .sidebar { overflow: hidden; }
   body.sidebar-collapsed .sidebar-top-bar { justify-content: center; }
+  body.sidebar-collapsed .sidebar-top-label { display: none; }
   body.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 18px 0 14px; gap: 0; }
   body.sidebar-collapsed .sidebar-logo > div:not(:first-child) { display: none; }
   body.sidebar-collapsed .nav-section { opacity: 0; height: 0; padding: 0; overflow: hidden; }
@@ -333,6 +335,7 @@
 <aside class="sidebar">
   <!-- 접기 버튼 (최상단 독립 영역) -->
   <div class="sidebar-top-bar">
+    <span class="sidebar-top-label">탐색기</span>
     <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn" title="메뉴 접기">
       <span class="material-icons">chevron_left</span>
     </button>

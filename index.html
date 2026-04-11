@@ -228,11 +228,73 @@
   @media (max-width: 480px) {
     .cards { grid-template-columns: 1fr; }
     .stat-icon { display: none; }
+    .cards { grid-template-columns: 1fr; }
   }
 
-  /* 데스크탑에서 햄버거 숨김 */
+  /* 데스크탑에서 햄버거/탭바 숨김 */
   .hamburger { display: none; }
   .mobile-overlay { display: none; }
+  .mobile-tab-bar { display: none; }
+
+  /* ===== Mobile Bottom Tab Bar ===== */
+  @media (max-width: 768px) {
+    .mobile-tab-bar {
+      display: flex;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 58px;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      z-index: 50;
+      box-shadow: 0 -2px 12px rgba(0,0,0,.08);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: #9ca3af;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .15s;
+      padding: 6px 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-item .material-icons { font-size: 22px; }
+    .tab-item span:last-child { line-height: 1; }
+    .tab-item.active { color: var(--accent); }
+    .tab-item.tab-more.active { color: #6b7280; }
+
+    /* main 콘텐츠 하단 탭바 공간 확보 */
+    .main { padding-bottom: 72px; }
+
+    /* 혼테일 타이머 모바일 1열 */
+    .ht-cards { grid-template-columns: 1fr; gap: 10px; }
+    .ht-card-time { font-size: 48px; }
+    .ht-section-header { font-size: 14px; padding: 12px 16px; }
+
+    /* 멤버 그리드 모바일 2열 */
+    .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .member-card { padding: 12px 8px; }
+
+    /* 아이템 페이지 탭 스크롤 */
+    #page-items .filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    #page-items .filter-bar::-webkit-scrollbar { display: none; }
+
+    /* 캐릭터 2단 → 1단 */
+    #page-mychar > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+  }
+
+  @media (max-width: 480px) {
+    .member-grid { grid-template-columns: repeat(2, 1fr); }
+    .ht-card-time { font-size: 42px; }
+    .ht-card-actions { flex-wrap: wrap; }
+    .ht-start-btn, .ht-stop-btn, .ht-reset-btn { padding: 10px 0; font-size: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -867,6 +929,30 @@
   </div><!-- .main -->
 </div><!-- .layout -->
 
+<!-- ===== MOBILE: Bottom Tab Bar ===== -->
+<nav class="mobile-tab-bar" id="mobileTabBar">
+  <a class="tab-item" id="tab-mychar" onclick="showPage('mychar',null);updateTabBar('mychar')">
+    <span class="material-icons">person</span>
+    <span>내 캐릭터</span>
+  </a>
+  <a class="tab-item" id="tab-members" onclick="showPage('members',null);updateTabBar('members')">
+    <span class="material-icons">groups</span>
+    <span>공대</span>
+  </a>
+  <a class="tab-item" id="tab-horntail-timer" onclick="showPage('horntail-timer',null);updateTabBar('horntail-timer')">
+    <span class="material-icons">timer</span>
+    <span>타이머</span>
+  </a>
+  <a class="tab-item" id="tab-items" onclick="showPage('items',null);updateTabBar('items')">
+    <span class="material-icons">inventory_2</span>
+    <span>아이템</span>
+  </a>
+  <a class="tab-item tab-more" id="tab-more" onclick="toggleSidebar()">
+    <span class="material-icons">menu</span>
+    <span>더보기</span>
+  </a>
+</nav>
+
 <!-- Member Modal -->
 <div class="modal-overlay" id="memberModal">
   <div class="modal" style="width:600px;">
@@ -1399,12 +1485,30 @@ async function saveGuildPromo(){
 // =============================================
 const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
 
+// 탭바 페이지 매핑
+const tabPageMap = {
+  mychar:'mychar', myraids:'mychar', equip:'mychar', mysettlement:'mychar',
+  members:'members', raids:'members', settlement:'members', guestsettlement:'members', purchase:'members', gold:'members',
+  'horntail-timer':'horntail-timer',
+  items:'items'
+};
+
+function updateTabBar(id) {
+  const mapped = tabPageMap[id] || null;
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  if (mapped) {
+    const el = document.getElementById('tab-' + mapped);
+    if (el) el.classList.add('active');
+  }
+}
+
 function showPage(id,el){
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
   const t=document.getElementById('page-'+id);if(t)t.classList.add('active');
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
   if(el){el.classList.add('active');const b=el.closest('.acc-body');if(b&&!b.classList.contains('open')){b.classList.add('open');b.previousElementSibling.classList.add('open');}}
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
+  updateTabBar(id);
   if(id==='mychar')mcLoadMyChar();
   if(id==='raids')renderRaidList();
   if(id==='myraids')renderMyRaids();
@@ -2410,6 +2514,9 @@ function htPlayBeep() {
 
 // Discord callback
 (function(){const p=new URLSearchParams(window.location.search);const c=p.get('code');if(c){window.history.replaceState({},'',window.location.pathname);handleDiscordCallback(c);}})();
+
+// 초기 탭바 활성 상태 설정 (기본: 공대)
+updateTabBar('members');
 </script>
 </body>
 </html>

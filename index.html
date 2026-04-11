@@ -41,25 +41,22 @@
   .sidebar { transition: width .25s ease; }
   .layout { transition: margin-left .25s ease; }
 
-  .sidebar-footer { padding: 12px 8px; border-top: 1px solid #2d3139; }
-  .sidebar-collapse-btn { width: 100%; display: flex; align-items: center; justify-content: flex-end; padding: 8px 10px; background: none; border: none; border-radius: 8px; color: #6b7280; cursor: pointer; gap: 8px; font-size: 13px; font-family: inherit; transition: .15s; white-space: nowrap; overflow: hidden; }
-  .sidebar-collapse-btn:hover { background: var(--sidebar-hover); color: #e5e7eb; }
-  .sidebar-collapse-btn .material-icons { font-size: 20px; flex-shrink: 0; transition: transform .25s; }
-  .sidebar-collapse-btn .collapse-label { font-size: 13px; color: #9ca3af; }
+  .sidebar-collapse-btn { margin-left: auto; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; background: #2d3139; border: none; border-radius: 6px; color: #9ca3af; cursor: pointer; flex-shrink: 0; transition: background .15s, color .15s; }
+  .sidebar-collapse-btn:hover { background: #3d4149; color: #e5e7eb; }
+  .sidebar-collapse-btn .material-icons { font-size: 18px; transition: transform .25s; }
 
   /* 접힌 상태 */
   body.sidebar-collapsed { --sidebar-w: 64px; }
   body.sidebar-collapsed .sidebar { overflow: hidden; }
-  body.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 18px 0 14px; }
-  body.sidebar-collapsed .sidebar-logo > div { display: none; }
+  body.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 18px 0 14px; gap: 0; }
+  body.sidebar-collapsed .sidebar-logo > div:not(:first-child):not(.sidebar-collapse-btn) { display: none; }
+  body.sidebar-collapsed .sidebar-collapse-btn { margin-left: 0; margin-top: 8px; }
   body.sidebar-collapsed .nav-section { opacity: 0; height: 0; padding: 0; overflow: hidden; }
   body.sidebar-collapsed .nav-label { display: none; }
   body.sidebar-collapsed .arr { display: none; }
   body.sidebar-collapsed .nav-item { justify-content: center; padding: 11px 0; margin: 2px 4px; }
   body.sidebar-collapsed .nav-accordion { justify-content: center; padding: 11px 0; margin: 2px 4px; }
   body.sidebar-collapsed .acc-body { max-height: 0 !important; }
-  body.sidebar-collapsed .collapse-label { display: none; }
-  body.sidebar-collapsed .sidebar-collapse-btn { justify-content: center; }
   body.sidebar-collapsed .sidebar-collapse-btn .material-icons { transform: rotate(180deg); }
 
   /* 접힌 상태에서 아이콘 툴팁 */
@@ -302,7 +299,7 @@
     .main { padding-bottom: 72px; }
 
     /* 모바일에서 사이드바 접기 버튼 숨김 (탭바로 대체) */
-    .sidebar-footer { display: none; }
+    .sidebar-collapse-btn { display: none; }
 
     /* 혼테일 타이머 모바일 1열 */
     .ht-cards { grid-template-columns: 1fr; gap: 10px; }
@@ -339,6 +336,9 @@
       <div class="logo-text">메랜ERP</div>
       <div class="logo-ver">v2.1</div>
     </div>
+    <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn" title="메뉴 접기">
+      <span class="material-icons">chevron_left</span>
+    </button>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">메뉴</div>
@@ -385,13 +385,6 @@
     <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span><span class="nav-label"> 권한 관리</span></a>
   </nav>
 
-  <!-- 사이드바 접기 버튼 -->
-  <div class="sidebar-footer">
-    <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn">
-      <span class="collapse-label">메뉴 접기</span>
-      <span class="material-icons">chevron_left</span>
-    </button>
-  </div>
 </aside>
 
 <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>

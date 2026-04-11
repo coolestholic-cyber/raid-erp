@@ -230,28 +230,52 @@
     .mobile-overlay.show { display: block; }
 
     .layout { margin-left: 0; }
-    .header { padding: 0 16px; }
-    .header-left { font-size: 14px; }
 
-    .hamburger { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; background: none; cursor: pointer; font-size: 22px; color: var(--text); margin-right: 8px; border-radius: 6px; }
-    .hamburger:hover { background: #f3f4f6; }
+    /* ── 모바일 헤더 재설계 ── */
+    .header {
+      padding: 0 12px;
+      height: 56px;
+      background: var(--sidebar-bg);
+      border-bottom: none;
+      position: sticky; top: 0; z-index: 40;
+    }
+    /* 좌: 햄버거 */
+    .hamburger {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+      border: none; background: none; border-radius: 8px;
+      cursor: pointer; color: #e5e7eb;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hamburger .material-icons { font-size: 26px; }
+    /* 중앙: 페이지 타이틀 */
+    .header-left { gap: 4px; flex: 1; }
+    .mobile-page-title {
+      display: block;
+      font-size: 16px; font-weight: 700; color: #fff;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #breadcrumb { display: none; }
+    /* 우: 유저 영역 압축 */
+    .header-right { gap: 8px; }
+    .discord-btn { padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; }
+    .user-chip { gap: 6px; }
+    .user-chip img { width: 30px; height: 30px; }
+    .user-chip .uname { display: none; }
+    .user-chip .urole { display: none; }
+    .logout-link { display: none; }
 
+    /* 콘텐츠 영역 */
     .main { padding: 16px; }
-    .page-title { font-size: 26px; }
+    .page-title { font-size: 22px; }
     .top-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
     .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
     .stat-card h3 { font-size: 22px; }
     .filter-bar { flex-direction: column; align-items: stretch; }
     .search-input { width: 100%; }
     .table-wrap { margin: 0 -16px; padding: 0 16px; }
-
     .modal { width: calc(100vw - 32px); max-height: 90vh; padding: 20px; }
     .form-row { grid-template-columns: 1fr; }
-
-    .discord-btn { padding: 8px 12px; font-size: 13px; }
-    .user-chip { gap: 6px; }
-    .user-chip .uname { font-size: 14px; }
-    .user-chip .urole { display: none; }
   }
 
   @media (max-width: 480px) {
@@ -260,10 +284,11 @@
     .cards { grid-template-columns: 1fr; }
   }
 
-  /* 데스크탑에서 햄버거/탭바 숨김 */
+  /* 데스크탑에서 모바일 전용 요소 숨김 */
   .hamburger { display: none; }
   .mobile-overlay { display: none; }
   .mobile-tab-bar { display: none; }
+  .mobile-page-title { display: none; }
 
   /* ===== Mobile Bottom Tab Bar ===== */
   @media (max-width: 768px) {
@@ -403,7 +428,10 @@
   <!-- ===== TOP: Header (공통) ===== -->
   <header class="header">
     <div class="header-left">
-      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <button class="hamburger" onclick="toggleSidebar()">
+        <span class="material-icons">menu</span>
+      </button>
+      <span class="mobile-page-title" id="mobilePageTitle">공대원 목록</span>
       <span id="breadcrumb">공대관리 / 공대원 목록</span>
     </div>
     <div class="header-right">
@@ -1525,6 +1553,7 @@ async function saveGuildPromo(){
 // Navigation
 // =============================================
 const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
+const mobileTitleMap={mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'공대원 목록',settlement:'보스 정산',guestsettlement:'손님정산',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
 
 // 탭바 페이지 매핑
 const tabPageMap = {
@@ -1549,6 +1578,7 @@ function showPage(id,el){
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
   if(el){el.classList.add('active');const b=el.closest('.acc-body');if(b&&!b.classList.contains('open')){b.classList.add('open');b.previousElementSibling.classList.add('open');}}
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
+  const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent=mobileTitleMap[id]||'';
   updateTabBar(id);
   if(id==='mychar')mcLoadMyChar();
   if(id==='raids')renderRaidList();

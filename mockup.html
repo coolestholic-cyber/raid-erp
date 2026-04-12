@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>메랜ERP — 디자인 시안 비교</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:'Pretendard GOV',system-ui,sans-serif;}
+
+/* ============================================================
+   상단 비교 선택 바
+   ============================================================ */
+#cbar{
+  position:fixed;top:0;left:0;right:0;height:58px;
+  background:#0C0E14;border-bottom:1px solid #1C1F2E;
+  display:flex;align-items:center;gap:10px;padding:0 18px;z-index:9999;
+}
+.cbar-logo{color:#fff;font-weight:800;font-size:15px;letter-spacing:-.02em;white-space:nowrap;}
+.cbar-logo span{color:#60A5FA;}
+.cbar-sep{width:1px;height:26px;background:#252840;flex-shrink:0;}
+.cbar-label{font-size:10px;color:#4B5563;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;white-space:nowrap;}
+.cbar-tabs{display:flex;gap:4px;}
+.cbar-tab{
+  padding:6px 13px;border-radius:8px;font-size:12px;font-weight:700;
+  cursor:pointer;border:1px solid #252840;background:transparent;color:#6B7280;
+  transition:.15s;font-family:inherit;white-space:nowrap;
+}
+.cbar-tab:hover{border-color:#374151;color:#D1D5DB;}
+.cbar-tab.active{background:#2563EB;border-color:#2563EB;color:#fff;}
+.cbar-tab.cur.active{background:#374151;border-color:#374151;}
+.cbar-spacer{flex:1;}
+.cbar-desc{font-size:11px;color:#6B7280;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.cbar-desc strong{color:#9CA3AF;}
+.cbar-theme{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:8px;border:1px solid #252840;background:#161928;
+  color:#D1D5DB;font-size:12px;font-weight:700;cursor:pointer;
+  transition:.15s;font-family:inherit;flex-shrink:0;white-space:nowrap;
+}
+.cbar-theme:hover{border-color:#374151;}
+
+/* ============================================================
+   미리보기 영역
+   ============================================================ */
+#pwrap{position:fixed;top:58px;left:0;right:0;bottom:0;overflow:hidden;}
+
+.preview{
+  display:flex;height:100%;width:100%;
+  background:var(--bg);color:var(--text);
+  font-family:'Pretendard GOV',system-ui,sans-serif;
+  font-size:14px;line-height:1.6;
+  transition:background .2s,color .2s;
+}
+
+/* ============================================================
+   사이드바
+   ============================================================ */
+.p-sb{
+  width:236px;flex-shrink:0;height:100%;overflow-y:auto;
+  display:flex;flex-direction:column;
+  background:var(--sb-bg);border-right:var(--sb-border);
+  transition:background .2s;
+}
+.p-sb::-webkit-scrollbar{display:none;}
+.p-logo{
+  padding:18px 18px 14px;display:flex;align-items:center;gap:10px;
+  border-bottom:var(--sb-div);
+}
+.p-logo-icon{
+  width:34px;height:34px;border-radius:var(--r-sm);
+  background:var(--accent);display:flex;align-items:center;
+  justify-content:center;color:#fff;font-weight:800;font-size:12px;flex-shrink:0;
+}
+.p-logo-text{color:var(--sb-text);font-size:16px;font-weight:800;letter-spacing:-.02em;}
+.p-logo-ver{color:var(--sb-sub);font-size:10px;}
+.p-nav{flex:1;padding:10px 0;}
+.p-sec{padding:16px 14px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--sb-sub);}
+.p-ni{
+  display:flex;align-items:center;gap:9px;padding:9px 13px;margin:1px 6px;
+  border-radius:var(--r-sm);color:var(--sb-muted);font-size:13px;
+  cursor:pointer;transition:all .15s;position:relative;
+}
+.p-ni:hover{background:var(--sb-hover);color:var(--sb-text);}
+.p-ni.on{background:var(--sb-on-bg);color:var(--sb-on-color);font-weight:600;}
+.p-ni .ico{width:18px;text-align:center;font-size:14px;flex-shrink:0;}
+.p-ni .ext{margin-left:auto;font-size:10px;opacity:.4;}
+.p-sb-btm{
+  padding:10px 14px 14px;border-top:var(--sb-div);margin-top:auto;
+}
+.p-ua{display:flex;align-items:center;gap:9px;}
+.p-ava{
+  width:30px;height:30px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:12px;flex-shrink:0;
+}
+.p-uname{font-size:13px;font-weight:700;color:var(--sb-text);}
+.p-urole{font-size:10px;color:var(--sb-sub);}
+.p-tot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.p-tot-l{font-size:9px;color:var(--sb-sub);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;}
+.p-tot-v{font-size:13px;font-weight:800;color:var(--sb-text);}
+.p-tot-d{font-size:9px;color:var(--sb-sub);margin-top:2px;}
+
+/* ============================================================
+   메인
+   ============================================================ */
+.p-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.p-hdr{
+  height:58px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:space-between;padding:0 22px;
+  background:var(--card);border-bottom:1px solid var(--bdr);
+  transition:background .2s;
+}
+.p-bc{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:5px;}
+.p-hdr-r{display:flex;align-items:center;gap:10px;}
+.p-discord{
+  padding:8px 14px;background:#5865F2;color:#fff;border:none;
+  border-radius:var(--r-sm);font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+}
+.p-chip{display:flex;align-items:center;gap:8px;}
+.p-chip-av{
+  width:28px;height:28px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:11px;
+}
+.p-chip-nm{font-size:13px;font-weight:700;color:var(--text);}
+.p-chip-rl{
+  font-size:10px;padding:2px 8px;border-radius:10px;
+  background:var(--accent-lt);color:var(--accent);font-weight:700;
+}
+.p-cnt{flex:1;overflow-y:auto;padding:22px;}
+.p-cnt::-webkit-scrollbar{width:4px;}
+.p-cnt::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px;}
+
+/* ============================================================
+   컴포넌트
+   ============================================================ */
+/* 환영 배너 */
+.p-welcome{
+  background:var(--accent);border-radius:var(--r);padding:18px 22px;
+  margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;
+}
+.p-welcome h2{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+.p-welcome p{font-size:12px;color:rgba(255,255,255,.75);margin-top:3px;}
+.p-w-badge{
+  background:rgba(255,255,255,.2);color:#fff;padding:4px 12px;
+  border-radius:20px;font-size:11px;font-weight:700;
+}
+
+/* 스탯 카드 4개 */
+.p-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.p-sc{
+  background:var(--card);border-radius:var(--r);padding:14px 16px;
+  border:var(--card-b);box-shadow:var(--card-sh);
+  display:flex;justify-content:space-between;align-items:center;
+  transition:background .2s,box-shadow .2s;
+}
+.p-sc-label{font-size:11px;color:var(--sub);margin-bottom:3px;}
+.p-sc-val{font-size:20px;font-weight:800;}
+.p-sc-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+
+/* 2열 */
+.p-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* 패널 */
+.p-panel{
+  background:var(--card);border-radius:var(--r);padding:18px;
+  border:var(--card-b);box-shadow:var(--card-sh);
+  transition:background .2s,box-shadow .2s;
+}
+.p-ptitle{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.p-pico{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+
+/* 멤버 스탯 3열 */
+.p-ms3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.p-ms{text-align:center;padding:10px 6px;border-radius:var(--r-sm);background:var(--bg);}
+.p-ms-v{font-size:18px;font-weight:800;}
+.p-ms-l{font-size:10px;color:var(--sub);margin-top:1px;}
+
+/* 멤버 행 */
+.p-mi{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 0;border-bottom:1px solid var(--bdr);
+}
+.p-mi:last-child{border-bottom:none;}
+.p-mi-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.p-mi-nm{font-size:13px;font-weight:700;color:var(--text);}
+.p-mi-cls{font-size:10px;color:var(--sub);}
+.p-mbadge{
+  font-size:10px;padding:2px 7px;border-radius:10px;
+  font-weight:700;margin-left:auto;flex-shrink:0;
+}
+.bg-green{background:#D1FAE5;color:#059669;}
+.bg-blue{background:#DBEAFE;color:#2563EB;}
+
+/* 보스 카드 */
+.p-bi{
+  display:flex;align-items:flex-start;gap:10px;padding:9px 10px;
+  border-radius:var(--r-sm);border:1px solid var(--bdr);
+  margin-bottom:7px;background:var(--bg);transition:background .15s;
+}
+.p-bico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.p-bnm{font-size:12px;font-weight:700;color:var(--text);}
+.p-bst{font-size:11px;margin-top:1px;}
+.p-bbadge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:auto;flex-shrink:0;white-space:nowrap;}
+
+/* 주간 리셋 */
+.p-wreset{
+  margin-top:12px;border-top:1px solid var(--bdr);
+  padding-top:10px;font-size:10px;color:var(--sub);line-height:1.9;
+}
+.p-wreset strong{color:var(--text);}
+
+/* ============================================================
+   디자인 변수 정의
+
+   "현재" — 기존 사이트 그대로
+   "에어" — 슬레이트 & 블루 미니멀
+   "코어" — 다크 & 에메랄드
+   "스펙트럼" — 퍼플 그라디언트 & 앰버
+   ============================================================ */
+
+/* ── 현재 (기존 디자인) ─────────── */
+[data-d="cur"][data-m="light"]{
+  --bg:#F8F9FA;--text:#212529;--sub:#6C757D;
+  --sb-bg:#1A1D23;--sb-text:#E5E7EB;--sb-muted:#9CA3AF;--sb-sub:#4B5563;
+  --sb-hover:#25282F;--sb-on-bg:#2D3139;--sb-on-color:#fff;
+  --sb-border:none;--sb-div:1px solid #252830;
+  --accent:#0B5CD5;--accent-lt:#E8F0FE;
+  --card:#FFFFFF;--card-b:1px solid #DEE2E6;--card-sh:0 1px 3px rgba(0,0,0,.05);
+  --bdr:#DEE2E6;--r:8px;--r-sm:6px;
+}
+[data-d="cur"][data-m="dark"]{
+  --bg:#111318;--text:#E5E7EB;--sub:#6B7280;
+  --sb-bg:#1A1D23;--sb-text:#E5E7EB;--sb-muted:#9CA3AF;--sb-sub:#4B5563;
+  --sb-hover:#25282F;--sb-on-bg:#2D3139;--sb-on-color:#fff;
+  --sb-border:none;--sb-div:1px solid #252830;
+  --accent:#3B82F6;--accent-lt:rgba(59,130,246,.15);
+  --card:#1E2028;--card-b:1px solid #2A2D37;--card-sh:none;
+  --bdr:#2A2D37;--r:8px;--r-sm:6px;
+}
+
+/* ── 에어 (Air) — 클린 블루 ─────── */
+[data-d="a"][data-m="light"]{
+  --bg:#F1F5F9;--text:#0F172A;--sub:#64748B;
+  --sb-bg:#1E293B;--sb-text:#E2E8F0;--sb-muted:#94A3B8;--sb-sub:#475569;
+  --sb-hover:rgba(255,255,255,.06);--sb-on-bg:rgba(96,165,250,.18);--sb-on-color:#93C5FD;
+  --sb-border:1px solid #0F172A;--sb-div:1px solid #334155;
+  --accent:#2563EB;--accent-lt:#DBEAFE;
+  --card:#FFFFFF;--card-b:1px solid #E2E8F0;--card-sh:0 1px 4px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --bdr:#E2E8F0;--r:12px;--r-sm:8px;
+}
+[data-d="a"][data-m="dark"]{
+  --bg:#0F172A;--text:#E2E8F0;--sub:#64748B;
+  --sb-bg:#1E293B;--sb-text:#E2E8F0;--sb-muted:#94A3B8;--sb-sub:#475569;
+  --sb-hover:rgba(255,255,255,.05);--sb-on-bg:rgba(96,165,250,.2);--sb-on-color:#93C5FD;
+  --sb-border:1px solid #0A1120;--sb-div:1px solid #334155;
+  --accent:#3B82F6;--accent-lt:rgba(59,130,246,.18);
+  --card:#1E293B;--card-b:1px solid #334155;--card-sh:0 2px 8px rgba(0,0,0,.3);
+  --bdr:#334155;--r:12px;--r-sm:8px;
+}
+/* 에어: 활성 nav 왼쪽 인디케이터 */
+[data-d="a"] .p-ni.on::before{
+  content:'';position:absolute;left:-6px;top:6px;bottom:6px;
+  width:3px;border-radius:2px;background:#60A5FA;
+}
+
+/* ── 코어 (Core) — 에메랄드 ─────── */
+[data-d="b"][data-m="light"]{
+  --bg:#F0FDF4;--text:#111827;--sub:#6B7280;
+  --sb-bg:#111827;--sb-text:#F9FAFB;--sb-muted:#9CA3AF;--sb-sub:#4B5563;
+  --sb-hover:rgba(255,255,255,.05);--sb-on-bg:rgba(16,185,129,.15);--sb-on-color:#6EE7B7;
+  --sb-border:none;--sb-div:1px solid #1F2937;
+  --accent:#059669;--accent-lt:#D1FAE5;
+  --card:#FFFFFF;--card-b:1px solid #D1FAE5;--card-sh:0 4px 16px rgba(5,150,105,.07);
+  --bdr:#E5E7EB;--r:10px;--r-sm:6px;
+}
+[data-d="b"][data-m="dark"]{
+  --bg:#030712;--text:#F9FAFB;--sub:#6B7280;
+  --sb-bg:#111827;--sb-text:#F9FAFB;--sb-muted:#9CA3AF;--sb-sub:#4B5563;
+  --sb-hover:rgba(255,255,255,.04);--sb-on-bg:rgba(16,185,129,.15);--sb-on-color:#6EE7B7;
+  --sb-border:none;--sb-div:1px solid #1F2937;
+  --accent:#10B981;--accent-lt:rgba(16,185,129,.15);
+  --card:#111827;--card-b:1px solid #1F2937;--card-sh:0 4px 16px rgba(0,0,0,.4);
+  --bdr:#1F2937;--r:10px;--r-sm:6px;
+}
+/* 코어: 왼쪽 border 인디케이터 */
+[data-d="b"] .p-ni.on{
+  border-radius:0 6px 6px 0;margin-left:0;padding-left:18px;
+  border-left:3px solid #10B981;
+}
+
+/* ── 스펙트럼 (Spectrum) — 앰버 ─── */
+[data-d="c"][data-m="light"]{
+  --bg:#FFFBF5;--text:#1C1917;--sub:#78716C;
+  --sb-bg:transparent;--sb-text:#FAF5FF;--sb-muted:#A78BFA;--sb-sub:#7C3AED;
+  --sb-hover:rgba(167,139,250,.12);--sb-on-bg:rgba(251,191,36,.15);--sb-on-color:#FDE68A;
+  --sb-border:none;--sb-div:1px solid rgba(167,139,250,.2);
+  --accent:#D97706;--accent-lt:#FEF3C7;
+  --card:#FFFFFF;--card-b:1px solid #FDE68A;--card-sh:0 2px 10px rgba(217,119,6,.08);
+  --bdr:#E7E5E4;--r:14px;--r-sm:10px;
+}
+[data-d="c"][data-m="dark"]{
+  --bg:#0C0A09;--text:#FAFAF9;--sub:#78716C;
+  --sb-bg:transparent;--sb-text:#FAF5FF;--sb-muted:#A78BFA;--sb-sub:#7C3AED;
+  --sb-hover:rgba(167,139,250,.1);--sb-on-bg:rgba(251,191,36,.12);--sb-on-color:#FDE68A;
+  --sb-border:none;--sb-div:1px solid rgba(167,139,250,.2);
+  --accent:#F59E0B;--accent-lt:rgba(245,158,11,.15);
+  --card:#1C1917;--card-b:1px solid #292524;--card-sh:0 2px 10px rgba(0,0,0,.5);
+  --bdr:#292524;--r:14px;--r-sm:10px;
+}
+/* 스펙트럼: 사이드바 그라디언트 */
+[data-d="c"] .p-sb{background:linear-gradient(180deg,#1A0535 0%,#0B1E3D 100%);}
+/* 스펙트럼: 오른쪽 border 인디케이터 */
+[data-d="c"] .p-ni.on{
+  border-radius:10px 0 0 10px;margin-right:0;
+  border-right:3px solid #FCD34D;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     상단 비교 선택 바
+     ============================================================ -->
+<div id="cbar">
+  <span class="cbar-logo">메랜<span>ERP</span></span>
+  <div class="cbar-sep"></div>
+  <span class="cbar-label">디자인 시안</span>
+  <div class="cbar-tabs">
+    <button class="cbar-tab cur active" onclick="setD('cur')">현재 디자인</button>
+    <button class="cbar-tab" onclick="setD('a')">시안 A · 에어 ☁️</button>
+    <button class="cbar-tab" onclick="setD('b')">시안 B · 코어 🌿</button>
+    <button class="cbar-tab" onclick="setD('c')">시안 C · 스펙트럼 ✨</button>
+  </div>
+  <div class="cbar-spacer"></div>
+  <div class="cbar-desc" id="cbarDesc">
+    <strong>현재</strong> 기존 사이트 디자인 (비교 기준)
+  </div>
+  <div class="cbar-sep"></div>
+  <button class="cbar-theme" id="themeBtn" onclick="toggleTheme()">☀️ 화이트</button>
+</div>
+
+<!-- ============================================================
+     미리보기 영역
+     ============================================================ -->
+<div id="pwrap">
+  <div class="preview" id="root" data-d="cur" data-m="light">
+
+    <!-- ======= 사이드바 ======= -->
+    <aside class="p-sb">
+      <div class="p-logo">
+        <div class="p-logo-icon">메랜</div>
+        <div>
+          <div class="p-logo-text">메랜ERP</div>
+          <div class="p-logo-ver">v2.0</div>
+        </div>
+      </div>
+
+      <nav class="p-nav">
+        <div class="p-sec">메인</div>
+        <div class="p-ni on">
+          <span class="ico">🏠</span> 대시보드
+        </div>
+
+        <div class="p-sec">내 캐릭터</div>
+        <div class="p-ni">
+          <span class="ico">👤</span> 캐릭터 정보
+        </div>
+        <div class="p-ni">
+          <span class="ico">⚔️</span> 내 공대 현황
+        </div>
+        <div class="p-ni">
+          <span class="ico">💰</span> 내 정산내역
+        </div>
+
+        <div class="p-sec">공대관리</div>
+        <div class="p-ni">
+          <span class="ico">👥</span> 공대원 목록
+        </div>
+        <div class="p-ni">
+          <span class="ico">📊</span> 보스 정산
+        </div>
+        <div class="p-ni">
+          <span class="ico">🧾</span> 손님정산
+        </div>
+        <div class="p-ni">
+          <span class="ico">💸</span> 분배내역
+        </div>
+
+        <div class="p-sec">커뮤니티</div>
+        <div class="p-ni">
+          <span class="ico">🏰</span> 길드관리
+        </div>
+        <div class="p-ni">
+          <span class="ico">📢</span> 고확 채널
+          <span class="ext">↗</span>
+        </div>
+
+        <div class="p-sec">시스템</div>
+        <div class="p-ni">
+          <span class="ico">🔑</span> 권한 관리
+        </div>
+      </nav>
+
+      <div class="p-sb-btm">
+        <div class="p-ua">
+          <div class="p-ava">카</div>
+          <div>
+            <div class="p-uname">카키그라도</div>
+            <div class="p-urole">사이트마스터</div>
+          </div>
+        </div>
+        <div class="p-tot" style="margin-top:10px;">
+          <span class="p-tot-l">TOTAL</span>
+          <span class="p-tot-v">12명</span>
+        </div>
+        <div class="p-tot-d">사이트 방문자 수</div>
+      </div>
+    </aside>
+
+    <!-- ======= 메인 영역 ======= -->
+    <div class="p-main">
+      <!-- 헤더 -->
+      <header class="p-hdr">
+        <div class="p-bc">
+          <span class="material-icons" style="font-size:14px;">home</span>
+          <span style="opacity:.35;">›</span>
+          <span>대시보드</span>
+        </div>
+        <div class="p-hdr-r">
+          <div class="p-chip">
+            <div class="p-chip-av">카</div>
+            <span class="p-chip-nm">카키그라도</span>
+            <span class="p-chip-rl">사이트마스터</span>
+          </div>
+          <button class="p-discord">로그아웃</button>
+        </div>
+      </header>
+
+      <!-- 콘텐츠 -->
+      <div class="p-cnt">
+
+        <!-- 환영 배너 -->
+        <div class="p-welcome">
+          <div>
+            <h2>좋은 아침이에요, 카키그라도님 👋</h2>
+            <p>오늘도 메이플랜드 공략 화이팅 🍁</p>
+          </div>
+          <span class="p-w-badge">사이트마스터</span>
+        </div>
+
+        <!-- 스탯 카드 4개 -->
+        <div class="p-cards">
+          <div class="p-sc">
+            <div>
+              <div class="p-sc-label">전체 공대원</div>
+              <div class="p-sc-val">8명</div>
+            </div>
+            <div class="p-sc-icon" style="background:var(--accent-lt);">👥</div>
+          </div>
+          <div class="p-sc">
+            <div>
+              <div class="p-sc-label">참여 가능</div>
+              <div class="p-sc-val" style="color:#059669;">8명</div>
+            </div>
+            <div class="p-sc-icon" style="background:#ECFDF5;">✅</div>
+          </div>
+          <div class="p-sc">
+            <div>
+              <div class="p-sc-label">이번달 판매액</div>
+              <div class="p-sc-val" style="color:#D97706;">1,200만</div>
+            </div>
+            <div class="p-sc-icon" style="background:#FFFBEB;">💰</div>
+          </div>
+          <div class="p-sc">
+            <div>
+              <div class="p-sc-label">내 참여 상태</div>
+              <div class="p-sc-val" style="font-size:15px;">✅ 참여</div>
+            </div>
+            <div class="p-sc-icon" style="background:#FAF5FF;">🎯</div>
+          </div>
+        </div>
+
+        <!-- 2열: 공대현황 + 보스일정 -->
+        <div class="p-g2">
+
+          <!-- 공대원 현황 -->
+          <div class="p-panel">
+            <div class="p-ptitle">
+              <div class="p-pico" style="background:var(--accent-lt);">👥</div>
+              공대원 현황
+            </div>
+            <div class="p-ms3">
+              <div class="p-ms">
+                <div class="p-ms-v" style="color:#059669;">8</div>
+                <div class="p-ms-l">참여</div>
+              </div>
+              <div class="p-ms">
+                <div class="p-ms-v" style="color:#D97706;">0</div>
+                <div class="p-ms-l">미정</div>
+              </div>
+              <div class="p-ms">
+                <div class="p-ms-v" style="color:#EF4444;">0</div>
+                <div class="p-ms-l">불참</div>
+              </div>
+            </div>
+            <div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">최근 공대원</div>
+            <div class="p-mi">
+              <div class="p-mi-dot" style="background:#059669;"></div>
+              <div style="flex:1;">
+                <div class="p-mi-nm">카키그라도</div>
+                <div class="p-mi-cls">나이트로드 · Lv.167</div>
+              </div>
+              <span class="p-mbadge bg-blue">서폿</span>
+            </div>
+            <div class="p-mi">
+              <div class="p-mi-dot" style="background:#059669;"></div>
+              <div style="flex:1;">
+                <div class="p-mi-nm">따뮤</div>
+                <div class="p-mi-cls">새도어 · Lv.200</div>
+              </div>
+              <span class="p-mbadge bg-green">딜러</span>
+            </div>
+            <div class="p-mi">
+              <div class="p-mi-dot" style="background:#059669;"></div>
+              <div style="flex:1;">
+                <div class="p-mi-nm">메용잡</div>
+                <div class="p-mi-cls">보우마스터 · Lv.156</div>
+              </div>
+              <span class="p-mbadge bg-green">딜러</span>
+            </div>
+            <div class="p-mi">
+              <div class="p-mi-dot" style="background:#059669;"></div>
+              <div style="flex:1;">
+                <div class="p-mi-nm">inaaaa</div>
+                <div class="p-mi-cls">비숍 · Lv.122</div>
+              </div>
+              <span class="p-mbadge bg-blue">서폿</span>
+            </div>
+          </div>
+
+          <!-- 오늘의 보스 -->
+          <div class="p-panel">
+            <div class="p-ptitle">
+              <div class="p-pico" style="background:#FEF2F2;">🗡️</div>
+              오늘의 보스
+            </div>
+
+            <div class="p-bi">
+              <div class="p-bico" style="background:#FEE2E2;">⚔️</div>
+              <div style="flex:1;">
+                <div class="p-bnm">자쿰</div>
+                <div class="p-bst" style="color:#059669;">✅ 입장 가능</div>
+              </div>
+              <div>
+                <span class="p-bbadge" style="background:#FEE2E2;color:#DC2626;">24시간</span>
+                <div style="font-size:9px;color:var(--sub);margin-top:4px;text-align:right;">시간 입력</div>
+              </div>
+            </div>
+
+            <div class="p-bi">
+              <div class="p-bico" style="background:#FAF5FF;">🐉</div>
+              <div style="flex:1;">
+                <div class="p-bnm">혼테일</div>
+                <div class="p-bst" style="color:#EF4444;">⏱ 3시간 25분 남음</div>
+                <div style="font-size:10px;color:var(--sub);">클리어 21:35 → 다음 21:35</div>
+              </div>
+              <div>
+                <span class="p-bbadge" style="background:#FAF5FF;color:#7C3AED;">24시간</span>
+                <div style="font-size:9px;color:var(--sub);margin-top:4px;text-align:right;">수정</div>
+              </div>
+            </div>
+
+            <div class="p-bi">
+              <div class="p-bico" style="background:#FFFBEB;">📜</div>
+              <div style="flex:1;">
+                <div class="p-bnm">파풀라투스</div>
+                <div class="p-bst" style="color:#059669;">✅ 입장 가능</div>
+              </div>
+              <div>
+                <span class="p-bbadge" style="background:#FFFBEB;color:#D97706;">24시간</span>
+                <div style="font-size:9px;color:var(--sub);margin-top:4px;text-align:right;">시간 입력</div>
+              </div>
+            </div>
+
+            <div class="p-bi">
+              <div class="p-bico" style="background:#EFF6FF;">🐟</div>
+              <div style="flex:1;">
+                <div class="p-bnm">피아누스</div>
+                <div class="p-bst" style="color:#EF4444;">⏱ 2일 14시간 남음</div>
+                <div style="font-size:10px;color:var(--sub);">비늘 획득: 04-10 08:22</div>
+              </div>
+              <div>
+                <span class="p-bbadge" style="background:#EFF6FF;color:#2563EB;">7일</span>
+                <div style="font-size:9px;color:var(--sub);margin-top:4px;text-align:right;">수정</div>
+              </div>
+            </div>
+
+            <div class="p-wreset">
+              오늘(일요일) 기준 •
+              자쿰 · 혼테일 · 파풀라투스 <strong>24시간</strong> 쿨타임 •
+              피아누스 <strong>7일</strong> (비늘 기준)
+            </div>
+          </div>
+
+        </div><!-- /p-g2 -->
+      </div><!-- /p-cnt -->
+    </div><!-- /p-main -->
+  </div><!-- /preview -->
+</div><!-- /pwrap -->
+
+<script>
+const DESCS = {
+  cur: ['현재 디자인', '기존 사이트 디자인 (비교 기준)'],
+  a:   ['시안 A · 에어 ☁️', 'Stitch 2.0 | 슬레이트 네이비 사이드바 | 블루 강조 | 12px 라운드 | 미니멀'],
+  b:   ['시안 B · 코어 🌿', 'Stitch 2.0 | 다크 그레이 사이드바 | 에메랄드 강조 | 왼쪽 인디케이터 | 컴팩트'],
+  c:   ['시안 C · 스펙트럼 ✨', 'Stitch 2.0 | 퍼플→블루 그라디언트 사이드바 | 앰버 강조 | 14px 라운드 | 프리미엄'],
+};
+
+let cur = 'cur', mode = 'light';
+
+function setD(d) {
+  cur = d;
+  document.getElementById('root').setAttribute('data-d', d);
+  document.querySelectorAll('.cbar-tab').forEach((t,i) => {
+    const map = ['cur','a','b','c'];
+    t.classList.toggle('active', map[i] === d);
+  });
+  const desc = DESCS[d];
+  document.getElementById('cbarDesc').innerHTML = `<strong>${desc[0]}</strong> ${desc[1]}`;
+}
+
+function toggleTheme() {
+  mode = mode === 'light' ? 'dark' : 'light';
+  document.getElementById('root').setAttribute('data-m', mode);
+  document.getElementById('themeBtn').textContent = mode === 'light' ? '☀️ 화이트' : '🌙 블랙';
+}
+
+// 초기 세팅
+setD('cur');
+</script>
+</body>
+</html>

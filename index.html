@@ -1555,10 +1555,14 @@ auth.onAuthStateChanged(async(user)=>{
     }else if(user.isAnonymous&&_pendingRole){
       await userRef.set({name:_pendingName||'방문자',email:'',photo:'',role:_pendingRole,isAnonymous:true,loginType:'anonymous',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       _pendingRole=null;_pendingName=null;doc=await userRef.get();
+    }else if(user.isAnonymous){
+      // 대기 중인 인증 없는 익명 세션 → 로그아웃 (이름없음 문서 생성 방지)
+      await auth.signOut();
+      return;
     }else{
       const snap=await db.collection('users').where('isAnonymous','!=',true).get();
       const gRole=isSuperAdmin('',user.email)?'master':(snap.empty?'master':'none');
-      await userRef.set({name:user.displayName||'이름없음',email:user.email,photo:user.photoURL||'',role:gRole,loginType:'google',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      await userRef.set({name:user.displayName||user.email||'Google 사용자',email:user.email,photo:user.photoURL||'',role:gRole,loginType:'google',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       doc=await userRef.get();
     }
   }
@@ -1568,7 +1572,18 @@ auth.onAuthStateChanged(async(user)=>{
     await userRef.update({role:'master'});
     profileData.role='master';
   }
+  // Discord 재로그인 시 이름/사진 최신화
+  if(_pendingDiscord && profileData.discordId === _pendingDiscord.id){
+    const d=_pendingDiscord;_pendingDiscord=null;
+    const freshName=d.global_name||d.username;
+    if(freshName && freshName !== profileData.name){
+      await userRef.update({name:freshName,photo:d.avatar||profileData.photo||''});
+      profileData.name=freshName;profileData.photo=d.avatar||profileData.photo||'';
+    }
+  }
   currentProfile={id:doc.id,...profileData};
+  // 프로필 캐시 저장 (빠른 UI 복원용)
+  try{localStorage.setItem('_profileCache',JSON.stringify({name:currentProfile.name,photo:currentProfile.photo,role:currentProfile.role}));}catch(e){}
   // 디스코드 로그인 접속 로그 기록 + 방문자 카운터 업데이트
   if(profileData.loginType==='discord'||profileData.isAnonymous){
     db.collection('loginLogs').add({
@@ -3248,6 +3263,24 @@ function htPlayBeep() {
 
 // Discord callback
 (function(){const p=new URLSearchParams(window.location.search);const c=p.get('code');if(c){window.history.replaceState({},'',window.location.pathname);handleDiscordCallback(c);}})();
+
+// 프로필 캐시로 UI 즉시 복원 (Auth 응답 전 빠른 표시)
+(function(){
+  try{
+    const c=JSON.parse(localStorage.getItem('_profileCache')||'null');
+    if(!c||!c.name||c.name==='이름없음') return;
+    const nameEl=document.getElementById('userName');
+    const photoEl=document.getElementById('userPhoto');
+    const roleEl=document.getElementById('dashRoleBadge');
+    const loginBtn=document.getElementById('loginBtn');
+    const userInfo=document.getElementById('userInfo');
+    if(nameEl)nameEl.textContent=c.name;
+    if(photoEl)photoEl.src=c.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
+    if(loginBtn)loginBtn.style.display='none';
+    if(userInfo)userInfo.style.display='';
+    if(roleEl&&ROLES[c.role]){roleEl.textContent=ROLES[c.role].label;roleEl.style.display='';}
+  }catch(e){}
+})();
 
 // 초기 대시보드 렌더링
 renderDashboard();

@@ -485,6 +485,10 @@
       <button class="drawer-close-btn" onclick="toggleSidebar()" title="닫기">
         <span class="material-icons">close</span>
       </button>
+      <!-- 검색 토글 버튼 -->
+      <button class="sidebar-collapse-btn" onclick="toggleSidebarSearch()" id="sidebarSearchToggleBtn" title="메뉴 검색">
+        <span class="material-icons">search</span>
+      </button>
       <!-- 데스크탑 전용 접기 버튼 -->
       <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn" title="메뉴 접기">
         <span class="material-icons">chevron_left</span>
@@ -500,7 +504,7 @@
     </div>
   </div>
   <!-- 사이드바 검색 -->
-  <div class="sidebar-search-wrap">
+  <div class="sidebar-search-wrap" id="sidebarSearchWrap" style="display:none">
     <div class="sidebar-search-box">
       <span class="material-icons">search</span>
       <input class="sidebar-search-input" id="sidebarSearchInput" type="text" placeholder="메뉴 검색..." autocomplete="off" oninput="sidebarSearch(this.value)">
@@ -558,12 +562,9 @@
     <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span><span class="nav-label"> 권한 관리</span></a>
   </nav>
 
-  <div style="padding:10px 16px 16px;border-top:1px solid #252830;margin-top:auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-      <span style="font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#4b5563;font-weight:700;">TOTAL</span>
-      <span id="sidebarUserTotal" style="font-size:13px;font-weight:700;color:#6b7280;">-</span>
-    </div>
-    <div style="font-size:10px;color:#374151;">사이트 방문자 수</div>
+  <div style="padding:8px 16px 14px;border-top:1px solid #252830;margin-top:auto;display:flex;align-items:center;gap:6px;">
+    <span class="material-icons" style="font-size:14px;color:#4b5563;">people</span>
+    <span id="sidebarUserTotal" style="font-size:13px;font-weight:700;color:#6b7280;">-</span>
   </div>
 
 </aside>
@@ -2285,6 +2286,19 @@ function toggleAccordion(btn){btn.classList.toggle('open');btn.nextElementSiblin
 function toggleSidebar(){
   document.querySelector('.sidebar').classList.toggle('open');
   document.getElementById('mobileOverlay').classList.toggle('show');
+}
+
+function toggleSidebarSearch(){
+  const wrap = document.getElementById('sidebarSearchWrap');
+  if(!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : '';
+  if(!isOpen){
+    const inp = document.getElementById('sidebarSearchInput');
+    if(inp) setTimeout(()=>inp.focus(), 50);
+  } else {
+    sidebarSearchReset();
+  }
 }
 
 function toggleSidebarCollapse(){

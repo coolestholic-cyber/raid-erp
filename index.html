@@ -48,6 +48,20 @@
   .sidebar-collapse-btn:hover { background: #2d3139; color: #e5e7eb; }
   .sidebar-collapse-btn .material-icons { font-size: 24px; transition: transform .25s; }
 
+  /* 사이드바 검색 */
+  .sidebar-search-wrap { padding: 8px 10px; border-bottom: 1px solid #2d3139; flex-shrink: 0; }
+  .sidebar-search-box { display: flex; align-items: center; gap: 6px; background: #25282f; border: 1px solid #3a3d45; border-radius: 8px; padding: 7px 10px; transition: border-color .15s; }
+  .sidebar-search-box:focus-within { border-color: #4b78d4; }
+  .sidebar-search-box .material-icons { font-size: 16px; color: #6b7280; flex-shrink: 0; }
+  .sidebar-search-input { background: none; border: none; outline: none; color: #e5e7eb; font-size: 13px; flex: 1; min-width: 0; }
+  .sidebar-search-input::placeholder { color: #4b5563; }
+  .sidebar-search-clear { background: none; border: none; cursor: pointer; color: #6b7280; padding: 0; display: flex; align-items: center; transition: color .15s; }
+  .sidebar-search-clear:hover { color: #9ca3af; }
+  .sidebar-search-clear .material-icons { font-size: 15px; }
+  .nav-item.search-hidden, .nav-accordion.search-hidden, .nav-section.search-hidden, .acc-body.search-hidden { display: none !important; }
+  .nav-item.search-match { background: #2a3a5a !important; }
+  body.sidebar-collapsed .sidebar-search-wrap { display: none; }
+
   /* 접힌 상태 */
   body.sidebar-collapsed { --sidebar-w: 64px; }
   body.sidebar-collapsed .sidebar { overflow: hidden; }
@@ -485,6 +499,17 @@
       <div class="logo-ver">v2.1</div>
     </div>
   </div>
+  <!-- 사이드바 검색 -->
+  <div class="sidebar-search-wrap">
+    <div class="sidebar-search-box">
+      <span class="material-icons">search</span>
+      <input class="sidebar-search-input" id="sidebarSearchInput" type="text" placeholder="메뉴 검색..." autocomplete="off" oninput="sidebarSearch(this.value)">
+      <button class="sidebar-search-clear" id="sidebarSearchClear" style="display:none" onclick="sidebarSearchReset()" title="초기화">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  </div>
+
   <nav class="sidebar-nav">
     <div class="nav-section">메뉴</div>
 
@@ -3259,6 +3284,63 @@ function htPlayBeep() {
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
     o.start(); o.stop(ctx.currentTime + 0.6);
   } catch(e) {}
+}
+
+// =============================================
+// 사이드바 메뉴 검색
+// =============================================
+function sidebarSearch(q) {
+  const nav = document.querySelector('.sidebar-nav');
+  if (!nav) return;
+  const clearBtn = document.getElementById('sidebarSearchClear');
+  if (clearBtn) clearBtn.style.display = q ? '' : 'none';
+
+  if (!q.trim()) {
+    // 초기화: 모든 요소 보이기
+    nav.querySelectorAll('.search-hidden').forEach(el => el.classList.remove('search-hidden'));
+    nav.querySelectorAll('.search-match').forEach(el => el.classList.remove('search-match'));
+    return;
+  }
+
+  const kw = q.trim().toLowerCase();
+  const sections = nav.querySelectorAll('.nav-section');
+  const accordions = nav.querySelectorAll('.nav-accordion');
+  const items = nav.querySelectorAll('.nav-item');
+
+  // 모든 항목 숨기기
+  sections.forEach(el => el.classList.add('search-hidden'));
+  accordions.forEach(el => el.classList.add('search-hidden'));
+  items.forEach(el => { el.classList.add('search-hidden'); el.classList.remove('search-match'); });
+  nav.querySelectorAll('.acc-body').forEach(el => el.classList.add('search-hidden'));
+
+  // 매칭 항목 표시
+  let anyMatch = false;
+  items.forEach(item => {
+    const label = (item.getAttribute('title') || item.textContent || '').toLowerCase();
+    if (label.includes(kw)) {
+      item.classList.remove('search-hidden');
+      item.classList.add('search-match');
+      anyMatch = true;
+      // 부모 acc-body와 nav-accordion 표시
+      const body = item.closest('.acc-body');
+      if (body) {
+        body.classList.remove('search-hidden');
+        const acc = body.previousElementSibling;
+        if (acc && acc.classList.contains('nav-accordion')) acc.classList.remove('search-hidden');
+      }
+    }
+  });
+
+  // 섹션은 매칭 항목이 있을 때만 표시
+  if (anyMatch) {
+    sections.forEach(el => el.classList.remove('search-hidden'));
+  }
+}
+
+function sidebarSearchReset() {
+  const inp = document.getElementById('sidebarSearchInput');
+  if (inp) { inp.value = ''; inp.focus(); }
+  sidebarSearch('');
 }
 
 // Discord callback

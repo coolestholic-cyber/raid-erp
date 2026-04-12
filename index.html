@@ -146,7 +146,28 @@
   .boss-info { flex: 1; min-width: 0; }
   .boss-info .bname { font-size: 13px; font-weight: 700; color: var(--text); }
   .boss-info .bsub { font-size: 11px; color: var(--text-sub); }
-  .boss-reset { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+  .boss-reset { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+  .boss-item { align-items: flex-start; }
+  .boss-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .boss-item-actions { display: flex; align-items: center; gap: 3px; }
+  /* 아이콘 액션 버튼 */
+  .boss-action-btn { background: none; border: 1px solid transparent; cursor: pointer; color: #94a3b8; padding: 5px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; min-width: 32px; min-height: 32px; -webkit-tap-highlight-color: transparent; }
+  .boss-action-btn .material-icons { font-size: 17px; line-height: 1; }
+  .boss-action-btn:hover { background: #f1f5f9; border-color: #e2e8f0; color: #475569; }
+  .boss-action-btn.btn-edit:hover { color: var(--accent); border-color: #bfdbfe; background: #eff6ff; }
+  .boss-action-btn.btn-reset:hover { color: #ef4444; border-color: #fecaca; background: #fee2e2; }
+  .boss-action-btn.active { background: #eff6ff; border-color: #bfdbfe; color: var(--accent); }
+  /* 상태 텍스트 */
+  .boss-available { color: #059669; display: flex; align-items: center; gap: 3px; }
+  .boss-remaining { color: #ef4444; display: flex; align-items: center; gap: 2px; }
+  /* 인라인 편집기 */
+  .boss-edit-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .boss-edit-label { font-size: 11px; color: var(--text-sub); font-weight: 600; white-space: nowrap; }
+  .boss-edit-input { font-size: 12px; border: 1px solid #d1d5db; border-radius: 7px; padding: 5px 8px; background: #fff; color: var(--text); flex: 1; min-width: 0; }
+  .boss-edit-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59,130,246,.12); }
+  .boss-edit-save { font-size: 12px; padding: 5px 13px; border-radius: 7px; border: none; background: var(--accent); color: #fff; cursor: pointer; font-weight: 700; white-space: nowrap; }
+  .boss-edit-save:hover { background: #1d4ed8; }
+  .boss-edit-cancel { font-size: 12px; padding: 5px 10px; border-radius: 7px; border: 1px solid #d1d5db; background: #fff; color: #64748b; cursor: pointer; white-space: nowrap; }
 
   /* 공대 현황 */
   .my-raid-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
@@ -188,42 +209,19 @@
   .badge-purple { background: #faf5ff; color: #7c3aed; }
   .badge-gray { background: #f3f4f6; color: #6b7280; }
 
-  /* ===== 수수료작 버튼 ===== */
-  .quick-amt-btn { padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-weight:700;transition:.15s;font-family:inherit;line-height:1.4;text-align:center; }
-  .quick-amt-btn small { display:block;font-size:10px;font-weight:400;color:var(--text-sub); }
-  .quick-amt-btn:hover { border-color:var(--accent);background:var(--accent-light);color:var(--accent); }
-  .quick-amt-btn:hover small { color:var(--accent); }
-  .sort-toggle { display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden; }
-  .sort-toggle button { padding:7px 11px;background:#fff;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text-sub);transition:.15s;font-family:inherit; }
-  .sort-toggle button:not(:first-child) { border-left:1px solid var(--border); }
-  .sort-toggle button.active { background:var(--accent);color:#fff; }
-  .sort-toggle button:hover:not(.active) { background:#f3f4f6; }
-
-  /* ===== 보스 쿨타임 ===== */
-  .boss-avail { font-size:12px;color:#059669;font-weight:700;margin-top:2px; }
-  .boss-remain { font-size:12px;color:#ef4444;font-weight:700;margin-top:1px; }
-  .boss-sub { font-size:11px;color:var(--text-sub);margin-top:1px; }
-  .boss-time-btn { font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text-sub);cursor:pointer;font-weight:600;white-space:nowrap;font-family:inherit;transition:.15s; }
-  .boss-time-btn:hover { border-color:var(--accent);color:var(--accent); }
-  .boss-item { display:flex;flex-direction:column;align-items:stretch;padding:0;overflow:hidden;background:#fff; }
-  .boss-item-inner { display:flex;align-items:center;gap:10px;padding:10px 12px; }
-
   /* ===== Member Grid View ===== */
-  .member-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px; }
-  .member-card { background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;transition:box-shadow .15s,transform .15s;cursor:default;position:relative; }
-  .member-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px); }
-  .member-card .mc-status-dot { position:absolute;top:12px;right:12px;width:9px;height:9px;border-radius:50%; }
-  .member-card .mc-icon { width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px; }
-  .member-card .mc-name { font-size:14px;font-weight:700;color:var(--text);text-align:center;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-  .member-card .mc-cls-row { display:flex;align-items:center;gap:6px; }
-  .member-card .mc-cls { font-size:12px;color:var(--text-sub); }
-  .member-card .mc-level { font-size:12px;color:var(--text-sub); }
-  .member-card .mc-gold { font-size:13px;font-weight:600;color:#d97706; }
-  .member-card .mc-rate-wrap { width:100%; }
-  .member-card .mc-rate-bar { width:100%;height:5px;background:#f3f4f6;border-radius:3px;overflow:hidden; }
-  .member-card .mc-rate-fill { height:100%;border-radius:3px; }
-  .member-card .mc-actions { display:flex;gap:6px;margin-top:2px;width:100%; }
-  .member-card .mc-actions .btn { flex:1;padding:8px 4px;font-size:12px;justify-content:center; }
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .member-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: box-shadow .15s, transform .15s; cursor: default; position: relative; }
+  .member-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .member-card .mc-status-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; }
+  .member-card .mc-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .member-card .mc-name { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .member-card .mc-cls { font-size: 11px; color: var(--text-sub); }
+  .member-card .mc-level { font-size: 11px; color: var(--text-sub); }
+  .member-card .mc-gold { font-size: 12px; font-weight: 600; color: #d97706; }
+  .member-card .mc-rate-bar { width: 100%; height: 4px; background: #f3f4f6; border-radius: 2px; overflow: hidden; }
+  .member-card .mc-rate-fill { height: 100%; border-radius: 2px; }
+  .member-card .mc-actions { display: flex; gap: 4px; margin-top: 4px; }
   .view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .view-toggle button { padding: 7px 12px; background: #fff; border: none; cursor: pointer; font-size: 14px; color: var(--text-sub); transition: .15s; }
   .view-toggle button.active { background: var(--accent); color: #fff; }
@@ -437,12 +435,9 @@
     .ht-card-time { font-size: 48px; }
     .ht-section-header { font-size: 14px; padding: 12px 16px; }
 
-    /* 멤버 그리드 모바일: 카드 강제 2열 */
-    #memberTableWrap { display: none !important; }
-    #memberGridWrap { display: block !important; }
-    .view-toggle { display: none !important; }
+    /* 멤버 그리드 모바일 2열 */
     .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .member-card { padding: 12px 10px; }
+    .member-card { padding: 12px 8px; }
 
     /* 아이템 페이지 탭 스크롤 */
     #page-items .filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
@@ -453,22 +448,11 @@
   }
 
   @media (max-width: 480px) {
-    .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .member-card { padding: 10px 8px; gap: 5px; }
-    .member-card .mc-icon { width: 42px; height: 42px; font-size: 20px; }
+    .member-grid { grid-template-columns: repeat(2, 1fr); }
     .ht-card-time { font-size: 42px; }
     .ht-card-actions { flex-wrap: wrap; }
     .ht-start-btn, .ht-stop-btn, .ht-reset-btn { padding: 10px 0; font-size: 14px; }
   }
-
-  /* 태블릿: 카드 강제 (1025px~) */
-  @media (min-width: 769px) and (max-width: 1024px) {
-    #memberTableWrap { display: none !important; }
-    #memberGridWrap { display: block !important; }
-    .view-toggle { display: none !important; }
-    .member-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-  }
-
 </style>
 </head>
 <body>
@@ -540,9 +524,6 @@
 
     <!-- 5. 길드관리 -->
     <div class="nav-item" onclick="showPage('guild-promo',this)" title="길드관리"><span class="nav-icon"><span class="material-icons">castle</span></span><span class="nav-label"> 길드관리</span></div>
-
-    <!-- 6. 고확채널 -->
-    <a class="nav-item" href="https://megaphoneland.com/" target="_blank" rel="noopener" title="고확 채널 (외부)"><span class="nav-icon">📢</span><span class="nav-label"> 고확 채널</span><span style="margin-left:auto;font-size:10px;color:#6b7280;">↗</span></a>
 
     <div class="nav-section">시스템</div>
     <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span><span class="nav-label"> 권한 관리</span></a>
@@ -865,35 +846,8 @@
 
     <!-- 내 정산내역 -->
     <div id="page-mysettlement" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">내 정산내역</h1><p class="page-desc">공대장이 정산 저장 시 자동으로 누적됩니다</p></div></div>
-      <!-- 누적 요약 -->
-      <div class="cards" style="margin-bottom:16px;">
-        <div class="card stat-card">
-          <div><p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">총 누적 수령</p><h3 id="myStTotalGold" style="color:var(--accent);">-</h3></div>
-          <div class="stat-icon" style="background:#eff6ff;"><span class="material-icons" style="color:#0b5cd5;font-size:22px;">savings</span></div>
-        </div>
-        <div class="card stat-card">
-          <div><p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">정산 횟수</p><h3 id="myStCount">-</h3></div>
-          <div class="stat-icon" style="background:#ecfdf5;"><span class="material-icons" style="color:#059669;font-size:22px;">receipt_long</span></div>
-        </div>
-      </div>
-      <!-- 목록 -->
-      <div class="panel">
-        <div class="filter-bar" style="margin-bottom:12px;">
-          <select class="filter-select" id="myStSort" onchange="loadMySettlement()">
-            <option value="date-desc">최신순</option>
-            <option value="date-asc">오래된순</option>
-            <option value="boss">보스명순</option>
-          </select>
-        </div>
-        <div class="table-wrap">
-          <table><thead><tr>
-            <th>날짜</th><th>보스</th><th>총 골드</th><th>참여인원</th><th>내 분배금</th><th>메모</th>
-          </tr></thead><tbody id="myStTableBody">
-            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
-          </tbody></table>
-        </div>
-      </div>
+      <div class="top-bar"><div><h1 class="page-title">내 정산내역</h1><p class="page-desc">내 골드 정산 내역을 확인합니다</p></div></div>
+      <div class="panel"><div class="empty-state"><div class="icon">💰</div><h3>준비 중</h3><p>정산내역 기능이 곧 추가됩니다</p></div></div>
     </div>
 
     <!-- 공대 목록 -->
@@ -1027,11 +981,7 @@
             <option value="">상태 전체</option><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option>
           </select>
           <span style="font-size:13px;color:var(--text-sub);" id="memberCount">0명</span>
-          <div class="sort-toggle">
-            <button id="memberSortAsc" class="active" onclick="setMemberSort('asc')" title="이름 오름차순">가↑</button>
-            <button id="memberSortDesc" onclick="setMemberSort('desc')" title="이름 내림차순">가↓</button>
-          </div>
-          <div class="view-toggle" style="margin-left:0;">
+          <div class="view-toggle" style="margin-left:auto;">
             <button id="btnViewTable" class="active" onclick="setMemberView('table')" title="테이블 보기">☰</button>
             <button id="btnViewGrid" onclick="setMemberView('grid')" title="그리드 보기">⊞</button>
           </div>
@@ -1066,15 +1016,22 @@
             <div class="form-group"><label>보스 *</label>
               <select id="stBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
                 <option value="">보스 선택</option>
-                <option>자쿰</option><option>혼테일</option><option>파풀라투스</option><option>피아누스</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
+                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
               </select>
             </div>
           </div>
           <div class="form-row">
+            <div class="form-group"><label>난이도</label>
+              <select id="stDiff" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+                <option>이지</option><option>노말</option><option selected>하드</option><option>카오스</option>
+              </select>
+            </div>
             <div class="form-group"><label>클리어 골드 (만)</label><input type="number" id="stClearGold" placeholder="0" oninput="calcSettlement()"></div>
-            <div class="form-group"><label>판매 추가 골드 (만)</label><input type="number" id="stSaleGold" placeholder="0" oninput="calcSettlement()"></div>
           </div>
-          <div class="form-group"><label>메모</label><input type="text" id="stNote" placeholder="선택사항"></div>
+          <div class="form-row">
+            <div class="form-group"><label>판매 추가 골드 (만)</label><input type="number" id="stSaleGold" placeholder="0" oninput="calcSettlement()"></div>
+            <div class="form-group"><label>메모</label><input type="text" id="stNote" placeholder="선택사항"></div>
+          </div>
         </div>
 
         <!-- 공대원 참여 체크 -->
@@ -1122,17 +1079,10 @@
 
       <!-- 정산 히스토리 -->
       <div class="panel">
-        <div class="filter-bar" style="margin-bottom:12px;">
-          <input type="text" class="search-input" id="stHistSearch" placeholder="🔍 보스명 검색..." oninput="renderSettlementHistory()">
-          <select class="filter-select" id="stHistSort" onchange="renderSettlementHistory()">
-            <option value="date-desc">최신순</option>
-            <option value="date-asc">오래된순</option>
-            <option value="boss">보스명순</option>
-          </select>
-        </div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">정산 내역</div>
         <div class="table-wrap">
           <table><thead><tr>
-            <th>날짜</th><th>보스</th><th>클리어골드</th><th>판매골드</th><th>총골드</th><th>참여인원</th><th>1인당</th><th>메모</th><th>관리</th>
+            <th>날짜</th><th>보스</th><th>난이도</th><th>클리어골드</th><th>판매골드</th><th>총골드</th><th>참여인원</th><th>1인당</th><th>메모</th><th>관리</th>
           </tr></thead><tbody id="settlementTableBody"></tbody></table>
         </div>
       </div>
@@ -1150,7 +1100,7 @@
         <span>ℹ️</span>
         <span><strong>메이플랜드 거래 수수료:</strong> &nbsp;
           10만↑ <strong>0.8%</strong> &nbsp;|&nbsp;
-          100만↑ <strong>1.9%</strong> &nbsp;|&nbsp;
+          100만↑ <strong>1.8%</strong> &nbsp;|&nbsp;
           500만↑ <strong>3.0%</strong> &nbsp;|&nbsp;
           1000만↑ <strong>4.0%</strong> &nbsp;|&nbsp;
           2500만↑ <strong>5.0%</strong> &nbsp;|&nbsp;
@@ -1173,15 +1123,8 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>손님 거래 금액 (메소) *</label>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
-                <span style="font-size:11px;color:var(--text-sub);font-weight:600;white-space:nowrap;">수수료작</span>
-                <button type="button" class="quick-amt-btn" onclick="setGsAmount(999999)">99.9만<small>999,999</small></button>
-                <button type="button" class="quick-amt-btn" onclick="setGsAmount(4999999)">499.9만<small>4,999,999</small></button>
-                <button type="button" class="quick-amt-btn" onclick="setGsAmount(9999999)">999.9만<small>9,999,999</small></button>
-                <button type="button" class="quick-amt-btn" onclick="setGsAmount(24999999)">2499.9만<small>24,999,999</small></button>
-              </div>
-              <input type="number" id="gsAmount" placeholder="예) 9999999" min="0" oninput="calcGuestFee()">
+              <label>손님 거래 금액 (만메소) *</label>
+              <input type="number" id="gsAmount" placeholder="예) 7000" min="0" oninput="calcGuestFee()">
             </div>
             <div class="form-group"><label>메모</label><input type="text" id="gsNote" placeholder="선택사항"></div>
           </div>
@@ -1251,14 +1194,7 @@
 
       <!-- 정산 히스토리 -->
       <div class="panel">
-        <div class="filter-bar" style="margin-bottom:12px;">
-          <input type="text" class="search-input" id="gsHistSearch" placeholder="🔍 거래내용 검색..." oninput="renderGuestSettlementHistory()">
-          <select class="filter-select" id="gsHistSort" onchange="renderGuestSettlementHistory()">
-            <option value="date-desc">최신순</option>
-            <option value="date-asc">오래된순</option>
-            <option value="item">내용순</option>
-          </select>
-        </div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">손님정산 내역</div>
         <div class="table-wrap">
           <table><thead><tr>
             <th>날짜</th><th>거래내용</th><th>손님금액</th><th>수수료율</th><th>수수료</th><th>실수령</th><th>분배인원</th><th>1인당</th><th>메모</th><th>관리</th>
@@ -1582,7 +1518,7 @@ function updateLoginUI(){
 }
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();subscribeSettlements();window._myCharData=null;mcRenderCard(null);return;}
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();window._myCharData=null;mcRenderCard(null);return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -1592,16 +1528,16 @@ auth.onAuthStateChanged(async(user)=>{
       // 동일 discordId 기존 유저 확인 → 권한/데이터 재사용
       const dupSnap=await db.collection('users').where('discordId','==',d.id).get();
       const allSnap=await db.collection('users').where('isAnonymous','!=',true).get();
-      let role='guest';
+      let role='none';
       let existingMyChar=null;
       if(isSuperAdmin(d.id, d.email)){
         role='master';
       } else if(dupSnap&&!dupSnap.empty){
         const prev=dupSnap.docs[0].data();
-        role=prev.role||'guest';
+        role=prev.role||'none';
         existingMyChar=prev.myChar||null;
       } else {
-        role=allSnap.empty?'master':'guest';
+        role=allSnap.empty?'master':'none';
       }
       if(dupSnap&&!dupSnap.empty){
         existingMyChar=existingMyChar||(dupSnap.docs[0].data().myChar||null);
@@ -1646,18 +1582,156 @@ auth.onAuthStateChanged(async(user)=>{
     const el=document.getElementById('sidebarUserTotal');
     if(el){const uids=snap.exists?(snap.data().uids||[]):[];el.textContent=uids.length+'명';}
   });
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();subscribeSettlements();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();
 });
 
 // =============================================
 // Dashboard
 // =============================================
 const BOSS_SCHEDULE = [
-  { name:'자쿰',      icon:'⚔️', color:'#fee2e2', cooldownHours:24,   cooldownLabel:'24시간', resetBadge:'badge-red',    inputLabel:'클리어 시간' },
-  { name:'혼테일',    icon:'🐉', color:'#faf5ff', cooldownHours:24,   cooldownLabel:'24시간', resetBadge:'badge-purple', inputLabel:'클리어 시간' },
-  { name:'파풀라투스',icon:'📜', color:'#fffbeb', cooldownHours:24,   cooldownLabel:'24시간', resetBadge:'badge-yellow', inputLabel:'클리어 시간' },
-  { name:'피아누스',  icon:'🐟', color:'#eff6ff', cooldownHours:168,  cooldownLabel:'7일',    resetBadge:'badge-blue',   inputLabel:'비늘 획득 시간' },
+  { name:'자쿰',       icon:'⚔️', color:'#fee2e2', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-red',    cooldownHours:24  },
+  { name:'혼테일',     icon:'🐉', color:'#faf5ff', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-purple', cooldownHours:24  },
+  { name:'파피루스',   icon:'📜', color:'#fffbeb', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-yellow', cooldownHours:24  },
+  { name:'피아누스',   icon:'🐟', color:'#eff6ff', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-blue',   cooldownHours:168 },
+  { name:'사이클롭스', icon:'👁️', color:'#ecfdf5', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-green',  cooldownHours:24  },
 ];
+
+// =============================================
+// Boss Timer (localStorage)
+// =============================================
+const BOSS_TIMER_KEY = 'bossTimerData_v1';
+let _bossEditing = null; // 현재 편집 중인 보스 이름
+
+function getBossTimers() {
+  try { return JSON.parse(localStorage.getItem(BOSS_TIMER_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveBossTimer(name, clearMs) {
+  const d = getBossTimers(); d[name] = clearMs;
+  localStorage.setItem(BOSS_TIMER_KEY, JSON.stringify(d));
+}
+function deleteBossTimer(name) {
+  const d = getBossTimers(); delete d[name];
+  localStorage.setItem(BOSS_TIMER_KEY, JSON.stringify(d));
+}
+
+// 항상 X일 X시간 X분 남음 형식
+function fmtRemaining(ms) {
+  if (ms <= 0) return null;
+  const totalMin = Math.floor(ms / 60000);
+  const d = Math.floor(totalMin / 1440);
+  const h = Math.floor((totalMin % 1440) / 60);
+  const m = totalMin % 60;
+  return `${d}일 ${h}시간 ${m}분 남음`;
+}
+
+function fmtHHMM(ts) {
+  const d = new Date(ts);
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+// datetime-local input 기본값용 (로컬 ISO)
+function toDatetimeLocal(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// 편집 토글
+function bossToggleEdit(name) {
+  _bossEditing = (_bossEditing === name) ? null : name;
+  renderBossList();
+}
+
+// 인라인 저장
+function bossSaveTime(name) {
+  const inp = document.getElementById('bossEditInput_' + name);
+  if (!inp || !inp.value) return;
+  const dt = new Date(inp.value);
+  if (isNaN(dt.getTime())) { alert('올바른 날짜/시간을 선택하세요.'); return; }
+  saveBossTimer(name, dt.getTime());
+  _bossEditing = null;
+  renderBossList();
+}
+
+// 초기화
+function bossResetTimer(name) {
+  deleteBossTimer(name);
+  _bossEditing = null;
+  renderBossList();
+}
+
+// 보스 리스트 단독 렌더 (dashboard 전체 재렌더 없이)
+function renderBossList() {
+  const blEl = document.getElementById('dashBossList');
+  if (!blEl) return;
+  const timerData = getBossTimers();
+  const nowMs = Date.now();
+
+  blEl.innerHTML = BOSS_SCHEDULE.map(b => {
+    const clearMs = timerData[b.name];
+    const cooldownMs = b.cooldownHours * 3600000;
+    const isEditing = _bossEditing === b.name;
+    const hasClear = !!clearMs;
+
+    // 상태 정보 HTML
+    let infoHtml;
+    if (hasClear) {
+      const nextMs = clearMs + cooldownMs;
+      const remaining = nextMs - nowMs;
+      const remStr = fmtRemaining(remaining);
+      if (remaining > 0) {
+        infoHtml = `
+          <div class="bsub" style="margin-top:2px;color:var(--text-sub);">클리야: ${fmtHHMM(clearMs)} → 다음 입장: ${fmtHHMM(nextMs)}</div>
+          <div class="bsub boss-remaining" style="margin-top:2px;font-size:11px;">
+            <span class="material-icons" style="font-size:11px;">schedule</span>${remStr}
+          </div>`;
+      } else {
+        infoHtml = `
+          <div class="bsub boss-available" style="margin-top:2px;font-size:11px;">
+            <span class="material-icons" style="font-size:11px;">check_circle</span>입장 가능
+          </div>
+          <div class="bsub" style="margin-top:1px;font-size:10px;color:#94a3b8;">클리야: ${fmtHHMM(clearMs)}</div>`;
+      }
+    } else {
+      infoHtml = `
+        <div class="bsub boss-available" style="margin-top:2px;font-size:11px;">
+          <span class="material-icons" style="font-size:11px;">check_circle</span>입장 가능
+        </div>`;
+    }
+
+    // 인라인 편집기 HTML
+    const defaultDt = hasClear ? toDatetimeLocal(clearMs) : toDatetimeLocal(Date.now());
+    const editHtml = isEditing ? `
+      <div class="boss-edit-row">
+        <label class="boss-edit-label">클리어 시간</label>
+        <input type="datetime-local" id="bossEditInput_${b.name}" class="boss-edit-input" value="${defaultDt}">
+        <button class="boss-edit-save" onclick="bossSaveTime('${b.name}')">저장</button>
+        <button class="boss-edit-cancel" onclick="bossToggleEdit('${b.name}')">취소</button>
+      </div>` : '';
+
+    // 아이콘 액션 버튼
+    const actHtml = `
+      <button class="boss-action-btn btn-edit${isEditing ? ' active' : ''}" onclick="bossToggleEdit('${b.name}')" title="시간 수정" aria-label="시간 수정">
+        <span class="material-icons">${isEditing ? 'close' : 'edit'}</span>
+      </button>
+      ${hasClear ? `<button class="boss-action-btn btn-reset" onclick="bossResetTimer('${b.name}')" title="초기화" aria-label="초기화">
+        <span class="material-icons">restart_alt</span>
+      </button>` : ''}`;
+
+    return `<div class="boss-item">
+      <div class="boss-icon" style="background:${b.color};">${b.icon}</div>
+      <div class="boss-info" style="flex:1;min-width:0;">
+        <div class="bname">${b.name}</div>
+        ${infoHtml}
+        ${editHtml}
+      </div>
+      <div class="boss-item-right">
+        <span class="badge ${b.resetBadge} boss-reset">${b.reset}</span>
+        <div class="boss-item-actions">${actHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 function renderDashboard() {
   const now = new Date();
@@ -1731,7 +1805,6 @@ function renderDashboard() {
 
   // 보스 일정
   renderBossList();
-  startBossTicker();
 
   // 주간 리셋 정보
   const today = now.getDay();
@@ -1740,8 +1813,8 @@ function renderDashboard() {
   const resetDay = days[today];
   if(wrEl) wrEl.innerHTML = `
     <span style="color:var(--accent);font-weight:700;">오늘(${resetDay}요일)</span> 기준 •
-    자쿰 · 혼테일 · 파풀라투스 <b>24시간</b> 쿨타임 •
-    피아누스 <b>7일</b> 쿨타임 (비늘 기준)
+    혼테일/파피루스 <b>목요일</b> 리셋 •
+    자쿰/피아누스/사이클롭스 <b>매일 자정</b> 리셋
   `;
 
   // 최근 판매내역 (5개)
@@ -1758,145 +1831,6 @@ function renderDashboard() {
           <div class="settle-price">${(p.price||0).toLocaleString()}G</div>
         </div>`).join('');
     }
-  }
-}
-
-// =============================================
-// Boss Cooldown
-// =============================================
-function getBossStatus(boss) {
-  const stored = localStorage.getItem('boss_clear_' + boss.name);
-  if (!stored) return { canEnter:true, clearTime:null, nextTime:null, remainMs:0 };
-  const clearTime = new Date(stored);
-  const nextTime = new Date(clearTime.getTime() + boss.cooldownHours * 3600000);
-  const remainMs = Math.max(0, nextTime - Date.now());
-  return { canEnter: remainMs <= 0, clearTime, nextTime, remainMs };
-}
-
-function renderBossList() {
-  const el = document.getElementById('dashBossList');
-  if (!el) return;
-  const fmt = t => `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-  el.innerHTML = BOSS_SCHEDULE.map(b => {
-    const st = getBossStatus(b);
-    const safeId = b.name.replace(/[()]/g,'');
-    let statusHtml, btnLabel;
-    if (!st.clearTime) {
-      statusHtml = `<div class="boss-avail">입장 가능</div>`;
-      btnLabel = '시간 입력';
-    } else if (st.canEnter) {
-      statusHtml = `<div class="boss-avail">✅ 입장 가능</div>
-        <div class="boss-sub">클리어: ${fmt(st.clearTime)}</div>`;
-      btnLabel = '수정';
-    } else {
-      const h = Math.floor(st.remainMs / 3600000);
-      const m = Math.floor((st.remainMs % 3600000) / 60000);
-      statusHtml = `<div class="boss-sub">클리어: ${fmt(st.clearTime)} → 다음 입장: ${fmt(st.nextTime)}</div>
-        <div class="boss-remain">⏱ ${h}시간 ${m}분 남음</div>`;
-      btnLabel = '수정';
-    }
-    return `<div class="boss-item" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
-      <div class="boss-item-inner">
-        <div class="boss-icon" style="background:${b.color};">${b.icon}</div>
-        <div class="boss-info" style="flex:1;">
-          <div class="bname">${b.name}</div>
-          ${statusHtml}
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-          <span class="badge ${b.resetBadge} boss-reset">${b.cooldownLabel}</span>
-          <button class="boss-time-btn" onclick="openBossInput('${safeId}')">${btnLabel}</button>
-        </div>
-      </div>
-      <div id="boss-input-${safeId}" style="display:none;padding:8px 12px 10px;background:#f9fafb;border-top:1px solid var(--border);">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <label style="font-size:12px;color:var(--text-sub);">${b.inputLabel}</label>
-          <input type="datetime-local" id="boss-time-val-${safeId}" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;">
-          <button class="btn btn-primary btn-sm" style="padding:6px 14px;" onclick="saveBossTime('${b.name}','${safeId}')">저장</button>
-          <button class="btn btn-outline btn-sm" style="padding:6px 14px;" onclick="closeBossInput('${safeId}')">취소</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openBossInput(safeId) {
-  BOSS_SCHEDULE.forEach(b => {
-    const id = b.name.replace(/[()]/g,'');
-    const el = document.getElementById('boss-input-' + id);
-    if (el) el.style.display = 'none';
-  });
-  const row = document.getElementById('boss-input-' + safeId);
-  if (!row) return;
-  const now = new Date();
-  const inp = document.getElementById('boss-time-val-' + safeId);
-  if (inp) {
-    // datetime-local 형식: "YYYY-MM-DDTHH:MM"
-    const pad = n => String(n).padStart(2,'0');
-    inp.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    inp.max = inp.value; // 미래 선택 방지
-  }
-  row.style.display = '';
-}
-
-function closeBossInput(safeId) {
-  const el = document.getElementById('boss-input-' + safeId);
-  if (el) el.style.display = 'none';
-}
-
-function saveBossTime(bossName, safeId) {
-  const input = document.getElementById('boss-time-val-' + safeId);
-  if (!input || !input.value) return;
-  const t = new Date(input.value); // datetime-local → Date
-  if (isNaN(t.getTime())) return;
-  localStorage.setItem('boss_clear_' + bossName, t.toISOString());
-  closeBossInput(safeId);
-  renderBossList();
-}
-
-let _bossTickerId = null;
-function startBossTicker() {
-  if (_bossTickerId) return;
-  _bossTickerId = setInterval(() => {
-    if (document.getElementById('page-dashboard')?.classList.contains('active')) renderBossList();
-  }, 60000);
-}
-
-// =============================================
-// 내 정산내역
-// =============================================
-async function loadMySettlement(){
-  const tbody=document.getElementById('myStTableBody');
-  if(!tbody)return;
-  const elG=document.getElementById('myStTotalGold');
-  const elC=document.getElementById('myStCount');
-  if(!currentUser){
-    if(elG)elG.textContent='-';if(elC)elC.textContent='-';
-    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">Discord 로그인 후 이용하세요</td></tr>`;return;
-  }
-  tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-sub);">조회 중...</td></tr>`;
-  try{
-    const snap=await db.collection('mySettlements').where('memberUid','==',currentUser.uid).get();
-    let list=snap.docs.map(d=>({id:d.id,...d.data()}));
-    const sortVal=document.getElementById('myStSort')?.value||'date-desc';
-    if(sortVal==='date-asc')list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-    else if(sortVal==='boss')list.sort((a,b)=>(a.boss||'').localeCompare(b.boss||'','ko'));
-    else list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-    const totalPer=list.reduce((s,r)=>s+(r.perGold||0),0);
-    if(elG)elG.textContent=totalPer.toLocaleString()+'만';
-    if(elC)elC.textContent=list.length+'회';
-    if(!list.length){
-      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다<br><small style="font-size:12px;">공대장이 정산 저장 시 자동으로 추가됩니다</small></td></tr>`;return;
-    }
-    tbody.innerHTML=list.map(s=>`<tr>
-      <td>${s.date||'-'}</td>
-      <td><strong>${s.boss||'-'}</strong></td>
-      <td>${(s.totalGold||0).toLocaleString()}만</td>
-      <td>${s.memberCount||s.count||0}명</td>
-      <td style="color:var(--accent);font-weight:700;">${(s.perGold||0).toLocaleString()}만</td>
-      <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
-    </tr>`).join('');
-  }catch(e){
-    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:#ef4444;">조회 오류: ${e.message}</td></tr>`;
   }
 }
 
@@ -1921,34 +1855,19 @@ function renderStats(){
   if(ss)ss.innerHTML=[{l:'참여',c:a,co:'#059669'},{l:'미정',c:allMembers.filter(m=>m.status==='미정').length,co:'#d97706'},{l:'불참',c:allMembers.filter(m=>m.status==='불참').length,co:'#dc2626'}].map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:10px;height:10px;border-radius:50%;background:${s.co};"></span><span style="flex:1;font-size:14px;">${s.l}</span><strong style="font-size:14px;">${s.c}명</strong></div>`).join('');
 }
 
-let memberViewMode = window.innerWidth > 1024 ? (localStorage.getItem('memberView') || 'table') : 'grid';
-let memberSortDir = 'asc';
-function setMemberSort(dir){
-  memberSortDir=dir;
-  const a=document.getElementById('memberSortAsc'),b=document.getElementById('memberSortDesc');
-  if(a)a.classList.toggle('active',dir==='asc');
-  if(b)b.classList.toggle('active',dir==='desc');
-  renderMemberTable();
-}
+let memberViewMode='table';
 function setMemberView(mode){
-  if(window.innerWidth <= 1024) mode = 'grid';
-  memberViewMode = mode;
-  localStorage.setItem('memberView', mode);
-  const tw = document.getElementById('memberTableWrap');
-  const gw = document.getElementById('memberGridWrap');
-  const bt = document.getElementById('btnViewTable');
-  const bg = document.getElementById('btnViewGrid');
-  if(tw) tw.style.display = mode==='table' ? '' : 'none';
-  if(gw) gw.style.display = mode==='grid'  ? '' : 'none';
-  if(bt) bt.classList.toggle('active', mode==='table');
-  if(bg) bg.classList.toggle('active', mode==='grid');
+  memberViewMode=mode;
+  document.getElementById('btnViewTable').classList.toggle('active',mode==='table');
+  document.getElementById('btnViewGrid').classList.toggle('active',mode==='grid');
+  document.getElementById('memberTableWrap').style.display=mode==='table'?'':'none';
+  document.getElementById('memberGridWrap').style.display=mode==='grid'?'':'none';
   renderMemberTable();
 }
 
 function renderMemberTable(){
   const s=(document.getElementById('memberSearch')?.value||'').toLowerCase(),rF=document.getElementById('memberRoleFilter')?.value||'',sF=document.getElementById('memberStatusFilter')?.value||'';
   let f=allMembers.filter(m=>{if(s&&!m.name.toLowerCase().includes(s)&&!(m.cls||'').toLowerCase().includes(s))return false;if(rF&&m.role!==rF)return false;if(sF&&m.status!==sF)return false;return true;});
-  f.sort((a,b)=>{const n=(a.name||'').localeCompare(b.name||'','ko');return memberSortDir==='asc'?n:-n;});
   const ce=canManageMembers(),tb=document.getElementById('memberTableBody');
   if(tb){
     tb.innerHTML=f.map((m,i)=>{
@@ -1980,30 +1899,20 @@ function renderMemberTable(){
         const rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
         const dotColor=m.status==='참여'?'#059669':m.status==='미정'?'#d97706':'#ef4444';
         const roleColor=m.role==='서폿'?'#eff6ff':'#ecfdf5';
-        const roleBadge=m.role==='서폿'?'badge-blue':'badge-green';
-        const statusBadge=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
         const icon=JOB_ICON[m.cls]||'👤';
         const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
-        return `<div class="member-card" onclick="if(event.target.tagName!=='BUTTON'&&(${canE})&&false)editMember('${m.id}')">
+        return `<div class="member-card">
           <div class="mc-status-dot" style="background:${dotColor};" title="${m.status||''}"></div>
           <div class="mc-icon" style="background:${roleColor};">${icon}</div>
           <div class="mc-name" title="${m.name||''}">${m.name||''}</div>
-          <div class="mc-cls-row">
-            <span class="mc-cls">${m.cls||'-'}</span>
-            <span class="badge ${roleBadge}" style="font-size:10px;padding:1px 6px;">${m.role||''}</span>
-          </div>
+          <div class="mc-cls">${m.cls||'-'}</div>
           <div class="mc-level">Lv.${(m.level||0).toLocaleString()}</div>
           <div class="mc-gold">💰 ${m.gold||0}만</div>
-          <div class="mc-rate-wrap">
-            <div class="mc-rate-bar"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
-            <div style="display:flex;justify-content:space-between;margin-top:2px;">
-              <span class="badge ${statusBadge}" style="font-size:10px;padding:1px 6px;">${m.status||''}</span>
-              <span style="font-size:10px;color:${rc};font-weight:700;">${rt}%</span>
-            </div>
-          </div>
+          <div class="mc-rate-bar" style="width:90%;"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
+          <div style="font-size:10px;color:${rc};">${rt}%</div>
           ${canE||ce?`<div class="mc-actions">
-            ${canE?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editMember('${m.id}')">수정</button>`:''}
-            ${ce?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteMember('${m.id}','${m.name}')">삭제</button>`:''}
+            ${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')" style="padding:3px 8px;font-size:11px;">수정</button>`:''}
+            ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')" style="padding:3px 8px;font-size:11px;">삭제</button>`:''}
           </div>`:''}
         </div>`;
       }).join('');
@@ -2291,7 +2200,6 @@ function showPage(id,el){
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){loadLoginLogs();}
-  if(id==='mysettlement'){loadMySettlement();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -2705,60 +2613,34 @@ async function saveSettlement(){
   const clear=parseInt(document.getElementById('stClearGold').value)||0;
   const sale=parseInt(document.getElementById('stSaleGold').value)||0;
   const total=clear+sale;
-  const note=document.getElementById('stNote').value.trim();
-  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role,uid:m.ownerUid||null}));
+  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
   const count=participants.length;
   const per=count>0?Math.floor(total/count):0;
   if(!count){alert('참여 공대원을 1명 이상 선택하세요.');return;}
-  const ref=await db.collection('settlements').add({
-    date,boss,clearGold:clear,saleGold:sale,totalGold:total,
-    participants,count,perGold:per,note,
+  await db.collection('settlements').add({
+    date,boss,diff:document.getElementById('stDiff').value,
+    clearGold:clear,saleGold:sale,totalGold:total,
+    participants,count,perGold:per,
+    note:document.getElementById('stNote').value.trim(),
     ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
-  // 참여자별 개인 정산내역 자동 생성
-  const batch=db.batch();
-  participants.forEach(p=>{
-    if(!p.uid)return; // uid 없으면 스킵
-    const pRef=db.collection('mySettlements').doc();
-    batch.set(pRef,{
-      memberUid:p.uid,memberId:p.id,memberName:p.name,
-      date,boss,clearGold:clear,saleGold:sale,totalGold:total,
-      memberCount:count,perGold:per,note,
-      settlementId:ref.id,
-      createdBy:currentProfile?.name||'',
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  });
-  await batch.commit();
   closeSettlementForm();
   renderSettlementHistory();
 }
 
-let allSettlements=[];
-function subscribeSettlements(){
-  db.collection('settlements').orderBy('date','desc').onSnapshot(s=>{
-    allSettlements=s.docs.map(d=>({id:d.id,...d.data()}));
-    renderSettlementHistory();
-  });
-}
-
-function renderSettlementHistory(){
+async function renderSettlementHistory(){
   const tbody=document.getElementById('settlementTableBody');
   if(!tbody)return;
-  const q=(document.getElementById('stHistSearch')?.value||'').toLowerCase();
-  const sort=document.getElementById('stHistSort')?.value||'date-desc';
-  let list=[...allSettlements];
-  if(q)list=list.filter(s=>(s.boss||'').toLowerCase().includes(q));
-  if(sort==='date-asc')list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  else if(sort==='boss')list.sort((a,b)=>(a.boss||'').localeCompare(b.boss||'','ko'));
-  else list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;return;}
-  tbody.innerHTML=list.map(s=>{
+  const snap=await db.collection('settlements').orderBy('date','desc').get();
+  if(snap.empty){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;return;}
+  tbody.innerHTML=snap.docs.map(d=>{
+    const s={id:d.id,...d.data()};
     const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
     return `<tr>
       <td>${s.date||''}</td>
       <td><strong>${s.boss||''}</strong></td>
+      <td>${s.diff||''}</td>
       <td>${(s.clearGold||0).toLocaleString()}만</td>
       <td>${(s.saleGold||0).toLocaleString()}만</td>
       <td><strong>${(s.totalGold||0).toLocaleString()}만</strong></td>
@@ -2773,6 +2655,7 @@ function renderSettlementHistory(){
 async function deleteSettlement(id){
   if(!confirm('정산 내역을 삭제하시겠습니까?'))return;
   await db.collection('settlements').doc(id).delete();
+  renderSettlementHistory();
 }
 
 // =============================================
@@ -2787,34 +2670,30 @@ function subscribeGuestSettlements(){
   });
 }
 
-function calcGuestFeeRate(amtMeso){
-  // amtMeso: 실제 메소 단위
-  if(amtMeso>=100000000) return 6.0;  // 1억 이상
-  if(amtMeso>=25000000)  return 5.0;  // 2500만 이상
-  if(amtMeso>=10000000)  return 4.0;  // 1000만 이상
-  if(amtMeso>=5000000)   return 3.0;  // 500만 이상
-  if(amtMeso>=1000000)   return 1.9;  // 100만 이상
-  if(amtMeso>=100000)    return 0.8;  // 10만 이상
+function calcGuestFeeRate(amount){
+  // amount: 만메소 단위
+  if(amount>=10000)return 6.0;   // 1억 이상
+  if(amount>=2500) return 5.0;   // 2500만 이상
+  if(amount>=1000) return 4.0;   // 1000만 이상
+  if(amount>=500)  return 3.0;   // 500만 이상
+  if(amount>=100)  return 1.8;   // 100만 이상
+  if(amount>=10)   return 0.8;   // 10만 이상
   return 0;
 }
 
-function setGsAmount(meeso){
-  const el=document.getElementById('gsAmount');
-  if(el){el.value=meeso;calcGuestFee();}
-}
-
 function calcGuestFee(){
-  const amtMeso=parseFloat(document.getElementById('gsAmount')?.value)||0;
-  const amt=amtMeso/10000; // 만메소 환산 (계산/저장용)
-  const rate=calcGuestFeeRate(amtMeso);
-  const fee=Math.floor(amt*rate/100*10)/10;
+  const amt=parseFloat(document.getElementById('gsAmount')?.value)||0;
+  const rate=calcGuestFeeRate(amt);
+  const fee=Math.floor(amt*rate/100*10)/10; // 소수점 1자리
   const net=Math.round((amt-fee)*10)/10;
-  const fmtM=v=>{const r=Math.round(v*10)/10;return r.toLocaleString()+'만';};
+  // 4칸 결과
+  const fmt=v=>v%1===0?v.toLocaleString()+'만':(v.toLocaleString()+'만');
   const el=id=>document.getElementById(id);
-  if(el('gsAmountResult'))el('gsAmountResult').textContent=amtMeso.toLocaleString()+'메소 ('+amt.toFixed(1)+'만)';
+  if(el('gsAmountResult'))el('gsAmountResult').textContent=amt.toLocaleString()+'만';
   if(el('gsFeeRate'))el('gsFeeRate').textContent=rate+'%';
-  if(el('gsFeeAmount'))el('gsFeeAmount').textContent=fmtM(fee);
-  if(el('gsNetAmount'))el('gsNetAmount').textContent=fmtM(net);
+  if(el('gsFeeAmount'))el('gsFeeAmount').textContent=fee.toLocaleString()+'만';
+  if(el('gsNetAmount'))el('gsNetAmount').textContent=net.toLocaleString()+'만';
+  // 분배 재계산
   calcGuestDist(net);
 }
 
@@ -2869,7 +2748,7 @@ function openGuestForm(){
   const today=new Date().toISOString().split('T')[0];
   document.getElementById('gsDate').value=today;
   document.getElementById('gsItem').value='';
-  document.getElementById('gsAmount').value='999999';
+  document.getElementById('gsAmount').value='';
   document.getElementById('gsNote').value='';
   renderGsMemberList();
   calcGuestFee();
@@ -2883,10 +2762,9 @@ function closeGuestForm(){
 async function saveGuestSettlement(){
   const date=document.getElementById('gsDate').value;
   const item=document.getElementById('gsItem').value.trim();
-  const amtMeso=parseFloat(document.getElementById('gsAmount').value)||0;
-  const amt=amtMeso/10000; // 만메소 환산
-  if(!date||!item||!amtMeso){alert('날짜, 거래내용, 금액을 모두 입력하세요.');return;}
-  const rate=calcGuestFeeRate(amtMeso);
+  const amt=parseFloat(document.getElementById('gsAmount').value)||0;
+  if(!date||!item||!amt){alert('날짜, 거래내용, 금액을 모두 입력하세요.');return;}
+  const rate=calcGuestFeeRate(amt);
   const fee=Math.floor(amt*rate/100*10)/10;
   const net=Math.round((amt-fee)*10)/10;
   const participants=allMembers.filter(m=>{const cb=document.getElementById('gsm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
@@ -2894,7 +2772,7 @@ async function saveGuestSettlement(){
   const per=count>0?Math.floor(net/count*10)/10:0;
   if(!count){alert('분배 공대원을 1명 이상 선택하세요.');return;}
   await db.collection('guestSettlements').add({
-    date,item,amountMeso:amtMeso,amount:Math.round(amt*10)/10,feeRate:rate,feeAmount:fee,netAmount:net,
+    date,item,amount:amt,feeRate:rate,feeAmount:fee,netAmount:net,
     participants,count,perGold:per,
     note:document.getElementById('gsNote').value.trim(),
     ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
@@ -2907,24 +2785,16 @@ async function saveGuestSettlement(){
 async function renderGuestSettlementHistory(){
   const tbody=document.getElementById('guestSettlementTableBody');
   if(!tbody)return;
-  const q=(document.getElementById('gsHistSearch')?.value||'').toLowerCase();
-  const sort=document.getElementById('gsHistSort')?.value||'date-desc';
-  let list=[...allGuestSettlements];
-  if(q)list=list.filter(s=>(s.item||'').toLowerCase().includes(q));
-  if(sort==='date-asc')list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  else if(sort==='item')list.sort((a,b)=>(a.item||'').localeCompare(b.item||'','ko'));
-  else list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  if(!list.length){
+  if(!allGuestSettlements.length){
     tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;
     return;
   }
-  tbody.innerHTML=list.map(s=>{
+  tbody.innerHTML=allGuestSettlements.map(s=>{
     const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
-    const amtDisplay=s.amountMeso?`${s.amountMeso.toLocaleString()}메소`:`${(s.amount||0).toLocaleString()}만`;
     return `<tr>
       <td>${s.date||''}</td>
       <td><strong>${s.item||''}</strong></td>
-      <td>${amtDisplay}</td>
+      <td>${(s.amount||0).toLocaleString()}만</td>
       <td><span class="badge badge-yellow">${s.feeRate||0}%</span></td>
       <td style="color:#dc2626;">${(s.feeAmount||0).toLocaleString()}만</td>
       <td style="color:var(--accent);font-weight:700;">${(s.netAmount||0).toLocaleString()}만</td>
@@ -3346,6 +3216,12 @@ function htPlayBeep() {
 // 초기 대시보드 렌더링
 renderDashboard();
 updateTabBar('dashboard');
+
+// 보스 타이머 자동 갱신 (1분마다)
+setInterval(() => {
+  const blEl = document.getElementById('dashBossList');
+  if (blEl) renderDashboard();
+}, 60000);
 </script>
 </body>
 </html>

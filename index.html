@@ -1487,7 +1487,7 @@ async function handleDiscordCallback(code){
 }
 let _pendingDiscord=null,_pendingRole=null,_pendingName=null;
 
-function doLogout(){auth.signOut();currentUser=null;currentProfile=null;updateLoginUI();}
+function doLogout(){auth.signOut();currentUser=null;currentProfile=null;_bossTimers={};updateLoginUI();renderBossList();}
 
 function updateLoginUI(){
   const ok=!!currentProfile;
@@ -1579,6 +1579,8 @@ auth.onAuthStateChanged(async(user)=>{
     if(el){const uids=snap.exists?(snap.data().uids||[]):[];el.textContent=uids.length+'명';}
   });
   updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();
+  await loadBossTimers();
+  renderBossList();
 });
 
 // =============================================
@@ -1593,21 +1595,45 @@ const BOSS_SCHEDULE = [
 ];
 
 // =============================================
-// Boss Timer (localStorage)
+// Boss Timer (Firestore 유저별 저장)
 // =============================================
-const BOSS_TIMER_KEY = 'bossTimerData_v1';
-let _bossEditing = null; // 현재 편집 중인 보스 이름
+let _bossEditing = null;
+let _bossTimers = {}; // 인메모리 캐시
 
-function getBossTimers() {
-  try { return JSON.parse(localStorage.getItem(BOSS_TIMER_KEY) || '{}'); } catch(e) { return {}; }
+async function loadBossTimers() {
+  if (currentUser) {
+    try {
+      const doc = await db.collection('users').doc(currentUser.uid).get();
+      _bossTimers = (doc.exists && doc.data().bossTimers) ? doc.data().bossTimers : {};
+    } catch(e) { _bossTimers = {}; }
+  } else {
+    _bossTimers = {};
+  }
 }
-function saveBossTimer(name, clearMs) {
-  const d = getBossTimers(); d[name] = clearMs;
-  localStorage.setItem(BOSS_TIMER_KEY, JSON.stringify(d));
+
+function getBossTimers() { return _bossTimers; }
+
+async function saveBossTimer(name, clearMs) {
+  _bossTimers[name] = clearMs;
+  if (currentUser) {
+    try {
+      await db.collection('users').doc(currentUser.uid).update({ ['bossTimers.' + name]: clearMs });
+    } catch(e) {
+      // 문서에 bossTimers 필드가 없으면 set으로 재시도
+      await db.collection('users').doc(currentUser.uid).set({ bossTimers: _bossTimers }, { merge: true });
+    }
+  }
 }
-function deleteBossTimer(name) {
-  const d = getBossTimers(); delete d[name];
-  localStorage.setItem(BOSS_TIMER_KEY, JSON.stringify(d));
+
+async function deleteBossTimer(name) {
+  delete _bossTimers[name];
+  if (currentUser) {
+    try {
+      await db.collection('users').doc(currentUser.uid).update({
+        ['bossTimers.' + name]: firebase.firestore.FieldValue.delete()
+      });
+    } catch(e) {}
+  }
 }
 
 // 항상 X일 X시간 X분 남음 형식
@@ -1639,19 +1665,19 @@ function bossToggleEdit(name) {
 }
 
 // 인라인 저장
-function bossSaveTime(name) {
+async function bossSaveTime(name) {
   const inp = document.getElementById('bossEditInput_' + name);
   if (!inp || !inp.value) return;
   const dt = new Date(inp.value);
   if (isNaN(dt.getTime())) { alert('올바른 날짜/시간을 선택하세요.'); return; }
-  saveBossTimer(name, dt.getTime());
+  await saveBossTimer(name, dt.getTime());
   _bossEditing = null;
   renderBossList();
 }
 
 // 초기화
-function bossResetTimer(name) {
-  deleteBossTimer(name);
+async function bossResetTimer(name) {
+  await deleteBossTimer(name);
   _bossEditing = null;
   renderBossList();
 }

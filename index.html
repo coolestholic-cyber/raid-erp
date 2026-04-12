@@ -432,6 +432,23 @@
     .ht-card-actions { flex-wrap: wrap; }
     .ht-start-btn, .ht-stop-btn, .ht-reset-btn { padding: 10px 0; font-size: 14px; }
   }
+
+  /* ===== 고확 채널 ===== */
+  .mega-tab { padding: 7px 16px; border: 1px solid var(--border); border-radius: 20px; background: var(--card-bg); color: var(--text-sub); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .mega-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .mega-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .mega-card { display: flex; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); transition: background .1s; }
+  .mega-card:last-child { border-bottom: none; }
+  .mega-card:hover { background: #f9fafb; }
+  .mega-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#fbbf24,#f59e0b); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .mega-body { flex: 1; min-width: 0; }
+  .mega-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .mega-nick { font-size: 14px; font-weight: 700; color: var(--text); }
+  .mega-world { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0fdf4; color: #16a34a; font-weight: 600; }
+  .mega-ch { font-size: 11px; color: var(--text-sub); }
+  .mega-msg { font-size: 14px; color: var(--text); line-height: 1.5; word-break: break-all; }
+  .mega-footer { display: flex; gap: 10px; margin-top: 5px; font-size: 11px; color: var(--text-sub); }
+  @keyframes pulse2 { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(0.8);} }
 </style>
 </head>
 <body>
@@ -503,6 +520,9 @@
 
     <!-- 5. 길드관리 -->
     <div class="nav-item" onclick="showPage('guild-promo',this)" title="길드관리"><span class="nav-icon"><span class="material-icons">castle</span></span><span class="nav-label"> 길드관리</span></div>
+
+    <!-- 6. 고확채널 -->
+    <div class="nav-item" onclick="showPage('megaphone',this)" title="고확 채널"><span class="nav-icon">📢</span><span class="nav-label"> 고확 채널</span><span id="megaBadge" style="display:none;margin-left:auto;background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;">NEW</span></div>
 
     <div class="nav-section">시스템</div>
     <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span><span class="nav-label"> 권한 관리</span></a>
@@ -1207,6 +1227,94 @@
       </div>
     </div>
 
+    <!-- 고확 채널 -->
+    <div id="page-megaphone" class="page-section">
+      <div class="top-bar">
+        <div>
+          <h1 class="page-title">📢 고확 채널</h1>
+          <p class="page-desc">고성능 확성기 메시지를 실시간으로 확인하고 제보하세요</p>
+        </div>
+        <button class="btn btn-primary" onclick="openMegaModal()" style="gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          메시지 제보
+        </button>
+      </div>
+
+      <!-- 월드 필터 탭 -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <button class="mega-tab active" onclick="setMegaWorld('',this)">🌏 전체</button>
+        <button class="mega-tab" onclick="setMegaWorld('빅토리아',this)">🌿 빅토리아</button>
+        <button class="mega-tab" onclick="setMegaWorld('엘나스',this)">❄️ 엘나스</button>
+        <button class="mega-tab" onclick="setMegaWorld('리프레',this)">🌸 리프레</button>
+        <button class="mega-tab" onclick="setMegaWorld('루더스',this)">⚡ 루더스</button>
+      </div>
+
+      <!-- 검색 + 통계 -->
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+        <input type="text" id="megaSearch" class="search-input" placeholder="🔍 닉네임 또는 내용 검색..." oninput="renderMegaMessages()" style="flex:1;min-width:180px;">
+        <div style="display:flex;gap:16px;font-size:13px;color:var(--text-sub);flex-shrink:0;">
+          <span>📨 오늘 <strong id="megaTodayCount" style="color:var(--text);">0</strong>건</span>
+          <span>📋 전체 <strong id="megaTotalCount" style="color:var(--text);">0</strong>건</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse2 1.5s ease infinite;"></span>실시간</span>
+        </div>
+      </div>
+
+      <!-- 메시지 피드 -->
+      <div class="panel" style="padding:0;overflow:hidden;">
+        <div id="megaFeed" style="max-height:600px;overflow-y:auto;">
+          <div class="empty-state" style="padding:60px 20px;">
+            <div class="icon">📢</div>
+            <h3>아직 제보된 메시지가 없습니다</h3>
+            <p>게임에서 고확 메시지를 보셨나요? 제보 버튼을 눌러 공유해주세요!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 고확 제보 모달 -->
+    <div class="modal-overlay" id="megaModal">
+      <div class="modal" style="max-width:460px;">
+        <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <span style="width:36px;height:36px;background:#fef9c3;color:#ca8a04;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📢</span>
+          고확 메시지 제보
+        </h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>캐릭터 닉네임 *</label>
+            <input type="text" id="megaNick" placeholder="예) 카키그라도">
+          </div>
+          <div class="form-group">
+            <label>월드 *</label>
+            <select id="megaWorld" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+              <option value="빅토리아">🌿 빅토리아</option>
+              <option value="엘나스">❄️ 엘나스</option>
+              <option value="리프레">🌸 리프레</option>
+              <option value="루더스">⚡ 루더스</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>채널</label>
+            <input type="number" id="megaChannel" placeholder="예) 1" min="1" max="30">
+          </div>
+          <div class="form-group">
+            <label>현재 위치 (맵)</label>
+            <input type="text" id="megaLocation" placeholder="예) 헤네시스">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>메시지 내용 *</label>
+          <textarea id="megaMsg" placeholder="고확에서 본 메시지를 그대로 입력해주세요" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;resize:vertical;min-height:80px;font-family:inherit;outline:none;" oninput="updateMegaCharCount(this)"></textarea>
+          <div style="text-align:right;font-size:11px;color:var(--text-sub);margin-top:3px;"><span id="megaCharCount">0</span>/200자</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline" onclick="closeMegaModal()">취소</button>
+          <button class="btn btn-primary" onclick="submitMegaMessage()">제보하기</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 권한 관리 -->
     <div id="page-users" class="page-section">
       <div class="top-bar"><div><h1 class="page-title">권한 관리</h1><p class="page-desc">사용자 권한을 관리합니다</p></div></div>
@@ -1507,16 +1615,16 @@ auth.onAuthStateChanged(async(user)=>{
       // 동일 discordId 기존 유저 확인 → 권한/데이터 재사용
       const dupSnap=await db.collection('users').where('discordId','==',d.id).get();
       const allSnap=await db.collection('users').where('isAnonymous','!=',true).get();
-      let role='none';
+      let role='guest';
       let existingMyChar=null;
       if(isSuperAdmin(d.id, d.email)){
         role='master';
       } else if(dupSnap&&!dupSnap.empty){
         const prev=dupSnap.docs[0].data();
-        role=prev.role||'none';
+        role=prev.role||'guest';
         existingMyChar=prev.myChar||null;
       } else {
-        role=allSnap.empty?'master':'none';
+        role=allSnap.empty?'master':'guest';
       }
       if(dupSnap&&!dupSnap.empty){
         existingMyChar=existingMyChar||(dupSnap.docs[0].data().myChar||null);
@@ -2017,8 +2125,8 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
-const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'공대원 목록',settlement:'보스 정산',guestsettlement:'손님정산',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
+const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보',megaphone:'고확 채널'};
+const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'공대원 목록',settlement:'보스 정산',guestsettlement:'손님정산',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보',megaphone:'고확 채널'};
 
 // 탭바 페이지 매핑
 const tabPageMap = {
@@ -2055,6 +2163,7 @@ function showPage(id,el){
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){loadLoginLogs();}
+  if(id==='megaphone'){subscribeMegaphone();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -3063,6 +3172,149 @@ function htPlayBeep() {
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
     o.start(); o.stop(ctx.currentTime + 0.6);
   } catch(e) {}
+}
+
+// =============================================
+// 고확 채널 (Megaphone)
+// =============================================
+let allMegaMessages = [];
+let currentMegaWorld = '';
+let megaUnsub = null;
+
+function subscribeMegaphone() {
+  // 이미 구독 중이면 중복 방지
+  if (megaUnsub) return;
+  megaUnsub = db.collection('megaphone')
+    .orderBy('createdAt', 'desc')
+    .limit(200)
+    .onSnapshot(snap => {
+      allMegaMessages = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderMegaMessages();
+      updateMegaCounts();
+      // NEW 뱃지 — 페이지가 활성이 아닐 때만 표시
+      const badge = document.getElementById('megaBadge');
+      if (badge && !document.getElementById('page-megaphone').classList.contains('active')) {
+        badge.style.display = allMegaMessages.length ? 'inline-block' : 'none';
+      }
+    }, err => { console.warn('megaphone snapshot error', err); });
+}
+
+function setMegaWorld(world, btn) {
+  currentMegaWorld = world;
+  document.querySelectorAll('.mega-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderMegaMessages();
+}
+
+function renderMegaMessages() {
+  const feed = document.getElementById('megaFeed');
+  if (!feed) return;
+  const q = (document.getElementById('megaSearch')?.value || '').trim().toLowerCase();
+  let list = allMegaMessages;
+  if (currentMegaWorld) list = list.filter(m => m.world === currentMegaWorld);
+  if (q) list = list.filter(m =>
+    (m.nick || '').toLowerCase().includes(q) ||
+    (m.msg || '').toLowerCase().includes(q) ||
+    (m.location || '').toLowerCase().includes(q)
+  );
+  // NEW 뱃지 숨기기 (페이지 진입 시)
+  const badge = document.getElementById('megaBadge');
+  if (badge) badge.style.display = 'none';
+
+  if (!list.length) {
+    feed.innerHTML = `<div class="empty-state" style="padding:60px 20px;"><div class="icon">📢</div><h3>${q || currentMegaWorld ? '검색 결과가 없습니다' : '아직 제보된 메시지가 없습니다'}</h3><p>${q || currentMegaWorld ? '다른 검색어나 월드를 선택해보세요.' : '게임에서 고확 메시지를 보셨나요? 제보 버튼을 눌러 공유해주세요!'}</p></div>`;
+    return;
+  }
+  const WORLD_EMOJI = { '빅토리아': '🌿', '엘나스': '❄️', '리프레': '🌸', '루더스': '⚡' };
+  feed.innerHTML = list.map(m => {
+    const initial = (m.nick || '?').charAt(0).toUpperCase();
+    const wEmoji = WORLD_EMOJI[m.world] || '🌏';
+    const timeStr = m.createdAt?.toDate ? timeAgo(m.createdAt.toDate()) : '';
+    const locStr = m.location ? `<span>📍 ${m.location}</span>` : '';
+    const chStr = m.channel ? `<span>CH.${m.channel}</span>` : '';
+    const reporter = m.reporterName ? `<span>제보: ${m.reporterName}</span>` : '';
+    return `<div class="mega-card">
+      <div class="mega-avatar">${initial}</div>
+      <div class="mega-body">
+        <div class="mega-header">
+          <span class="mega-nick">${esc(m.nick || '익명')}</span>
+          <span class="mega-world">${wEmoji} ${m.world || ''}</span>
+          ${chStr ? `<span class="mega-ch">${chStr}</span>` : ''}
+        </div>
+        <div class="mega-msg">${esc(m.msg || '')}</div>
+        <div class="mega-footer">${locStr}${reporter}<span style="margin-left:auto;">${timeStr}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateMegaCounts() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayCount = allMegaMessages.filter(m => {
+    if (!m.createdAt?.toDate) return false;
+    return m.createdAt.toDate() >= today;
+  }).length;
+  const el1 = document.getElementById('megaTodayCount');
+  const el2 = document.getElementById('megaTotalCount');
+  if (el1) el1.textContent = todayCount;
+  if (el2) el2.textContent = allMegaMessages.length;
+}
+
+function openMegaModal() {
+  if (!currentProfile) { alert('로그인이 필요합니다.'); return; }
+  ['megaNick', 'megaChannel', 'megaLocation', 'megaMsg'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('megaWorld').value = '빅토리아';
+  document.getElementById('megaCharCount').textContent = '0';
+  document.getElementById('megaModal').classList.add('show');
+}
+
+function closeMegaModal() {
+  document.getElementById('megaModal').classList.remove('show');
+}
+
+async function submitMegaMessage() {
+  const nick = document.getElementById('megaNick').value.trim();
+  const world = document.getElementById('megaWorld').value;
+  const channel = document.getElementById('megaChannel').value.trim();
+  const location = document.getElementById('megaLocation').value.trim();
+  const msg = document.getElementById('megaMsg').value.trim();
+  if (!nick) { alert('캐릭터 닉네임을 입력해주세요.'); return; }
+  if (!msg) { alert('메시지 내용을 입력해주세요.'); return; }
+  if (msg.length > 200) { alert('메시지는 200자 이내로 입력해주세요.'); return; }
+  const btn = document.querySelector('#megaModal .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = '제보 중...'; }
+  try {
+    await db.collection('megaphone').add({
+      nick, world, channel: channel ? Number(channel) : null, location: location || null,
+      msg, reporterUid: currentUser?.uid || null, reporterName: currentProfile?.name || null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    closeMegaModal();
+  } catch (e) {
+    alert('제보 중 오류가 발생했습니다: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '제보하기'; }
+  }
+}
+
+function updateMegaCharCount(el) {
+  const count = (el.value || '').length;
+  document.getElementById('megaCharCount').textContent = count;
+  if (count > 200) el.value = el.value.substring(0, 200);
+}
+
+function timeAgo(date) {
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (diff < 60) return '방금 전';
+  if (diff < 3600) return Math.floor(diff / 60) + '분 전';
+  if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
+  return Math.floor(diff / 86400) + '일 전';
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // Discord callback

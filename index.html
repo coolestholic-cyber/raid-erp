@@ -1530,22 +1530,26 @@ auth.onAuthStateChanged(async(user)=>{
       const allSnap=await db.collection('users').where('isAnonymous','!=',true).get();
       let role='none';
       let existingMyChar=null;
+      let existingBossTimers=null;
       if(isSuperAdmin(d.id, d.email)){
         role='master';
       } else if(dupSnap&&!dupSnap.empty){
         const prev=dupSnap.docs[0].data();
         role=prev.role||'none';
         existingMyChar=prev.myChar||null;
+        existingBossTimers=prev.bossTimers||null;
       } else {
         role=allSnap.empty?'master':'none';
       }
       if(dupSnap&&!dupSnap.empty){
         existingMyChar=existingMyChar||(dupSnap.docs[0].data().myChar||null);
+        existingBossTimers=existingBossTimers||(dupSnap.docs[0].data().bossTimers||null);
         // 이전 중복 문서들 삭제
         for(const dd of dupSnap.docs){await db.collection('users').doc(dd.id).delete();}
       }
       const newData={name:d.global_name||d.username,email:d.email||'',photo:d.avatar||'',role,discordId:d.id,discordUsername:d.username,isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
       if(existingMyChar)newData.myChar=existingMyChar;
+      if(existingBossTimers)newData.bossTimers=existingBossTimers;
       await userRef.set(newData);
       doc=await userRef.get();
     }else if(user.isAnonymous&&_pendingRole){

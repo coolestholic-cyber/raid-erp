@@ -188,6 +188,17 @@
   .badge-purple { background: #faf5ff; color: #7c3aed; }
   .badge-gray { background: #f3f4f6; color: #6b7280; }
 
+  /* ===== 수수료작 버튼 ===== */
+  .quick-amt-btn { padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-weight:700;transition:.15s;font-family:inherit;line-height:1.4;text-align:center; }
+  .quick-amt-btn small { display:block;font-size:10px;font-weight:400;color:var(--text-sub); }
+  .quick-amt-btn:hover { border-color:var(--accent);background:var(--accent-light);color:var(--accent); }
+  .quick-amt-btn:hover small { color:var(--accent); }
+  .sort-toggle { display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden; }
+  .sort-toggle button { padding:7px 11px;background:#fff;border:none;cursor:pointer;font-size:12px;font-weight:700;color:var(--text-sub);transition:.15s;font-family:inherit; }
+  .sort-toggle button:not(:first-child) { border-left:1px solid var(--border); }
+  .sort-toggle button.active { background:var(--accent);color:#fff; }
+  .sort-toggle button:hover:not(.active) { background:#f3f4f6; }
+
   /* ===== 보스 쿨타임 ===== */
   .boss-avail { font-size:12px;color:#059669;font-weight:700;margin-top:2px; }
   .boss-remain { font-size:12px;color:#ef4444;font-weight:700;margin-top:1px; }
@@ -854,8 +865,35 @@
 
     <!-- 내 정산내역 -->
     <div id="page-mysettlement" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">내 정산내역</h1><p class="page-desc">내 골드 정산 내역을 확인합니다</p></div></div>
-      <div class="panel"><div class="empty-state"><div class="icon">💰</div><h3>준비 중</h3><p>정산내역 기능이 곧 추가됩니다</p></div></div>
+      <div class="top-bar"><div><h1 class="page-title">내 정산내역</h1><p class="page-desc">공대장이 정산 저장 시 자동으로 누적됩니다</p></div></div>
+      <!-- 누적 요약 -->
+      <div class="cards" style="margin-bottom:16px;">
+        <div class="card stat-card">
+          <div><p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">총 누적 수령</p><h3 id="myStTotalGold" style="color:var(--accent);">-</h3></div>
+          <div class="stat-icon" style="background:#eff6ff;"><span class="material-icons" style="color:#0b5cd5;font-size:22px;">savings</span></div>
+        </div>
+        <div class="card stat-card">
+          <div><p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">정산 횟수</p><h3 id="myStCount">-</h3></div>
+          <div class="stat-icon" style="background:#ecfdf5;"><span class="material-icons" style="color:#059669;font-size:22px;">receipt_long</span></div>
+        </div>
+      </div>
+      <!-- 목록 -->
+      <div class="panel">
+        <div class="filter-bar" style="margin-bottom:12px;">
+          <select class="filter-select" id="myStSort" onchange="loadMySettlement()">
+            <option value="date-desc">최신순</option>
+            <option value="date-asc">오래된순</option>
+            <option value="boss">보스명순</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr>
+            <th>날짜</th><th>보스</th><th>총 골드</th><th>참여인원</th><th>내 분배금</th><th>메모</th>
+          </tr></thead><tbody id="myStTableBody">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
+          </tbody></table>
+        </div>
+      </div>
     </div>
 
     <!-- 공대 목록 -->
@@ -989,7 +1027,11 @@
             <option value="">상태 전체</option><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option>
           </select>
           <span style="font-size:13px;color:var(--text-sub);" id="memberCount">0명</span>
-          <div class="view-toggle" style="margin-left:auto;">
+          <div class="sort-toggle">
+            <button id="memberSortAsc" class="active" onclick="setMemberSort('asc')" title="이름 오름차순">가↑</button>
+            <button id="memberSortDesc" onclick="setMemberSort('desc')" title="이름 내림차순">가↓</button>
+          </div>
+          <div class="view-toggle" style="margin-left:0;">
             <button id="btnViewTable" class="active" onclick="setMemberView('table')" title="테이블 보기">☰</button>
             <button id="btnViewGrid" onclick="setMemberView('grid')" title="그리드 보기">⊞</button>
           </div>
@@ -1024,22 +1066,15 @@
             <div class="form-group"><label>보스 *</label>
               <select id="stBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
                 <option value="">보스 선택</option>
-                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
+                <option>자쿰</option><option>혼테일</option><option>파풀라투스</option><option>피아누스</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
               </select>
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>난이도</label>
-              <select id="stDiff" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
-                <option>이지</option><option>노말</option><option selected>하드</option><option>카오스</option>
-              </select>
-            </div>
             <div class="form-group"><label>클리어 골드 (만)</label><input type="number" id="stClearGold" placeholder="0" oninput="calcSettlement()"></div>
-          </div>
-          <div class="form-row">
             <div class="form-group"><label>판매 추가 골드 (만)</label><input type="number" id="stSaleGold" placeholder="0" oninput="calcSettlement()"></div>
-            <div class="form-group"><label>메모</label><input type="text" id="stNote" placeholder="선택사항"></div>
           </div>
+          <div class="form-group"><label>메모</label><input type="text" id="stNote" placeholder="선택사항"></div>
         </div>
 
         <!-- 공대원 참여 체크 -->
@@ -1087,10 +1122,17 @@
 
       <!-- 정산 히스토리 -->
       <div class="panel">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">정산 내역</div>
+        <div class="filter-bar" style="margin-bottom:12px;">
+          <input type="text" class="search-input" id="stHistSearch" placeholder="🔍 보스명 검색..." oninput="renderSettlementHistory()">
+          <select class="filter-select" id="stHistSort" onchange="renderSettlementHistory()">
+            <option value="date-desc">최신순</option>
+            <option value="date-asc">오래된순</option>
+            <option value="boss">보스명순</option>
+          </select>
+        </div>
         <div class="table-wrap">
           <table><thead><tr>
-            <th>날짜</th><th>보스</th><th>난이도</th><th>클리어골드</th><th>판매골드</th><th>총골드</th><th>참여인원</th><th>1인당</th><th>메모</th><th>관리</th>
+            <th>날짜</th><th>보스</th><th>클리어골드</th><th>판매골드</th><th>총골드</th><th>참여인원</th><th>1인당</th><th>메모</th><th>관리</th>
           </tr></thead><tbody id="settlementTableBody"></tbody></table>
         </div>
       </div>
@@ -1108,7 +1150,7 @@
         <span>ℹ️</span>
         <span><strong>메이플랜드 거래 수수료:</strong> &nbsp;
           10만↑ <strong>0.8%</strong> &nbsp;|&nbsp;
-          100만↑ <strong>1.8%</strong> &nbsp;|&nbsp;
+          100만↑ <strong>1.9%</strong> &nbsp;|&nbsp;
           500만↑ <strong>3.0%</strong> &nbsp;|&nbsp;
           1000만↑ <strong>4.0%</strong> &nbsp;|&nbsp;
           2500만↑ <strong>5.0%</strong> &nbsp;|&nbsp;
@@ -1131,8 +1173,15 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>손님 거래 금액 (만메소) *</label>
-              <input type="number" id="gsAmount" placeholder="예) 7000" min="0" oninput="calcGuestFee()">
+              <label>손님 거래 금액 (메소) *</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
+                <span style="font-size:11px;color:var(--text-sub);font-weight:600;white-space:nowrap;">수수료작</span>
+                <button type="button" class="quick-amt-btn" onclick="setGsAmount(999999)">99.9만<small>999,999</small></button>
+                <button type="button" class="quick-amt-btn" onclick="setGsAmount(4999999)">499.9만<small>4,999,999</small></button>
+                <button type="button" class="quick-amt-btn" onclick="setGsAmount(9999999)">999.9만<small>9,999,999</small></button>
+                <button type="button" class="quick-amt-btn" onclick="setGsAmount(24999999)">2499.9만<small>24,999,999</small></button>
+              </div>
+              <input type="number" id="gsAmount" placeholder="예) 9999999" min="0" oninput="calcGuestFee()">
             </div>
             <div class="form-group"><label>메모</label><input type="text" id="gsNote" placeholder="선택사항"></div>
           </div>
@@ -1202,7 +1251,14 @@
 
       <!-- 정산 히스토리 -->
       <div class="panel">
-        <div style="font-size:15px;font-weight:700;margin-bottom:16px;">손님정산 내역</div>
+        <div class="filter-bar" style="margin-bottom:12px;">
+          <input type="text" class="search-input" id="gsHistSearch" placeholder="🔍 거래내용 검색..." oninput="renderGuestSettlementHistory()">
+          <select class="filter-select" id="gsHistSort" onchange="renderGuestSettlementHistory()">
+            <option value="date-desc">최신순</option>
+            <option value="date-asc">오래된순</option>
+            <option value="item">내용순</option>
+          </select>
+        </div>
         <div class="table-wrap">
           <table><thead><tr>
             <th>날짜</th><th>거래내용</th><th>손님금액</th><th>수수료율</th><th>수수료</th><th>실수령</th><th>분배인원</th><th>1인당</th><th>메모</th><th>관리</th>
@@ -1526,7 +1582,7 @@ function updateLoginUI(){
 }
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();window._myCharData=null;mcRenderCard(null);return;}
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();subscribeSettlements();window._myCharData=null;mcRenderCard(null);return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -1590,7 +1646,7 @@ auth.onAuthStateChanged(async(user)=>{
     const el=document.getElementById('sidebarUserTotal');
     if(el){const uids=snap.exists?(snap.data().uids||[]):[];el.textContent=uids.length+'명';}
   });
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();subscribeSettlements();
 });
 
 // =============================================
@@ -1804,6 +1860,45 @@ function startBossTicker() {
 }
 
 // =============================================
+// 내 정산내역
+// =============================================
+async function loadMySettlement(){
+  const tbody=document.getElementById('myStTableBody');
+  if(!tbody)return;
+  const elG=document.getElementById('myStTotalGold');
+  const elC=document.getElementById('myStCount');
+  if(!currentUser){
+    if(elG)elG.textContent='-';if(elC)elC.textContent='-';
+    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">Discord 로그인 후 이용하세요</td></tr>`;return;
+  }
+  tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text-sub);">조회 중...</td></tr>`;
+  try{
+    const snap=await db.collection('mySettlements').where('memberUid','==',currentUser.uid).get();
+    let list=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const sortVal=document.getElementById('myStSort')?.value||'date-desc';
+    if(sortVal==='date-asc')list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    else if(sortVal==='boss')list.sort((a,b)=>(a.boss||'').localeCompare(b.boss||'','ko'));
+    else list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    const totalPer=list.reduce((s,r)=>s+(r.perGold||0),0);
+    if(elG)elG.textContent=totalPer.toLocaleString()+'만';
+    if(elC)elC.textContent=list.length+'회';
+    if(!list.length){
+      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다<br><small style="font-size:12px;">공대장이 정산 저장 시 자동으로 추가됩니다</small></td></tr>`;return;
+    }
+    tbody.innerHTML=list.map(s=>`<tr>
+      <td>${s.date||'-'}</td>
+      <td><strong>${s.boss||'-'}</strong></td>
+      <td>${(s.totalGold||0).toLocaleString()}만</td>
+      <td>${s.memberCount||s.count||0}명</td>
+      <td style="color:var(--accent);font-weight:700;">${(s.perGold||0).toLocaleString()}만</td>
+      <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
+    </tr>`).join('');
+  }catch(e){
+    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:#ef4444;">조회 오류: ${e.message}</td></tr>`;
+  }
+}
+
+// =============================================
 // Members
 // =============================================
 function subscribeMembers(){db.collection('members').orderBy('name').onSnapshot(s=>{allMembers=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberTable();renderGoldTable();renderStats();renderDashboard();});}
@@ -1825,6 +1920,14 @@ function renderStats(){
 }
 
 let memberViewMode = window.innerWidth > 1024 ? (localStorage.getItem('memberView') || 'table') : 'grid';
+let memberSortDir = 'asc';
+function setMemberSort(dir){
+  memberSortDir=dir;
+  const a=document.getElementById('memberSortAsc'),b=document.getElementById('memberSortDesc');
+  if(a)a.classList.toggle('active',dir==='asc');
+  if(b)b.classList.toggle('active',dir==='desc');
+  renderMemberTable();
+}
 function setMemberView(mode){
   if(window.innerWidth <= 1024) mode = 'grid';
   memberViewMode = mode;
@@ -1843,6 +1946,7 @@ function setMemberView(mode){
 function renderMemberTable(){
   const s=(document.getElementById('memberSearch')?.value||'').toLowerCase(),rF=document.getElementById('memberRoleFilter')?.value||'',sF=document.getElementById('memberStatusFilter')?.value||'';
   let f=allMembers.filter(m=>{if(s&&!m.name.toLowerCase().includes(s)&&!(m.cls||'').toLowerCase().includes(s))return false;if(rF&&m.role!==rF)return false;if(sF&&m.status!==sF)return false;return true;});
+  f.sort((a,b)=>{const n=(a.name||'').localeCompare(b.name||'','ko');return memberSortDir==='asc'?n:-n;});
   const ce=canManageMembers(),tb=document.getElementById('memberTableBody');
   if(tb){
     tb.innerHTML=f.map((m,i)=>{
@@ -2185,6 +2289,7 @@ function showPage(id,el){
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){loadLoginLogs();}
+  if(id==='mysettlement'){loadMySettlement();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -2598,34 +2703,60 @@ async function saveSettlement(){
   const clear=parseInt(document.getElementById('stClearGold').value)||0;
   const sale=parseInt(document.getElementById('stSaleGold').value)||0;
   const total=clear+sale;
-  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
+  const note=document.getElementById('stNote').value.trim();
+  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role,uid:m.ownerUid||null}));
   const count=participants.length;
   const per=count>0?Math.floor(total/count):0;
   if(!count){alert('참여 공대원을 1명 이상 선택하세요.');return;}
-  await db.collection('settlements').add({
-    date,boss,diff:document.getElementById('stDiff').value,
-    clearGold:clear,saleGold:sale,totalGold:total,
-    participants,count,perGold:per,
-    note:document.getElementById('stNote').value.trim(),
+  const ref=await db.collection('settlements').add({
+    date,boss,clearGold:clear,saleGold:sale,totalGold:total,
+    participants,count,perGold:per,note,
     ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
+  // 참여자별 개인 정산내역 자동 생성
+  const batch=db.batch();
+  participants.forEach(p=>{
+    if(!p.uid)return; // uid 없으면 스킵
+    const pRef=db.collection('mySettlements').doc();
+    batch.set(pRef,{
+      memberUid:p.uid,memberId:p.id,memberName:p.name,
+      date,boss,clearGold:clear,saleGold:sale,totalGold:total,
+      memberCount:count,perGold:per,note,
+      settlementId:ref.id,
+      createdBy:currentProfile?.name||'',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  });
+  await batch.commit();
   closeSettlementForm();
   renderSettlementHistory();
 }
 
-async function renderSettlementHistory(){
+let allSettlements=[];
+function subscribeSettlements(){
+  db.collection('settlements').orderBy('date','desc').onSnapshot(s=>{
+    allSettlements=s.docs.map(d=>({id:d.id,...d.data()}));
+    renderSettlementHistory();
+  });
+}
+
+function renderSettlementHistory(){
   const tbody=document.getElementById('settlementTableBody');
   if(!tbody)return;
-  const snap=await db.collection('settlements').orderBy('date','desc').get();
-  if(snap.empty){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;return;}
-  tbody.innerHTML=snap.docs.map(d=>{
-    const s={id:d.id,...d.data()};
+  const q=(document.getElementById('stHistSearch')?.value||'').toLowerCase();
+  const sort=document.getElementById('stHistSort')?.value||'date-desc';
+  let list=[...allSettlements];
+  if(q)list=list.filter(s=>(s.boss||'').toLowerCase().includes(q));
+  if(sort==='date-asc')list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  else if(sort==='boss')list.sort((a,b)=>(a.boss||'').localeCompare(b.boss||'','ko'));
+  else list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;return;}
+  tbody.innerHTML=list.map(s=>{
     const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
     return `<tr>
       <td>${s.date||''}</td>
       <td><strong>${s.boss||''}</strong></td>
-      <td>${s.diff||''}</td>
       <td>${(s.clearGold||0).toLocaleString()}만</td>
       <td>${(s.saleGold||0).toLocaleString()}만</td>
       <td><strong>${(s.totalGold||0).toLocaleString()}만</strong></td>
@@ -2640,7 +2771,6 @@ async function renderSettlementHistory(){
 async function deleteSettlement(id){
   if(!confirm('정산 내역을 삭제하시겠습니까?'))return;
   await db.collection('settlements').doc(id).delete();
-  renderSettlementHistory();
 }
 
 // =============================================
@@ -2655,30 +2785,34 @@ function subscribeGuestSettlements(){
   });
 }
 
-function calcGuestFeeRate(amount){
-  // amount: 만메소 단위
-  if(amount>=10000)return 6.0;   // 1억 이상
-  if(amount>=2500) return 5.0;   // 2500만 이상
-  if(amount>=1000) return 4.0;   // 1000만 이상
-  if(amount>=500)  return 3.0;   // 500만 이상
-  if(amount>=100)  return 1.8;   // 100만 이상
-  if(amount>=10)   return 0.8;   // 10만 이상
+function calcGuestFeeRate(amtMeso){
+  // amtMeso: 실제 메소 단위
+  if(amtMeso>=100000000) return 6.0;  // 1억 이상
+  if(amtMeso>=25000000)  return 5.0;  // 2500만 이상
+  if(amtMeso>=10000000)  return 4.0;  // 1000만 이상
+  if(amtMeso>=5000000)   return 3.0;  // 500만 이상
+  if(amtMeso>=1000000)   return 1.9;  // 100만 이상
+  if(amtMeso>=100000)    return 0.8;  // 10만 이상
   return 0;
 }
 
+function setGsAmount(meeso){
+  const el=document.getElementById('gsAmount');
+  if(el){el.value=meeso;calcGuestFee();}
+}
+
 function calcGuestFee(){
-  const amt=parseFloat(document.getElementById('gsAmount')?.value)||0;
-  const rate=calcGuestFeeRate(amt);
-  const fee=Math.floor(amt*rate/100*10)/10; // 소수점 1자리
+  const amtMeso=parseFloat(document.getElementById('gsAmount')?.value)||0;
+  const amt=amtMeso/10000; // 만메소 환산 (계산/저장용)
+  const rate=calcGuestFeeRate(amtMeso);
+  const fee=Math.floor(amt*rate/100*10)/10;
   const net=Math.round((amt-fee)*10)/10;
-  // 4칸 결과
-  const fmt=v=>v%1===0?v.toLocaleString()+'만':(v.toLocaleString()+'만');
+  const fmtM=v=>{const r=Math.round(v*10)/10;return r.toLocaleString()+'만';};
   const el=id=>document.getElementById(id);
-  if(el('gsAmountResult'))el('gsAmountResult').textContent=amt.toLocaleString()+'만';
+  if(el('gsAmountResult'))el('gsAmountResult').textContent=amtMeso.toLocaleString()+'메소 ('+amt.toFixed(1)+'만)';
   if(el('gsFeeRate'))el('gsFeeRate').textContent=rate+'%';
-  if(el('gsFeeAmount'))el('gsFeeAmount').textContent=fee.toLocaleString()+'만';
-  if(el('gsNetAmount'))el('gsNetAmount').textContent=net.toLocaleString()+'만';
-  // 분배 재계산
+  if(el('gsFeeAmount'))el('gsFeeAmount').textContent=fmtM(fee);
+  if(el('gsNetAmount'))el('gsNetAmount').textContent=fmtM(net);
   calcGuestDist(net);
 }
 
@@ -2733,7 +2867,7 @@ function openGuestForm(){
   const today=new Date().toISOString().split('T')[0];
   document.getElementById('gsDate').value=today;
   document.getElementById('gsItem').value='';
-  document.getElementById('gsAmount').value='';
+  document.getElementById('gsAmount').value='999999';
   document.getElementById('gsNote').value='';
   renderGsMemberList();
   calcGuestFee();
@@ -2747,9 +2881,10 @@ function closeGuestForm(){
 async function saveGuestSettlement(){
   const date=document.getElementById('gsDate').value;
   const item=document.getElementById('gsItem').value.trim();
-  const amt=parseFloat(document.getElementById('gsAmount').value)||0;
-  if(!date||!item||!amt){alert('날짜, 거래내용, 금액을 모두 입력하세요.');return;}
-  const rate=calcGuestFeeRate(amt);
+  const amtMeso=parseFloat(document.getElementById('gsAmount').value)||0;
+  const amt=amtMeso/10000; // 만메소 환산
+  if(!date||!item||!amtMeso){alert('날짜, 거래내용, 금액을 모두 입력하세요.');return;}
+  const rate=calcGuestFeeRate(amtMeso);
   const fee=Math.floor(amt*rate/100*10)/10;
   const net=Math.round((amt-fee)*10)/10;
   const participants=allMembers.filter(m=>{const cb=document.getElementById('gsm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
@@ -2757,7 +2892,7 @@ async function saveGuestSettlement(){
   const per=count>0?Math.floor(net/count*10)/10:0;
   if(!count){alert('분배 공대원을 1명 이상 선택하세요.');return;}
   await db.collection('guestSettlements').add({
-    date,item,amount:amt,feeRate:rate,feeAmount:fee,netAmount:net,
+    date,item,amountMeso:amtMeso,amount:Math.round(amt*10)/10,feeRate:rate,feeAmount:fee,netAmount:net,
     participants,count,perGold:per,
     note:document.getElementById('gsNote').value.trim(),
     ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
@@ -2770,16 +2905,24 @@ async function saveGuestSettlement(){
 async function renderGuestSettlementHistory(){
   const tbody=document.getElementById('guestSettlementTableBody');
   if(!tbody)return;
-  if(!allGuestSettlements.length){
+  const q=(document.getElementById('gsHistSearch')?.value||'').toLowerCase();
+  const sort=document.getElementById('gsHistSort')?.value||'date-desc';
+  let list=[...allGuestSettlements];
+  if(q)list=list.filter(s=>(s.item||'').toLowerCase().includes(q));
+  if(sort==='date-asc')list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  else if(sort==='item')list.sort((a,b)=>(a.item||'').localeCompare(b.item||'','ko'));
+  else list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!list.length){
     tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;
     return;
   }
-  tbody.innerHTML=allGuestSettlements.map(s=>{
+  tbody.innerHTML=list.map(s=>{
     const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
+    const amtDisplay=s.amountMeso?`${s.amountMeso.toLocaleString()}메소`:`${(s.amount||0).toLocaleString()}만`;
     return `<tr>
       <td>${s.date||''}</td>
       <td><strong>${s.item||''}</strong></td>
-      <td>${(s.amount||0).toLocaleString()}만</td>
+      <td>${amtDisplay}</td>
       <td><span class="badge badge-yellow">${s.feeRate||0}%</span></td>
       <td style="color:#dc2626;">${(s.feeAmount||0).toLocaleString()}만</td>
       <td style="color:var(--accent);font-weight:700;">${(s.netAmount||0).toLocaleString()}만</td>

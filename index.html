@@ -188,19 +188,31 @@
   .badge-purple { background: #faf5ff; color: #7c3aed; }
   .badge-gray { background: #f3f4f6; color: #6b7280; }
 
+  /* ===== 보스 쿨타임 ===== */
+  .boss-avail { font-size:12px;color:#059669;font-weight:700;margin-top:2px; }
+  .boss-remain { font-size:12px;color:#ef4444;font-weight:700;margin-top:1px; }
+  .boss-sub { font-size:11px;color:var(--text-sub);margin-top:1px; }
+  .boss-time-btn { font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text-sub);cursor:pointer;font-weight:600;white-space:nowrap;font-family:inherit;transition:.15s; }
+  .boss-time-btn:hover { border-color:var(--accent);color:var(--accent); }
+  .boss-item { display:flex;flex-direction:column;align-items:stretch;padding:0;overflow:hidden;background:#fff; }
+  .boss-item-inner { display:flex;align-items:center;gap:10px;padding:10px 12px; }
+
   /* ===== Member Grid View ===== */
-  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-  .member-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: box-shadow .15s, transform .15s; cursor: default; position: relative; }
-  .member-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
-  .member-card .mc-status-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; }
-  .member-card .mc-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .member-card .mc-name { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .member-card .mc-cls { font-size: 11px; color: var(--text-sub); }
-  .member-card .mc-level { font-size: 11px; color: var(--text-sub); }
-  .member-card .mc-gold { font-size: 12px; font-weight: 600; color: #d97706; }
-  .member-card .mc-rate-bar { width: 100%; height: 4px; background: #f3f4f6; border-radius: 2px; overflow: hidden; }
-  .member-card .mc-rate-fill { height: 100%; border-radius: 2px; }
-  .member-card .mc-actions { display: flex; gap: 4px; margin-top: 4px; }
+  .member-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px; }
+  .member-card { background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;transition:box-shadow .15s,transform .15s;cursor:default;position:relative; }
+  .member-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px); }
+  .member-card .mc-status-dot { position:absolute;top:12px;right:12px;width:9px;height:9px;border-radius:50%; }
+  .member-card .mc-icon { width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px; }
+  .member-card .mc-name { font-size:14px;font-weight:700;color:var(--text);text-align:center;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .member-card .mc-cls-row { display:flex;align-items:center;gap:6px; }
+  .member-card .mc-cls { font-size:12px;color:var(--text-sub); }
+  .member-card .mc-level { font-size:12px;color:var(--text-sub); }
+  .member-card .mc-gold { font-size:13px;font-weight:600;color:#d97706; }
+  .member-card .mc-rate-wrap { width:100%; }
+  .member-card .mc-rate-bar { width:100%;height:5px;background:#f3f4f6;border-radius:3px;overflow:hidden; }
+  .member-card .mc-rate-fill { height:100%;border-radius:3px; }
+  .member-card .mc-actions { display:flex;gap:6px;margin-top:2px;width:100%; }
+  .member-card .mc-actions .btn { flex:1;padding:8px 4px;font-size:12px;justify-content:center; }
   .view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .view-toggle button { padding: 7px 12px; background: #fff; border: none; cursor: pointer; font-size: 14px; color: var(--text-sub); transition: .15s; }
   .view-toggle button.active { background: var(--accent); color: #fff; }
@@ -414,9 +426,12 @@
     .ht-card-time { font-size: 48px; }
     .ht-section-header { font-size: 14px; padding: 12px 16px; }
 
-    /* 멤버 그리드 모바일 2열 */
+    /* 멤버 그리드 모바일: 카드 강제 2열 */
+    #memberTableWrap { display: none !important; }
+    #memberGridWrap { display: block !important; }
+    .view-toggle { display: none !important; }
     .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .member-card { padding: 12px 8px; }
+    .member-card { padding: 12px 10px; }
 
     /* 아이템 페이지 탭 스크롤 */
     #page-items .filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
@@ -427,10 +442,20 @@
   }
 
   @media (max-width: 480px) {
-    .member-grid { grid-template-columns: repeat(2, 1fr); }
+    .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .member-card { padding: 10px 8px; gap: 5px; }
+    .member-card .mc-icon { width: 42px; height: 42px; font-size: 20px; }
     .ht-card-time { font-size: 42px; }
     .ht-card-actions { flex-wrap: wrap; }
     .ht-start-btn, .ht-stop-btn, .ht-reset-btn { padding: 10px 0; font-size: 14px; }
+  }
+
+  /* 태블릿: 카드 강제 (1025px~) */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    #memberTableWrap { display: none !important; }
+    #memberGridWrap { display: block !important; }
+    .view-toggle { display: none !important; }
+    .member-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
   }
 
 </style>
@@ -1572,11 +1597,10 @@ auth.onAuthStateChanged(async(user)=>{
 // Dashboard
 // =============================================
 const BOSS_SCHEDULE = [
-  { name:'자쿰',       icon:'⚔️', color:'#fee2e2', days:[0,1,2,3,4,5,6], reset:'매일',   resetBadge:'badge-red' },
-  { name:'혼테일',     icon:'🐉', color:'#faf5ff', days:[0,1,2,3,4,5,6], reset:'주간',   resetBadge:'badge-purple' },
-  { name:'파피루스',   icon:'📜', color:'#fffbeb', days:[0,1,2,3,4,5,6], reset:'주간',   resetBadge:'badge-yellow' },
-  { name:'피아누스',   icon:'🐟', color:'#eff6ff', days:[0,1,2,3,4,5,6], reset:'매일',   resetBadge:'badge-blue' },
-  { name:'사이클롭스', icon:'👁️', color:'#ecfdf5', days:[0,1,2,3,4,5,6], reset:'매일',   resetBadge:'badge-green' },
+  { name:'자쿰',      icon:'⚔️', color:'#fee2e2', cooldownHours:24,   cooldownLabel:'24시간', resetBadge:'badge-red',    inputLabel:'클리어 시간' },
+  { name:'혼테일',    icon:'🐉', color:'#faf5ff', cooldownHours:24,   cooldownLabel:'24시간', resetBadge:'badge-purple', inputLabel:'클리어 시간' },
+  { name:'파풀라투스',icon:'📜', color:'#fffbeb', cooldownHours:24,   cooldownLabel:'24시간', resetBadge:'badge-yellow', inputLabel:'클리어 시간' },
+  { name:'피아누스',  icon:'🐟', color:'#eff6ff', cooldownHours:168,  cooldownLabel:'7일',    resetBadge:'badge-blue',   inputLabel:'비늘 획득 시간' },
 ];
 
 function renderDashboard() {
@@ -1650,30 +1674,18 @@ function renderDashboard() {
   }
 
   // 보스 일정
-  const today = now.getDay();
-  const blEl = s('dashBossList');
-  if(blEl) {
-    blEl.innerHTML = BOSS_SCHEDULE.map(b => {
-      const avail = b.days.includes(today);
-      return `<div class="boss-item${avail?' today':''}">
-        <div class="boss-icon" style="background:${b.color};">${b.icon}</div>
-        <div class="boss-info">
-          <div class="bname">${b.name}</div>
-          <div class="bsub">${avail ? '오늘 입장 가능' : '입장 불가'}</div>
-        </div>
-        <span class="badge ${b.resetBadge} boss-reset">${b.reset}</span>
-      </div>`;
-    }).join('');
-  }
+  renderBossList();
+  startBossTicker();
 
   // 주간 리셋 정보
+  const today = now.getDay();
   const wrEl = s('dashWeeklyReset');
   const days = ['일','월','화','수','목','금','토'];
   const resetDay = days[today];
   if(wrEl) wrEl.innerHTML = `
     <span style="color:var(--accent);font-weight:700;">오늘(${resetDay}요일)</span> 기준 •
-    혼테일/파피루스 <b>목요일</b> 리셋 •
-    자쿰/피아누스/사이클롭스 <b>매일 자정</b> 리셋
+    자쿰 · 혼테일 · 파풀라투스 <b>24시간</b> 쿨타임 •
+    피아누스 <b>7일</b> 쿨타임 (비늘 기준)
   `;
 
   // 최근 판매내역 (5개)
@@ -1691,6 +1703,104 @@ function renderDashboard() {
         </div>`).join('');
     }
   }
+}
+
+// =============================================
+// Boss Cooldown
+// =============================================
+function getBossStatus(boss) {
+  const stored = localStorage.getItem('boss_clear_' + boss.name);
+  if (!stored) return { canEnter:true, clearTime:null, nextTime:null, remainMs:0 };
+  const clearTime = new Date(stored);
+  const nextTime = new Date(clearTime.getTime() + boss.cooldownHours * 3600000);
+  const remainMs = Math.max(0, nextTime - Date.now());
+  return { canEnter: remainMs <= 0, clearTime, nextTime, remainMs };
+}
+
+function renderBossList() {
+  const el = document.getElementById('dashBossList');
+  if (!el) return;
+  const fmt = t => `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+  el.innerHTML = BOSS_SCHEDULE.map(b => {
+    const st = getBossStatus(b);
+    const safeId = b.name.replace(/[()]/g,'');
+    let statusHtml, btnLabel;
+    if (!st.clearTime) {
+      statusHtml = `<div class="boss-avail">입장 가능</div>`;
+      btnLabel = '시간 입력';
+    } else if (st.canEnter) {
+      statusHtml = `<div class="boss-avail">✅ 입장 가능</div>
+        <div class="boss-sub">클리어: ${fmt(st.clearTime)}</div>`;
+      btnLabel = '수정';
+    } else {
+      const h = Math.floor(st.remainMs / 3600000);
+      const m = Math.floor((st.remainMs % 3600000) / 60000);
+      statusHtml = `<div class="boss-sub">클리어: ${fmt(st.clearTime)} → 다음 입장: ${fmt(st.nextTime)}</div>
+        <div class="boss-remain">⏱ ${h}시간 ${m}분 남음</div>`;
+      btnLabel = '수정';
+    }
+    return `<div class="boss-item" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+      <div class="boss-item-inner">
+        <div class="boss-icon" style="background:${b.color};">${b.icon}</div>
+        <div class="boss-info" style="flex:1;">
+          <div class="bname">${b.name}</div>
+          ${statusHtml}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <span class="badge ${b.resetBadge} boss-reset">${b.cooldownLabel}</span>
+          <button class="boss-time-btn" onclick="openBossInput('${safeId}')">${btnLabel}</button>
+        </div>
+      </div>
+      <div id="boss-input-${safeId}" style="display:none;padding:8px 12px 10px;background:#f9fafb;border-top:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <label style="font-size:12px;color:var(--text-sub);">${b.inputLabel}</label>
+          <input type="time" id="boss-time-val-${safeId}" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;">
+          <button class="btn btn-primary btn-sm" style="padding:6px 14px;" onclick="saveBossTime('${b.name}','${safeId}')">저장</button>
+          <button class="btn btn-outline btn-sm" style="padding:6px 14px;" onclick="closeBossInput('${safeId}')">취소</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openBossInput(safeId) {
+  BOSS_SCHEDULE.forEach(b => {
+    const id = b.name.replace(/[()]/g,'');
+    const el = document.getElementById('boss-input-' + id);
+    if (el) el.style.display = 'none';
+  });
+  const row = document.getElementById('boss-input-' + safeId);
+  if (!row) return;
+  const now = new Date();
+  const inp = document.getElementById('boss-time-val-' + safeId);
+  if (inp) inp.value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  row.style.display = '';
+}
+
+function closeBossInput(safeId) {
+  const el = document.getElementById('boss-input-' + safeId);
+  if (el) el.style.display = 'none';
+}
+
+function saveBossTime(bossName, safeId) {
+  const input = document.getElementById('boss-time-val-' + safeId);
+  if (!input || !input.value) return;
+  const [h, m] = input.value.split(':').map(Number);
+  const now = new Date();
+  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
+  // 현재보다 1시간 이상 미래면 어제로 간주
+  if (t > now && (t - now) > 3600000) t.setDate(t.getDate() - 1);
+  localStorage.setItem('boss_clear_' + bossName, t.toISOString());
+  closeBossInput(safeId);
+  renderBossList();
+}
+
+let _bossTickerId = null;
+function startBossTicker() {
+  if (_bossTickerId) return;
+  _bossTickerId = setInterval(() => {
+    if (document.getElementById('page-dashboard')?.classList.contains('active')) renderBossList();
+  }, 60000);
 }
 
 // =============================================
@@ -1714,13 +1824,19 @@ function renderStats(){
   if(ss)ss.innerHTML=[{l:'참여',c:a,co:'#059669'},{l:'미정',c:allMembers.filter(m=>m.status==='미정').length,co:'#d97706'},{l:'불참',c:allMembers.filter(m=>m.status==='불참').length,co:'#dc2626'}].map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:10px;height:10px;border-radius:50%;background:${s.co};"></span><span style="flex:1;font-size:14px;">${s.l}</span><strong style="font-size:14px;">${s.c}명</strong></div>`).join('');
 }
 
-let memberViewMode='table';
+let memberViewMode = window.innerWidth > 1024 ? (localStorage.getItem('memberView') || 'table') : 'grid';
 function setMemberView(mode){
-  memberViewMode=mode;
-  document.getElementById('btnViewTable').classList.toggle('active',mode==='table');
-  document.getElementById('btnViewGrid').classList.toggle('active',mode==='grid');
-  document.getElementById('memberTableWrap').style.display=mode==='table'?'':'none';
-  document.getElementById('memberGridWrap').style.display=mode==='grid'?'':'none';
+  if(window.innerWidth <= 1024) mode = 'grid';
+  memberViewMode = mode;
+  localStorage.setItem('memberView', mode);
+  const tw = document.getElementById('memberTableWrap');
+  const gw = document.getElementById('memberGridWrap');
+  const bt = document.getElementById('btnViewTable');
+  const bg = document.getElementById('btnViewGrid');
+  if(tw) tw.style.display = mode==='table' ? '' : 'none';
+  if(gw) gw.style.display = mode==='grid'  ? '' : 'none';
+  if(bt) bt.classList.toggle('active', mode==='table');
+  if(bg) bg.classList.toggle('active', mode==='grid');
   renderMemberTable();
 }
 
@@ -1758,20 +1874,30 @@ function renderMemberTable(){
         const rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
         const dotColor=m.status==='참여'?'#059669':m.status==='미정'?'#d97706':'#ef4444';
         const roleColor=m.role==='서폿'?'#eff6ff':'#ecfdf5';
+        const roleBadge=m.role==='서폿'?'badge-blue':'badge-green';
+        const statusBadge=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
         const icon=JOB_ICON[m.cls]||'👤';
         const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
-        return `<div class="member-card">
+        return `<div class="member-card" onclick="if(event.target.tagName!=='BUTTON'&&(${canE})&&false)editMember('${m.id}')">
           <div class="mc-status-dot" style="background:${dotColor};" title="${m.status||''}"></div>
           <div class="mc-icon" style="background:${roleColor};">${icon}</div>
           <div class="mc-name" title="${m.name||''}">${m.name||''}</div>
-          <div class="mc-cls">${m.cls||'-'}</div>
+          <div class="mc-cls-row">
+            <span class="mc-cls">${m.cls||'-'}</span>
+            <span class="badge ${roleBadge}" style="font-size:10px;padding:1px 6px;">${m.role||''}</span>
+          </div>
           <div class="mc-level">Lv.${(m.level||0).toLocaleString()}</div>
           <div class="mc-gold">💰 ${m.gold||0}만</div>
-          <div class="mc-rate-bar" style="width:90%;"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
-          <div style="font-size:10px;color:${rc};">${rt}%</div>
+          <div class="mc-rate-wrap">
+            <div class="mc-rate-bar"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-top:2px;">
+              <span class="badge ${statusBadge}" style="font-size:10px;padding:1px 6px;">${m.status||''}</span>
+              <span style="font-size:10px;color:${rc};font-weight:700;">${rt}%</span>
+            </div>
+          </div>
           ${canE||ce?`<div class="mc-actions">
-            ${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')" style="padding:3px 8px;font-size:11px;">수정</button>`:''}
-            ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')" style="padding:3px 8px;font-size:11px;">삭제</button>`:''}
+            ${canE?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editMember('${m.id}')">수정</button>`:''}
+            ${ce?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteMember('${m.id}','${m.name}')">삭제</button>`:''}
           </div>`:''}
         </div>`;
       }).join('');

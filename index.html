@@ -651,10 +651,6 @@
         <div class="panel" style="margin-bottom:0;">
           <div class="dash-section-title"><span class="material-icons">event</span> 오늘의 보스</div>
           <div class="boss-list" id="dashBossList"></div>
-          <div style="margin-top:14px;">
-            <div class="dash-section-title"><span class="material-icons">repeat</span> 주간 리셋</div>
-            <div style="font-size:12px;color:var(--text-sub);line-height:1.8;" id="dashWeeklyReset"></div>
-          </div>
         </div>
 
       </div>
@@ -1806,16 +1802,6 @@ function renderDashboard() {
   // 보스 일정
   renderBossList();
 
-  // 주간 리셋 정보
-  const today = now.getDay();
-  const wrEl = s('dashWeeklyReset');
-  const days = ['일','월','화','수','목','금','토'];
-  const resetDay = days[today];
-  if(wrEl) wrEl.innerHTML = `
-    <span style="color:var(--accent);font-weight:700;">오늘(${resetDay}요일)</span> 기준 •
-    혼테일/파피루스 <b>목요일</b> 리셋 •
-    자쿰/피아누스/사이클롭스 <b>매일 자정</b> 리셋
-  `;
 
   // 최근 판매내역 (5개)
   const rpEl = s('dashRecentPurchases');

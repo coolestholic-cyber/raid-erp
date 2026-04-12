@@ -149,25 +149,29 @@
   .boss-reset { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
   .boss-item { align-items: flex-start; }
   .boss-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-  .boss-item-actions { display: flex; align-items: center; gap: 3px; }
-  /* 아이콘 액션 버튼 */
-  .boss-action-btn { background: none; border: 1px solid transparent; cursor: pointer; color: #94a3b8; padding: 5px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; min-width: 32px; min-height: 32px; -webkit-tap-highlight-color: transparent; }
-  .boss-action-btn .material-icons { font-size: 17px; line-height: 1; }
-  .boss-action-btn:hover { background: #f1f5f9; border-color: #e2e8f0; color: #475569; }
-  .boss-action-btn.btn-edit:hover { color: var(--accent); border-color: #bfdbfe; background: #eff6ff; }
-  .boss-action-btn.btn-reset:hover { color: #ef4444; border-color: #fecaca; background: #fee2e2; }
+  .boss-item-actions { display: flex; align-items: center; gap: 4px; }
+  /* 아이콘 액션 버튼 - 모바일 터치 영역 확보 */
+  .boss-action-btn { background: none; border: 1px solid transparent; cursor: pointer; color: #94a3b8; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; min-width: 36px; min-height: 36px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .boss-action-btn .material-icons { font-size: 18px; line-height: 1; }
+  .boss-action-btn:hover, .boss-action-btn:active { background: #f1f5f9; border-color: #e2e8f0; color: #475569; }
+  .boss-action-btn.btn-edit:hover, .boss-action-btn.btn-edit:active { color: var(--accent); border-color: #bfdbfe; background: #eff6ff; }
+  .boss-action-btn.btn-reset:hover, .boss-action-btn.btn-reset:active { color: #ef4444; border-color: #fecaca; background: #fee2e2; }
   .boss-action-btn.active { background: #eff6ff; border-color: #bfdbfe; color: var(--accent); }
   /* 상태 텍스트 */
   .boss-available { color: #059669; display: flex; align-items: center; gap: 3px; }
   .boss-remaining { color: #ef4444; display: flex; align-items: center; gap: 2px; }
-  /* 인라인 편집기 */
-  .boss-edit-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-  .boss-edit-label { font-size: 11px; color: var(--text-sub); font-weight: 600; white-space: nowrap; }
-  .boss-edit-input { font-size: 12px; border: 1px solid #d1d5db; border-radius: 7px; padding: 5px 8px; background: #fff; color: var(--text); flex: 1; min-width: 0; }
-  .boss-edit-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59,130,246,.12); }
-  .boss-edit-save { font-size: 12px; padding: 5px 13px; border-radius: 7px; border: none; background: var(--accent); color: #fff; cursor: pointer; font-weight: 700; white-space: nowrap; }
-  .boss-edit-save:hover { background: #1d4ed8; }
-  .boss-edit-cancel { font-size: 12px; padding: 5px 10px; border-radius: 7px; border: 1px solid #d1d5db; background: #fff; color: #64748b; cursor: pointer; white-space: nowrap; }
+  /* 인라인 편집기 - 모바일 최적화 */
+  .boss-edit-panel { margin-top: 10px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; }
+  .boss-edit-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 10px; letter-spacing: .3px; }
+  .boss-edit-fields { display: flex; gap: 8px; margin-bottom: 10px; }
+  .boss-edit-field { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .boss-edit-field-label { font-size: 11px; font-weight: 600; color: var(--text-sub); }
+  .boss-edit-field-input { width: 100%; font-size: 15px; border: 1.5px solid #d1d5db; border-radius: 8px; padding: 9px 10px; background: #fff; color: var(--text); box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+  .boss-edit-field-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+  .boss-edit-btns { display: flex; gap: 8px; }
+  .boss-edit-save { flex: 1; font-size: 14px; font-weight: 700; padding: 11px; border-radius: 9px; border: none; background: var(--accent); color: #fff; cursor: pointer; touch-action: manipulation; }
+  .boss-edit-save:active { background: #1d4ed8; }
+  .boss-edit-cancel { flex: 1; font-size: 14px; padding: 11px; border-radius: 9px; border: 1.5px solid #d1d5db; background: #fff; color: #64748b; cursor: pointer; touch-action: manipulation; }
 
   /* 공대 현황 */
   .my-raid-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
@@ -1666,10 +1670,11 @@ function bossToggleEdit(name) {
 
 // 인라인 저장
 async function bossSaveTime(name) {
-  const inp = document.getElementById('bossEditInput_' + name);
-  if (!inp || !inp.value) return;
-  const dt = new Date(inp.value);
-  if (isNaN(dt.getTime())) { alert('올바른 날짜/시간을 선택하세요.'); return; }
+  const dateInp = document.getElementById('bossEditDate_' + name);
+  const timeInp = document.getElementById('bossEditTime_' + name);
+  if (!dateInp?.value || !timeInp?.value) { alert('날짜와 시간을 모두 입력하세요.'); return; }
+  const dt = new Date(dateInp.value + 'T' + timeInp.value);
+  if (isNaN(dt.getTime())) { alert('올바른 날짜/시간을 입력하세요.'); return; }
   await saveBossTimer(name, dt.getTime());
   _bossEditing = null;
   renderBossList();
@@ -1721,14 +1726,29 @@ function renderBossList() {
         </div>`;
     }
 
-    // 인라인 편집기 HTML
-    const defaultDt = hasClear ? toDatetimeLocal(clearMs) : toDatetimeLocal(Date.now());
+    // 인라인 편집기 HTML (날짜/시간 분리 — 모바일 최적화)
+    const refTs = hasClear ? clearMs : Date.now();
+    const refDate = new Date(refTs);
+    const pad = n => String(n).padStart(2,'0');
+    const defaultDate = `${refDate.getFullYear()}-${pad(refDate.getMonth()+1)}-${pad(refDate.getDate())}`;
+    const defaultTime = `${pad(refDate.getHours())}:${pad(refDate.getMinutes())}`;
     const editHtml = isEditing ? `
-      <div class="boss-edit-row">
-        <label class="boss-edit-label">클리어 시간</label>
-        <input type="datetime-local" id="bossEditInput_${b.name}" class="boss-edit-input" value="${defaultDt}">
-        <button class="boss-edit-save" onclick="bossSaveTime('${b.name}')">저장</button>
-        <button class="boss-edit-cancel" onclick="bossToggleEdit('${b.name}')">취소</button>
+      <div class="boss-edit-panel">
+        <div class="boss-edit-title">입장 시각 선택</div>
+        <div class="boss-edit-fields">
+          <div class="boss-edit-field">
+            <label class="boss-edit-field-label">날짜</label>
+            <input type="date" id="bossEditDate_${b.name}" class="boss-edit-field-input" value="${defaultDate}">
+          </div>
+          <div class="boss-edit-field">
+            <label class="boss-edit-field-label">시간</label>
+            <input type="time" id="bossEditTime_${b.name}" class="boss-edit-field-input" value="${defaultTime}">
+          </div>
+        </div>
+        <div class="boss-edit-btns">
+          <button class="boss-edit-save" onclick="bossSaveTime('${b.name}')">저장</button>
+          <button class="boss-edit-cancel" onclick="bossToggleEdit('${b.name}')">취소</button>
+        </div>
       </div>` : '';
 
     // 아이콘 액션 버튼

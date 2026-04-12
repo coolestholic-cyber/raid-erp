@@ -1677,7 +1677,7 @@ function renderBossList() {
       const remStr = fmtRemaining(remaining);
       if (remaining > 0) {
         infoHtml = `
-          <div class="bsub" style="margin-top:2px;color:var(--text-sub);">클리야: ${fmtHHMM(clearMs)} → 다음 입장: ${fmtHHMM(nextMs)}</div>
+          <div class="bsub" style="margin-top:2px;color:var(--text-sub);">입장: ${fmtHHMM(clearMs)} → 다음 입장: ${fmtHHMM(nextMs)}</div>
           <div class="bsub boss-remaining" style="margin-top:2px;font-size:11px;">
             <span class="material-icons" style="font-size:11px;">schedule</span>${remStr}
           </div>`;
@@ -1686,7 +1686,7 @@ function renderBossList() {
           <div class="bsub boss-available" style="margin-top:2px;font-size:11px;">
             <span class="material-icons" style="font-size:11px;">check_circle</span>입장 가능
           </div>
-          <div class="bsub" style="margin-top:1px;font-size:10px;color:#94a3b8;">클리야: ${fmtHHMM(clearMs)}</div>`;
+          <div class="bsub" style="margin-top:1px;font-size:10px;color:#94a3b8;">입장: ${fmtHHMM(clearMs)}</div>`;
       }
     } else {
       infoHtml = `

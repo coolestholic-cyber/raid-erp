@@ -61,6 +61,7 @@
   .nav-item.search-hidden, .nav-accordion.search-hidden, .nav-section.search-hidden, .acc-body.search-hidden { display: none !important; }
   .nav-item.search-match { background: #2a3a5a !important; }
   body.sidebar-collapsed .sidebar-search-wrap { display: none; }
+  body.sidebar-collapsed #sidebarSearchBtnRow { display: none; }
 
   /* 접힌 상태 */
   body.sidebar-collapsed { --sidebar-w: 64px; }
@@ -479,21 +480,23 @@
 <aside class="sidebar">
   <!-- 접기 버튼 (최상단 독립 영역) -->
   <div class="sidebar-top-bar">
-    <span class="sidebar-top-label">탐색기</span>
+    <div style="flex:1"></div>
     <div style="display:flex;gap:4px;align-items:center;">
       <!-- 모바일 전용 닫기 버튼 -->
       <button class="drawer-close-btn" onclick="toggleSidebar()" title="닫기">
         <span class="material-icons">close</span>
-      </button>
-      <!-- 검색 토글 버튼 -->
-      <button class="sidebar-collapse-btn" onclick="toggleSidebarSearch()" id="sidebarSearchToggleBtn" title="메뉴 검색">
-        <span class="material-icons">search</span>
       </button>
       <!-- 데스크탑 전용 접기 버튼 -->
       <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn" title="메뉴 접기">
         <span class="material-icons">chevron_left</span>
       </button>
     </div>
+  </div>
+  <!-- 돋보기 버튼 (접기 버튼 한 칸 아래) -->
+  <div style="display:flex;justify-content:flex-end;padding:2px 8px 4px;" id="sidebarSearchBtnRow">
+    <button class="sidebar-collapse-btn" onclick="toggleSidebarSearch()" id="sidebarSearchToggleBtn" title="메뉴 검색">
+      <span class="material-icons">search</span>
+    </button>
   </div>
 
   <div class="sidebar-logo">

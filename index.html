@@ -1810,7 +1810,7 @@ function renderBossList() {
       <div id="boss-input-${safeId}" style="display:none;padding:8px 12px 10px;background:#f9fafb;border-top:1px solid var(--border);">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <label style="font-size:12px;color:var(--text-sub);">${b.inputLabel}</label>
-          <input type="time" id="boss-time-val-${safeId}" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;">
+          <input type="datetime-local" id="boss-time-val-${safeId}" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;">
           <button class="btn btn-primary btn-sm" style="padding:6px 14px;" onclick="saveBossTime('${b.name}','${safeId}')">저장</button>
           <button class="btn btn-outline btn-sm" style="padding:6px 14px;" onclick="closeBossInput('${safeId}')">취소</button>
         </div>
@@ -1829,7 +1829,12 @@ function openBossInput(safeId) {
   if (!row) return;
   const now = new Date();
   const inp = document.getElementById('boss-time-val-' + safeId);
-  if (inp) inp.value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  if (inp) {
+    // datetime-local 형식: "YYYY-MM-DDTHH:MM"
+    const pad = n => String(n).padStart(2,'0');
+    inp.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    inp.max = inp.value; // 미래 선택 방지
+  }
   row.style.display = '';
 }
 
@@ -1841,11 +1846,8 @@ function closeBossInput(safeId) {
 function saveBossTime(bossName, safeId) {
   const input = document.getElementById('boss-time-val-' + safeId);
   if (!input || !input.value) return;
-  const [h, m] = input.value.split(':').map(Number);
-  const now = new Date();
-  const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
-  // 현재보다 1시간 이상 미래면 어제로 간주
-  if (t > now && (t - now) > 3600000) t.setDate(t.getDate() - 1);
+  const t = new Date(input.value); // datetime-local → Date
+  if (isNaN(t.getTime())) return;
   localStorage.setItem('boss_clear_' + bossName, t.toISOString());
   closeBossInput(safeId);
   renderBossList();

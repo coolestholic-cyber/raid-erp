@@ -62,6 +62,8 @@
   .nav-item.search-match { background: #2a3a5a !important; }
   body.sidebar-collapsed .sidebar-search-wrap { display: none; }
   body.sidebar-collapsed #sidebarSearchBtnRow { display: none; }
+  .raid-sub-menu { display: none !important; }
+  .raid-sub-menu.raid-visible { display: flex !important; }
 
   /* 접힌 상태 */
   body.sidebar-collapsed { --sidebar-w: 64px; }
@@ -539,12 +541,13 @@
       <span class="nav-icon"><span class="material-icons">groups</span></span><span class="nav-label"> 공대관리</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body open">
-      <a class="nav-item" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
-      <a class="nav-item" onclick="showPage('members',this)" title="공대원 목록"><span class="nav-icon"><span class="material-icons">group</span></span><span class="nav-label"> 공대원 목록</span></a>
-      <a class="nav-item" onclick="showPage('settlement',this)" title="보스 정산"><span class="nav-icon"><span class="material-icons">calculate</span></span><span class="nav-label"> 보스 정산</span></a>
-      <a class="nav-item" onclick="showPage('guestsettlement',this)" title="손님정산"><span class="nav-icon"><span class="material-icons">receipt</span></span><span class="nav-label"> 손님정산</span></a>
-      <a class="nav-item" onclick="showPage('purchase',this)" title="판매내역"><span class="nav-icon"><span class="material-icons">shopping_cart</span></span><span class="nav-label"> 판매내역</span></a>
-      <a class="nav-item" onclick="showPage('gold',this)" title="분배내역"><span class="nav-icon"><span class="material-icons">paid</span></span><span class="nav-label"> 분배내역</span></a>
+      <a class="nav-item" onclick="openRaidModal()" title="공대 등록"><span class="nav-icon"><span class="material-icons">add_circle_outline</span></span><span class="nav-label"> 공대 등록</span></a>
+      <a class="nav-item raid-sub-menu" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
+      <a class="nav-item raid-sub-menu" onclick="showPage('members',this)" title="공대원 목록"><span class="nav-icon"><span class="material-icons">group</span></span><span class="nav-label"> 공대원 목록</span></a>
+      <a class="nav-item raid-sub-menu" onclick="showPage('settlement',this)" title="보스 정산"><span class="nav-icon"><span class="material-icons">calculate</span></span><span class="nav-label"> 보스 정산</span></a>
+      <a class="nav-item raid-sub-menu" onclick="showPage('guestsettlement',this)" title="손님정산"><span class="nav-icon"><span class="material-icons">receipt</span></span><span class="nav-label"> 손님정산</span></a>
+      <a class="nav-item raid-sub-menu" onclick="showPage('purchase',this)" title="판매내역"><span class="nav-icon"><span class="material-icons">shopping_cart</span></span><span class="nav-label"> 판매내역</span></a>
+      <a class="nav-item raid-sub-menu" onclick="showPage('gold',this)" title="분배내역"><span class="nav-icon"><span class="material-icons">paid</span></span><span class="nav-label"> 분배내역</span></a>
     </div>
 
     <!-- 3. 혼테일 -->
@@ -2417,9 +2420,17 @@ async function mcLoadMyChar(){
 // =============================================
 let allRaids=[];
 
+function updateRaidNavVisibility(){
+  const hasRaid = allRaids.length > 0;
+  document.querySelectorAll('.raid-sub-menu').forEach(el=>{
+    el.classList.toggle('raid-visible', hasRaid);
+  });
+}
+
 function subscribeRaids(){
   db.collection('raids').orderBy('createdAt','desc').onSnapshot(snap=>{
     allRaids=snap.docs.map(d=>({id:d.id,...d.data()}));
+    updateRaidNavVisibility();
   });
 }
 subscribeRaids();
@@ -2447,12 +2458,14 @@ async function saveRaid(){
   else{d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('raids').add(d);}
   closeRaidModal();
   renderRaidList();
+  updateRaidNavVisibility();
 }
 
 async function deleteRaid(id){
   if(!confirm('공대를 삭제하시겠습니까?'))return;
   await db.collection('raids').doc(id).delete();
   renderRaidList();
+  updateRaidNavVisibility();
 }
 
 async function applyRaid(raidId){

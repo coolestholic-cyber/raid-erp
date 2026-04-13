@@ -546,7 +546,7 @@
       <span class="nav-icon"><span class="material-icons">groups</span></span><span class="nav-label"> 공대관리</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body open">
-      <a class="nav-item" onclick="openRaidModal()" title="공대 등록"><span class="nav-icon"><span class="material-icons">add_circle_outline</span></span><span class="nav-label"> 공대 등록</span></a>
+      <a class="nav-item" id="navRaidCreate" onclick="toggleRaidForm(true)" title="공대 등록" style="display:none;"><span class="nav-icon"><span class="material-icons">add_circle_outline</span></span><span class="nav-label"> 공대 등록</span></a>
       <a class="nav-item" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
       <a class="nav-item" id="navMyRaidMgmt" style="display:none;" onclick="showPage('members',this)" title="내 공대 관리"><span class="nav-icon"><span class="material-icons">manage_accounts</span></span><span class="nav-label"> 내 공대 관리</span></a>
     </div>
@@ -849,34 +849,6 @@
       </div>
     </div>
 
-    <!-- 공대 생성 모달 -->
-    <div class="modal-overlay" id="raidModal">
-      <div class="modal" style="max-width:480px;">
-        <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-          <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🗡️</span>
-          공대 생성
-        </h2>
-        <div class="form-row">
-          <div class="form-group"><label>공대명 *</label><input type="text" id="rName" placeholder="예) 카링 하드 공대"></div>
-          <div class="form-group"><label>보스 *</label>
-            <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
-              <option value="">보스 선택</option>
-              <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>모집 인원</label><input type="number" id="rMax" placeholder="6" min="1" max="30"></div>
-          <div class="form-group"><label>클리어 시간</label><input type="text" id="rClearTime" placeholder="예) 약 1시간"></div>
-        </div>
-        <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 아이템 레벨, 조건 등 (선택)"></div>
-        <div class="modal-actions">
-          <button class="btn btn-outline" onclick="closeRaidModal()">취소</button>
-          <button class="btn btn-primary" onclick="saveRaid()">생성</button>
-        </div>
-        <input type="hidden" id="rEditId">
-      </div>
-    </div>
 
     <!-- 내 장비관리 -->
     <div id="page-equip" class="page-section">
@@ -894,8 +866,38 @@
     <div id="page-raids" class="page-section">
       <div class="top-bar">
         <div><h1 class="page-title">공대 목록</h1><p class="page-desc">공대를 조회하고 가입 신청하세요</p></div>
-        <button class="btn btn-primary" id="btnCreateRaid" onclick="openRaidModal()" style="display:none;">+ 공대 생성</button>
+        <button class="btn btn-primary" id="btnCreateRaid" onclick="toggleRaidForm()" style="display:none;">+ 공대 등록</button>
       </div>
+
+      <!-- 인라인 등록/수정 폼 -->
+      <div id="raidInlineForm" style="display:none;margin-bottom:20px;">
+        <div class="panel">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">🗡️</span>
+            <span id="raidFormTitle">공대 등록</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>공대명 *</label><input type="text" id="rName" placeholder="예) 자쿰 하드 공대"></div>
+            <div class="form-group"><label>보스 *</label>
+              <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+                <option value="">보스 선택</option>
+                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>모집 인원</label><input type="number" id="rMax" placeholder="6" min="1" max="30"></div>
+            <div class="form-group"><label>클리어 시간</label><input type="text" id="rClearTime" placeholder="예) 약 1시간"></div>
+          </div>
+          <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 아이템 레벨, 조건 등 (선택)"></div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+            <button class="btn btn-outline" onclick="closeRaidForm()">취소</button>
+            <button class="btn btn-primary" onclick="saveRaid()">저장</button>
+          </div>
+          <input type="hidden" id="rEditId">
+        </div>
+      </div>
+
       <div id="raidListGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
     </div>
 
@@ -1538,7 +1540,7 @@ function updateLoginUI(){
   document.getElementById('loginArea').style.display=ok?'none':'';
   document.getElementById('userArea').style.display=ok?'':'none';
   const ba=document.getElementById('btnAddMember'),bg=document.getElementById('btnCreateGuild');
-  if(ba)ba.style.display='flex';
+  if(ba)ba.style.display=canManageMembers()?'flex':'none';
   if(bg)bg.style.display=ok?'':'none';
   if(ok){
     document.getElementById('userName').textContent=currentProfile.name;
@@ -1546,8 +1548,11 @@ function updateLoginUI(){
     const r=ROLES[currentProfile.role]||ROLES.none;
     document.getElementById('userRoleBadge').textContent=r.label;
     document.getElementById('navUsers').style.display=canManageUsers()?'':'none';
+    updateMyRaidNavVisibility();
   }else{
     document.getElementById('navUsers').style.display='none';
+    const navMgmt=document.getElementById('navMyRaidMgmt');if(navMgmt)navMgmt.style.display='none';
+    const navCreate=document.getElementById('navRaidCreate');if(navCreate)navCreate.style.display='none';
     // 로그아웃 상태면 캐릭터 카드 초기화
     window._myCharData=null;
     const empty=document.getElementById('myCharEmpty');
@@ -2448,9 +2453,16 @@ function updateRaidNavVisibility(){
 }
 
 function updateMyRaidNavVisibility(){
-  const myRaid = currentUser && allRaids.some(r => r.ownerUid === currentUser.uid);
-  const el = document.getElementById('navMyRaidMgmt');
-  if(el) el.style.display = myRaid ? '' : 'none';
+  const role = currentProfile?.role;
+  const canSee = ['member','vice','leader','master'].includes(role);
+  const navMgmt = document.getElementById('navMyRaidMgmt');
+  if(navMgmt) navMgmt.style.display = canSee ? '' : 'none';
+  // 공대 등록 버튼: 공대장/부공대장/마스터만
+  const canCreate = ['leader','vice','master'].includes(role);
+  const navCreate = document.getElementById('navRaidCreate');
+  if(navCreate) navCreate.style.display = canCreate ? '' : 'none';
+  const btnCreate = document.getElementById('btnCreateRaid');
+  if(btnCreate) btnCreate.style.display = canCreate ? '' : 'none';
 }
 
 function subscribeRaids(){
@@ -2462,18 +2474,39 @@ function subscribeRaids(){
 }
 subscribeRaids();
 
+function toggleRaidForm(forceOpen){
+  showPage('raids', document.querySelector('.nav-item[title="공대 목록"]'));
+  const form=document.getElementById('raidInlineForm');
+  const open=forceOpen!==undefined ? forceOpen : form.style.display==='none';
+  if(open){
+    document.getElementById('rEditId').value='';
+    ['rName','rDesc','rClearTime'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('rBoss').value='';document.getElementById('rMax').value='';
+    document.getElementById('raidFormTitle').textContent='공대 등록';
+    form.style.display='';
+    form.scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    form.style.display='none';
+  }
+}
 function openRaidModal(id){
+  showPage('raids', null);
+  const form=document.getElementById('raidInlineForm');
   document.getElementById('rEditId').value=id||'';
   if(id){
     const r=allRaids.find(x=>x.id===id);
     if(r){document.getElementById('rName').value=r.name||'';document.getElementById('rBoss').value=r.boss||'';document.getElementById('rMax').value=r.maxCount||'';document.getElementById('rClearTime').value=r.clearTime||'';document.getElementById('rDesc').value=r.desc||'';}
+    document.getElementById('raidFormTitle').textContent='공대 수정';
   }else{
     ['rName','rDesc','rClearTime'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('rBoss').value='';document.getElementById('rMax').value='';
+    document.getElementById('raidFormTitle').textContent='공대 등록';
   }
-  document.getElementById('raidModal').classList.add('show');
+  form.style.display='';
+  form.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function closeRaidModal(){document.getElementById('raidModal').classList.remove('show');}
+function closeRaidForm(){document.getElementById('raidInlineForm').style.display='none';}
+function closeRaidModal(){closeRaidForm();}
 
 async function saveRaid(){
   const name=document.getElementById('rName').value.trim();
@@ -2492,7 +2525,7 @@ async function saveRaid(){
       updateLoginUI();
     }
   }
-  closeRaidModal();
+  closeRaidForm();
   renderRaidList();
   updateRaidNavVisibility();
   updateMyRaidNavVisibility();

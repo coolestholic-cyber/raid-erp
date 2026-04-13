@@ -62,6 +62,11 @@
   .nav-item.search-match { background: #2a3a5a !important; }
   body.sidebar-collapsed .sidebar-search-wrap { display: none; }
   body.sidebar-collapsed #sidebarSearchBtnRow { display: none; }
+  /* 내 공대 관리 탭바 */
+  #myRaidTabBar { padding: 0 24px; border-bottom: 2px solid var(--border); background: var(--surface); margin-bottom: 0; }
+  .raid-mgmt-tab { background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 13px 18px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: all 0.15s; }
+  .raid-mgmt-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .raid-mgmt-tab:hover:not(.active) { color: var(--text); }
   .raid-sub-menu { display: none !important; }
   .raid-sub-menu.raid-visible { display: flex !important; }
 
@@ -543,6 +548,7 @@
     <div class="acc-body open">
       <a class="nav-item" onclick="openRaidModal()" title="공대 등록"><span class="nav-icon"><span class="material-icons">add_circle_outline</span></span><span class="nav-label"> 공대 등록</span></a>
       <a class="nav-item" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
+      <a class="nav-item" id="navMyRaidMgmt" style="display:none;" onclick="showPage('members',this)" title="내 공대 관리"><span class="nav-icon"><span class="material-icons">manage_accounts</span></span><span class="nav-label"> 내 공대 관리</span></a>
     </div>
 
     <!-- 3. 혼테일 -->
@@ -604,6 +610,13 @@
 
   <!-- ===== MAIN: Content ===== -->
   <div class="main">
+
+    <!-- 내 공대 관리 탭바 (공대원/보스정산/손님정산 페이지에서 표시) -->
+    <div id="myRaidTabBar" style="display:none;">
+      <button id="raidTab-members" class="raid-mgmt-tab active" onclick="showPage('members',null)">👥 공대원</button>
+      <button id="raidTab-settlement" class="raid-mgmt-tab" onclick="showPage('settlement',null)">💰 보스 정산</button>
+      <button id="raidTab-guestsettlement" class="raid-mgmt-tab" onclick="showPage('guestsettlement',null)">🎫 손님 정산</button>
+    </div>
 
     <!-- 대시보드 -->
     <div id="page-dashboard" class="page-section active">
@@ -1628,7 +1641,7 @@ auth.onAuthStateChanged(async(user)=>{
     const el=document.getElementById('sidebarUserTotal');
     if(el){const uids=snap.exists?(snap.data().uids||[]):[];el.textContent=uids.length+'명';}
   });
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();updateMyRaidNavVisibility();
   await loadBossTimers();
   renderBossList();
 });
@@ -2240,8 +2253,8 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
-const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'공대원 목록',settlement:'보스 정산',guestsettlement:'손님정산',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
+const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestsettlement:'공대관리 / 내 공대 관리 / 손님 정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
+const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestsettlement:'내 공대 관리',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
 
 // 탭바 페이지 매핑
 const tabPageMap = {
@@ -2268,6 +2281,18 @@ function showPage(id,el){
   if(el){el.classList.add('active');const b=el.closest('.acc-body');if(b&&!b.classList.contains('open')){b.classList.add('open');b.previousElementSibling.classList.add('open');}}
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
   const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent=mobileTitleMap[id]||'';
+  // 내 공대 관리 탭바
+  const mgmtPages=['members','settlement','guestsettlement'];
+  const tabBar=document.getElementById('myRaidTabBar');
+  if(tabBar){
+    tabBar.style.display=mgmtPages.includes(id)?'':'none';
+    if(mgmtPages.includes(id)){
+      document.querySelectorAll('.raid-mgmt-tab').forEach(t=>t.classList.remove('active'));
+      const at=document.getElementById('raidTab-'+id);if(at)at.classList.add('active');
+      // 내 공대 관리 사이드바 항목 활성화
+      const nav=document.getElementById('navMyRaidMgmt');if(nav&&!el)nav.classList.add('active');
+    }
+  }
   updateTabBar(id);
   if(id==='dashboard')renderDashboard();
   if(id==='mychar')mcLoadMyChar();
@@ -2422,10 +2447,17 @@ function updateRaidNavVisibility(){
   });
 }
 
+function updateMyRaidNavVisibility(){
+  const myRaid = currentUser && allRaids.some(r => r.ownerUid === currentUser.uid);
+  const el = document.getElementById('navMyRaidMgmt');
+  if(el) el.style.display = myRaid ? '' : 'none';
+}
+
 function subscribeRaids(){
   db.collection('raids').orderBy('createdAt','desc').onSnapshot(snap=>{
     allRaids=snap.docs.map(d=>({id:d.id,...d.data()}));
     updateRaidNavVisibility();
+    updateMyRaidNavVisibility();
   });
 }
 subscribeRaids();

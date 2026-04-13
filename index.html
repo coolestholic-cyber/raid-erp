@@ -1579,7 +1579,7 @@ auth.onAuthStateChanged(async(user)=>{
         existingMyChar=prev.myChar||null;
         existingBossTimers=prev.bossTimers||null;
       } else {
-        role=allSnap.empty?'master':'none';
+        role=allSnap.empty?'master':'guest';
       }
       if(dupSnap&&!dupSnap.empty){
         existingMyChar=existingMyChar||(dupSnap.docs[0].data().myChar||null);
@@ -2482,10 +2482,20 @@ async function saveRaid(){
   const d={name,boss,maxCount:parseInt(document.getElementById('rMax').value)||6,clearTime:document.getElementById('rClearTime').value.trim(),desc:document.getElementById('rDesc').value.trim(),status:'모집중',ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   const id=document.getElementById('rEditId').value;
   if(id){await db.collection('raids').doc(id).update(d);}
-  else{d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('raids').add(d);}
+  else{
+    d.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('raids').add(d);
+    // 공대 생성자 → 공대장 롤 자동 부여
+    if(currentUser && currentProfile && ['guest','none'].includes(currentProfile.role)){
+      await db.collection('users').doc(currentUser.uid).update({role:'leader'});
+      currentProfile.role='leader';
+      updateLoginUI();
+    }
+  }
   closeRaidModal();
   renderRaidList();
   updateRaidNavVisibility();
+  updateMyRaidNavVisibility();
 }
 
 async function deleteRaid(id){
@@ -2640,11 +2650,18 @@ async function renderApplicants(raidId){
               </div>
               <span class="badge ${a.role==='서폿'?'badge-blue':'badge-green'}" style="font-size:11px;">${a.role||''}</span>
             </div>
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;">
               <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${a.status}</span>
               ${a.status==='대기'?`
                 <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;" onclick="approveApp('${a.id}','${raidId}')">승인</button>
                 <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;" onclick="rejectApp('${a.id}','${raidId}')">거절</button>
+              `:''}
+              ${a.status==='승인'&&a.uid?`
+                ${a.userRole==='vice'
+                  ?`<button class="btn btn-outline" style="font-size:11px;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" onclick="changeAppRole('${a.id}','${a.uid}','member','${raidId}')">공대원으로</button>
+                    <span style="font-size:11px;padding:3px 8px;background:#ede9fe;color:#7c3aed;border-radius:12px;font-weight:700;">부공대장</span>`
+                  :`<button class="btn btn-outline" style="font-size:11px;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" onclick="changeAppRole('${a.id}','${a.uid}','vice','${raidId}')">부공대장 임명</button>`
+                }
               `:''}
             </div>
           </div>
@@ -2655,7 +2672,16 @@ async function renderApplicants(raidId){
 }
 
 async function approveApp(appId, raidId){
-  await db.collection('raidApplications').doc(appId).update({status:'승인'});
+  const appDoc=await db.collection('raidApplications').doc(appId).get();
+  const appData=appDoc.data();
+  await db.collection('raidApplications').doc(appId).update({status:'승인', userRole:'member'});
+  // 신청자 ERP 롤 → 공대원
+  if(appData?.uid){
+    const uDoc=await db.collection('users').doc(appData.uid).get();
+    if(uDoc.exists && ['guest','none'].includes(uDoc.data().role)){
+      await db.collection('users').doc(appData.uid).update({role:'member'});
+    }
+  }
   await renderApplicants(raidId);
   renderRaidList();
 }
@@ -2664,6 +2690,12 @@ async function rejectApp(appId, raidId){
   await db.collection('raidApplications').doc(appId).update({status:'거절'});
   await renderApplicants(raidId);
   renderRaidList();
+}
+
+async function changeAppRole(appId, uid, newRole, raidId){
+  await db.collection('users').doc(uid).update({role:newRole});
+  await db.collection('raidApplications').doc(appId).update({userRole:newRole});
+  await renderApplicants(raidId);
 }
 
 // updateLoginUI에서 공대생성 버튼 연동은 renderRaidList 내부에서 처리

@@ -546,7 +546,6 @@
       <span class="nav-icon"><span class="material-icons">groups</span></span><span class="nav-label"> 공대관리</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body open">
-      <a class="nav-item" id="navRaidCreate" onclick="toggleRaidForm(true)" title="공대 등록" style="display:none;"><span class="nav-icon"><span class="material-icons">add_circle_outline</span></span><span class="nav-label"> 공대 등록</span></a>
       <a class="nav-item" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
       <a class="nav-item" id="navMyRaidMgmt" style="display:none;" onclick="showPage('members',this)" title="내 공대 관리"><span class="nav-icon"><span class="material-icons">manage_accounts</span></span><span class="nav-label"> 내 공대 관리</span></a>
     </div>
@@ -1552,7 +1551,7 @@ function updateLoginUI(){
   }else{
     document.getElementById('navUsers').style.display='none';
     const navMgmt=document.getElementById('navMyRaidMgmt');if(navMgmt)navMgmt.style.display='none';
-    const navCreate=document.getElementById('navRaidCreate');if(navCreate)navCreate.style.display='none';
+    const btnCreate=document.getElementById('btnCreateRaid');if(btnCreate)btnCreate.style.display='none';
     // 로그아웃 상태면 캐릭터 카드 초기화
     window._myCharData=null;
     const empty=document.getElementById('myCharEmpty');
@@ -2457,10 +2456,8 @@ function updateMyRaidNavVisibility(){
   const canSee = ['member','vice','leader','master'].includes(role);
   const navMgmt = document.getElementById('navMyRaidMgmt');
   if(navMgmt) navMgmt.style.display = canSee ? '' : 'none';
-  // 공대 등록 버튼: 공대장/부공대장/마스터만
+  // 공대 목록 내 등록 버튼: 공대장/부공대장/마스터만
   const canCreate = ['leader','vice','master'].includes(role);
-  const navCreate = document.getElementById('navRaidCreate');
-  if(navCreate) navCreate.style.display = canCreate ? '' : 'none';
   const btnCreate = document.getElementById('btnCreateRaid');
   if(btnCreate) btnCreate.style.display = canCreate ? '' : 'none';
 }

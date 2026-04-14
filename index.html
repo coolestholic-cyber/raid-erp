@@ -31,6 +31,14 @@
   [data-theme="dark"] .panel { background: var(--card-bg); }
   [data-theme="dark"] .logout-link:hover { background: #2d1515; }
   [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: var(--surface); color: var(--text); border-color: var(--border); }
+  /* 모바일 UI 다크모드 */
+  [data-theme="dark"] .mobile-tab-bar { background: var(--card-bg); box-shadow: 0 -2px 12px rgba(0,0,0,.4); }
+  [data-theme="dark"] .tab-item { color: #6b7280; }
+  [data-theme="dark"] .tab-item.active { color: var(--accent); }
+  [data-theme="dark"] .hamburger { color: var(--text); }
+  [data-theme="dark"] .mobile-page-title { color: var(--text); }
+  [data-theme="dark"] .header { background: var(--card-bg); border-color: var(--border); }
+
   /* 배지 다크모드 */
   [data-theme="dark"] .badge-green  { background: #052e1c; color: #34d399; }
   [data-theme="dark"] .badge-yellow { background: #2d1f00; color: #fbbf24; }
@@ -214,6 +222,8 @@
   .page-section { display: none; }
   .page-section.active { display: block; flex: 1; }
   #page-mychar.active { display: flex; flex-direction: column; }
+  /* 대시보드: 페이지 스크롤 없는 전체 화면 레이아웃 */
+  #page-dashboard.active { display: flex; flex-direction: column; gap: 14px; overflow: hidden; height: calc(100vh - var(--header-h) - 60px); }
 
   .page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
   .page-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 0; }
@@ -264,7 +274,7 @@
   tbody tr:hover { background: var(--surface-alt); }
 
   /* ===== Dashboard ===== */
-  .dash-welcome { background: linear-gradient(135deg, #0b5cd5 0%, #1e40af 100%); border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .dash-welcome { background: linear-gradient(135deg, #0b5cd5 0%, #1e40af 100%); border-radius: 14px; padding: 16px 24px; margin-bottom: 0; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   .dash-welcome h2 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
   .dash-welcome p { font-size: 14px; color: rgba(255,255,255,.75); }
   .dash-welcome .welcome-char { display: flex; align-items: center; gap: 12px; }
@@ -275,44 +285,24 @@
 
   /* 새 대시보드 메인 그리드 — 왼쪽(정보+관리) / 오른쪽(보스) */
   .dash-main-grid {
+    flex: 1;
+    min-height: 0;
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: 14px;
-    align-items: start;
+    align-items: stretch;
   }
-  .dash-left-col { display: flex; flex-direction: column; gap: 14px; }
+  .dash-left-col { display: flex; flex-direction: column; gap: 14px; min-height: 0; overflow: hidden; }
   /* 상단 정보 행: 유튜브 + 공지 나란히, 고정 높이 */
-  .dash-info-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    height: 220px;
-  }
-  .dash-yt-panel {
-    padding: 0 !important;
-    overflow: hidden;
-    border-radius: var(--radius);
-    height: 100%;
-    margin-bottom: 0 !important;
-  }
-  .dash-yt-wrap {
-    width: 100%;
-    height: 100%;
-    background: #bfdbfe;
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
+  .dash-info-row { flex-shrink: 0; height: 200px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); height: 100%; margin-bottom: 0 !important; }
+  .dash-yt-wrap { width: 100%; height: 100%; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
   .dash-yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
   [data-theme="dark"] .dash-yt-wrap { background: #1a3256; }
-  .dash-notice-panel {
-    height: 100%;
-    overflow-y: auto;
-    margin-bottom: 0 !important;
-    box-sizing: border-box;
-  }
+  .dash-notice-panel { height: 100%; overflow-y: auto; margin-bottom: 0 !important; box-sizing: border-box; }
   /* 하단 핵심 기능: 공대원 관리 위젯 */
-  .dash-member-widget { margin-bottom: 0 !important; }
-  .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .dash-member-widget { flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 0 !important; }
+  .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .dm-stat { display: flex; flex-direction: column; align-items: center; background: var(--surface-alt); border-radius: 8px; padding: 10px 0; flex: 1; }
   .dm-stat-num { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
   .dm-stat-label { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
@@ -321,24 +311,21 @@
   .dash-member-table td { padding: 8px 10px; border-bottom: 1px solid var(--row-line); color: var(--text); vertical-align: middle; }
   .dash-member-table tbody tr:last-child td { border-bottom: none; }
   .dash-member-table tbody tr:hover { background: var(--surface-alt); }
-  /* 오른쪽: 보스 sticky */
-  .dash-right-col {
-    position: sticky;
-    top: 12px;
-    max-height: calc(100vh - var(--header-h) - 24px);
-    overflow-y: auto;
-    margin-bottom: 0 !important;
-  }
-  /* 반응형 */
+  /* 오른쪽: 보스 (스크롤 내부 처리) */
+  .dash-right-col { overflow-y: auto; min-height: 0; margin-bottom: 0 !important; position: static; }
+  /* 태블릿 이하: 보스 하단 이동, 2열→1열 */
   @media (max-width: 1000px) {
-    .dash-main-grid { grid-template-columns: 1fr; }
-    .dash-right-col { position: static; max-height: 420px; }
+    .dash-main-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+    .dash-right-col { max-height: 200px; flex-shrink: 0; }
   }
+  /* 모바일: 정보 행 높이 줄이기 */
   @media (max-width: 640px) {
-    .dash-info-row { grid-template-columns: 1fr; height: auto; }
-    .dash-yt-panel { height: auto; }
-    .dash-yt-wrap { aspect-ratio: 16/9; height: auto; }
-    .dash-notice-panel { height: auto; max-height: 260px; }
+    #page-dashboard.active { height: calc(100vh - var(--header-h) - 16px - 72px); gap: 10px; }
+    .dash-info-row { height: 150px; gap: 10px; }
+    .dash-right-col { max-height: 160px; }
+    .dash-member-stats { gap: 6px; }
+    .dm-stat { padding: 8px 0; }
+    .dm-stat-num { font-size: 17px; }
   }
 
   .dash-section-title { font-size: 13px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
@@ -640,7 +627,7 @@
       position: fixed;
       bottom: 0; left: 0; right: 0;
       height: 58px;
-      background: #fff;
+      background: var(--card-bg);
       border-top: 1px solid var(--border);
       z-index: 50;
       box-shadow: 0 -2px 12px rgba(0,0,0,.08);

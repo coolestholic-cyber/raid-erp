@@ -166,9 +166,9 @@
   body.sidebar-collapsed .sidebar-search-wrap { display: none; }
   body.sidebar-collapsed #sidebarSearchBtnRow { display: none; }
   /* 내 공대 관리 탭바 */
-  #myRaidTabBar { padding: 0 24px; border-bottom: 2px solid var(--border); background: var(--surface); margin-bottom: 0; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  #myRaidTabBar { margin: -28px -28px 28px; padding: 0 28px; border-bottom: 2px solid var(--border); background: var(--card-bg); overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   #myRaidTabBar::-webkit-scrollbar { display: none; }
-  .raid-mgmt-tab { background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 14px 20px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .raid-mgmt-tab { background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 16px 22px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .raid-mgmt-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
   .raid-mgmt-tab:hover:not(.active) { color: var(--text); }
   .raid-sub-menu { display: none !important; }
@@ -576,7 +576,7 @@
     .modal { width: calc(100vw - 32px); max-height: 90vh; padding: 20px; }
     .form-row { grid-template-columns: 1fr; }
     /* 탭 여백 모바일 */
-    #myRaidTabBar { padding: 0 8px; }
+    #myRaidTabBar { margin: -16px -14px 20px; padding: 0 14px; }
     .raid-mgmt-tab { padding: 12px 14px; font-size: 13px; }
     /* 공대원 테이블 → 카드 자동 전환 */
     #memberTableWrap { display: none !important; }

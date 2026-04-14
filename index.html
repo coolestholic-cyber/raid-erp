@@ -322,7 +322,7 @@
   /* 상단: 유튜브+공지 + 보스 */
   .dash-top-row {
     display: grid;
-    grid-template-columns: 1fr 280px;
+    grid-template-columns: 1fr 360px;
     gap: 14px;
     align-items: start;
   }
@@ -398,8 +398,9 @@
   /* 상태 텍스트 */
   .boss-available { color: #059669; display: flex; align-items: center; gap: 3px; }
   .boss-remaining { color: #ef4444; display: flex; align-items: center; gap: 2px; }
-  /* 인라인 편집기 - 모바일 최적화 */
-  .boss-edit-panel { margin-top: 10px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; }
+  /* 인라인 편집기 — boss-item 하단에 전체 너비로 표시 */
+  .boss-item { flex-wrap: wrap; }
+  .boss-edit-panel { flex-basis: 100%; width: 100%; margin-top: 8px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; box-sizing: border-box; }
   .boss-edit-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 10px; letter-spacing: .3px; }
   .boss-edit-fields { display: flex; gap: 8px; margin-bottom: 10px; }
   .boss-edit-field { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -970,8 +971,17 @@
           <div id="dashMemberList"></div>
         </div>
 
-        <!-- 준비중 패널 (공대장 미만 or 비로그인) -->
+        <!-- 준비중 패널 1 (공대장 미만 or 비로그인 시 공대원관리 자리) -->
         <div class="panel dash-coming-soon" style="display:none;">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;">
+            <span class="material-icons" style="font-size:36px;color:var(--text-sub);opacity:.4;">construction</span>
+            <div style="font-size:14px;font-weight:600;color:var(--text-sub);">콘텐츠 준비중입니다</div>
+            <div style="font-size:12px;color:var(--text-sub);opacity:.7;">더 많은 기능이 곧 추가될 예정입니다</div>
+          </div>
+        </div>
+
+        <!-- 준비중 패널 2 (항상 표시 — 미래 기능 자리) -->
+        <div class="panel dash-coming-soon-2">
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;">
             <span class="material-icons" style="font-size:36px;color:var(--text-sub);opacity:.4;">construction</span>
             <div style="font-size:14px;font-weight:600;color:var(--text-sub);">콘텐츠 준비중입니다</div>
@@ -2205,12 +2215,12 @@ function renderBossList() {
       <div class="boss-info" style="flex:1;min-width:0;">
         <div class="bname">${b.name}</div>
         ${infoHtml}
-        ${editHtml}
       </div>
       <div class="boss-item-right">
         <span class="badge ${b.resetBadge} boss-reset">${b.reset}</span>
         <div class="boss-item-actions">${actHtml}</div>
       </div>
+      ${editHtml}
     </div>`;
   }).join('');
 }

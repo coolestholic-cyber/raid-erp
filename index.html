@@ -118,7 +118,8 @@
   /* ===== LEFT: Sidebar (공통) ===== */
   .sidebar { width: var(--sidebar-w); background: var(--sidebar-bg); position: fixed; top: 0; left: 0; height: 100vh; display: flex; flex-direction: column; z-index: 50; overflow-y: auto; }
   .sidebar-logo { padding: 20px 20px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #2d3139; }
-  .sidebar-logo .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; }
+  .sidebar-logo .logo-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .sidebar-logo .logo-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
   .sidebar-logo .logo-text { color: #fff; font-size: 18px; font-weight: 700; }
   .sidebar-logo .logo-ver { color: #6b7280; font-size: 12px; }
 
@@ -652,8 +653,10 @@
     </button>
   </div>
 
-  <div class="sidebar-logo">
-    <div class="logo-icon" style="background:linear-gradient(135deg,#ef5a25,#b8321a);">🍁</div>
+  <div class="sidebar-logo" onclick="showPage('dashboard',this)" style="cursor:pointer;" title="메인으로">
+    <div class="logo-icon">
+      <img src="MapleERP.png" alt="메랜ERP">
+    </div>
     <div>
       <div class="logo-text">메랜ERP</div>
       <div class="logo-ver">v2.1</div>

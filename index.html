@@ -246,6 +246,57 @@
   .logout-link { font-size: 13px; color: var(--text-sub); cursor: pointer; padding: 4px 8px; border-radius: 4px; }
   .logout-link:hover { color: #ef4444; background: #fef2f2; }
 
+  /* ── 프로필 드롭다운 ── */
+  .user-chip-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: none; border: 1px solid transparent; padding: 4px 8px 4px 4px;
+    border-radius: 24px; cursor: pointer; transition: all .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .user-chip-btn:hover { background: var(--surface-alt); border-color: var(--border); }
+  .user-chip-btn img { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
+  .user-chip-btn .uname { font-size: 14px; font-weight: 600; color: var(--text); }
+  .user-chip-btn .urole { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  .user-chip-btn .chip-arr { font-size: 16px; color: var(--text-sub); transition: transform .2s; }
+  .user-chip-btn.open .chip-arr { transform: rotate(180deg); }
+
+  .profile-dropdown {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    min-width: 180px; background: var(--card-bg);
+    border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    z-index: 200; overflow: hidden;
+    opacity: 0; transform: translateY(-6px) scale(.97);
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .profile-dropdown.show {
+    opacity: 1; transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .profile-dropdown-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px 12px; border-bottom: 1px solid var(--border);
+  }
+  .profile-dropdown-header img { width: 38px; height: 38px; border-radius: 50%; }
+  .pdh-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .pdh-role { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
+  .profile-dropdown-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 16px; font-size: 14px; font-weight: 500;
+    color: var(--text); cursor: pointer; transition: background .12s;
+  }
+  .profile-dropdown-item:hover { background: var(--surface-alt); }
+  .profile-dropdown-item .material-icons { font-size: 18px; color: var(--text-sub); }
+  .profile-dropdown-item.danger { color: #ef4444; }
+  .profile-dropdown-item.danger .material-icons { color: #ef4444; }
+  .profile-dropdown-item.danger:hover { background: #fef2f2; }
+  [data-theme="dark"] .profile-dropdown { box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  [data-theme="dark"] .profile-dropdown-item.danger:hover { background: #2d1515; }
+
+  /* 드롭다운 wrapper — position:relative 필요 */
+  .user-area-wrap { position: relative; }
+
   /* ===== MAIN: Content (페이지별 변경) ===== */
   .main { flex: 1; padding: 28px 28px 32px; display: flex; flex-direction: column; }
   .page-section { display: none; }
@@ -616,11 +667,13 @@
     /* 우: 유저 영역 압축 */
     .header-right { gap: 8px; }
     .discord-btn { padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; }
-    .user-chip { gap: 6px; }
-    .user-chip img { width: 30px; height: 30px; }
-    .user-chip .uname { display: none; }
-    .user-chip .urole { display: none; }
+    .user-chip-btn { padding: 2px 6px 2px 2px; }
+    .user-chip-btn img { width: 30px; height: 30px; }
+    .user-chip-btn .uname { display: none; }
+    .user-chip-btn .urole { display: none; }
+    .user-chip-btn .chip-arr { display: none; }
     .logout-link { display: none; }
+    .profile-dropdown { min-width: 200px; right: 0; }
 
     /* ── 모바일 사이드바: 전체화면 드로어 ── */
     .sidebar {
@@ -884,12 +937,31 @@
           로그인
         </button>
       </div>
-      <div id="userArea" style="display:none;">
-        <div class="user-chip">
+      <div id="userArea" style="display:none;" class="user-area-wrap">
+        <!-- 클릭 버튼 -->
+        <button class="user-chip-btn" id="userChipBtn" onclick="toggleProfileDropdown()" aria-haspopup="true" aria-expanded="false">
           <img id="userPhoto" src="" alt="">
           <span class="uname" id="userName">-</span>
           <span class="urole" id="userRoleBadge">-</span>
-          <span class="logout-link" onclick="doLogout()">로그아웃</span>
+          <span class="material-icons chip-arr">expand_more</span>
+        </button>
+        <!-- 드롭다운 -->
+        <div class="profile-dropdown" id="profileDropdown" role="menu">
+          <div class="profile-dropdown-header">
+            <img id="userPhotoDropdown" src="" alt="">
+            <div>
+              <div class="pdh-name" id="userNameDropdown">-</div>
+              <div class="pdh-role" id="userRoleDropdown">-</div>
+            </div>
+          </div>
+          <div class="profile-dropdown-item" onclick="showPage('mychar',null);closeProfileDropdown()" role="menuitem">
+            <span class="material-icons">person</span>
+            프로필
+          </div>
+          <div class="profile-dropdown-item danger" onclick="doLogout();closeProfileDropdown()" role="menuitem">
+            <span class="material-icons">logout</span>
+            로그아웃
+          </div>
         </div>
       </div>
     </div>
@@ -1996,10 +2068,15 @@ function updateLoginUI(){
   if(ba)ba.style.display=canManageMembers()?'flex':'none';
   if(bg)bg.style.display=ok?'':'none';
   if(ok){
+    const photo=currentProfile.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
     document.getElementById('userName').textContent=currentProfile.name;
-    document.getElementById('userPhoto').src=currentProfile.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
+    document.getElementById('userPhoto').src=photo;
     const r=ROLES[currentProfile.role]||ROLES.none;
     document.getElementById('userRoleBadge').textContent=r.label;
+    // 드롭다운 헤더 동기화
+    const pd=document.getElementById('userPhotoDropdown');if(pd)pd.src=photo;
+    const nd=document.getElementById('userNameDropdown');if(nd)nd.textContent=currentProfile.name;
+    const rd=document.getElementById('userRoleDropdown');if(rd)rd.textContent=r.label;
     document.getElementById('navUsers').style.display=canManageUsers()?'':'none';
     updateMyRaidNavVisibility();
   }else{
@@ -2853,6 +2930,31 @@ function ermScrollTo(sectionId){
   const idx=sectionMap[sectionId];
   if(idx!==undefined&&tabs[idx])tabs[idx].classList.add('active');
 }
+
+// ── 프로필 드롭다운 ──
+function toggleProfileDropdown(){
+  const dd = document.getElementById('profileDropdown');
+  const btn = document.getElementById('userChipBtn');
+  if(!dd) return;
+  const isOpen = dd.classList.contains('show');
+  if(isOpen){ closeProfileDropdown(); }
+  else {
+    dd.classList.add('show');
+    btn.classList.add('open');
+    btn.setAttribute('aria-expanded','true');
+  }
+}
+function closeProfileDropdown(){
+  const dd = document.getElementById('profileDropdown');
+  const btn = document.getElementById('userChipBtn');
+  if(dd) dd.classList.remove('show');
+  if(btn){ btn.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+}
+// 드롭다운 외부 클릭 시 닫기
+document.addEventListener('click', function(e){
+  const wrap = document.getElementById('userArea');
+  if(wrap && !wrap.contains(e.target)) closeProfileDropdown();
+});
 
 function toggleSidebar(){
   document.querySelector('.sidebar').classList.toggle('open');

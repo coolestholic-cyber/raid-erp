@@ -8,7 +8,29 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-  :root { --sidebar-w: 240px; --header-h: 60px; --bg: #f8f9fa; --sidebar-bg: #1a1d23; --sidebar-hover: #25282f; --sidebar-active: #2d3139; --accent: #0b5cd5; --accent-light: #e8f0fe; --text: #212529; --text-sub: #6c757d; --border: #dee2e6; --card-bg: #fff; --radius: 8px; }
+  :root { --sidebar-w: 240px; --header-h: 60px; --bg: #f8f9fa; --sidebar-bg: #1a1d23; --sidebar-hover: #25282f; --sidebar-active: #2d3139; --accent: #0b5cd5; --accent-light: #e8f0fe; --text: #212529; --text-sub: #6c757d; --border: #dee2e6; --card-bg: #fff; --radius: 8px; --surface: #fff; }
+  [data-theme="dark"] { --bg: #0f1117; --card-bg: #1a1d23; --surface: #1e2128; --text: #e5e7eb; --text-sub: #9ca3af; --border: #2d3139; --accent-light: #1a3256; }
+  [data-theme="dark"] body { background: var(--bg); color: var(--text); }
+  [data-theme="dark"] .btn-outline,
+  [data-theme="dark"] .class-tab,
+  [data-theme="dark"] .item-tab,
+  [data-theme="dark"] .view-toggle button { background: var(--surface); color: var(--text-sub); border-color: var(--border); }
+  [data-theme="dark"] .search-input,
+  [data-theme="dark"] select.filter-select,
+  [data-theme="dark"] .boss-edit-field-input,
+  [data-theme="dark"] .boss-edit-cancel { background: var(--surface); color: var(--text); border-color: var(--border); }
+  [data-theme="dark"] .member-card { background: var(--surface); border-color: var(--border); }
+  [data-theme="dark"] .autocomplete-list { background: var(--surface); border-color: var(--border); }
+  [data-theme="dark"] .ht-card { background: var(--surface); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+  [data-theme="dark"] .modal { background: var(--surface); }
+  [data-theme="dark"] .alert { background: #1a2535; border-color: #374151; color: #fbbf24; }
+  [data-theme="dark"] .panel { background: var(--card-bg); }
+  [data-theme="dark"] .logout-link:hover { background: #2d1515; }
+  [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: var(--surface); color: var(--text); border-color: var(--border); }
+  /* 테마 토글 버튼 */
+  .theme-toggle { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; flex-shrink: 0; }
+  .theme-toggle:hover { background: var(--accent-light); color: var(--accent); }
+  .theme-toggle .material-icons { font-size: 20px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { overflow-x: hidden; }
   body { font-family: 'Pretendard GOV', -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; letter-spacing: -0.01em; }
@@ -590,6 +612,9 @@
       <span id="breadcrumb">대시보드</span>
     </div>
     <div class="header-right">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="라이트/다크 모드">
+        <span class="material-icons" id="themeIcon">light_mode</span>
+      </button>
       <div id="loginArea">
         <button class="discord-btn" onclick="discordLogin()">
           <svg width="16" height="12" viewBox="0 0 71 55" fill="white"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.8 40.8 0 00-1.8 3.7 54 54 0 00-16.2 0A37.3 37.3 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.2a58.9 58.9 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.8 38.8 0 01-5.5-2.7.2.2 0 01 0-.4l1.1-.9a.2.2 0 01.2 0 42 42 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .4 36.4 36.4 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.3.1A58.7 58.7 0 0070.4 45.7v-.2c1.4-15-2.3-28.1-9.8-39.7a.2.2 0 00-.1 0zM23.7 37.3c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7zm23.2 0c-3.4 0-6.3-3.2-6.3-7s2.8-7 6.3-7 6.4 3.1 6.3 7-2.8 7-6.3 7z"/></svg>
@@ -3492,6 +3517,22 @@ setInterval(() => {
   const blEl = document.getElementById('dashBossList');
   if (blEl) renderDashboard();
 }, 60000);
+</script>
+<script>
+  // ===== 테마 (라이트/다크) =====
+  (function(){
+    const saved = localStorage.getItem('erp-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('themeIcon');
+    if(icon) icon.textContent = saved === 'dark' ? 'dark_mode' : 'light_mode';
+  })();
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', cur);
+    localStorage.setItem('erp-theme', cur);
+    const icon = document.getElementById('themeIcon');
+    if(icon) icon.textContent = cur === 'dark' ? 'dark_mode' : 'light_mode';
+  }
 </script>
 </body>
 </html>

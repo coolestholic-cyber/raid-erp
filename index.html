@@ -203,6 +203,7 @@
 
   .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .dash-stat-box { text-align:center; padding:12px 8px; background:var(--surface-alt); border-radius:10px; }
   .stat-card { display: flex; justify-content: space-between; align-items: center; }
   .stat-card h3 { font-size: 28px; font-weight: 700; }
   .stat-card p { font-size: 14px; color: var(--text-sub); margin-top: 2px; }
@@ -747,15 +748,15 @@
         <div class="panel" style="margin-bottom:0;">
           <div class="dash-section-title"><span class="material-icons">groups</span> 공대원 현황</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;" id="dashMemberStats">
-            <div style="text-align:center;padding:12px 8px;background:#f9fafb;border-radius:10px;">
+            <div class="dash-stat-box">
               <div style="font-size:20px;font-weight:800;color:#059669;" id="dStat1">-</div>
               <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">참여</div>
             </div>
-            <div style="text-align:center;padding:12px 8px;background:#f9fafb;border-radius:10px;">
+            <div class="dash-stat-box">
               <div style="font-size:20px;font-weight:800;color:#d97706;" id="dStat2">-</div>
               <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">미정</div>
             </div>
-            <div style="text-align:center;padding:12px 8px;background:#f9fafb;border-radius:10px;">
+            <div class="dash-stat-box">
               <div style="font-size:20px;font-weight:800;color:#ef4444;" id="dStat3">-</div>
               <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">불참</div>
             </div>

@@ -296,15 +296,16 @@
   }
   .dash-left-col  { grid-area: left; }
   .dash-right-col { grid-area: boss; overflow: hidden; margin-bottom: 0 !important; align-self: start; }
-  .dash-member-widget { grid-area: mgmt; overflow: hidden; margin-bottom: 0 !important; }
-  /* 상단 정보 행: 유튜브 + 공지 나란히, 고정 비율 높이 */
-  .dash-info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 220px; }
-  .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); height: 100%; margin-bottom: 0 !important; }
-  .dash-yt-wrap { width: 100%; height: 100%; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
+  .dash-member-widget  { grid-area: mgmt; overflow: hidden; margin-bottom: 0 !important; }
+  .dash-coming-soon    { grid-area: mgmt; margin-bottom: 0 !important; }
+  /* 상단 정보 행: 공지 높이 = auto(3줄 내용), 유튜브 stretch로 자동 맞춤 */
+  .dash-info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+  .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); margin-bottom: 0 !important; }
+  .dash-yt-wrap { width: 100%; height: 100%; min-height: 160px; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
   .dash-yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
   [data-theme="dark"] .dash-yt-wrap { background: #1a3256; }
-  /* 공지: 3줄만, 스크롤 없음 */
-  .dash-notice-panel { height: 100%; overflow: hidden; margin-bottom: 0 !important; }
+  /* 공지: 3줄만, 스크롤 없음, auto 높이 */
+  .dash-notice-panel { overflow: hidden; margin-bottom: 0 !important; }
   .dash-notice-panel .notice-item:nth-child(n+5) { display: none; }
   /* 공대원 관리 위젯 */
   .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
@@ -316,19 +317,19 @@
   .dash-member-table td { padding: 8px 10px; border-bottom: 1px solid var(--row-line); color: var(--text); vertical-align: middle; }
   .dash-member-table tbody tr:last-child td { border-bottom: none; }
   .dash-member-table tbody tr:hover { background: var(--surface-alt); }
-  /* 태블릿 이하: 1열 flex, 순서 유튜브→공지→보스→공대원관리 */
+  /* 태블릿 이하: 1열 flex, 순서 유튜브→공지→보스→공대원관리/준비중 */
   @media (max-width: 1000px) {
     .dash-main-grid { display: flex; flex-direction: column; gap: 12px; }
-    .dash-left-col  { order: 1; }
-    .dash-right-col { order: 3; }
-    .dash-member-widget { order: 4; }
-    .dash-info-row  { height: 200px; gap: 12px; }
+    .dash-left-col   { order: 1; }
+    .dash-right-col  { order: 3; }
+    .dash-member-widget  { order: 4; }
+    .dash-coming-soon    { order: 4; }
+    .dash-info-row { gap: 12px; }
   }
   /* 모바일: 유튜브·공지 세로 1열 */
   @media (max-width: 640px) {
-    .dash-info-row { grid-template-columns: 1fr; height: auto; }
-    .dash-yt-panel  { height: 190px; }
-    .dash-notice-panel { height: auto; }
+    .dash-info-row { grid-template-columns: 1fr; }
+    .dash-yt-wrap  { min-height: 190px; }
     .dm-stat { padding: 8px 0; }
     .dm-stat-num { font-size: 17px; }
   }
@@ -921,7 +922,7 @@
           <div class="boss-list" id="dashBossList"></div>
         </div>
 
-        <!-- 공대원 관리 위젯 (데스크탑: 왼쪽 하단 / 모바일: 보스 다음) -->
+        <!-- 공대원 관리 위젯 (공대장 이상만) -->
         <div class="panel dash-member-widget">
           <div class="panel-header" style="margin-bottom:14px;">
             <div class="dash-section-title" style="margin-bottom:0;"><span class="material-icons">groups</span> 공대원 관리</div>
@@ -929,6 +930,15 @@
           </div>
           <div class="dash-member-stats" id="dashMemberStatRow"></div>
           <div id="dashMemberList"></div>
+        </div>
+
+        <!-- 준비중 패널 (공대장 미만 or 비로그인) -->
+        <div class="panel dash-coming-soon" style="display:none;">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;">
+            <span class="material-icons" style="font-size:36px;color:var(--text-sub);opacity:.4;">construction</span>
+            <div style="font-size:14px;font-weight:600;color:var(--text-sub);">콘텐츠 준비중입니다</div>
+            <div style="font-size:12px;color:var(--text-sub);opacity:.7;">더 많은 기능이 곧 추가될 예정입니다</div>
+          </div>
         </div>
 
       </div><!-- /dash-main-grid -->
@@ -2227,8 +2237,10 @@ function renderDashboard() {
 
   // 대시보드 공대원 위젯 — 공대장(leader) 이상만 표시
   const memberWidget = document.querySelector('.dash-member-widget');
+  const comingSoon = document.querySelector('.dash-coming-soon');
   const canSeeMgmt = currentProfile && ['master','leader'].includes(currentProfile.role);
   if(memberWidget) memberWidget.style.display = canSeeMgmt ? '' : 'none';
+  if(comingSoon) comingSoon.style.display = canSeeMgmt ? 'none' : '';
 
   const statRow = s('dashMemberStatRow');
   if(statRow && canSeeMgmt) {

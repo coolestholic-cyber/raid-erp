@@ -296,15 +296,17 @@
     gap: 14px;
   }
   .dash-left-col  { grid-area: left; min-height: 0; overflow: hidden; }
-  .dash-right-col { grid-area: boss; overflow-y: auto; min-height: 0; margin-bottom: 0 !important; }
-  .dash-member-widget { grid-area: mgmt; overflow-y: auto; min-height: 0; margin-bottom: 0 !important; }
+  .dash-right-col { grid-area: boss; overflow: hidden; min-height: 0; margin-bottom: 0 !important; }
+  .dash-member-widget { grid-area: mgmt; overflow: hidden; min-height: 0; margin-bottom: 0 !important; }
   /* 상단 정보 행: 유튜브 + 공지 나란히 */
   .dash-info-row { height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); height: 100%; margin-bottom: 0 !important; }
   .dash-yt-wrap { width: 100%; height: 100%; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
   .dash-yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
   [data-theme="dark"] .dash-yt-wrap { background: #1a3256; }
-  .dash-notice-panel { height: 100%; overflow-y: auto; margin-bottom: 0 !important; box-sizing: border-box; }
+  /* 공지: 스크롤 없음, 4줄만 표시 */
+  .dash-notice-panel { height: 100%; overflow: hidden; margin-bottom: 0 !important; box-sizing: border-box; }
+  .dash-notice-panel .notice-item:nth-child(n+6) { display: none; }
   /* 공대원 관리 위젯 */
   .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .dm-stat { display: flex; flex-direction: column; align-items: center; background: var(--surface-alt); border-radius: 8px; padding: 10px 0; flex: 1; }
@@ -317,20 +319,19 @@
   .dash-member-table tbody tr:hover { background: var(--surface-alt); }
   /* 모바일: flex 세로 + 순서 유튜브→공지→보스→공대원관리 */
   @media (max-width: 1000px) {
-    .dash-main-grid { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+    .dash-main-grid { display: flex; flex-direction: column; gap: 12px; overflow: visible; }
     .dash-left-col  { order: 1; overflow: visible; }
-    .dash-right-col { order: 3; max-height: 240px; flex-shrink: 0; }
-    .dash-member-widget { order: 4; overflow: visible; }
+    .dash-right-col { order: 3; overflow: hidden; flex-shrink: 0; }
+    .dash-member-widget { order: 4; overflow: hidden; }
     .dash-info-row  { height: auto; gap: 12px; }
     .dash-yt-panel  { height: 200px; }
-    .dash-notice-panel { height: 200px; }
+    .dash-notice-panel { height: auto; overflow: hidden; }
   }
   @media (max-width: 640px) {
-    #page-dashboard.active { height: calc(100vh - var(--header-h) - 16px - 72px); gap: 10px; overflow-y: auto; }
+    #page-dashboard.active { height: auto; min-height: unset; overflow: visible; gap: 10px; padding-bottom: 0; }
     .dash-info-row { grid-template-columns: 1fr; }
     .dash-yt-panel { height: 190px; }
-    .dash-notice-panel { height: 170px; }
-    .dash-right-col { max-height: 200px; }
+    .dash-notice-panel { height: auto; }
     .dm-stat { padding: 8px 0; }
     .dm-stat-num { font-size: 17px; }
   }
@@ -339,16 +340,16 @@
   .dash-section-title .material-icons { font-size: 16px; }
 
   /* 보스 일정 */
-  .boss-list { display: flex; flex-direction: column; gap: 8px; }
-  .boss-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border); }
+  .boss-list { display: flex; flex-direction: column; gap: 5px; }
+  .boss-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; background: var(--surface-alt); border: 1px solid var(--border); }
   .boss-item.today { background: #eff6ff; border-color: #bfdbfe; }
   .boss-item.done { opacity: .45; }
-  .boss-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .boss-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
   .boss-info { flex: 1; min-width: 0; }
-  .boss-info .bname { font-size: 13px; font-weight: 700; color: var(--text); }
-  .boss-info .bsub { font-size: 11px; color: var(--text-sub); }
-  .boss-reset { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
-  .boss-item { align-items: flex-start; }
+  .boss-info .bname { font-size: 12px; font-weight: 700; color: var(--text); }
+  .boss-info .bsub { font-size: 10px; color: var(--text-sub); }
+  .boss-reset { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px; white-space: nowrap; }
+  .boss-item { align-items: center; }
   .boss-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
   .boss-item-actions { display: flex; align-items: center; gap: 4px; }
   /* 아이콘 액션 버튼 - 모바일 터치 영역 확보 */

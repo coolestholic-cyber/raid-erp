@@ -273,6 +273,16 @@
   .dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .dash-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
 
+  /* 새 대시보드 메인 그리드 */
+  .dash-main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 16px; align-items: start; }
+  .dash-left-col { display: flex; flex-direction: column; gap: 14px; }
+  .dash-right-col { margin-bottom: 0 !important; }
+  .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); }
+  .dash-yt-wrap { width: 100%; aspect-ratio: 16/9; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
+  .dash-yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+  [data-theme="dark"] .dash-yt-wrap { background: #1a3256; }
+  @media (max-width: 960px) { .dash-main-grid { grid-template-columns: 1fr; } }
+
   .dash-section-title { font-size: 13px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
   .dash-section-title .material-icons { font-size: 16px; }
 
@@ -789,126 +799,87 @@
         </div>
       </div>
 
-      <!-- 요약 카드 4개 -->
-      <div class="cards" style="margin-bottom:16px;">
-        <div class="card stat-card">
-          <div>
-            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">전체 공대원</p>
-            <h3 id="dashTotalMembers">-</h3>
-          </div>
-          <div class="stat-icon stat-icon-blue"><span class="material-icons" style="color:#0b5cd5;font-size:22px;">groups</span></div>
-        </div>
-        <div class="card stat-card">
-          <div>
-            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">참여 가능</p>
-            <h3 id="dashActiveMembers" style="color:#059669;">-</h3>
-          </div>
-          <div class="stat-icon stat-icon-green"><span class="material-icons" style="color:#059669;font-size:22px;">check_circle</span></div>
-        </div>
-        <div class="card stat-card">
-          <div>
-            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">이번달 판매액</p>
-            <h3 id="dashMonthSales" style="color:#d97706;">-</h3>
-          </div>
-          <div class="stat-icon stat-icon-yellow"><span class="material-icons" style="color:#d97706;font-size:22px;">paid</span></div>
-        </div>
-        <div class="card stat-card">
-          <div>
-            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">내 참여 상태</p>
-            <h3 id="dashMyStatus" style="font-size:18px;">-</h3>
-          </div>
-          <div class="stat-icon stat-icon-purple"><span class="material-icons" style="color:#7c3aed;font-size:22px;">person_check</span></div>
-        </div>
-      </div>
+      <!-- 메인 2열: 왼쪽(유튜브+공지) + 오른쪽(보스) -->
+      <div class="dash-main-grid">
 
-      <!-- 중앙 2열: 공대현황 + 보스일정 -->
-      <div class="dash-grid-3">
+        <!-- 왼쪽 열 -->
+        <div class="dash-left-col">
 
-        <!-- 내 공대 현황 -->
-        <div class="panel" style="margin-bottom:0;">
-          <div class="dash-section-title"><span class="material-icons">groups</span> 공대원 현황</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;" id="dashMemberStats">
-            <div class="dash-stat-box">
-              <div style="font-size:20px;font-weight:800;color:#059669;" id="dStat1">-</div>
-              <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">참여</div>
-            </div>
-            <div class="dash-stat-box">
-              <div style="font-size:20px;font-weight:800;color:#d97706;" id="dStat2">-</div>
-              <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">미정</div>
-            </div>
-            <div class="dash-stat-box">
-              <div style="font-size:20px;font-weight:800;color:#ef4444;" id="dStat3">-</div>
-              <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">불참</div>
+          <!-- 유튜브 영역 -->
+          <div class="panel dash-yt-panel">
+            <div class="dash-yt-wrap" id="dashYtWrap">
+              <iframe id="dashYtFrame"
+                src="https://www.youtube.com/embed/videoseries?list=PLyrwRzwmRPqnBWv3m5b8Bpe7EM3D-F2-P&autoplay=1&mute=1&loop=1"
+                title="메이플랜드 영상"
+                frameborder="0"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen
+                style="width:100%;height:100%;border-radius:8px;">
+              </iframe>
             </div>
           </div>
-          <div class="dash-section-title" style="margin-top:4px;"><span class="material-icons">recent_actors</span> 최근 등록 공대원</div>
-          <div id="dashRecentMembers">
-            <div class="empty-state" style="padding:20px;"><p>공대원이 없습니다</p></div>
-          </div>
-        </div>
 
-        <!-- 보스 일정 -->
-        <div class="panel" style="margin-bottom:0;">
+          <!-- 공지 & 업데이트 -->
+          <div class="panel" style="margin-bottom:0;">
+            <div class="dash-section-title"><span class="material-icons">campaign</span> 공지 & 업데이트</div>
+            <div class="notice-item">
+              <div class="notice-dot" style="background:#0b5cd5;"></div>
+              <div>
+                <div class="notice-text">다크모드 / 라이트모드 테마 전환 기능이 추가되었습니다. 우측 상단 버튼으로 변경 가능합니다.</div>
+                <div class="notice-date">2026.04.14</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div class="notice-dot"></div>
+              <div>
+                <div class="notice-text">모바일 반응형 레이아웃이 적용되었습니다.</div>
+                <div class="notice-date">2026.04.11</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div class="notice-dot" style="background:#059669;"></div>
+              <div>
+                <div class="notice-text">아이템 정보 2,732개 DB 연동 완료. 직업별 필터 지원.</div>
+                <div class="notice-date">2026.04.10</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div class="notice-dot" style="background:#d97706;"></div>
+              <div>
+                <div class="notice-text">혼테일 타이머 — 리저렉션/사망/공무/버프해제/유혹 섹션 지원.</div>
+                <div class="notice-date">2026.04.09</div>
+              </div>
+            </div>
+            <div class="notice-item">
+              <div class="notice-dot" style="background:#7c3aed;"></div>
+              <div>
+                <div class="notice-text">메소 가계부 / 장비 관리 기능 준비 중입니다.</div>
+                <div class="notice-date">예정</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /dash-left-col -->
+
+        <!-- 오른쪽 열: 오늘의 보스 -->
+        <div class="panel dash-right-col" style="margin-bottom:0;">
           <div class="dash-section-title"><span class="material-icons">event</span> 오늘의 보스</div>
           <div class="boss-list" id="dashBossList"></div>
         </div>
 
+      </div><!-- /dash-main-grid -->
+
+      <!-- 숨겨진 요소 (JS에서 참조) -->
+      <div style="display:none;" id="dashMemberStats">
+        <div id="dStat1"></div><div id="dStat2"></div><div id="dStat3"></div>
       </div>
+      <div style="display:none;" id="dashRecentMembers"></div>
+      <div style="display:none;" id="dashRecentPurchases"></div>
+      <div style="display:none;" id="dashTotalMembers"></div>
+      <div style="display:none;" id="dashActiveMembers"></div>
+      <div style="display:none;" id="dashMonthSales"></div>
+      <div style="display:none;" id="dashMyStatus"></div>
 
-      <!-- 하단 2열: 최근 판매 + 공지 -->
-      <div class="dash-grid-2" style="margin-top:16px;">
-
-        <!-- 최근 판매내역 -->
-        <div class="panel" style="margin-bottom:0;">
-          <div class="dash-section-title"><span class="material-icons">shopping_cart</span> 최근 판매내역
-            <a onclick="showPage('purchase',null)" style="margin-left:auto;font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;text-transform:none;letter-spacing:0;">전체보기</a>
-          </div>
-          <div id="dashRecentPurchases">
-            <div class="empty-state" style="padding:20px;"><p>판매 내역이 없습니다</p></div>
-          </div>
-        </div>
-
-        <!-- 공지 & 업데이트 -->
-        <div class="panel" style="margin-bottom:0;">
-          <div class="dash-section-title"><span class="material-icons">campaign</span> 공지 & 업데이트</div>
-          <div class="notice-item">
-            <div class="notice-dot" style="background:#0b5cd5;"></div>
-            <div>
-              <div class="notice-text">다크모드 / 라이트모드 테마 전환 기능이 추가되었습니다. 우측 상단 버튼으로 변경 가능합니다.</div>
-              <div class="notice-date">2026.04.14</div>
-            </div>
-          </div>
-          <div class="notice-item">
-            <div class="notice-dot"></div>
-            <div>
-              <div class="notice-text">모바일 반응형 레이아웃이 적용되었습니다.</div>
-              <div class="notice-date">2026.04.11</div>
-            </div>
-          </div>
-          <div class="notice-item">
-            <div class="notice-dot" style="background:#059669;"></div>
-            <div>
-              <div class="notice-text">아이템 정보 2,732개 DB 연동 완료. 직업별 필터 지원.</div>
-              <div class="notice-date">2026.04.10</div>
-            </div>
-          </div>
-          <div class="notice-item">
-            <div class="notice-dot" style="background:#d97706;"></div>
-            <div>
-              <div class="notice-text">혼테일 타이머 — 리저렉션/사망/공무/버프해제/유혹 섹션 지원.</div>
-              <div class="notice-date">2026.04.09</div>
-            </div>
-          </div>
-          <div class="notice-item">
-            <div class="notice-dot" style="background:#7c3aed;"></div>
-            <div>
-              <div class="notice-text">메소 가계부 / 장비 관리 기능 준비 중입니다.</div>
-              <div class="notice-date">예정</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
     </div><!-- /page-dashboard -->
 
     <!-- 캐릭터 정보 -->

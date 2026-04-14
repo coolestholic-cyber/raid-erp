@@ -78,6 +78,35 @@
   /* 삭제 버튼 (btn-danger) 다크모드에서도 동일 유지 — 이미 빨간색으로 OK */
   /* 수정 버튼 */
   [data-theme="dark"] .btn-sm.btn-outline { background: var(--surface); color: var(--text-sub); }
+  /* ===== 드랍/지출/결산 공통 ===== */
+  .section-label { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-sub);margin-bottom:8px; }
+  .calc-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px; }
+  .calc-box { background:var(--surface-alt);border-radius:10px;padding:14px 16px;text-align:center; }
+  .calc-box .cb-label { font-size:12px;color:var(--text-sub);margin-bottom:6px; }
+  .calc-box .cb-val { font-size:20px;font-weight:800; }
+  .calc-box.accent { background:var(--accent-light); }
+  .calc-box.accent .cb-label { color:var(--accent);font-weight:600; }
+  .calc-box.accent .cb-val { color:var(--accent); }
+  .calc-box.green .cb-val { color:#059669; }
+  .calc-box.red .cb-val { color:#dc2626; }
+  .calc-box.yellow .cb-val { color:#d97706; }
+  [data-theme="dark"] .calc-box.accent { background:#1a3256; }
+  .item-row { display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--row-line); }
+  .item-row:last-child { border-bottom:none; }
+  .fee-notice { font-size:12px;color:var(--text-sub);background:var(--surface-alt);border-radius:8px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:6px; }
+  .dist-row { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--row-line); }
+  .dist-row:last-child { border-bottom:none; }
+  .tag-sale { font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center; }
+  .tag-완료 { background:#ecfdf5;color:#059669; }
+  .tag-경매 { background:#eff6ff;color:#0b5cd5; }
+  .tag-교환 { background:#faf5ff;color:#7c3aed; }
+  [data-theme="dark"] .tag-완료 { background:#052e1c;color:#34d399; }
+  [data-theme="dark"] .tag-경매 { background:#0a1e3d;color:#60a5fa; }
+  [data-theme="dark"] .tag-교환 { background:#1e1040;color:#a78bfa; }
+  .inline-form { background:var(--surface-alt);border-radius:10px;padding:14px;margin-bottom:12px;display:grid;gap:10px; }
+  .inline-form .if-row { display:flex;gap:8px;flex-wrap:wrap; }
+  .inline-form input, .inline-form select { flex:1;min-width:100px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--card-bg);color:var(--text);font-family:inherit; }
+  .inline-form input:focus, .inline-form select:focus { outline:none;border-color:var(--accent); }
   /* 테마 토글 버튼 */
   .theme-toggle { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; flex-shrink: 0; }
   .theme-toggle:hover { background: var(--accent-light); color: var(--accent); }
@@ -701,6 +730,9 @@
     <!-- 내 공대 관리 탭바 (공대원/보스정산/손님정산 페이지에서 표시) -->
     <div id="myRaidTabBar" style="display:none;">
       <button id="raidTab-members" class="raid-mgmt-tab active" onclick="showPage('members',null)">👥 공대원</button>
+      <button id="raidTab-drop" class="raid-mgmt-tab" onclick="showPage('drop',null)">📦 드랍/아이템</button>
+      <button id="raidTab-expenses" class="raid-mgmt-tab" onclick="showPage('expenses',null)">💸 지출</button>
+      <button id="raidTab-calc" class="raid-mgmt-tab" onclick="showPage('calc',null)">📊 일일 결산</button>
       <button id="raidTab-settlement" class="raid-mgmt-tab" onclick="showPage('settlement',null)">💰 보스 정산</button>
       <button id="raidTab-guestsettlement" class="raid-mgmt-tab" onclick="showPage('guestsettlement',null)">🎫 손님 정산</button>
     </div>
@@ -1224,6 +1256,120 @@
       </div>
     </div>
 
+    <!-- ===== 드랍/아이템 관리 ===== -->
+    <div id="page-drop" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">드랍/아이템 관리</h1><p class="page-desc">드랍 아이템 판매 내역을 입력하면 수수료·순수익이 자동 계산됩니다</p></div>
+        <button class="btn btn-primary" onclick="toggleDropForm()"><span class="material-icons" style="font-size:16px;">add</span> 아이템 추가</button>
+      </div>
+      <!-- 요약 카드 -->
+      <div class="calc-grid" id="dropSummaryCards">
+        <div class="calc-box"><div class="cb-label">총 매출</div><div class="cb-val" id="dropTotalRevenue">0만</div></div>
+        <div class="calc-box red"><div class="cb-label">총 수수료 (1.8%)</div><div class="cb-val" id="dropTotalFee">0만</div></div>
+        <div class="calc-box green"><div class="cb-label">총 순수익</div><div class="cb-val" id="dropTotalNet">0만</div></div>
+        <div class="calc-box accent"><div class="cb-label">아이템 수</div><div class="cb-val" id="dropItemCount">0개</div></div>
+      </div>
+      <!-- 수수료 안내 -->
+      <div class="fee-notice">
+        <span class="material-icons" style="font-size:15px;color:var(--accent);">info</span>
+        거래소 수수료는 공대장 499수작 기준으로 <strong style="color:var(--accent);margin:0 4px;">1.8% 고정</strong> 적용됩니다.
+      </div>
+      <!-- 추가 폼 -->
+      <div id="dropForm" style="display:none;" class="panel" style="margin-bottom:16px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">아이템 입력</div>
+        <div class="inline-form">
+          <div class="if-row">
+            <input type="text" id="dfName" placeholder="아이템명 *" style="flex:2;">
+            <input type="number" id="dfPrice" placeholder="판매가 (메소)" min="0" oninput="previewDropCalc()">
+            <input type="number" id="dfQty" placeholder="수량" min="1" value="1" oninput="previewDropCalc()">
+            <select id="dfMethod">
+              <option value="완료">완료</option><option value="경매">경매</option><option value="교환">교환</option>
+            </select>
+          </div>
+          <div class="if-row" id="dfPreview" style="font-size:13px;color:var(--text-sub);gap:16px;flex-wrap:wrap;"></div>
+          <div class="if-row" style="justify-content:flex-end;gap:8px;">
+            <button class="btn btn-outline" onclick="toggleDropForm()">취소</button>
+            <button class="btn btn-primary" onclick="saveDropItem()">저장</button>
+          </div>
+        </div>
+      </div>
+      <!-- 아이템 목록 -->
+      <div class="panel">
+        <div class="table-wrap">
+          <table><thead><tr>
+            <th>#</th><th>아이템명</th><th>판매가</th><th>수량</th><th>매출</th><th>수수료</th><th>순수익</th><th>판매방식</th><th>관리</th>
+          </tr></thead><tbody id="dropTableBody"></tbody></table>
+        </div>
+        <div id="dropEmpty" style="text-align:center;padding:32px;color:var(--text-sub);">등록된 아이템이 없습니다</div>
+      </div>
+    </div>
+
+    <!-- ===== 지출 관리 ===== -->
+    <div id="page-expenses" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">지출 관리</h1><p class="page-desc">공대 운영 지출을 기록합니다. 정산 시 순수익에서 차감됩니다</p></div>
+        <button class="btn btn-primary" onclick="toggleExpenseForm()"><span class="material-icons" style="font-size:16px;">add</span> 지출 추가</button>
+      </div>
+      <!-- 요약 -->
+      <div class="calc-grid">
+        <div class="calc-box red"><div class="cb-label">총 지출</div><div class="cb-val" id="expTotalAmount">0만</div></div>
+        <div class="calc-box"><div class="cb-label">항목 수</div><div class="cb-val" id="expItemCount">0개</div></div>
+      </div>
+      <!-- 추가 폼 -->
+      <div id="expenseForm" style="display:none;" class="panel" style="margin-bottom:16px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">지출 입력</div>
+        <div class="inline-form">
+          <div class="if-row">
+            <input type="text" id="efName" placeholder="항목명 *" style="flex:2;">
+            <input type="number" id="efAmount" placeholder="금액 (메소)" min="0">
+            <input type="text" id="efNote" placeholder="설명 (선택)">
+          </div>
+          <div class="if-row" style="justify-content:flex-end;gap:8px;">
+            <button class="btn btn-outline" onclick="toggleExpenseForm()">취소</button>
+            <button class="btn btn-primary" onclick="saveExpense()">저장</button>
+          </div>
+        </div>
+      </div>
+      <!-- 지출 목록 -->
+      <div class="panel">
+        <div id="expenseList"><div style="text-align:center;padding:32px;color:var(--text-sub);">등록된 지출이 없습니다</div></div>
+      </div>
+    </div>
+
+    <!-- ===== 일일 결산 ===== -->
+    <div id="page-calc" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">일일 결산</h1><p class="page-desc">드랍 순수익에서 지출을 차감하고 참여율 기준으로 개인 분배금을 계산합니다</p></div>
+        <button class="btn btn-outline" onclick="renderCalcPage()"><span class="material-icons" style="font-size:16px;">refresh</span> 새로고침</button>
+      </div>
+      <!-- 결산 요약 -->
+      <div class="calc-grid" id="calcSummaryCards">
+        <div class="calc-box green"><div class="cb-label">총 순수익</div><div class="cb-val" id="calcTotalNet">0만</div></div>
+        <div class="calc-box red"><div class="cb-label">총 지출</div><div class="cb-val" id="calcTotalExp">0만</div></div>
+        <div class="calc-box accent"><div class="cb-label">최종 분배 재원</div><div class="cb-val" id="calcDistributable">0만</div></div>
+        <div class="calc-box"><div class="cb-label">참여 인원</div><div class="cb-val" id="calcParticipants">0명</div></div>
+        <div class="calc-box accent"><div class="cb-label">기본 1인당</div><div class="cb-val" id="calcPerMember">0만</div></div>
+      </div>
+      <!-- 참여율 기준 개인 분배 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>개인 분배 내역</h2>
+          <span style="font-size:12px;color:var(--text-sub);">참여율 × 기본 분배금</span>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr>
+            <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>참여율</th><th>개인 분배금</th>
+          </tr></thead><tbody id="calcDistBody"></tbody></table>
+        </div>
+        <div id="calcEmpty" style="text-align:center;padding:32px;color:var(--text-sub);">참여 상태인 공대원이 없습니다</div>
+      </div>
+      <!-- 계산 근거 요약 -->
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-header"><h2>계산 근거</h2></div>
+        <div id="calcFormula" style="font-size:13px;color:var(--text-sub);line-height:2;"></div>
+      </div>
+    </div>
+
     <!-- 손님정산 -->
     <div id="page-guestsettlement" class="page-section">
       <div class="top-bar">
@@ -1740,7 +1886,7 @@ auth.onAuthStateChanged(async(user)=>{
     const el=document.getElementById('sidebarUserTotal');
     if(el){const uids=snap.exists?(snap.data().uids||[]):[];el.textContent=uids.length+'명';}
   });
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();updateMyRaidNavVisibility();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();subscribeRaidItems();subscribeRaidExpenses();updateMyRaidNavVisibility();
   await loadBossTimers();
   renderBossList();
 });
@@ -2360,8 +2506,8 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestsettlement:'공대관리 / 내 공대 관리 / 손님 정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
-const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestsettlement:'내 공대 관리',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
+const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',drop:'공대관리 / 내 공대 관리 / 드랍/아이템',expenses:'공대관리 / 내 공대 관리 / 지출',calc:'공대관리 / 내 공대 관리 / 일일 결산',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestsettlement:'공대관리 / 내 공대 관리 / 손님 정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
+const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',drop:'드랍/아이템',expenses:'지출',calc:'일일 결산',settlement:'내 공대 관리',guestsettlement:'내 공대 관리',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
 
 // 탭바 페이지 매핑
 const tabPageMap = {
@@ -2389,7 +2535,7 @@ function showPage(id,el){
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
   const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent=mobileTitleMap[id]||'';
   // 내 공대 관리 탭바
-  const mgmtPages=['members','settlement','guestsettlement'];
+  const mgmtPages=['members','drop','expenses','calc','settlement','guestsettlement'];
   const tabBar=document.getElementById('myRaidTabBar');
   if(tabBar){
     tabBar.style.display=mgmtPages.includes(id)?'':'none';
@@ -2407,6 +2553,9 @@ function showPage(id,el){
   if(id==='myraids')renderMyRaids();
   if(id==='settlement'){renderSettlementHistory();}
   if(id==='guestsettlement'){renderGuestSettlementHistory();}
+  if(id==='drop'){renderDropPage();}
+  if(id==='expenses'){renderExpensePage();}
+  if(id==='calc'){renderCalcPage();}
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){loadLoginLogs();}
@@ -3595,6 +3744,227 @@ setInterval(() => {
   const blEl = document.getElementById('dashBossList');
   if (blEl) renderDashboard();
 }, 60000);
+
+// =============================================
+// 드랍/아이템 · 지출 · 일일 결산
+// =============================================
+
+const FEE_RATE = 0.018;
+let raidItems = [], raidExpenses = [];
+
+// --- Firestore 구독 ---
+function subscribeRaidItems() {
+  db.collection('raidItems').orderBy('createdAt','desc').onSnapshot(s => {
+    raidItems = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderDropPage();
+    renderCalcPage();
+  });
+}
+function subscribeRaidExpenses() {
+  db.collection('raidExpenses').orderBy('createdAt','desc').onSnapshot(s => {
+    raidExpenses = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderExpensePage();
+    renderCalcPage();
+  });
+}
+
+// --- 계산 헬퍼 ---
+function calcItem(price, qty) {
+  const revenue = (price || 0) * (qty || 1);
+  const fee = Math.round(revenue * FEE_RATE);
+  return { revenue, fee, netProfit: revenue - fee };
+}
+function fmt(n) {
+  if (n >= 100000000) return (n / 100000000).toFixed(2) + '억';
+  if (n >= 10000)     return Math.floor(n / 10000) + '만';
+  return n.toLocaleString();
+}
+function calcSummary() {
+  const totalRevenue  = raidItems.reduce((s, i) => s + calcItem(i.price, i.qty).revenue,   0);
+  const totalFee      = raidItems.reduce((s, i) => s + calcItem(i.price, i.qty).fee,        0);
+  const totalNet      = raidItems.reduce((s, i) => s + calcItem(i.price, i.qty).netProfit,  0);
+  const totalExp      = raidExpenses.reduce((s, e) => s + (e.amount || 0), 0);
+  const distributable = Math.max(0, totalNet - totalExp);
+  const participants  = allMembers.filter(m => m.status === '참여');
+  const perMember     = participants.length > 0 ? Math.floor(distributable / participants.length) : 0;
+  return { totalRevenue, totalFee, totalNet, totalExp, distributable, participants, perMember };
+}
+
+// ===== 드랍/아이템 =====
+function toggleDropForm() {
+  const f = document.getElementById('dropForm');
+  if (!f) return;
+  const show = f.style.display === 'none';
+  f.style.display = show ? '' : 'none';
+  if (show) { document.getElementById('dfName').focus(); }
+}
+function previewDropCalc() {
+  const price = parseFloat(document.getElementById('dfPrice').value) || 0;
+  const qty   = parseFloat(document.getElementById('dfQty').value)   || 1;
+  const { revenue, fee, netProfit } = calcItem(price, qty);
+  const el = document.getElementById('dfPreview');
+  if (!el) return;
+  el.innerHTML = revenue > 0
+    ? `<span>매출 <strong>${fmt(revenue)}</strong></span><span style="color:#dc2626;">수수료 <strong>${fmt(fee)}</strong></span><span style="color:#059669;">순수익 <strong>${fmt(netProfit)}</strong></span>`
+    : '';
+}
+async function saveDropItem() {
+  const name   = (document.getElementById('dfName').value || '').trim();
+  const price  = parseFloat(document.getElementById('dfPrice').value) || 0;
+  const qty    = parseInt(document.getElementById('dfQty').value)     || 1;
+  const method = document.getElementById('dfMethod').value;
+  if (!name) { alert('아이템명을 입력해주세요.'); return; }
+  if (price <= 0) { alert('판매가를 입력해주세요.'); return; }
+  try {
+    await db.collection('raidItems').add({ name, price, qty, method, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    document.getElementById('dfName').value = '';
+    document.getElementById('dfPrice').value = '';
+    document.getElementById('dfQty').value = '1';
+    document.getElementById('dfPreview').innerHTML = '';
+    toggleDropForm();
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
+async function deleteDropItem(id) {
+  if (!confirm('이 아이템을 삭제할까요?')) return;
+  await db.collection('raidItems').doc(id).delete();
+}
+function renderDropPage() {
+  const tbody = document.getElementById('dropTableBody');
+  const empty = document.getElementById('dropEmpty');
+  if (!tbody) return;
+
+  const { totalRevenue, totalFee, totalNet } = calcSummary();
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('dropTotalRevenue', fmt(totalRevenue));
+  set('dropTotalFee',     fmt(totalFee));
+  set('dropTotalNet',     fmt(totalNet));
+  set('dropItemCount',    raidItems.length + '개');
+
+  if (raidItems.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  tbody.innerHTML = raidItems.map((item, idx) => {
+    const { revenue, fee, netProfit } = calcItem(item.price, item.qty);
+    const tag = `<span class="tag-sale tag-${item.method||'완료'}">${item.method||'완료'}</span>`;
+    return `<tr>
+      <td>${idx + 1}</td>
+      <td><strong>${item.name}</strong></td>
+      <td>${(item.price||0).toLocaleString()}</td>
+      <td>${item.qty||1}</td>
+      <td>${fmt(revenue)}</td>
+      <td style="color:#dc2626;">${fmt(fee)}</td>
+      <td style="color:#059669;font-weight:700;">${fmt(netProfit)}</td>
+      <td>${tag}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteDropItem('${item.id}')">삭제</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== 지출 =====
+function toggleExpenseForm() {
+  const f = document.getElementById('expenseForm');
+  if (!f) return;
+  const show = f.style.display === 'none';
+  f.style.display = show ? '' : 'none';
+  if (show) document.getElementById('efName').focus();
+}
+async function saveExpense() {
+  const name   = (document.getElementById('efName').value   || '').trim();
+  const amount = parseFloat(document.getElementById('efAmount').value) || 0;
+  const note   = (document.getElementById('efNote').value   || '').trim();
+  if (!name)    { alert('항목명을 입력해주세요.'); return; }
+  if (amount <= 0) { alert('금액을 입력해주세요.'); return; }
+  try {
+    await db.collection('raidExpenses').add({ name, amount, note, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    document.getElementById('efName').value   = '';
+    document.getElementById('efAmount').value = '';
+    document.getElementById('efNote').value   = '';
+    toggleExpenseForm();
+  } catch(e) { alert('저장 실패: ' + e.message); }
+}
+async function deleteExpense(id) {
+  if (!confirm('이 지출 항목을 삭제할까요?')) return;
+  await db.collection('raidExpenses').doc(id).delete();
+}
+function renderExpensePage() {
+  const list  = document.getElementById('expenseList');
+  if (!list) return;
+  const total = raidExpenses.reduce((s, e) => s + (e.amount || 0), 0);
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('expTotalAmount', fmt(total));
+  set('expItemCount',   raidExpenses.length + '개');
+
+  if (raidExpenses.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-sub);">등록된 지출이 없습니다</div>';
+    return;
+  }
+  list.innerHTML = raidExpenses.map(e => `
+    <div class="dist-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:8px;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;">
+          <span class="material-icons" style="font-size:18px;color:#dc2626;">remove_circle_outline</span>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px;">${e.name}</div>
+          ${e.note ? `<div style="font-size:12px;color:var(--text-sub);">${e.note}</div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-weight:700;color:#dc2626;">${fmt(e.amount)}</span>
+        <button class="btn btn-sm btn-danger" onclick="deleteExpense('${e.id}')">삭제</button>
+      </div>
+    </div>`).join('');
+}
+
+// ===== 일일 결산 =====
+function renderCalcPage() {
+  const { totalNet, totalExp, distributable, participants, perMember, totalRevenue, totalFee } = calcSummary();
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('calcTotalNet',      fmt(totalNet));
+  set('calcTotalExp',      fmt(totalExp));
+  set('calcDistributable', fmt(distributable));
+  set('calcParticipants',  participants.length + '명');
+  set('calcPerMember',     fmt(perMember));
+
+  const tbody = document.getElementById('calcDistBody');
+  const empty = document.getElementById('calcEmpty');
+  if (!tbody) return;
+
+  if (participants.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = '';
+  } else {
+    if (empty) empty.style.display = 'none';
+    tbody.innerHTML = participants.map((m, idx) => {
+      const rate   = (m.rate != null ? m.rate : 100) / 100;
+      const myGold = Math.floor(perMember * rate);
+      const roleBadge = m.role === '서폿'
+        ? `<span class="badge badge-blue" style="font-size:11px;">${m.role}</span>`
+        : `<span class="badge badge-green" style="font-size:11px;">${m.role||'딜러'}</span>`;
+      return `<tr>
+        <td>${idx + 1}</td>
+        <td><strong>${m.name}</strong></td>
+        <td style="color:var(--text-sub);font-size:13px;">${m.cls||'-'}</td>
+        <td>${roleBadge}</td>
+        <td>${m.rate != null ? m.rate : 100}%</td>
+        <td style="font-weight:700;color:var(--accent);">${fmt(myGold)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const formula = document.getElementById('calcFormula');
+  if (formula) {
+    formula.innerHTML = `
+      총 매출 ${fmt(totalRevenue)} − 수수료 ${fmt(totalFee)} = 순수익 ${fmt(totalNet)}<br>
+      순수익 ${fmt(totalNet)} − 지출 ${fmt(totalExp)} = 최종 분배 재원 ${fmt(distributable)}<br>
+      분배 재원 ${fmt(distributable)} ÷ ${participants.length}명 = 기본 1인 ${fmt(perMember)}<br>
+      <span style="color:var(--accent);">개인 분배금 = 기본 1인 × 참여율(%)</span>
+    `;
+  }
+}
 </script>
 <script>
   // ===== 테마 (라이트/다크) =====

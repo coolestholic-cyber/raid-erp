@@ -27,6 +27,42 @@
   [data-theme="dark"] .panel { background: var(--card-bg); }
   [data-theme="dark"] .logout-link:hover { background: #2d1515; }
   [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: var(--surface); color: var(--text); border-color: var(--border); }
+  /* 배지 다크모드 */
+  [data-theme="dark"] .badge-green  { background: #052e1c; color: #34d399; }
+  [data-theme="dark"] .badge-yellow { background: #2d1f00; color: #fbbf24; }
+  [data-theme="dark"] .badge-red    { background: #2d0a0a; color: #f87171; }
+  [data-theme="dark"] .badge-purple { background: #1e1040; color: #a78bfa; }
+  [data-theme="dark"] .badge-gray   { background: #252830; color: #9ca3af; }
+  [data-theme="dark"] .badge-blue   { background: #1a3256; color: #60a5fa; }
+  /* 호버 오버라이드 */
+  [data-theme="dark"] .btn-outline:hover { background: #252830; }
+  [data-theme="dark"] .class-tab:hover,
+  [data-theme="dark"] .class-tab.active { background: #1a3256; color: #60a5fa; border-color: #1a3256; }
+  [data-theme="dark"] .item-tab:hover,
+  [data-theme="dark"] .item-tab.active  { background: #1a3256; color: #60a5fa; border-color: #1a3256; }
+  [data-theme="dark"] .view-toggle button.active,
+  [data-theme="dark"] .view-toggle button:hover { background: #252830; color: var(--text); }
+  /* 보스 카드 색상 오버라이드 (라이트 파스텔 → 다크 톤) */
+  [data-theme="dark"] .ht-card[style*="background:#fee2e2"],
+  [data-theme="dark"] .ht-card[style*="background: #fee2e2"] { background: #2d1010 !important; }
+  [data-theme="dark"] .ht-card[style*="background:#faf5ff"],
+  [data-theme="dark"] .ht-card[style*="background: #faf5ff"] { background: #1e1040 !important; }
+  [data-theme="dark"] .ht-card[style*="background:#fffbeb"],
+  [data-theme="dark"] .ht-card[style*="background: #fffbeb"] { background: #2d1f00 !important; }
+  [data-theme="dark"] .ht-card[style*="background:#ecfdf5"],
+  [data-theme="dark"] .ht-card[style*="background: #ecfdf5"] { background: #052e1c !important; }
+  [data-theme="dark"] .ht-card[style*="background:#e0f2fe"],
+  [data-theme="dark"] .ht-card[style*="background: #e0f2fe"] { background: #0a2540 !important; }
+  /* 보스 아이템 */
+  [data-theme="dark"] .boss-item { background: #1e2128; border-color: var(--border); }
+  [data-theme="dark"] .boss-item.today { background: #0a1e3d; border-color: #1e3a5f; }
+  /* 상태 선택 버튼 */
+  [data-theme="dark"] .status-btn { background: var(--surface) !important; color: var(--text-sub) !important; border-color: var(--border) !important; }
+  [data-theme="dark"] .status-btn.active[style*="059669"] { background: #052e1c !important; color: #34d399 !important; border-color: #34d399 !important; }
+  /* 신청 상태 배지 */
+  [data-theme="dark"] [style*="background:#fffbeb"] { background: #2d1f00 !important; }
+  [data-theme="dark"] [style*="background:#ecfdf5"] { background: #052e1c !important; }
+  [data-theme="dark"] [style*="background:#fef2f2"] { background: #2d0a0a !important; }
   /* 테마 토글 버튼 */
   .theme-toggle { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; flex-shrink: 0; }
   .theme-toggle:hover { background: var(--accent-light); color: var(--accent); }
@@ -1679,11 +1715,11 @@ auth.onAuthStateChanged(async(user)=>{
 // Dashboard
 // =============================================
 const BOSS_SCHEDULE = [
-  { name:'자쿰',      icon:'⚔️', color:'#fee2e2', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-red',    cooldownHours:24  },
-  { name:'혼테일',    icon:'🐉', color:'#faf5ff', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-purple', cooldownHours:24  },
-  { name:'파풀라투스', icon:'📜', color:'#fffbeb', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-yellow', cooldownHours:24  },
-  { name:'피아누스',  icon:'🐟', color:'#eff6ff', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-blue',   cooldownHours:168 },
-  { name:'크우파',    icon:'🐢', color:'#ecfdf5', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-green',  cooldownHours:168 },
+  { name:'자쿰',      icon:'⚔️', color:'#fee2e2', darkColor:'#2d1010', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-red',    cooldownHours:24  },
+  { name:'혼테일',    icon:'🐉', color:'#faf5ff', darkColor:'#1e1040', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-purple', cooldownHours:24  },
+  { name:'파풀라투스', icon:'📜', color:'#fffbeb', darkColor:'#2d1f00', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-yellow', cooldownHours:24  },
+  { name:'피아누스',  icon:'🐟', color:'#eff6ff', darkColor:'#0a1e3d', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-blue',   cooldownHours:168 },
+  { name:'크우파',    icon:'🐢', color:'#ecfdf5', darkColor:'#052e1c', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-green',  cooldownHours:168 },
 ];
 
 // =============================================
@@ -1848,8 +1884,10 @@ function renderBossList() {
         <span class="material-icons">restart_alt</span>
       </button>` : ''}`;
 
+    const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+    const bossColor=isDark?(b.darkColor||b.color):b.color;
     return `<div class="boss-item">
-      <div class="boss-icon" style="background:${b.color};">${b.icon}</div>
+      <div class="boss-icon" style="background:${bossColor};">${b.icon}</div>
       <div class="boss-info" style="flex:1;min-width:0;">
         <div class="bname">${b.name}</div>
         ${infoHtml}
@@ -2096,20 +2134,26 @@ function selectClass(name,type){
 }
 
 function selectRole(role){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   document.getElementById('fRole').value=role;
   const d=document.getElementById('roleDealer'),s=document.getElementById('roleSupport');
+  const inactiveBg=isDark?'var(--surface)':'#fff';
   d.style.borderColor=role==='딜러'?'var(--accent)':'var(--border)';
-  d.style.background=role==='딜러'?'var(--accent-light)':'#fff';
+  d.style.background=role==='딜러'?'var(--accent-light)':inactiveBg;
   d.style.color=role==='딜러'?'var(--accent)':'var(--text-sub)';
   s.style.borderColor=role==='서폿'?'#059669':'var(--border)';
-  s.style.background=role==='서폿'?'#ecfdf5':'#fff';
+  s.style.background=role==='서폿'?(isDark?'#052e1c':'#ecfdf5'):inactiveBg;
   s.style.color=role==='서폿'?'#059669':'var(--text-sub)';
 }
 
 function selectStatus(st,el){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   document.getElementById('fStatus').value=st;
-  document.querySelectorAll('.status-btn').forEach(b=>{b.style.borderColor='var(--border)';b.style.background='#fff';b.style.color='var(--text-sub)';});
-  const colors={참여:['#059669','#ecfdf5'],미정:['#d97706','#fffbeb'],불참:['#dc2626','#fef2f2']};
+  const inactiveBg=isDark?'var(--surface)':'#fff';
+  document.querySelectorAll('.status-btn').forEach(b=>{b.style.borderColor='var(--border)';b.style.background=inactiveBg;b.style.color='var(--text-sub)';});
+  const colors=isDark
+    ?{참여:['#34d399','#052e1c'],미정:['#fbbf24','#2d1f00'],불참:['#f87171','#2d0a0a']}
+    :{참여:['#059669','#ecfdf5'],미정:['#d97706','#fffbeb'],불참:['#dc2626','#fef2f2']};
   const c=colors[st];
   el.style.borderColor=c[0];el.style.background=c[1];el.style.color=c[0];
 }

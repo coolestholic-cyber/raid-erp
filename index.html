@@ -318,10 +318,12 @@
     .dash-main-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
     .dash-right-col { max-height: 200px; flex-shrink: 0; }
   }
-  /* 모바일: 정보 행 높이 줄이기 */
+  /* 모바일: 유튜브/공지 세로 1열, 각 구역 독립 */
   @media (max-width: 640px) {
     #page-dashboard.active { height: calc(100vh - var(--header-h) - 16px - 72px); gap: 10px; }
-    .dash-info-row { height: 150px; gap: 10px; }
+    .dash-info-row { grid-template-columns: 1fr; height: auto; gap: 10px; flex-shrink: 0; }
+    .dash-yt-panel { height: 200px; }
+    .dash-notice-panel { height: 160px; }
     .dash-right-col { max-height: 160px; }
     .dash-member-stats { gap: 6px; }
     .dm-stat { padding: 8px 0; }
@@ -2222,9 +2224,13 @@ function renderDashboard() {
     }
   }
 
-  // 대시보드 공대원 위젯
+  // 대시보드 공대원 위젯 — 공대장(leader) 이상만 표시
+  const memberWidget = document.querySelector('.dash-member-widget');
+  const canSeeMgmt = currentProfile && ['master','leader'].includes(currentProfile.role);
+  if(memberWidget) memberWidget.style.display = canSeeMgmt ? '' : 'none';
+
   const statRow = s('dashMemberStatRow');
-  if(statRow) {
+  if(statRow && canSeeMgmt) {
     statRow.innerHTML = `
       <div class="dm-stat"><span class="dm-stat-num">${total}</span><span class="dm-stat-label">전체</span></div>
       <div class="dm-stat"><span class="dm-stat-num" style="color:#059669">${active}</span><span class="dm-stat-label">참여</span></div>
@@ -2232,7 +2238,7 @@ function renderDashboard() {
       <div class="dm-stat"><span class="dm-stat-num" style="color:#ef4444">${absent}</span><span class="dm-stat-label">불참</span></div>`;
   }
   const mlEl = s('dashMemberList');
-  if(mlEl) {
+  if(mlEl && canSeeMgmt) {
     if(!allMembers.length) {
       mlEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-sub);font-size:13px;">등록된 공대원이 없습니다</div>';
     } else {

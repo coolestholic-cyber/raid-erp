@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>메랜ERP</title>
 <link rel="icon" type="image/x-icon" href="MapleERP.ico">
+<script>
+  /* 테마 즉시 적용 — 깜빡임 방지 */
+  (function(){ document.documentElement.setAttribute('data-theme', localStorage.getItem('erp-theme')||'light'); })();
+</script>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
@@ -63,6 +67,19 @@
   [data-theme="dark"] [style*="background:#fffbeb"] { background: #2d1f00 !important; }
   [data-theme="dark"] [style*="background:#ecfdf5"] { background: #052e1c !important; }
   [data-theme="dark"] [style*="background:#fef2f2"] { background: #2d0a0a !important; }
+  /* ===== 테이블(그리드) 다크모드 ===== */
+  [data-theme="dark"] thead th { background: #161920; color: var(--text-sub); border-bottom-color: var(--border); }
+  [data-theme="dark"] tbody td { border-bottom-color: #252830; color: var(--text); }
+  [data-theme="dark"] tbody tr:hover { background: #252830; }
+  [data-theme="dark"] tbody tr { background: transparent; }
+  /* 진행률 바 트랙 */
+  [data-theme="dark"] .progress-bar { background: #252830; }
+  [data-theme="dark"] .member-card .mc-rate-bar { background: #252830; }
+  /* 멤버 카드 hover */
+  [data-theme="dark"] .member-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.4); }
+  /* 삭제 버튼 (btn-danger) 다크모드에서도 동일 유지 — 이미 빨간색으로 OK */
+  /* 수정 버튼 */
+  [data-theme="dark"] .btn-sm.btn-outline { background: var(--surface); color: var(--text-sub); }
   /* 테마 토글 버튼 */
   .theme-toggle { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-sub); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; flex-shrink: 0; }
   .theme-toggle:hover { background: var(--accent-light); color: var(--accent); }
@@ -3564,9 +3581,9 @@ setInterval(() => {
 </script>
 <script>
   // ===== 테마 (라이트/다크) =====
+  // head에서 data-theme 이미 적용됨 — 여기선 아이콘만 동기화
   (function(){
-    const saved = localStorage.getItem('erp-theme') || 'light';
-    document.documentElement.setAttribute('data-theme', saved);
+    const saved = document.documentElement.getAttribute('data-theme') || 'light';
     const icon = document.getElementById('themeIcon');
     if(icon) icon.textContent = saved === 'dark' ? 'dark_mode' : 'light_mode';
   })();
@@ -3576,6 +3593,8 @@ setInterval(() => {
     localStorage.setItem('erp-theme', cur);
     const icon = document.getElementById('themeIcon');
     if(icon) icon.textContent = cur === 'dark' ? 'dark_mode' : 'light_mode';
+    // 보스 목록 다시 그려서 아이콘 색상 갱신
+    if(typeof renderBossList === 'function') renderBossList();
   }
 </script>
 </body>

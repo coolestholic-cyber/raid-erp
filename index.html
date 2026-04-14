@@ -222,8 +222,8 @@
   .page-section { display: none; }
   .page-section.active { display: block; flex: 1; }
   #page-mychar.active { display: flex; flex-direction: column; }
-  /* 대시보드: 페이지 스크롤 없는 전체 화면 레이아웃 */
-  #page-dashboard.active { display: flex; flex-direction: column; gap: 14px; overflow: hidden; height: calc(100vh - var(--header-h) - 60px); }
+  /* 대시보드: 콘텐츠 높이 기준 */
+  #page-dashboard.active { display: flex; flex-direction: column; gap: 14px; }
 
   .page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
   .page-desc { font-size: 14px; color: var(--text-sub); margin-bottom: 0; }
@@ -283,32 +283,31 @@
   .dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .dash-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
 
-  /* 새 대시보드 메인 그리드 — 왼쪽(정보+관리) / 오른쪽(보스) */
+  /* 새 대시보드 메인 그리드 — 콘텐츠 높이 기준, 빈공간 없음 */
   .dash-main-grid {
-    flex: 1;
-    min-height: 0;
     display: grid;
-    grid-template-columns: 1fr 300px;
-    grid-template-rows: 200px 1fr;
+    grid-template-columns: 1fr 280px;
     grid-template-areas:
       "left  boss"
       "mgmt  boss";
+    grid-template-rows: auto auto;
     gap: 14px;
+    align-items: start;
   }
-  .dash-left-col  { grid-area: left; min-height: 0; overflow: hidden; }
-  .dash-right-col { grid-area: boss; overflow: hidden; min-height: 0; margin-bottom: 0 !important; }
-  .dash-member-widget { grid-area: mgmt; overflow: hidden; min-height: 0; margin-bottom: 0 !important; }
-  /* 상단 정보 행: 유튜브 + 공지 나란히 */
-  .dash-info-row { height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .dash-left-col  { grid-area: left; }
+  .dash-right-col { grid-area: boss; overflow: hidden; margin-bottom: 0 !important; align-self: start; }
+  .dash-member-widget { grid-area: mgmt; overflow: hidden; margin-bottom: 0 !important; }
+  /* 상단 정보 행: 유튜브 + 공지 나란히, 고정 비율 높이 */
+  .dash-info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 220px; }
   .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); height: 100%; margin-bottom: 0 !important; }
   .dash-yt-wrap { width: 100%; height: 100%; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
   .dash-yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
   [data-theme="dark"] .dash-yt-wrap { background: #1a3256; }
-  /* 공지: 스크롤 없음, 4줄만 표시 */
-  .dash-notice-panel { height: 100%; overflow: hidden; margin-bottom: 0 !important; box-sizing: border-box; }
+  /* 공지: 3줄만, 스크롤 없음 */
+  .dash-notice-panel { height: 100%; overflow: hidden; margin-bottom: 0 !important; }
   .dash-notice-panel .notice-item:nth-child(n+5) { display: none; }
   /* 공대원 관리 위젯 */
-  .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
   .dm-stat { display: flex; flex-direction: column; align-items: center; background: var(--surface-alt); border-radius: 8px; padding: 10px 0; flex: 1; }
   .dm-stat-num { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
   .dm-stat-label { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
@@ -317,20 +316,18 @@
   .dash-member-table td { padding: 8px 10px; border-bottom: 1px solid var(--row-line); color: var(--text); vertical-align: middle; }
   .dash-member-table tbody tr:last-child td { border-bottom: none; }
   .dash-member-table tbody tr:hover { background: var(--surface-alt); }
-  /* 모바일: flex 세로 + 순서 유튜브→공지→보스→공대원관리 */
+  /* 태블릿 이하: 1열 flex, 순서 유튜브→공지→보스→공대원관리 */
   @media (max-width: 1000px) {
-    .dash-main-grid { display: flex; flex-direction: column; gap: 12px; overflow: visible; }
-    .dash-left-col  { order: 1; overflow: visible; }
-    .dash-right-col { order: 3; overflow: hidden; flex-shrink: 0; }
-    .dash-member-widget { order: 4; overflow: hidden; }
-    .dash-info-row  { height: auto; gap: 12px; }
-    .dash-yt-panel  { height: 200px; }
-    .dash-notice-panel { height: auto; overflow: hidden; }
+    .dash-main-grid { display: flex; flex-direction: column; gap: 12px; }
+    .dash-left-col  { order: 1; }
+    .dash-right-col { order: 3; }
+    .dash-member-widget { order: 4; }
+    .dash-info-row  { height: 200px; gap: 12px; }
   }
+  /* 모바일: 유튜브·공지 세로 1열 */
   @media (max-width: 640px) {
-    #page-dashboard.active { height: auto; min-height: unset; overflow: visible; gap: 10px; padding-bottom: 0; }
-    .dash-info-row { grid-template-columns: 1fr; }
-    .dash-yt-panel { height: 190px; }
+    .dash-info-row { grid-template-columns: 1fr; height: auto; }
+    .dash-yt-panel  { height: 190px; }
     .dash-notice-panel { height: auto; }
     .dm-stat { padding: 8px 0; }
     .dm-stat-num { font-size: 17px; }

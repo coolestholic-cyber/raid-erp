@@ -310,29 +310,36 @@
   .dash-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
 
   /* 새 대시보드 메인 그리드 — 콘텐츠 높이 기준, 빈공간 없음 */
+  /* ===== 대시보드 레이아웃 =====
+     PC:  상단 행 [유튜브+공지 (flex:1)] + [오늘의 보스 (280px)]
+          하단 행 [공대원관리/준비중 — 전체 너비]
+  ===== */
   .dash-main-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  /* 상단: 유튜브+공지 + 보스 */
+  .dash-top-row {
     display: grid;
     grid-template-columns: 1fr 280px;
-    grid-template-areas:
-      "left  boss"
-      "mgmt  boss";
-    grid-template-rows: auto auto;
     gap: 14px;
     align-items: start;
   }
-  .dash-left-col  { grid-area: left; }
-  .dash-right-col { grid-area: boss; overflow: hidden; margin-bottom: 0 !important; align-self: start; }
-  .dash-member-widget  { grid-area: mgmt; overflow: hidden; margin-bottom: 0 !important; }
-  .dash-coming-soon    { grid-area: mgmt; margin-bottom: 0 !important; }
-  /* 상단 정보 행: 공지 높이 = auto(3줄 내용), 유튜브 stretch로 자동 맞춤 */
+  /* 유튜브 + 공지 나란히 */
   .dash-info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
   .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); margin-bottom: 0 !important; }
   .dash-yt-wrap { width: 100%; height: 100%; min-height: 160px; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
   .dash-yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
   [data-theme="dark"] .dash-yt-wrap { background: #1a3256; }
-  /* 공지: 3줄만, 스크롤 없음, auto 높이 */
+  /* 공지: 3줄만, 스크롤 없음 */
   .dash-notice-panel { overflow: hidden; margin-bottom: 0 !important; }
   .dash-notice-panel .notice-item:nth-child(n+5) { display: none; }
+  /* 오늘의 보스 열 */
+  .dash-right-col { margin-bottom: 0 !important; }
+  /* 하단: 공대원관리 / 준비중 — 전체 너비 */
+  .dash-member-widget { margin-bottom: 0 !important; }
+  .dash-coming-soon   { margin-bottom: 0 !important; }
   /* 공대원 관리 위젯 */
   .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
   .dm-stat { display: flex; flex-direction: column; align-items: center; background: var(--surface-alt); border-radius: 8px; padding: 10px 0; flex: 1; }
@@ -343,16 +350,21 @@
   .dash-member-table td { padding: 8px 10px; border-bottom: 1px solid var(--row-line); color: var(--text); vertical-align: middle; }
   .dash-member-table tbody tr:last-child td { border-bottom: none; }
   .dash-member-table tbody tr:hover { background: var(--surface-alt); }
-  /* 태블릿 이하: 1열 flex, 순서 유튜브→공지→보스→공대원관리/준비중 */
+  /* 태블릿(1000px): 보스 패널 아래로 */
   @media (max-width: 1000px) {
-    .dash-main-grid { display: flex; flex-direction: column; gap: 12px; }
-    .dash-left-col   { order: 1; }
-    .dash-right-col  { order: 3; }
-    .dash-member-widget  { order: 4; }
-    .dash-coming-soon    { order: 4; }
+    .dash-top-row { grid-template-columns: 1fr; gap: 12px; }
     .dash-info-row { gap: 12px; }
   }
-  /* 모바일: 유튜브·공지 세로 1열 */
+  /* 모바일(768px): 패널 너비 100% 보장 */
+  @media (max-width: 768px) {
+    .dash-main-grid { gap: 12px; }
+    .dash-top-row   { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; }
+    .dash-info-row  { width: 100%; min-width: 0; }
+    .dash-right-col { width: 100%; min-width: 0; box-sizing: border-box; }
+    .dash-member-widget { width: 100%; min-width: 0; box-sizing: border-box; }
+    .dash-coming-soon   { width: 100%; min-width: 0; box-sizing: border-box; }
+  }
+  /* 모바일(640px): 유튜브·공지 세로 1열 */
   @media (max-width: 640px) {
     .dash-info-row { grid-template-columns: 1fr; }
     .dash-yt-wrap  { min-height: 190px; }
@@ -595,7 +607,7 @@
     .drawer-close-btn .material-icons { font-size: 24px; }
 
     /* 콘텐츠 영역 */
-    .main { padding: 16px 14px 80px; }
+    .main { padding: 16px 14px 80px; overflow-x: hidden; }
     .page-title { font-size: 20px; }
     .page-desc { font-size: 13px; }
     .top-bar { flex-direction: column; gap: 10px; align-items: flex-start; margin-bottom: 16px; }
@@ -876,13 +888,13 @@
         </div>
       </div>
 
-      <!-- 메인 그리드: 왼쪽(정보+관리) / 오른쪽(보스) -->
+      <!-- 대시보드 메인 -->
       <div class="dash-main-grid">
 
-        <!-- 왼쪽 컬럼 -->
-        <div class="dash-left-col">
+        <!-- 상단 행: [유튜브+공지] + [오늘의 보스] -->
+        <div class="dash-top-row">
 
-          <!-- 상단 정보 행: 유튜브 + 공지 (동일 높이, 나란히) -->
+          <!-- 왼쪽: 유튜브 + 공지 나란히 -->
           <div class="dash-info-row">
 
             <!-- 유튜브 -->
@@ -940,14 +952,15 @@
 
           </div><!-- /dash-info-row -->
 
-        </div><!-- /dash-left-col -->
+          <!-- 오른쪽: 오늘의 보스 -->
+          <div class="panel dash-right-col">
+            <div class="dash-section-title"><span class="material-icons">event</span> 오늘의 보스</div>
+            <div class="boss-list" id="dashBossList"></div>
+          </div>
 
-        <!-- 오른쪽: 오늘의 보스 -->
-        <div class="panel dash-right-col">
-          <div class="dash-section-title"><span class="material-icons">event</span> 오늘의 보스</div>
-          <div class="boss-list" id="dashBossList"></div>
-        </div>
+        </div><!-- /dash-top-row -->
 
+        <!-- 하단 행: 공대원 관리 위젯 (전체 너비) -->
         <!-- 공대원 관리 위젯 (공대장 이상만) -->
         <div class="panel dash-member-widget">
           <div class="panel-header" style="margin-bottom:14px;">

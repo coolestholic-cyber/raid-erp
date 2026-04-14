@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>메랜ERP</title>
-<link rel="icon" type="image/x-icon" href="MapleERP.ico">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ef5a25'/%3E%3Cstop offset='100%25' stop-color='%23b8321a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M32 4c-4 8-16 14-24 18 6 2 14 0 18-2-2 8-8 16-14 22 8-2 16-8 20-14 0 8-2 18-4 26 4-6 8-14 10-22 2 8 6 16 10 22-2-8-4-18-4-26 4 6 12 12 20 14-6-6-12-14-14-22 4 2 12 4 18 2C60 18 48 12 44 4c-2 6-6 10-12 14C26 14 34 10 32 4z'/%3E%3C/svg%3E">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
   :root { --sidebar-w: 240px; --header-h: 60px; --bg: #f8f9fa; --sidebar-bg: #1a1d23; --sidebar-hover: #25282f; --sidebar-active: #2d3139; --accent: #0b5cd5; --accent-light: #e8f0fe; --text: #212529; --text-sub: #6c757d; --border: #dee2e6; --card-bg: #fff; --radius: 8px; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
   body { font-family: 'Pretendard GOV', -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.6; letter-spacing: -0.01em; }
 
   /* ===== LEFT: Sidebar (공통) ===== */
@@ -23,7 +25,9 @@
   .nav-item { display: flex; align-items: center; padding: 11px 16px; margin: 2px 8px; color: #9ca3af; font-size: 15px; cursor: pointer; border-radius: 8px; transition: all .15s; gap: 10px; text-decoration: none; }
   .nav-item:hover { background: var(--sidebar-hover); color: #e5e7eb; }
   .nav-item.active { background: var(--sidebar-active); color: #fff; font-weight: 600; }
-  .nav-item .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+  .nav-item .nav-icon { width: 20px; text-align: center; font-size: 16px; display:flex; align-items:center; justify-content:center; }
+  .nav-item .nav-icon .material-icons,
+  .nav-accordion .nav-icon .material-icons { font-size: 18px; }
 
   .nav-accordion { cursor: pointer; display: flex; align-items: center; padding: 11px 16px; margin: 2px 8px; color: #9ca3af; font-size: 15px; border-radius: 8px; transition: all .15s; gap: 10px; user-select: none; }
   .nav-accordion:hover { background: var(--sidebar-hover); color: #e5e7eb; }
@@ -33,6 +37,57 @@
   .acc-body { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
   .acc-body.open { max-height: 200px; }
   .acc-body .nav-item { padding-left: 48px; font-size: 14px; }
+
+  /* ===== Sidebar Collapse ===== */
+  .sidebar { transition: width .25s ease; }
+  .layout { transition: margin-left .25s ease; }
+
+  .sidebar-top-bar { height: 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid #2d3139; flex-shrink: 0; }
+  .sidebar-top-label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1.2px; white-space: nowrap; overflow: hidden; }
+  .sidebar-collapse-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; background: transparent; border: none; border-radius: 8px; color: #9ca3af; cursor: pointer; flex-shrink: 0; transition: background .15s, color .15s; }
+  .sidebar-collapse-btn:hover { background: #2d3139; color: #e5e7eb; }
+  .sidebar-collapse-btn .material-icons { font-size: 24px; transition: transform .25s; }
+
+  /* 사이드바 검색 */
+  .sidebar-search-wrap { padding: 8px 10px; border-bottom: 1px solid #2d3139; flex-shrink: 0; }
+  .sidebar-search-box { display: flex; align-items: center; gap: 6px; background: #25282f; border: 1px solid #3a3d45; border-radius: 8px; padding: 7px 10px; transition: border-color .15s; }
+  .sidebar-search-box:focus-within { border-color: #4b78d4; }
+  .sidebar-search-box .material-icons { font-size: 16px; color: #6b7280; flex-shrink: 0; }
+  .sidebar-search-input { background: none; border: none; outline: none; color: #e5e7eb; font-size: 13px; flex: 1; min-width: 0; }
+  .sidebar-search-input::placeholder { color: #4b5563; }
+  .sidebar-search-clear { background: none; border: none; cursor: pointer; color: #6b7280; padding: 0; display: flex; align-items: center; transition: color .15s; }
+  .sidebar-search-clear:hover { color: #9ca3af; }
+  .sidebar-search-clear .material-icons { font-size: 15px; }
+  .nav-item.search-hidden, .nav-accordion.search-hidden, .nav-section.search-hidden, .acc-body.search-hidden { display: none !important; }
+  .nav-item.search-match { background: #2a3a5a !important; }
+  body.sidebar-collapsed .sidebar-search-wrap { display: none; }
+  body.sidebar-collapsed #sidebarSearchBtnRow { display: none; }
+  /* 내 공대 관리 탭바 */
+  #myRaidTabBar { padding: 0 24px; border-bottom: 2px solid var(--border); background: var(--surface); margin-bottom: 0; }
+  .raid-mgmt-tab { background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; padding: 13px 18px; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; transition: all 0.15s; }
+  .raid-mgmt-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .raid-mgmt-tab:hover:not(.active) { color: var(--text); }
+  .raid-sub-menu { display: none !important; }
+  .raid-sub-menu.raid-visible { display: flex !important; }
+
+  /* 접힌 상태 */
+  body.sidebar-collapsed { --sidebar-w: 64px; }
+  body.sidebar-collapsed .sidebar { overflow: hidden; }
+  body.sidebar-collapsed .sidebar-top-bar { justify-content: center; }
+  body.sidebar-collapsed .sidebar-top-label { display: none; }
+  body.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 18px 0 14px; gap: 0; }
+  body.sidebar-collapsed .sidebar-logo > div:not(:first-child) { display: none; }
+  body.sidebar-collapsed .nav-section { opacity: 0; height: 0; padding: 0; overflow: hidden; }
+  body.sidebar-collapsed .nav-label { display: none; }
+  body.sidebar-collapsed .arr { display: none; }
+  body.sidebar-collapsed .nav-item { justify-content: center; padding: 11px 0; margin: 2px 4px; }
+  body.sidebar-collapsed .nav-accordion { justify-content: center; padding: 11px 0; margin: 2px 4px; }
+  body.sidebar-collapsed .acc-body { max-height: 0 !important; }
+  body.sidebar-collapsed .sidebar-collapse-btn .material-icons { transform: rotate(180deg); }
+
+  /* 접힌 상태에서 아이콘 툴팁 */
+  body.sidebar-collapsed .nav-item,
+  body.sidebar-collapsed .nav-accordion { position: relative; }
 
   /* ===== RIGHT: Layout ===== */
   .layout { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
@@ -91,6 +146,87 @@
   tbody td { padding: 12px 14px; border-bottom: 1px solid #f3f4f6; }
   tbody tr:hover { background: #f9fafb; }
 
+  /* ===== Dashboard ===== */
+  .dash-welcome { background: linear-gradient(135deg, #0b5cd5 0%, #1e40af 100%); border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .dash-welcome h2 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .dash-welcome p { font-size: 14px; color: rgba(255,255,255,.75); }
+  .dash-welcome .welcome-char { display: flex; align-items: center; gap: 12px; }
+  .dash-welcome .char-badge { background: rgba(255,255,255,.15); border-radius: 10px; padding: 8px 14px; color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; }
+
+  .dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .dash-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .dash-section-title { font-size: 13px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .dash-section-title .material-icons { font-size: 16px; }
+
+  /* 보스 일정 */
+  .boss-list { display: flex; flex-direction: column; gap: 8px; }
+  .boss-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: #f9fafb; border: 1px solid var(--border); }
+  .boss-item.today { background: #eff6ff; border-color: #bfdbfe; }
+  .boss-item.done { opacity: .45; }
+  .boss-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .boss-info { flex: 1; min-width: 0; }
+  .boss-info .bname { font-size: 13px; font-weight: 700; color: var(--text); }
+  .boss-info .bsub { font-size: 11px; color: var(--text-sub); }
+  .boss-reset { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+  .boss-item { align-items: flex-start; }
+  .boss-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .boss-item-actions { display: flex; align-items: center; gap: 4px; }
+  /* 아이콘 액션 버튼 - 모바일 터치 영역 확보 */
+  .boss-action-btn { background: none; border: 1px solid transparent; cursor: pointer; color: #94a3b8; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; min-width: 36px; min-height: 36px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .boss-action-btn .material-icons { font-size: 18px; line-height: 1; }
+  .boss-action-btn:hover, .boss-action-btn:active { background: #f1f5f9; border-color: #e2e8f0; color: #475569; }
+  .boss-action-btn.btn-edit:hover, .boss-action-btn.btn-edit:active { color: var(--accent); border-color: #bfdbfe; background: #eff6ff; }
+  .boss-action-btn.btn-reset:hover, .boss-action-btn.btn-reset:active { color: #ef4444; border-color: #fecaca; background: #fee2e2; }
+  .boss-action-btn.active { background: #eff6ff; border-color: #bfdbfe; color: var(--accent); }
+  /* 상태 텍스트 */
+  .boss-available { color: #059669; display: flex; align-items: center; gap: 3px; }
+  .boss-remaining { color: #ef4444; display: flex; align-items: center; gap: 2px; }
+  /* 인라인 편집기 - 모바일 최적화 */
+  .boss-edit-panel { margin-top: 10px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; }
+  .boss-edit-title { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 10px; letter-spacing: .3px; }
+  .boss-edit-fields { display: flex; gap: 8px; margin-bottom: 10px; }
+  .boss-edit-field { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .boss-edit-field-label { font-size: 11px; font-weight: 600; color: var(--text-sub); }
+  .boss-edit-field-input { width: 100%; font-size: 15px; border: 1.5px solid #d1d5db; border-radius: 8px; padding: 9px 10px; background: #fff; color: var(--text); box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+  .boss-edit-field-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+  .boss-edit-btns { display: flex; gap: 8px; }
+  .boss-edit-save { flex: 1; font-size: 14px; font-weight: 700; padding: 11px; border-radius: 9px; border: none; background: var(--accent); color: #fff; cursor: pointer; touch-action: manipulation; }
+  .boss-edit-save:active { background: #1d4ed8; }
+  .boss-edit-cancel { flex: 1; font-size: 14px; padding: 11px; border-radius: 9px; border: 1.5px solid #d1d5db; background: #fff; color: #64748b; cursor: pointer; touch-action: manipulation; }
+
+  /* 공대 현황 */
+  .my-raid-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .my-raid-item:last-child { border-bottom: none; }
+  .my-raid-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .my-raid-name { flex: 1; font-size: 14px; font-weight: 600; }
+  .my-raid-sub { font-size: 12px; color: var(--text-sub); }
+
+  /* 최근 정산 */
+  .settle-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #f3f4f6; gap: 8px; }
+  .settle-row:last-child { border-bottom: none; }
+  .settle-item-name { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .settle-price { font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .settle-date { font-size: 11px; color: var(--text-sub); white-space: nowrap; }
+
+  /* 공지 */
+  .notice-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .notice-item:last-child { border-bottom: none; }
+  .notice-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
+  .notice-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .notice-date { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+
+  /* 대시보드 반응형 */
+  @media (max-width: 900px) {
+    .dash-grid-2 { grid-template-columns: 1fr; }
+    .dash-grid-3 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .dash-welcome { padding: 18px 18px; }
+    .dash-welcome h2 { font-size: 17px; }
+    .dash-welcome .char-badge { display: none; }
+  }
+
   .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
   .badge-green { background: #ecfdf5; color: #059669; }
   .badge-yellow { background: #fffbeb; color: #d97706; }
@@ -98,6 +234,24 @@
   .badge-blue { background: var(--accent-light); color: var(--accent); }
   .badge-purple { background: #faf5ff; color: #7c3aed; }
   .badge-gray { background: #f3f4f6; color: #6b7280; }
+
+  /* ===== Member Grid View ===== */
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .member-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: box-shadow .15s, transform .15s; cursor: default; position: relative; }
+  .member-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .member-card .mc-status-dot { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; }
+  .member-card .mc-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .member-card .mc-name { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .member-card .mc-cls { font-size: 11px; color: var(--text-sub); }
+  .member-card .mc-level { font-size: 11px; color: var(--text-sub); }
+  .member-card .mc-gold { font-size: 12px; font-weight: 600; color: #d97706; }
+  .member-card .mc-rate-bar { width: 100%; height: 4px; background: #f3f4f6; border-radius: 2px; overflow: hidden; }
+  .member-card .mc-rate-fill { height: 100%; border-radius: 2px; }
+  .member-card .mc-actions { display: flex; gap: 4px; margin-top: 4px; }
+  .view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .view-toggle button { padding: 7px 12px; background: #fff; border: none; cursor: pointer; font-size: 14px; color: var(--text-sub); transition: .15s; }
+  .view-toggle button.active { background: var(--accent); color: #fff; }
+  .view-toggle button:hover:not(.active) { background: #f3f4f6; }
 
   .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
   .search-input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; width: 220px; outline: none; background: #fff; }
@@ -109,6 +263,42 @@
 
   .alert { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
   .alert-info { background: #eff6ff; border-color: #bfdbfe; }
+
+  /* ===== Item Tab Filter ===== */
+  .item-tab { padding:6px 14px;border:1px solid var(--border);border-radius:20px;background:#fff;color:var(--text-sub);font-size:13px;font-weight:500;cursor:pointer;transition:.15s;font-family:inherit; }
+  .item-tab:hover { border-color:var(--accent);color:var(--accent); }
+  .item-tab.active { border-color:var(--accent);background:var(--accent);color:#fff;font-weight:700; }
+
+  /* ===== Item Autocomplete ===== */
+  .autocomplete-wrap { position: relative; }
+  .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+  .autocomplete-item { padding: 9px 14px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .autocomplete-item:hover, .autocomplete-item.selected { background: var(--accent-light); }
+  .autocomplete-item .ac-name { font-weight: 600; color: var(--text); }
+  .autocomplete-item .ac-en { font-size: 12px; color: var(--text-sub); }
+  .autocomplete-empty { padding: 12px 14px; font-size: 13px; color: var(--text-sub); text-align: center; }
+
+  /* ===== Horntail Phase Timer ===== */
+  .ht-section { border-radius:16px; overflow:hidden; border:1px solid var(--border); box-shadow:0 2px 10px rgba(0,0,0,.07); }
+  .ht-section-header { padding:14px 20px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; font-weight:700; color:#fff; letter-spacing:.3px; }
+  .ht-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:16px; background:#f3f4f6; }
+  .ht-card { background:#fff; border-radius:14px; display:flex; flex-direction:column; padding:16px 18px 14px; gap:10px; box-shadow:0 2px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05); }
+  .ht-card-top { display:flex; align-items:center; gap:6px; }
+  .ht-card-title { font-size:13px; color:var(--text-sub); font-weight:600; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px; }
+  .ht-card-time { font-size:42px; font-weight:800; color:#1a1d23; letter-spacing:1px; line-height:1; text-align:center; font-variant-numeric:tabular-nums; padding:6px 0; }
+  .ht-card-time.running { color:#5b5fef; }
+  .ht-card-time.done    { color:#059669; }
+  .ht-card-actions { display:flex; gap:8px; }
+  .ht-start-btn { flex:1; padding:10px 0; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; transition:.15s; font-family:inherit; }
+  .ht-start-btn.idle    { background:#5b5fef; color:#fff; }
+  .ht-start-btn.idle:hover { background:#4f53d8; }
+  .ht-stop-btn  { flex:1; padding:10px 0; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; background:#e5e7eb; color:#374151; }
+  .ht-stop-btn:hover { background:#d1d5db; }
+  .ht-reset-btn { flex:1; padding:10px 0; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; background:#fee2e2; color:#ef4444; }
+  .ht-reset-btn:hover { background:#fecaca; }
+  .ht-edit-btn { padding:3px 10px; border-radius:20px; border:none; background:#f0f0f2; color:#9ca3af; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; font-family:inherit; transition:.15s; }
+  .ht-edit-btn:hover { background:#e4e4e8; color:#6b7280; }
+  .ht-auto-icon { font-size:12px; color:#a78bfa; }
 
   /* Modal */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
@@ -144,44 +334,178 @@
     .mobile-overlay.show { display: block; }
 
     .layout { margin-left: 0; }
-    .header { padding: 0 16px; }
-    .header-left { font-size: 14px; }
 
-    .hamburger { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; background: none; cursor: pointer; font-size: 22px; color: var(--text); margin-right: 8px; border-radius: 6px; }
-    .hamburger:hover { background: #f3f4f6; }
+    /* ── 모바일 헤더 재설계 ── */
+    .header {
+      padding: 0 12px;
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 40;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    /* 좌: 햄버거 */
+    .hamburger {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+      border: none; background: none; border-radius: 8px;
+      cursor: pointer; color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hamburger .material-icons { font-size: 26px; }
+    /* 중앙: 페이지 타이틀 */
+    .header-left { gap: 4px; flex: 1; }
+    .mobile-page-title {
+      display: block;
+      font-size: 16px; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #breadcrumb { display: none; }
+    /* 우: 유저 영역 압축 */
+    .header-right { gap: 8px; }
+    .discord-btn { padding: 8px 14px; font-size: 13px; font-weight: 700; border-radius: 8px; }
+    .user-chip { gap: 6px; }
+    .user-chip img { width: 30px; height: 30px; }
+    .user-chip .uname { display: none; }
+    .user-chip .urole { display: none; }
+    .logout-link { display: none; }
 
+    /* ── 모바일 사이드바: 전체화면 드로어 ── */
+    .sidebar {
+      width: 100% !important;
+      transform: translateX(-100%);
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+      z-index: 60;
+    }
+    .sidebar.open { transform: translateX(0); }
+    /* 전체화면이므로 오버레이 불필요 */
+    .mobile-overlay { display: none !important; }
+    /* 드로어 상단에 닫기 버튼 */
+    .sidebar-top-bar { justify-content: space-between; }
+    .drawer-close-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border: none; background: none; border-radius: 8px;
+      color: #9ca3af; cursor: pointer;
+    }
+    .drawer-close-btn .material-icons { font-size: 24px; }
+
+    /* 콘텐츠 영역 */
     .main { padding: 16px; }
-    .page-title { font-size: 26px; }
+    .page-title { font-size: 22px; }
     .top-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
     .cards { grid-template-columns: 1fr 1fr; gap: 10px; }
     .stat-card h3 { font-size: 22px; }
     .filter-bar { flex-direction: column; align-items: stretch; }
     .search-input { width: 100%; }
     .table-wrap { margin: 0 -16px; padding: 0 16px; }
-
     .modal { width: calc(100vw - 32px); max-height: 90vh; padding: 20px; }
     .form-row { grid-template-columns: 1fr; }
-
-    .discord-btn { padding: 8px 12px; font-size: 13px; }
-    .user-chip { gap: 6px; }
-    .user-chip .uname { font-size: 14px; }
-    .user-chip .urole { display: none; }
   }
 
   @media (max-width: 480px) {
     .cards { grid-template-columns: 1fr; }
     .stat-icon { display: none; }
+    .cards { grid-template-columns: 1fr; }
   }
 
-  /* 데스크탑에서 햄버거 숨김 */
-  .hamburger { display: none; }
+  /* 데스크탑에서 모바일 전용 요소 숨김 */
   .mobile-overlay { display: none; }
+  .mobile-tab-bar { display: none; }
+  .mobile-page-title { display: none; }
+  .drawer-close-btn { display: none; }
+  @media (min-width: 769px) { .hamburger { display: none; } }
+
+  /* ===== Mobile Bottom Tab Bar ===== */
+  @media (max-width: 768px) {
+    .mobile-tab-bar {
+      display: flex;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 58px;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      z-index: 50;
+      box-shadow: 0 -2px 12px rgba(0,0,0,.08);
+    }
+    .tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: #9ca3af;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .15s;
+      padding: 6px 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-item .material-icons { font-size: 22px; }
+    .tab-item span:last-child { line-height: 1; }
+    .tab-item.active { color: var(--accent); }
+    .tab-item.tab-more.active { color: #6b7280; }
+
+    /* main 콘텐츠 하단 탭바 공간 확보 */
+    .main { padding-bottom: 72px; }
+
+    /* 모바일: 접기 버튼 숨기고 닫기 버튼 표시 */
+    .sidebar-collapse-btn { display: none; }
+    .drawer-close-btn { display: flex; }
+
+    /* 혼테일 타이머 모바일 1열 */
+    .ht-cards { grid-template-columns: 1fr; gap: 10px; }
+    .ht-card-time { font-size: 48px; }
+    .ht-section-header { font-size: 14px; padding: 12px 16px; }
+
+    /* 멤버 그리드 모바일 2열 */
+    .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .member-card { padding: 12px 8px; }
+
+    /* 아이템 페이지 탭 스크롤 */
+    #page-items .filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    #page-items .filter-bar::-webkit-scrollbar { display: none; }
+
+    /* 캐릭터 2단 → 1단 */
+    #page-mychar > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+  }
+
+  @media (max-width: 480px) {
+    .member-grid { grid-template-columns: repeat(2, 1fr); }
+    .ht-card-time { font-size: 42px; }
+    .ht-card-actions { flex-wrap: wrap; }
+    .ht-start-btn, .ht-stop-btn, .ht-reset-btn { padding: 10px 0; font-size: 14px; }
+  }
 </style>
 </head>
 <body>
 
 <!-- ===== LEFT: Sidebar (공통) ===== -->
 <aside class="sidebar">
+  <!-- 접기 버튼 (최상단 독립 영역) -->
+  <div class="sidebar-top-bar">
+    <div style="flex:1"></div>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <!-- 모바일 전용 닫기 버튼 -->
+      <button class="drawer-close-btn" onclick="toggleSidebar()" title="닫기">
+        <span class="material-icons">close</span>
+      </button>
+      <!-- 데스크탑 전용 접기 버튼 -->
+      <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" id="sidebarCollapseBtn" title="메뉴 접기">
+        <span class="material-icons">chevron_left</span>
+      </button>
+    </div>
+  </div>
+  <!-- 돋보기 버튼 (접기 버튼 한 칸 아래) -->
+  <div style="display:none;justify-content:flex-end;padding:2px 8px 4px;" id="sidebarSearchBtnRow">
+    <button class="sidebar-collapse-btn" onclick="toggleSidebarSearch()" id="sidebarSearchToggleBtn" title="메뉴 검색">
+      <span class="material-icons">search</span>
+    </button>
+  </div>
+
   <div class="sidebar-logo">
     <div class="logo-icon" style="background:linear-gradient(135deg,#ef5a25,#b8321a);">🍁</div>
     <div>
@@ -189,39 +513,66 @@
       <div class="logo-ver">v2.1</div>
     </div>
   </div>
+  <!-- 사이드바 검색 -->
+  <div class="sidebar-search-wrap" id="sidebarSearchWrap" style="display:none">
+    <div class="sidebar-search-box">
+      <span class="material-icons">search</span>
+      <input class="sidebar-search-input" id="sidebarSearchInput" type="text" placeholder="메뉴 검색..." autocomplete="off" oninput="sidebarSearch(this.value)">
+      <button class="sidebar-search-clear" id="sidebarSearchClear" style="display:none" onclick="sidebarSearchReset()" title="초기화">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+  </div>
+
   <nav class="sidebar-nav">
     <div class="nav-section">메뉴</div>
 
+    <!-- 0. 대시보드 -->
+    <div class="nav-item active" onclick="showPage('dashboard',this)" title="대시보드"><span class="nav-icon"><span class="material-icons">dashboard</span></span><span class="nav-label"> 대시보드</span></div>
+
     <!-- 1. 내 캐릭터 -->
-    <div class="nav-accordion" onclick="toggleAccordion(this)">
-      <span class="nav-icon">🍄</span> 내 캐릭터 <span class="arr">▶</span>
+    <div class="nav-accordion" onclick="toggleAccordion(this)" title="내 캐릭터">
+      <span class="nav-icon"><span class="material-icons">person</span></span><span class="nav-label"> 내 캐릭터</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body">
-      <a class="nav-item" onclick="showPage('mychar',this)"><span class="nav-icon">📋</span> 캐릭터 정보</a>
-      <a class="nav-item" onclick="showPage('myraids',this)"><span class="nav-icon">🏕️</span> 내 공대 현황</a>
-      <a class="nav-item" onclick="showPage('equip',this)"><span class="nav-icon">⚔️</span> 내 장비관리</a>
-      <a class="nav-item" onclick="showPage('mysettlement',this)"><span class="nav-icon">💰</span> 내 정산내역</a>
+      <a class="nav-item" onclick="showPage('mychar',this)" title="캐릭터 정보"><span class="nav-icon"><span class="material-icons">badge</span></span><span class="nav-label"> 캐릭터 정보</span></a>
+      <a class="nav-item" onclick="showPage('myraids',this)" title="내 공대 현황"><span class="nav-icon"><span class="material-icons">event_available</span></span><span class="nav-label"> 내 공대 현황</span></a>
+      <a class="nav-item" onclick="showPage('equip',this)" title="내 장비관리"><span class="nav-icon"><span class="material-icons">build</span></span><span class="nav-label"> 내 장비관리</span></a>
+      <a class="nav-item" onclick="showPage('mysettlement',this)" title="내 정산내역"><span class="nav-icon"><span class="material-icons">receipt_long</span></span><span class="nav-label"> 내 정산내역</span></a>
     </div>
 
     <!-- 2. 공대관리 -->
-    <div class="nav-accordion open" onclick="toggleAccordion(this)">
-      <span class="nav-icon">⚔️</span> 공대관리 <span class="arr">▶</span>
+    <div class="nav-accordion open" onclick="toggleAccordion(this)" title="공대관리">
+      <span class="nav-icon"><span class="material-icons">groups</span></span><span class="nav-label"> 공대관리</span> <span class="arr">▶</span>
     </div>
     <div class="acc-body open">
-      <a class="nav-item" onclick="showPage('raids',this)"><span class="nav-icon">🗡️</span> 공대 목록</a>
-      <a class="nav-item active" onclick="showPage('members',this)"><span class="nav-icon">👥</span> 공대원 목록</a>
-      <a class="nav-item" onclick="showPage('settlement',this)"><span class="nav-icon">📊</span> 보스 정산</a>
-      <a class="nav-item" onclick="showPage('guestsettlement',this)"><span class="nav-icon">🧾</span> 손님정산</a>
-      <a class="nav-item" onclick="showPage('purchase',this)"><span class="nav-icon">🛒</span> 판매내역</a>
-      <a class="nav-item" onclick="showPage('gold',this)"><span class="nav-icon">💎</span> 분배내역</a>
+      <a class="nav-item" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
+      <a class="nav-item" id="navMyRaidMgmt" style="display:none;" onclick="showPage('members',this)" title="내 공대 관리"><span class="nav-icon"><span class="material-icons">manage_accounts</span></span><span class="nav-label"> 내 공대 관리</span></a>
     </div>
 
-    <!-- 3. 길드관리 -->
-    <div class="nav-item" onclick="showPage('guild-promo',this)"><span class="nav-icon">🏰</span> 길드관리</div>
+    <!-- 3. 혼테일 -->
+    <div class="nav-accordion" onclick="toggleAccordion(this)" title="혼테일">
+      <span class="nav-icon"><span class="material-icons">sports_martial_arts</span></span><span class="nav-label"> 혼테일</span> <span class="arr">▶</span>
+    </div>
+    <div class="acc-body">
+      <a class="nav-item" onclick="showPage('horntail-timer',this)" title="타이머"><span class="nav-icon"><span class="material-icons">timer</span></span><span class="nav-label"> 타이머</span></a>
+    </div>
+
+    <!-- 4. 아이템 정보 -->
+    <div class="nav-item" onclick="showPage('items',this)" title="아이템 정보"><span class="nav-icon"><span class="material-icons">inventory_2</span></span><span class="nav-label"> 아이템 정보</span></div>
+
+    <!-- 5. 길드관리 -->
+    <div class="nav-item" onclick="showPage('guild-promo',this)" title="길드관리"><span class="nav-icon"><span class="material-icons">castle</span></span><span class="nav-label"> 길드관리</span></div>
 
     <div class="nav-section">시스템</div>
-    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;"><span class="nav-icon">🔐</span> 권한 관리</a>
+    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span><span class="nav-label"> 권한 관리</span></a>
   </nav>
+
+  <div style="padding:8px 16px 14px;border-top:1px solid #252830;margin-top:auto;display:flex;align-items:center;gap:6px;">
+    <span class="material-icons" style="font-size:14px;color:#4b5563;">people</span>
+    <span id="sidebarUserTotal" style="font-size:13px;font-weight:700;color:#6b7280;">-</span>
+  </div>
+
 </aside>
 
 <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
@@ -232,8 +583,11 @@
   <!-- ===== TOP: Header (공통) ===== -->
   <header class="header">
     <div class="header-left">
-      <button class="hamburger" onclick="toggleSidebar()">☰</button>
-      <span id="breadcrumb">공대관리 / 공대원 목록</span>
+      <button class="hamburger" onclick="toggleSidebar()">
+        <span class="material-icons">menu</span>
+      </button>
+      <span class="mobile-page-title" id="mobilePageTitle">대시보드</span>
+      <span id="breadcrumb">대시보드</span>
     </div>
     <div class="header-right">
       <div id="loginArea">
@@ -255,6 +609,143 @@
 
   <!-- ===== MAIN: Content ===== -->
   <div class="main">
+
+    <!-- 내 공대 관리 탭바 (공대원/보스정산/손님정산 페이지에서 표시) -->
+    <div id="myRaidTabBar" style="display:none;">
+      <button id="raidTab-members" class="raid-mgmt-tab active" onclick="showPage('members',null)">👥 공대원</button>
+      <button id="raidTab-settlement" class="raid-mgmt-tab" onclick="showPage('settlement',null)">💰 보스 정산</button>
+      <button id="raidTab-guestsettlement" class="raid-mgmt-tab" onclick="showPage('guestsettlement',null)">🎫 손님 정산</button>
+    </div>
+
+    <!-- 대시보드 -->
+    <div id="page-dashboard" class="page-section active">
+
+      <!-- 환영 배너 -->
+      <div class="dash-welcome" id="dashWelcome">
+        <div>
+          <h2 id="dashGreeting">안녕하세요!</h2>
+          <p id="dashSub">오늘도 메이플랜드 공략 화이팅 🍁</p>
+        </div>
+        <div class="welcome-char">
+          <div class="char-badge" id="dashCharBadge" style="display:none;"></div>
+          <div class="char-badge" id="dashRoleBadge"></div>
+        </div>
+      </div>
+
+      <!-- 요약 카드 4개 -->
+      <div class="cards" style="margin-bottom:16px;">
+        <div class="card stat-card">
+          <div>
+            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">전체 공대원</p>
+            <h3 id="dashTotalMembers">-</h3>
+          </div>
+          <div class="stat-icon" style="background:#eff6ff;"><span class="material-icons" style="color:#0b5cd5;font-size:22px;">groups</span></div>
+        </div>
+        <div class="card stat-card">
+          <div>
+            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">참여 가능</p>
+            <h3 id="dashActiveMembers" style="color:#059669;">-</h3>
+          </div>
+          <div class="stat-icon" style="background:#ecfdf5;"><span class="material-icons" style="color:#059669;font-size:22px;">check_circle</span></div>
+        </div>
+        <div class="card stat-card">
+          <div>
+            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">이번달 판매액</p>
+            <h3 id="dashMonthSales" style="color:#d97706;">-</h3>
+          </div>
+          <div class="stat-icon" style="background:#fffbeb;"><span class="material-icons" style="color:#d97706;font-size:22px;">paid</span></div>
+        </div>
+        <div class="card stat-card">
+          <div>
+            <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">내 참여 상태</p>
+            <h3 id="dashMyStatus" style="font-size:18px;">-</h3>
+          </div>
+          <div class="stat-icon" style="background:#faf5ff;"><span class="material-icons" style="color:#7c3aed;font-size:22px;">person_check</span></div>
+        </div>
+      </div>
+
+      <!-- 중앙 2열: 공대현황 + 보스일정 -->
+      <div class="dash-grid-3">
+
+        <!-- 내 공대 현황 -->
+        <div class="panel" style="margin-bottom:0;">
+          <div class="dash-section-title"><span class="material-icons">groups</span> 공대원 현황</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;" id="dashMemberStats">
+            <div style="text-align:center;padding:12px 8px;background:#f9fafb;border-radius:10px;">
+              <div style="font-size:20px;font-weight:800;color:#059669;" id="dStat1">-</div>
+              <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">참여</div>
+            </div>
+            <div style="text-align:center;padding:12px 8px;background:#f9fafb;border-radius:10px;">
+              <div style="font-size:20px;font-weight:800;color:#d97706;" id="dStat2">-</div>
+              <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">미정</div>
+            </div>
+            <div style="text-align:center;padding:12px 8px;background:#f9fafb;border-radius:10px;">
+              <div style="font-size:20px;font-weight:800;color:#ef4444;" id="dStat3">-</div>
+              <div style="font-size:11px;color:var(--text-sub);margin-top:2px;">불참</div>
+            </div>
+          </div>
+          <div class="dash-section-title" style="margin-top:4px;"><span class="material-icons">recent_actors</span> 최근 등록 공대원</div>
+          <div id="dashRecentMembers">
+            <div class="empty-state" style="padding:20px;"><p>공대원이 없습니다</p></div>
+          </div>
+        </div>
+
+        <!-- 보스 일정 -->
+        <div class="panel" style="margin-bottom:0;">
+          <div class="dash-section-title"><span class="material-icons">event</span> 오늘의 보스</div>
+          <div class="boss-list" id="dashBossList"></div>
+        </div>
+
+      </div>
+
+      <!-- 하단 2열: 최근 판매 + 공지 -->
+      <div class="dash-grid-2" style="margin-top:16px;">
+
+        <!-- 최근 판매내역 -->
+        <div class="panel" style="margin-bottom:0;">
+          <div class="dash-section-title"><span class="material-icons">shopping_cart</span> 최근 판매내역
+            <a onclick="showPage('purchase',null)" style="margin-left:auto;font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;text-transform:none;letter-spacing:0;">전체보기</a>
+          </div>
+          <div id="dashRecentPurchases">
+            <div class="empty-state" style="padding:20px;"><p>판매 내역이 없습니다</p></div>
+          </div>
+        </div>
+
+        <!-- 공지 & 업데이트 -->
+        <div class="panel" style="margin-bottom:0;">
+          <div class="dash-section-title"><span class="material-icons">campaign</span> 공지 & 업데이트</div>
+          <div class="notice-item">
+            <div class="notice-dot"></div>
+            <div>
+              <div class="notice-text">모바일 반응형 레이아웃이 적용되었습니다.</div>
+              <div class="notice-date">2026.04.11</div>
+            </div>
+          </div>
+          <div class="notice-item">
+            <div class="notice-dot" style="background:#059669;"></div>
+            <div>
+              <div class="notice-text">아이템 정보 2,732개 DB 연동 완료. 직업별 필터 지원.</div>
+              <div class="notice-date">2026.04.10</div>
+            </div>
+          </div>
+          <div class="notice-item">
+            <div class="notice-dot" style="background:#d97706;"></div>
+            <div>
+              <div class="notice-text">혼테일 타이머 — 리저렉션/사망/공무/버프해제/유혹 섹션 지원.</div>
+              <div class="notice-date">2026.04.09</div>
+            </div>
+          </div>
+          <div class="notice-item">
+            <div class="notice-dot" style="background:#7c3aed;"></div>
+            <div>
+              <div class="notice-text">메소 가계부 / 장비 관리 기능 준비 중입니다.</div>
+              <div class="notice-date">예정</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /page-dashboard -->
 
     <!-- 캐릭터 정보 -->
     <div id="page-mychar" class="page-section">
@@ -357,34 +848,6 @@
       </div>
     </div>
 
-    <!-- 공대 생성 모달 -->
-    <div class="modal-overlay" id="raidModal">
-      <div class="modal" style="max-width:480px;">
-        <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-          <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🗡️</span>
-          공대 생성
-        </h2>
-        <div class="form-row">
-          <div class="form-group"><label>공대명 *</label><input type="text" id="rName" placeholder="예) 카링 하드 공대"></div>
-          <div class="form-group"><label>보스 *</label>
-            <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
-              <option value="">보스 선택</option>
-              <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>모집 인원</label><input type="number" id="rMax" placeholder="6" min="1" max="30"></div>
-          <div class="form-group"><label>클리어 시간</label><input type="text" id="rClearTime" placeholder="예) 약 1시간"></div>
-        </div>
-        <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 아이템 레벨, 조건 등 (선택)"></div>
-        <div class="modal-actions">
-          <button class="btn btn-outline" onclick="closeRaidModal()">취소</button>
-          <button class="btn btn-primary" onclick="saveRaid()">생성</button>
-        </div>
-        <input type="hidden" id="rEditId">
-      </div>
-    </div>
 
     <!-- 내 장비관리 -->
     <div id="page-equip" class="page-section">
@@ -402,8 +865,38 @@
     <div id="page-raids" class="page-section">
       <div class="top-bar">
         <div><h1 class="page-title">공대 목록</h1><p class="page-desc">공대를 조회하고 가입 신청하세요</p></div>
-        <button class="btn btn-primary" id="btnCreateRaid" onclick="openRaidModal()" style="display:none;">+ 공대 생성</button>
+        <button class="btn btn-primary" id="btnCreateRaid" onclick="toggleRaidForm()" style="display:none;">+ 공대 등록</button>
       </div>
+
+      <!-- 인라인 등록/수정 폼 -->
+      <div id="raidInlineForm" style="display:none;margin-bottom:20px;">
+        <div class="panel">
+          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+            <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">🗡️</span>
+            <span id="raidFormTitle">공대 등록</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>공대명 *</label><input type="text" id="rName" placeholder="예) 자쿰 하드 공대"></div>
+            <div class="form-group"><label>보스 *</label>
+              <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
+                <option value="">보스 선택</option>
+                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>모집 인원</label><input type="number" id="rMax" placeholder="6" min="1" max="30"></div>
+            <div class="form-group"><label>클리어 시간</label><input type="text" id="rClearTime" placeholder="예) 약 1시간"></div>
+          </div>
+          <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 아이템 레벨, 조건 등 (선택)"></div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+            <button class="btn btn-outline" onclick="closeRaidForm()">취소</button>
+            <button class="btn btn-primary" onclick="saveRaid()">저장</button>
+          </div>
+          <input type="hidden" id="rEditId">
+        </div>
+      </div>
+
       <div id="raidListGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
     </div>
 
@@ -420,6 +913,57 @@
         <button class="btn btn-primary" id="btnCreateGuild" onclick="openGuildPromoModal()" style="display:none;">+ 길드 홍보 등록</button>
       </div>
       <div id="guildPromoList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
+    </div>
+
+    <!-- 아이템 정보 -->
+    <div id="page-items" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">아이템 정보</h1><p class="page-desc">메이플랜드 아이템을 검색하고 확인합니다</p></div>
+      </div>
+      <div class="panel">
+        <!-- 대분류 탭 -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="itemMainTabs">
+          <button class="item-tab active" onclick="setItemFilter('main','전체')">전체</button>
+          <button class="item-tab" onclick="setItemFilter('main','장비')">장비</button>
+          <button class="item-tab" onclick="setItemFilter('main','소비')">소비</button>
+          <button class="item-tab" onclick="setItemFilter('main','설치')">설치</button>
+          <button class="item-tab" onclick="setItemFilter('main','기타')">기타</button>
+        </div>
+        <!-- 직업 필터 (장비 선택 시 표시) -->
+        <div id="itemJobFilter" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+          <span style="font-size:12px;color:var(--text-sub);align-self:center;margin-right:4px;">직업</span>
+          <button class="item-tab active" onclick="setItemFilter('job','전체')">전체</button>
+          <button class="item-tab" onclick="setItemFilter('job','전사')">⚔️ 전사</button>
+          <button class="item-tab" onclick="setItemFilter('job','마법사')">✨ 마법사</button>
+          <button class="item-tab" onclick="setItemFilter('job','궁수')">🏹 궁수</button>
+          <button class="item-tab" onclick="setItemFilter('job','도적')">🗡️ 도적</button>
+          <button class="item-tab" onclick="setItemFilter('job','공용')">👥 공용</button>
+        </div>
+        <!-- 무기/방어구 구분 (장비 선택 시 표시) -->
+        <div id="itemSubFilter" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+          <span style="font-size:12px;color:var(--text-sub);align-self:center;margin-right:4px;">구분</span>
+          <button class="item-tab active" onclick="setItemFilter('sub','전체')">전체</button>
+          <button class="item-tab" onclick="setItemFilter('sub','무기')">무기</button>
+          <button class="item-tab" onclick="setItemFilter('sub','방어구')">방어구</button>
+          <button class="item-tab" onclick="setItemFilter('sub','장신구')">장신구</button>
+        </div>
+        <!-- 검색 -->
+        <div class="filter-bar">
+          <input type="text" class="search-input" id="itemSearch" placeholder="🔍 아이템명 검색 (한글/영문)..." oninput="itemPageNo=0;renderItemPage()" style="width:280px;">
+          <span style="margin-left:auto;font-size:13px;color:var(--text-sub);" id="itemCount"></span>
+        </div>
+        <div id="itemPageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:600px;overflow-y:auto;padding:4px 0;"></div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap;" id="itemPager"></div>
+      </div>
+    </div>
+
+    <!-- 혼테일 타이머 -->
+    <div id="page-horntail-timer" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">혼테일 타이머</h1><p class="page-desc">보스전 단계별 타이머</p></div>
+        <button class="btn btn-outline" onclick="htResetAll()">전체 초기화</button>
+      </div>
+      <div id="htBoard" style="display:flex;flex-direction:column;gap:20px;"></div>
     </div>
 
     <!-- 공대원 목록 -->
@@ -477,12 +1021,19 @@
           <select class="filter-select" id="memberStatusFilter" onchange="renderMemberTable()">
             <option value="">상태 전체</option><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option>
           </select>
-          <span style="margin-left:auto;font-size:13px;color:var(--text-sub);" id="memberCount">0명</span>
+          <span style="font-size:13px;color:var(--text-sub);" id="memberCount">0명</span>
+          <div class="view-toggle" style="margin-left:auto;">
+            <button id="btnViewTable" class="active" onclick="setMemberView('table')" title="테이블 보기">☰</button>
+            <button id="btnViewGrid" onclick="setMemberView('grid')" title="그리드 보기">⊞</button>
+          </div>
         </div>
-        <div class="table-wrap">
+        <div id="memberTableWrap" class="table-wrap">
           <table><thead><tr>
             <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>아이템 레벨</th><th>주급 골드</th><th>참여율</th><th>상태</th><th>비고</th><th>관리</th>
           </tr></thead><tbody id="memberTableBody"></tbody></table>
+        </div>
+        <div id="memberGridWrap" style="display:none;">
+          <div id="memberGridBody" class="member-grid"></div>
         </div>
       </div>
     </div>
@@ -724,7 +1275,13 @@
       <div class="alert alert-info">
         <span>ℹ️</span> <strong>권한:</strong> 사이트마스터=전체 | 공대장/부공대장=관리+등록 | 공대원=자기정보 | 손님=판매기록 열람
       </div>
-      <div class="panel">
+
+      <!-- 사용자 목록 -->
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-header" style="margin-bottom:12px;">
+          <h2 style="font-size:15px;">사용자 목록</h2>
+          <span id="userCountBadge" style="font-size:12px;color:var(--text-sub);"></span>
+        </div>
         <div class="filter-bar">
           <input type="text" class="search-input" placeholder="이름, 이메일 검색..." id="userSearch" oninput="renderUserTable()">
           <select class="filter-select" id="userRoleFilter2" onchange="renderUserTable()">
@@ -736,10 +1293,54 @@
           <tbody id="userTableBody"></tbody></table>
         </div>
       </div>
+
+      <!-- 접속 로그 (사이트마스터만 노출) -->
+      <div class="panel" id="loginLogPanel" style="display:none;">
+        <div class="panel-header" style="margin-bottom:12px;">
+          <h2 style="display:flex;align-items:center;gap:8px;font-size:15px;">
+            <span style="width:24px;height:24px;background:#faf5ff;color:#7c3aed;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;">📋</span>
+            Discord 접속 로그
+          </h2>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="logCountBadge" style="font-size:12px;color:var(--text-sub);"></span>
+            <button class="btn btn-outline" style="font-size:12px;padding:5px 12px;" onclick="loadLoginLogs(true)">↺ 새로고침</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>프로필</th><th>이름</th><th>권한</th><th>접속 시각</th></tr></thead>
+            <tbody id="loginLogBody"><tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-sub);">로딩 중...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
   </div><!-- .main -->
 </div><!-- .layout -->
+
+<!-- ===== MOBILE: Bottom Tab Bar ===== -->
+<nav class="mobile-tab-bar" id="mobileTabBar">
+  <a class="tab-item" id="tab-mychar" onclick="showPage('mychar',null);updateTabBar('mychar')">
+    <span class="material-icons">person</span>
+    <span>내 캐릭터</span>
+  </a>
+  <a class="tab-item" id="tab-members" onclick="showPage('members',null);updateTabBar('members')">
+    <span class="material-icons">groups</span>
+    <span>공대</span>
+  </a>
+  <a class="tab-item" id="tab-horntail-timer" onclick="showPage('horntail-timer',null);updateTabBar('horntail-timer')">
+    <span class="material-icons">timer</span>
+    <span>타이머</span>
+  </a>
+  <a class="tab-item" id="tab-items" onclick="showPage('items',null);updateTabBar('items')">
+    <span class="material-icons">inventory_2</span>
+    <span>아이템</span>
+  </a>
+  <a class="tab-item tab-more" id="tab-more" onclick="toggleSidebar()">
+    <span class="material-icons">menu</span>
+    <span>더보기</span>
+  </a>
+</nav>
 
 <!-- Member Modal -->
 <div class="modal-overlay" id="memberModal">
@@ -808,7 +1409,7 @@
     <div class="form-group"><label>길드 이름 *</label><input type="text" id="gName" placeholder="길드명"></div>
     <div class="form-row">
       <div class="form-group"><label>서버</label><select id="gServer"><option>스카니아</option><option>베라</option><option>루나</option><option>제니스</option><option>크로아</option><option>유니온</option><option>엘리시움</option><option>이노시스</option><option>레드</option><option>오로라</option></select></div>
-      <div class="form-group"><label>가입 조건</label><input type="text" id="gReq" placeholder="예: Lv200+"></div>
+      <div class="form-group"><label>가입 조건</label><input type="text" id="gReq" placeholder="예: Lv200+"></div>그리드에서 권
     </div>
     <div class="form-group"><label>길드 소개 *</label><input type="text" id="gDesc" placeholder="길드를 소개해 주세요"></div>
     <div class="form-group"><label>연락처</label><input type="text" id="gContact" placeholder="예: discord.gg/xxxx"></div>
@@ -838,7 +1439,12 @@
 <div class="modal-overlay" id="purchaseModal">
   <div class="modal">
     <h2>판매 기록</h2>
-    <div class="form-group"><label>아이템명 *</label><input type="text" id="pItem" placeholder="아이템 이름"></div>
+    <div class="form-group"><label>아이템명 *</label>
+      <div class="autocomplete-wrap">
+        <input type="text" id="pItem" placeholder="아이템 이름 검색..." autocomplete="off" oninput="acSearch(this,'pItemList')" onkeydown="acKeydown(event,'pItemList')">
+        <div class="autocomplete-list" id="pItemList" style="display:none;"></div>
+      </div>
+    </div>
     <div class="form-row">
       <div class="form-group"><label>가격 (골드) *</label><input type="number" id="pPrice" placeholder="10000"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="pDate"></div>
@@ -851,6 +1457,9 @@
     </div>
   </div>
 </div>
+
+<!-- 아이템 DB -->
+<script src="item_db.js"></script>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -900,6 +1509,7 @@ const ROLES = {
 function canManageUsers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
 function canManageMembers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
 function canEditSelf(){return currentProfile&&currentProfile.role==='member';}
+function isAdmin(user){return user?.role==='master';}
 
 // =============================================
 // Auth
@@ -922,14 +1532,14 @@ async function handleDiscordCallback(code){
 }
 let _pendingDiscord=null,_pendingRole=null,_pendingName=null;
 
-function doLogout(){auth.signOut();currentUser=null;currentProfile=null;updateLoginUI();}
+function doLogout(){auth.signOut();currentUser=null;currentProfile=null;_bossTimers={};updateLoginUI();renderBossList();}
 
 function updateLoginUI(){
   const ok=!!currentProfile;
   document.getElementById('loginArea').style.display=ok?'none':'';
   document.getElementById('userArea').style.display=ok?'':'none';
   const ba=document.getElementById('btnAddMember'),bg=document.getElementById('btnCreateGuild');
-  if(ba)ba.style.display='flex';
+  if(ba)ba.style.display=canManageMembers()?'flex':'none';
   if(bg)bg.style.display=ok?'':'none';
   if(ok){
     document.getElementById('userName').textContent=currentProfile.name;
@@ -937,8 +1547,11 @@ function updateLoginUI(){
     const r=ROLES[currentProfile.role]||ROLES.none;
     document.getElementById('userRoleBadge').textContent=r.label;
     document.getElementById('navUsers').style.display=canManageUsers()?'':'none';
+    updateMyRaidNavVisibility();
   }else{
     document.getElementById('navUsers').style.display='none';
+    const navMgmt=document.getElementById('navMyRaidMgmt');if(navMgmt)navMgmt.style.display='none';
+    const btnCreate=document.getElementById('btnCreateRaid');if(btnCreate)btnCreate.style.display='none';
     // 로그아웃 상태면 캐릭터 카드 초기화
     window._myCharData=null;
     const empty=document.getElementById('myCharEmpty');
@@ -961,31 +1574,39 @@ auth.onAuthStateChanged(async(user)=>{
       const allSnap=await db.collection('users').where('isAnonymous','!=',true).get();
       let role='none';
       let existingMyChar=null;
+      let existingBossTimers=null;
       if(isSuperAdmin(d.id, d.email)){
         role='master';
       } else if(dupSnap&&!dupSnap.empty){
         const prev=dupSnap.docs[0].data();
         role=prev.role||'none';
         existingMyChar=prev.myChar||null;
+        existingBossTimers=prev.bossTimers||null;
       } else {
-        role=allSnap.empty?'master':'none';
+        role=allSnap.empty?'master':'guest';
       }
       if(dupSnap&&!dupSnap.empty){
         existingMyChar=existingMyChar||(dupSnap.docs[0].data().myChar||null);
+        existingBossTimers=existingBossTimers||(dupSnap.docs[0].data().bossTimers||null);
         // 이전 중복 문서들 삭제
         for(const dd of dupSnap.docs){await db.collection('users').doc(dd.id).delete();}
       }
       const newData={name:d.global_name||d.username,email:d.email||'',photo:d.avatar||'',role,discordId:d.id,discordUsername:d.username,isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
       if(existingMyChar)newData.myChar=existingMyChar;
+      if(existingBossTimers)newData.bossTimers=existingBossTimers;
       await userRef.set(newData);
       doc=await userRef.get();
     }else if(user.isAnonymous&&_pendingRole){
       await userRef.set({name:_pendingName||'방문자',email:'',photo:'',role:_pendingRole,isAnonymous:true,loginType:'anonymous',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       _pendingRole=null;_pendingName=null;doc=await userRef.get();
+    }else if(user.isAnonymous){
+      // 대기 중인 인증 없는 익명 세션 → 로그아웃 (이름없음 문서 생성 방지)
+      await auth.signOut();
+      return;
     }else{
       const snap=await db.collection('users').where('isAnonymous','!=',true).get();
       const gRole=isSuperAdmin('',user.email)?'master':(snap.empty?'master':'none');
-      await userRef.set({name:user.displayName||'이름없음',email:user.email,photo:user.photoURL||'',role:gRole,loginType:'google',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      await userRef.set({name:user.displayName||user.email||'Google 사용자',email:user.email,photo:user.photoURL||'',role:gRole,loginType:'google',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       doc=await userRef.get();
     }
   }
@@ -995,14 +1616,323 @@ auth.onAuthStateChanged(async(user)=>{
     await userRef.update({role:'master'});
     profileData.role='master';
   }
+  // Discord 재로그인 시 이름/사진 최신화
+  if(_pendingDiscord && profileData.discordId === _pendingDiscord.id){
+    const d=_pendingDiscord;_pendingDiscord=null;
+    const freshName=d.global_name||d.username;
+    if(freshName && freshName !== profileData.name){
+      await userRef.update({name:freshName,photo:d.avatar||profileData.photo||''});
+      profileData.name=freshName;profileData.photo=d.avatar||profileData.photo||'';
+    }
+  }
   currentProfile={id:doc.id,...profileData};
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();
+  // 프로필 캐시 저장 (빠른 UI 복원용)
+  try{localStorage.setItem('_profileCache',JSON.stringify({name:currentProfile.name,photo:currentProfile.photo,role:currentProfile.role}));}catch(e){}
+  // 디스코드 로그인 접속 로그 기록 + 방문자 카운터 업데이트
+  if(profileData.loginType==='discord'||profileData.isAnonymous){
+    db.collection('loginLogs').add({
+      uid:doc.id,name:profileData.name||'',photo:profileData.photo||'',
+      discordId:profileData.discordId||'',role:profileData.role||'none',
+      loginAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+    // 고유 방문자 집계 (uid arrayUnion)
+    db.collection('stats').doc('visitors').set({
+      uids:firebase.firestore.FieldValue.arrayUnion(doc.id)
+    },{merge:true}).catch(()=>{});
+  }
+  // 방문자 수 실시간 구독
+  db.collection('stats').doc('visitors').onSnapshot(snap=>{
+    const el=document.getElementById('sidebarUserTotal');
+    if(el){const uids=snap.exists?(snap.data().uids||[]):[];el.textContent=uids.length+'명';}
+  });
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();updateMyRaidNavVisibility();
+  await loadBossTimers();
+  renderBossList();
 });
+
+// =============================================
+// Dashboard
+// =============================================
+const BOSS_SCHEDULE = [
+  { name:'자쿰',      icon:'⚔️', color:'#fee2e2', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-red',    cooldownHours:24  },
+  { name:'혼테일',    icon:'🐉', color:'#faf5ff', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-purple', cooldownHours:24  },
+  { name:'파풀라투스', icon:'📜', color:'#fffbeb', days:[0,1,2,3,4,5,6], reset:'24시간', resetBadge:'badge-yellow', cooldownHours:24  },
+  { name:'피아누스',  icon:'🐟', color:'#eff6ff', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-blue',   cooldownHours:168 },
+  { name:'크우파',    icon:'🐢', color:'#ecfdf5', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-green',  cooldownHours:168 },
+];
+
+// =============================================
+// Boss Timer (Firestore 유저별 저장)
+// =============================================
+let _bossEditing = null;
+let _bossTimers = {}; // 인메모리 캐시
+
+async function loadBossTimers() {
+  if (currentUser) {
+    try {
+      const doc = await db.collection('users').doc(currentUser.uid).get();
+      _bossTimers = (doc.exists && doc.data().bossTimers) ? doc.data().bossTimers : {};
+    } catch(e) { _bossTimers = {}; }
+  } else {
+    _bossTimers = {};
+  }
+}
+
+function getBossTimers() { return _bossTimers; }
+
+async function saveBossTimer(name, clearMs) {
+  _bossTimers[name] = clearMs;
+  if (currentUser) {
+    try {
+      await db.collection('users').doc(currentUser.uid).update({ ['bossTimers.' + name]: clearMs });
+    } catch(e) {
+      // 문서에 bossTimers 필드가 없으면 set으로 재시도
+      await db.collection('users').doc(currentUser.uid).set({ bossTimers: _bossTimers }, { merge: true });
+    }
+  }
+}
+
+async function deleteBossTimer(name) {
+  delete _bossTimers[name];
+  if (currentUser) {
+    try {
+      await db.collection('users').doc(currentUser.uid).update({
+        ['bossTimers.' + name]: firebase.firestore.FieldValue.delete()
+      });
+    } catch(e) {}
+  }
+}
+
+// 항상 X일 X시간 X분 남음 형식
+function fmtRemaining(ms) {
+  if (ms <= 0) return null;
+  const totalMin = Math.floor(ms / 60000);
+  const d = Math.floor(totalMin / 1440);
+  const h = Math.floor((totalMin % 1440) / 60);
+  const m = totalMin % 60;
+  return `${d}일 ${h}시간 ${m}분 남음`;
+}
+
+function fmtHHMM(ts) {
+  const d = new Date(ts);
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+// datetime-local input 기본값용 (로컬 ISO)
+function toDatetimeLocal(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// 편집 토글
+function bossToggleEdit(name) {
+  _bossEditing = (_bossEditing === name) ? null : name;
+  renderBossList();
+}
+
+// 인라인 저장
+async function bossSaveTime(name) {
+  const dateInp = document.getElementById('bossEditDate_' + name);
+  const timeInp = document.getElementById('bossEditTime_' + name);
+  if (!dateInp?.value || !timeInp?.value) { alert('날짜와 시간을 모두 입력하세요.'); return; }
+  const dt = new Date(dateInp.value + 'T' + timeInp.value);
+  if (isNaN(dt.getTime())) { alert('올바른 날짜/시간을 입력하세요.'); return; }
+  await saveBossTimer(name, dt.getTime());
+  _bossEditing = null;
+  renderBossList();
+}
+
+// 초기화
+async function bossResetTimer(name) {
+  await deleteBossTimer(name);
+  _bossEditing = null;
+  renderBossList();
+}
+
+// 보스 리스트 단독 렌더 (dashboard 전체 재렌더 없이)
+function renderBossList() {
+  const blEl = document.getElementById('dashBossList');
+  if (!blEl) return;
+  const timerData = getBossTimers();
+  const nowMs = Date.now();
+
+  blEl.innerHTML = BOSS_SCHEDULE.map(b => {
+    const clearMs = timerData[b.name];
+    const cooldownMs = b.cooldownHours * 3600000;
+    const isEditing = _bossEditing === b.name;
+    const hasClear = !!clearMs;
+
+    // 상태 정보 HTML
+    let infoHtml;
+    if (hasClear) {
+      const nextMs = clearMs + cooldownMs;
+      const remaining = nextMs - nowMs;
+      const remStr = fmtRemaining(remaining);
+      if (remaining > 0) {
+        infoHtml = `
+          <div class="bsub" style="margin-top:2px;color:var(--text-sub);">입장: ${fmtHHMM(clearMs)} → 다음 입장: ${fmtHHMM(nextMs)}</div>
+          <div class="bsub boss-remaining" style="margin-top:2px;font-size:11px;">
+            <span class="material-icons" style="font-size:11px;">schedule</span>${remStr}
+          </div>`;
+      } else {
+        infoHtml = `
+          <div class="bsub boss-available" style="margin-top:2px;font-size:11px;">
+            <span class="material-icons" style="font-size:11px;">check_circle</span>입장 가능
+          </div>
+          <div class="bsub" style="margin-top:1px;font-size:10px;color:#94a3b8;">입장: ${fmtHHMM(clearMs)}</div>`;
+      }
+    } else {
+      infoHtml = `
+        <div class="bsub boss-available" style="margin-top:2px;font-size:11px;">
+          <span class="material-icons" style="font-size:11px;">check_circle</span>입장 가능
+        </div>`;
+    }
+
+    // 인라인 편집기 HTML (날짜/시간 분리 — 모바일 최적화)
+    const refTs = hasClear ? clearMs : Date.now();
+    const refDate = new Date(refTs);
+    const pad = n => String(n).padStart(2,'0');
+    const defaultDate = `${refDate.getFullYear()}-${pad(refDate.getMonth()+1)}-${pad(refDate.getDate())}`;
+    const defaultTime = `${pad(refDate.getHours())}:${pad(refDate.getMinutes())}`;
+    const editHtml = isEditing ? `
+      <div class="boss-edit-panel">
+        <div class="boss-edit-title">입장 시각 선택</div>
+        <div class="boss-edit-fields">
+          <div class="boss-edit-field">
+            <label class="boss-edit-field-label">날짜</label>
+            <input type="date" id="bossEditDate_${b.name}" class="boss-edit-field-input" value="${defaultDate}">
+          </div>
+          <div class="boss-edit-field">
+            <label class="boss-edit-field-label">시간</label>
+            <input type="time" id="bossEditTime_${b.name}" class="boss-edit-field-input" value="${defaultTime}">
+          </div>
+        </div>
+        <div class="boss-edit-btns">
+          <button class="boss-edit-save" onclick="bossSaveTime('${b.name}')">저장</button>
+          <button class="boss-edit-cancel" onclick="bossToggleEdit('${b.name}')">취소</button>
+        </div>
+      </div>` : '';
+
+    // 아이콘 액션 버튼
+    const actHtml = `
+      <button class="boss-action-btn btn-edit${isEditing ? ' active' : ''}" onclick="bossToggleEdit('${b.name}')" title="시간 수정" aria-label="시간 수정">
+        <span class="material-icons">${isEditing ? 'close' : 'edit'}</span>
+      </button>
+      ${hasClear ? `<button class="boss-action-btn btn-reset" onclick="bossResetTimer('${b.name}')" title="초기화" aria-label="초기화">
+        <span class="material-icons">restart_alt</span>
+      </button>` : ''}`;
+
+    return `<div class="boss-item">
+      <div class="boss-icon" style="background:${b.color};">${b.icon}</div>
+      <div class="boss-info" style="flex:1;min-width:0;">
+        <div class="bname">${b.name}</div>
+        ${infoHtml}
+        ${editHtml}
+      </div>
+      <div class="boss-item-right">
+        <span class="badge ${b.resetBadge} boss-reset">${b.reset}</span>
+        <div class="boss-item-actions">${actHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderDashboard() {
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 6 ? '좋은 밤이에요' : hour < 12 ? '좋은 아침이에요' : hour < 18 ? '안녕하세요' : '좋은 저녁이에요';
+
+  // 환영 배너
+  const name = currentProfile ? currentProfile.name : '모험가';
+  const el = document.getElementById('dashGreeting');
+  if(el) el.textContent = `${greeting}, ${name}님 👋`;
+
+  // 역할 배지
+  const rb = document.getElementById('dashRoleBadge');
+  if(rb && currentProfile) {
+    const r = ROLES[currentProfile.role] || ROLES.none;
+    rb.textContent = r.label;
+    rb.style.display = '';
+  }
+
+  // 내 캐릭터 배지
+  const cb = document.getElementById('dashCharBadge');
+  const mc = window._myCharData;
+  if(cb && mc && mc.name) {
+    cb.textContent = `Lv.${mc.level||'?'} ${mc.job||''} ${mc.name}`;
+    cb.style.display = '';
+  }
+
+  // 요약 카드
+  const total = allMembers.length;
+  const active = allMembers.filter(m => m.status === '참여').length;
+  const undecided = allMembers.filter(m => m.status === '미정').length;
+  const absent = allMembers.filter(m => m.status === '불참').length;
+  const s = t => document.getElementById(t);
+  if(s('dashTotalMembers')) s('dashTotalMembers').textContent = total + '명';
+  if(s('dashActiveMembers')) s('dashActiveMembers').textContent = active + '명';
+  if(s('dStat1')) s('dStat1').textContent = active;
+  if(s('dStat2')) s('dStat2').textContent = undecided;
+  if(s('dStat3')) s('dStat3').textContent = absent;
+
+  // 이번달 판매액
+  const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const monthSales = allPurchases.filter(p => (p.date||'').startsWith(ym)).reduce((sum, p) => sum + (p.price||0), 0);
+  if(s('dashMonthSales')) s('dashMonthSales').textContent = monthSales >= 10000 ? (monthSales/10000).toFixed(1)+'만G' : monthSales.toLocaleString()+'G';
+
+  // 내 참여 상태
+  if(s('dashMyStatus') && currentProfile) {
+    const me = allMembers.find(m => m.discordId === currentProfile.discordId);
+    const statusMap = {'참여':'✅ 참여','미정':'⚠️ 미정','불참':'❌ 불참'};
+    s('dashMyStatus').textContent = me ? (statusMap[me.status]||me.status) : '미등록';
+  }
+
+  // 최근 등록 공대원 (5명)
+  const rmEl = s('dashRecentMembers');
+  if(rmEl) {
+    const recent = [...allMembers].slice(-5).reverse();
+    if(!recent.length) {
+      rmEl.innerHTML = '<div class="empty-state" style="padding:16px;"><p>공대원이 없습니다</p></div>';
+    } else {
+      const statusColor = {참여:'#059669', 미정:'#d97706', 불참:'#ef4444'};
+      rmEl.innerHTML = recent.map(m => `
+        <div class="my-raid-item">
+          <div class="my-raid-dot" style="background:${statusColor[m.status]||'#9ca3af'};"></div>
+          <div style="flex:1;min-width:0;">
+            <div class="my-raid-name">${m.name||'-'}</div>
+            <div class="my-raid-sub">${m.job||''} ${m.level ? 'Lv.'+m.level : ''}</div>
+          </div>
+          <span class="badge ${m.status==='참여'?'badge-green':m.status==='불참'?'badge-red':'badge-yellow'}">${m.status||'-'}</span>
+        </div>`).join('');
+    }
+  }
+
+  // 보스 일정
+  renderBossList();
+
+
+  // 최근 판매내역 (5개)
+  const rpEl = s('dashRecentPurchases');
+  if(rpEl) {
+    const recent = allPurchases.slice(0, 5);
+    if(!recent.length) {
+      rpEl.innerHTML = '<div class="empty-state" style="padding:16px;"><p>판매 내역이 없습니다</p></div>';
+    } else {
+      rpEl.innerHTML = recent.map(p => `
+        <div class="settle-row">
+          <div class="settle-item-name">${p.item||'-'}</div>
+          <div class="settle-date">${p.date||''}</div>
+          <div class="settle-price">${(p.price||0).toLocaleString()}G</div>
+        </div>`).join('');
+    }
+  }
+}
 
 // =============================================
 // Members
 // =============================================
-function subscribeMembers(){db.collection('members').orderBy('name').onSnapshot(s=>{allMembers=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberTable();renderGoldTable();renderStats();});}
+function subscribeMembers(){db.collection('members').orderBy('name').onSnapshot(s=>{allMembers=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberTable();renderGoldTable();renderStats();renderDashboard();});}
 
 function renderStats(){
   const t=allMembers.length,a=allMembers.filter(m=>m.status==='참여').length,g=allMembers.reduce((s,m)=>s+(m.gold||0),0);
@@ -1020,22 +1950,69 @@ function renderStats(){
   if(ss)ss.innerHTML=[{l:'참여',c:a,co:'#059669'},{l:'미정',c:allMembers.filter(m=>m.status==='미정').length,co:'#d97706'},{l:'불참',c:allMembers.filter(m=>m.status==='불참').length,co:'#dc2626'}].map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:10px;height:10px;border-radius:50%;background:${s.co};"></span><span style="flex:1;font-size:14px;">${s.l}</span><strong style="font-size:14px;">${s.c}명</strong></div>`).join('');
 }
 
+let memberViewMode='table';
+function setMemberView(mode){
+  memberViewMode=mode;
+  document.getElementById('btnViewTable').classList.toggle('active',mode==='table');
+  document.getElementById('btnViewGrid').classList.toggle('active',mode==='grid');
+  document.getElementById('memberTableWrap').style.display=mode==='table'?'':'none';
+  document.getElementById('memberGridWrap').style.display=mode==='grid'?'':'none';
+  renderMemberTable();
+}
+
 function renderMemberTable(){
   const s=(document.getElementById('memberSearch')?.value||'').toLowerCase(),rF=document.getElementById('memberRoleFilter')?.value||'',sF=document.getElementById('memberStatusFilter')?.value||'';
   let f=allMembers.filter(m=>{if(s&&!m.name.toLowerCase().includes(s)&&!(m.cls||'').toLowerCase().includes(s))return false;if(rF&&m.role!==rF)return false;if(sF&&m.status!==sF)return false;return true;});
   const ce=canManageMembers(),tb=document.getElementById('memberTableBody');
-  if(!tb)return;
-  tb.innerHTML=f.map((m,i)=>{
-    const sc=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
-    const rt=m.rate||0,rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
-    const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
-    return `<tr><td>${i+1}</td><td><strong>${m.name||''}</strong></td><td>${m.cls||''}</td>
-    <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
-    <td>${(m.level||0).toLocaleString()}</td><td>${m.gold||0}만</td>
-    <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
-    <td><span class="badge ${sc}">${m.status||''}</span></td><td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
-    <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td></tr>`;
-  }).join('');
+  if(tb){
+    tb.innerHTML=f.map((m,i)=>{
+      const sc=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
+      const rt=m.rate||0,rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
+      const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
+      return `<tr><td>${i+1}</td><td><strong>${m.name||''}</strong></td><td>${m.cls||''}</td>
+      <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
+      <td>${(m.level||0).toLocaleString()}</td><td>${m.gold||0}만</td>
+      <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
+      <td><span class="badge ${sc}">${m.status||''}</span></td><td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
+      <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td></tr>`;
+    }).join('');
+  }
+  // 그리드 뷰 렌더
+  const gb=document.getElementById('memberGridBody');
+  if(gb){
+    const JOB_ICON={
+      '히어로':'⚔️','팔라딘':'🛡️','다크나이트':'🌑',
+      '아크메이지(불)':'🔥','아크메이지(얼)':'❄️','비숍':'✨',
+      '보우마스터':'🏹','신궁':'🎯',
+      '나이트로드':'⭐','섀도어':'🗡️'
+    };
+    if(!f.length){
+      gb.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="icon">👥</div><h3>공대원이 없습니다</h3></div>`;
+    } else {
+      gb.innerHTML=f.map(m=>{
+        const rt=m.rate||0;
+        const rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
+        const dotColor=m.status==='참여'?'#059669':m.status==='미정'?'#d97706':'#ef4444';
+        const roleColor=m.role==='서폿'?'#eff6ff':'#ecfdf5';
+        const icon=JOB_ICON[m.cls]||'👤';
+        const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
+        return `<div class="member-card">
+          <div class="mc-status-dot" style="background:${dotColor};" title="${m.status||''}"></div>
+          <div class="mc-icon" style="background:${roleColor};">${icon}</div>
+          <div class="mc-name" title="${m.name||''}">${m.name||''}</div>
+          <div class="mc-cls">${m.cls||'-'}</div>
+          <div class="mc-level">Lv.${(m.level||0).toLocaleString()}</div>
+          <div class="mc-gold">💰 ${m.gold||0}만</div>
+          <div class="mc-rate-bar" style="width:90%;"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
+          <div style="font-size:10px;color:${rc};">${rt}%</div>
+          ${canE||ce?`<div class="mc-actions">
+            ${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')" style="padding:3px 8px;font-size:11px;">수정</button>`:''}
+            ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')" style="padding:3px 8px;font-size:11px;">삭제</button>`:''}
+          </div>`:''}
+        </div>`;
+      }).join('');
+    }
+  }
   document.getElementById('memberCount').textContent=f.length+'명';
 }
 
@@ -1155,7 +2132,7 @@ function renderGoldTable(){
 // =============================================
 // Purchases
 // =============================================
-function subscribePurchases(){db.collection('purchases').orderBy('createdAt','desc').onSnapshot(s=>{allPurchases=s.docs.map(d=>({id:d.id,...d.data()}));renderPurchaseTable();});}
+function subscribePurchases(){db.collection('purchases').orderBy('createdAt','desc').onSnapshot(s=>{allPurchases=s.docs.map(d=>({id:d.id,...d.data()}));renderPurchaseTable();renderDashboard();});}
 function renderPurchaseTable(){
   const tb=document.getElementById('purchaseTableBody');if(!tb)return;
   const ca=canManageMembers();
@@ -1164,7 +2141,7 @@ function renderPurchaseTable(){
     return `<tr><td>${i+1}</td><td>${p.userName||''}</td><td>${p.item||''}</td><td>${(p.price||0).toLocaleString()}</td><td>${p.date||''}</td><td style="color:var(--text-sub);font-size:12px;">${p.memo||''}</td><td>${cd?`<button class="btn btn-danger btn-sm" onclick="deletePurchase('${p.id}')">삭제</button>`:''}</td></tr>`;
   }).join('');
 }
-function openPurchaseModal(){document.getElementById('pItem').value='';document.getElementById('pPrice').value='';document.getElementById('pDate').value=new Date().toISOString().slice(0,10);document.getElementById('pMemo').value='';document.getElementById('purchaseModal').classList.add('show');}
+function openPurchaseModal(){document.getElementById('pItem').value='';document.getElementById('pPrice').value='';document.getElementById('pDate').value=new Date().toISOString().slice(0,10);document.getElementById('pMemo').value='';document.getElementById('pItemList').style.display='none';document.getElementById('purchaseModal').classList.add('show');loadItemDB();}
 function closePurchaseModal(){document.getElementById('purchaseModal').classList.remove('show');}
 async function savePurchase(){
   const d={item:document.getElementById('pItem').value.trim(),price:parseInt(document.getElementById('pPrice').value)||0,date:document.getElementById('pDate').value,memo:document.getElementById('pMemo').value.trim(),uid:currentUser?currentUser.uid:'anon',userName:currentProfile?.name||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
@@ -1176,23 +2153,87 @@ async function deletePurchase(id){if(confirm('삭제?'))await db.collection('pur
 // =============================================
 // Users
 // =============================================
-function subscribeUsers(){db.collection('users').orderBy('createdAt').onSnapshot(s=>{allUsers=s.docs.map(d=>({id:d.id,...d.data()}));renderUserTable();});}
+function subscribeUsers(){
+  db.collection('users').orderBy('createdAt').onSnapshot(s=>{
+    allUsers=s.docs.map(d=>({id:d.id,...d.data()}));
+    renderUserTable();
+  });
+}
 function renderUserTable(){
   const s=(document.getElementById('userSearch')?.value||'').toLowerCase(),rF=document.getElementById('userRoleFilter2')?.value||'';
-  // discordId 중복 제거 (최신 1개만 유지)
   const seen=new Set();
   const deduped=allUsers.filter(u=>{const key=u.discordId||u.id;if(seen.has(key))return false;seen.add(key);return true;});
   let f=deduped.filter(u=>{if(s&&!(u.name||'').toLowerCase().includes(s)&&!(u.email||'').toLowerCase().includes(s))return false;if(rF&&u.role!==rF)return false;return true;});
   const tb=document.getElementById('userTableBody');if(!tb)return;
-  const ml=ROLES[currentProfile?.role]?.level||0;
+  const admin=isAdmin(currentProfile);
+  const ROLE_OPTS=[
+    {k:'master',l:'사이트마스터'},{k:'leader',l:'공대장'},{k:'vice',l:'부공대장'},
+    {k:'member',l:'공대원'},{k:'guest',l:'손님'},{k:'none',l:'권한없음'}
+  ];
   tb.innerHTML=f.map((u,i)=>{
-    const r=ROLES[u.role]||ROLES.none,ul=r.level,cc=canManageUsers()&&ul<ml&&u.id!==currentUser?.uid;
+    const r=ROLES[u.role]||ROLES.none;
     const cr=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko'):'-';
-    let sel='-';if(cc){const opts=Object.entries(ROLES).filter(([k,v])=>v.level<ml).map(([k,v])=>`<option value="${k}" ${u.role===k?'selected':''}>${v.label}</option>`).join('');sel=`<select class="filter-select" onchange="changeRole('${u.id}',this.value)" style="font-size:11px;padding:4px 8px;">${opts}</select>`;}
-    return `<tr><td>${i+1}</td><td><img src="${u.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:28px;height:28px;border-radius:50%;"></td><td>${u.name||''}</td><td style="font-size:12px;color:var(--text-sub);">${u.email||''}</td><td><span class="badge ${r.badge}">${r.label}</span></td><td style="font-size:12px;">${cr}</td><td>${sel}</td></tr>`;
+    const isSelf=u.id===currentUser?.uid;
+    let ctrl='<span style="color:#9ca3af;font-size:13px;">-</span>';
+    if(admin){
+      const opts=ROLE_OPTS.map(o=>`<option value="${o.k}" ${u.role===o.k?'selected':''}>${o.l}</option>`).join('');
+      ctrl=isSelf
+        ? `<select disabled style="font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;opacity:.4;cursor:not-allowed;"><option>${r.label}</option></select>`
+        : `<select onchange="changeRole('${u.id}',this.value)" style="font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;">${opts}</select>`;
+    }
+    return `<tr>
+      <td>${i+1}</td>
+      <td><img src="${u.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;"></td>
+      <td style="font-weight:${isSelf?'700':'400'};">${u.name||''}${isSelf?' <span style="font-size:10px;padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
+      <td style="font-size:12px;color:var(--text-sub);">${u.email||''}</td>
+      <td><span class="badge ${r.badge}">${r.label}</span></td>
+      <td style="font-size:12px;">${cr}</td>
+      <td>${ctrl}</td>
+    </tr>`;
   }).join('');
 }
-async function changeRole(uid,r){if(confirm(`권한을 "${ROLES[r].label}"(으)로 변경?`))await db.collection('users').doc(uid).update({role:r});}
+async function changeRole(uid,r){
+  if(!isAdmin(currentProfile)){alert('사이트마스터만 권한을 변경할 수 있습니다.');return;}
+  if(uid===currentUser?.uid){alert('자신의 권한은 변경할 수 없습니다.');return;}
+  if(confirm(`권한을 "${ROLES[r]?.label||r}"(으)로 변경하시겠습니까?`))await db.collection('users').doc(uid).update({role:r});
+}
+
+// =============================================
+// Login Logs
+// =============================================
+async function loadLoginLogs(force){
+  const panel=document.getElementById('loginLogPanel');
+  if(!panel)return;
+  // 사이트마스터만 로그 열람
+  if(!isAdmin(currentProfile)){panel.style.display='none';return;}
+  panel.style.display='';
+  const tbody=document.getElementById('loginLogBody');
+  if(tbody)tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-sub);">불러오는 중...</td></tr>`;
+  try{
+    const snap=await db.collection('loginLogs').orderBy('loginAt','desc').limit(100).get();
+    const badge=document.getElementById('logCountBadge');
+    if(badge)badge.textContent=`최근 ${snap.size}건`;
+    if(!tbody)return;
+    if(snap.empty){
+      tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-sub);">접속 기록이 없습니다</td></tr>`;
+      return;
+    }
+    tbody.innerHTML=snap.docs.map((d,i)=>{
+      const l={id:d.id,...d.data()};
+      const r=ROLES[l.role]||ROLES.none;
+      const dt=l.loginAt?new Date(l.loginAt.seconds*1000).toLocaleString('ko',{year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'-';
+      return `<tr>
+        <td style="color:var(--text-sub);font-size:12px;">${i+1}</td>
+        <td><img src="${l.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;"></td>
+        <td style="font-weight:600;">${l.name||'이름없음'}</td>
+        <td><span class="badge ${r.badge}" style="font-size:11px;">${r.label}</span></td>
+        <td style="font-size:13px;color:var(--text-sub);">${dt}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    if(tbody)tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:30px;color:#dc2626;">오류: ${e.message}</td></tr>`;
+  }
+}
 
 // =============================================
 // Guild Promos
@@ -1216,7 +2257,26 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 공대원 목록',settlement:'공대관리 / 보스 정산',guestsettlement:'공대관리 / 손님정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리'};
+const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestsettlement:'공대관리 / 내 공대 관리 / 손님 정산',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
+const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestsettlement:'내 공대 관리',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
+
+// 탭바 페이지 매핑
+const tabPageMap = {
+  dashboard:null,
+  mychar:'mychar', myraids:'mychar', equip:'mychar', mysettlement:'mychar',
+  members:'members', raids:'members', settlement:'members', guestsettlement:'members', purchase:'members', gold:'members',
+  'horntail-timer':'horntail-timer',
+  items:'items'
+};
+
+function updateTabBar(id) {
+  const mapped = tabPageMap[id] || null;
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  if (mapped) {
+    const el = document.getElementById('tab-' + mapped);
+    if (el) el.classList.add('active');
+  }
+}
 
 function showPage(id,el){
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
@@ -1224,11 +2284,29 @@ function showPage(id,el){
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
   if(el){el.classList.add('active');const b=el.closest('.acc-body');if(b&&!b.classList.contains('open')){b.classList.add('open');b.previousElementSibling.classList.add('open');}}
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
+  const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent=mobileTitleMap[id]||'';
+  // 내 공대 관리 탭바
+  const mgmtPages=['members','settlement','guestsettlement'];
+  const tabBar=document.getElementById('myRaidTabBar');
+  if(tabBar){
+    tabBar.style.display=mgmtPages.includes(id)?'':'none';
+    if(mgmtPages.includes(id)){
+      document.querySelectorAll('.raid-mgmt-tab').forEach(t=>t.classList.remove('active'));
+      const at=document.getElementById('raidTab-'+id);if(at)at.classList.add('active');
+      // 내 공대 관리 사이드바 항목 활성화
+      const nav=document.getElementById('navMyRaidMgmt');if(nav&&!el)nav.classList.add('active');
+    }
+  }
+  updateTabBar(id);
+  if(id==='dashboard')renderDashboard();
   if(id==='mychar')mcLoadMyChar();
   if(id==='raids')renderRaidList();
   if(id==='myraids')renderMyRaids();
   if(id==='settlement'){renderSettlementHistory();}
   if(id==='guestsettlement'){renderGuestSettlementHistory();}
+  if(id==='horntail-timer'){htRender();}
+  if(id==='items'){loadItemDB().then(()=>renderItemPage());}
+  if(id==='users'){loadLoginLogs();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -1239,6 +2317,33 @@ function toggleSidebar(){
   document.querySelector('.sidebar').classList.toggle('open');
   document.getElementById('mobileOverlay').classList.toggle('show');
 }
+
+function toggleSidebarSearch(){
+  const wrap = document.getElementById('sidebarSearchWrap');
+  if(!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : '';
+  if(!isOpen){
+    const inp = document.getElementById('sidebarSearchInput');
+    if(inp) setTimeout(()=>inp.focus(), 50);
+  } else {
+    sidebarSearchReset();
+  }
+}
+
+function toggleSidebarCollapse(){
+  // 모바일에서는 완전히 닫기
+  if(window.innerWidth <= 768){ toggleSidebar(); return; }
+  const collapsed = document.body.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+}
+
+// 페이지 로드 시 접힘 상태 복원
+(function(){
+  if(localStorage.getItem('sidebarCollapsed') === '1'){
+    document.body.classList.add('sidebar-collapsed');
+  }
+})();
 
 function exportMembers(){
   let csv='번호,캐릭터명,직업,역할,아이템레벨,주급골드,참여율,상태,비고\n';
@@ -1339,25 +2444,66 @@ async function mcLoadMyChar(){
 // =============================================
 let allRaids=[];
 
+function updateRaidNavVisibility(){
+  const hasRaid = allRaids.length > 0;
+  document.querySelectorAll('.raid-sub-menu').forEach(el=>{
+    el.classList.toggle('raid-visible', hasRaid);
+  });
+}
+
+function updateMyRaidNavVisibility(){
+  const role = currentProfile?.role;
+  const canSee = ['member','vice','leader','master'].includes(role);
+  const navMgmt = document.getElementById('navMyRaidMgmt');
+  if(navMgmt) navMgmt.style.display = canSee ? '' : 'none';
+  // 공대 목록 내 등록 버튼: 공대장/부공대장/마스터만
+  const canCreate = ['leader','vice','master'].includes(role);
+  const btnCreate = document.getElementById('btnCreateRaid');
+  if(btnCreate) btnCreate.style.display = canCreate ? '' : 'none';
+}
+
 function subscribeRaids(){
   db.collection('raids').orderBy('createdAt','desc').onSnapshot(snap=>{
     allRaids=snap.docs.map(d=>({id:d.id,...d.data()}));
+    updateRaidNavVisibility();
+    updateMyRaidNavVisibility();
   });
 }
 subscribeRaids();
 
+function toggleRaidForm(forceOpen){
+  showPage('raids', document.querySelector('.nav-item[title="공대 목록"]'));
+  const form=document.getElementById('raidInlineForm');
+  const open=forceOpen!==undefined ? forceOpen : form.style.display==='none';
+  if(open){
+    document.getElementById('rEditId').value='';
+    ['rName','rDesc','rClearTime'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('rBoss').value='';document.getElementById('rMax').value='';
+    document.getElementById('raidFormTitle').textContent='공대 등록';
+    form.style.display='';
+    form.scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    form.style.display='none';
+  }
+}
 function openRaidModal(id){
+  showPage('raids', null);
+  const form=document.getElementById('raidInlineForm');
   document.getElementById('rEditId').value=id||'';
   if(id){
     const r=allRaids.find(x=>x.id===id);
     if(r){document.getElementById('rName').value=r.name||'';document.getElementById('rBoss').value=r.boss||'';document.getElementById('rMax').value=r.maxCount||'';document.getElementById('rClearTime').value=r.clearTime||'';document.getElementById('rDesc').value=r.desc||'';}
+    document.getElementById('raidFormTitle').textContent='공대 수정';
   }else{
     ['rName','rDesc','rClearTime'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('rBoss').value='';document.getElementById('rMax').value='';
+    document.getElementById('raidFormTitle').textContent='공대 등록';
   }
-  document.getElementById('raidModal').classList.add('show');
+  form.style.display='';
+  form.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function closeRaidModal(){document.getElementById('raidModal').classList.remove('show');}
+function closeRaidForm(){document.getElementById('raidInlineForm').style.display='none';}
+function closeRaidModal(){closeRaidForm();}
 
 async function saveRaid(){
   const name=document.getElementById('rName').value.trim();
@@ -1366,15 +2512,27 @@ async function saveRaid(){
   const d={name,boss,maxCount:parseInt(document.getElementById('rMax').value)||6,clearTime:document.getElementById('rClearTime').value.trim(),desc:document.getElementById('rDesc').value.trim(),status:'모집중',ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   const id=document.getElementById('rEditId').value;
   if(id){await db.collection('raids').doc(id).update(d);}
-  else{d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('raids').add(d);}
-  closeRaidModal();
+  else{
+    d.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('raids').add(d);
+    // 공대 생성자 → 공대장 롤 자동 부여
+    if(currentUser && currentProfile && ['guest','none'].includes(currentProfile.role)){
+      await db.collection('users').doc(currentUser.uid).update({role:'leader'});
+      currentProfile.role='leader';
+      updateLoginUI();
+    }
+  }
+  closeRaidForm();
   renderRaidList();
+  updateRaidNavVisibility();
+  updateMyRaidNavVisibility();
 }
 
 async function deleteRaid(id){
   if(!confirm('공대를 삭제하시겠습니까?'))return;
   await db.collection('raids').doc(id).delete();
   renderRaidList();
+  updateRaidNavVisibility();
 }
 
 async function applyRaid(raidId){
@@ -1522,11 +2680,18 @@ async function renderApplicants(raidId){
               </div>
               <span class="badge ${a.role==='서폿'?'badge-blue':'badge-green'}" style="font-size:11px;">${a.role||''}</span>
             </div>
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;">
               <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${a.status}</span>
               ${a.status==='대기'?`
                 <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;" onclick="approveApp('${a.id}','${raidId}')">승인</button>
                 <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;" onclick="rejectApp('${a.id}','${raidId}')">거절</button>
+              `:''}
+              ${a.status==='승인'&&a.uid?`
+                ${a.userRole==='vice'
+                  ?`<button class="btn btn-outline" style="font-size:11px;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" onclick="changeAppRole('${a.id}','${a.uid}','member','${raidId}')">공대원으로</button>
+                    <span style="font-size:11px;padding:3px 8px;background:#ede9fe;color:#7c3aed;border-radius:12px;font-weight:700;">부공대장</span>`
+                  :`<button class="btn btn-outline" style="font-size:11px;padding:4px 10px;color:#7c3aed;border-color:#7c3aed;" onclick="changeAppRole('${a.id}','${a.uid}','vice','${raidId}')">부공대장 임명</button>`
+                }
               `:''}
             </div>
           </div>
@@ -1537,7 +2702,16 @@ async function renderApplicants(raidId){
 }
 
 async function approveApp(appId, raidId){
-  await db.collection('raidApplications').doc(appId).update({status:'승인'});
+  const appDoc=await db.collection('raidApplications').doc(appId).get();
+  const appData=appDoc.data();
+  await db.collection('raidApplications').doc(appId).update({status:'승인', userRole:'member'});
+  // 신청자 ERP 롤 → 공대원
+  if(appData?.uid){
+    const uDoc=await db.collection('users').doc(appData.uid).get();
+    if(uDoc.exists && ['guest','none'].includes(uDoc.data().role)){
+      await db.collection('users').doc(appData.uid).update({role:'member'});
+    }
+  }
   await renderApplicants(raidId);
   renderRaidList();
 }
@@ -1546,6 +2720,12 @@ async function rejectApp(appId, raidId){
   await db.collection('raidApplications').doc(appId).update({status:'거절'});
   await renderApplicants(raidId);
   renderRaidList();
+}
+
+async function changeAppRole(appId, uid, newRole, raidId){
+  await db.collection('users').doc(uid).update({role:newRole});
+  await db.collection('raidApplications').doc(appId).update({userRole:newRole});
+  await renderApplicants(raidId);
 }
 
 // updateLoginUI에서 공대생성 버튼 연동은 renderRaidList 내부에서 처리
@@ -1829,8 +3009,489 @@ async function deleteGuestSettlement(id){
 // Modal close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});
 
+// =============================================
+// 아이템 자동완성
+// =============================================
+let ITEM_DB = [];
+
+async function loadItemDB() {
+  if (ITEM_DB.length) return;
+  // 1순위: 인라인 JS (item_db.js) - 로컬/GitHub Pages 모두 작동
+  if (typeof ITEM_DB_INLINE !== 'undefined' && ITEM_DB_INLINE.length) {
+    ITEM_DB = ITEM_DB_INLINE;
+    console.log(`아이템 DB 로드 (inline): ${ITEM_DB.length}개`);
+    return;
+  }
+  // 2순위: fetch (GitHub Pages)
+  try {
+    const res = await fetch('./items.json');
+    ITEM_DB = await res.json();
+    console.log(`아이템 DB 로드 (fetch): ${ITEM_DB.length}개`);
+  } catch(e) {
+    console.warn('아이템 DB 로드 실패:', e);
+  }
+}
+
+function acSearch(input, listId) {
+  const q = input.value.trim().toLowerCase();
+  const list = document.getElementById(listId);
+  if (!list) return;
+  if (!q) { list.style.display = 'none'; return; }
+
+  if (!ITEM_DB.length) {
+    loadItemDB().then(() => acSearch(input, listId));
+    return;
+  }
+
+  const results = ITEM_DB.filter(([code, name, en]) =>
+    name.toLowerCase().includes(q) || en.toLowerCase().includes(q)
+  ).slice(0, 30);
+
+  if (!results.length) {
+    list.innerHTML = `<div class="autocomplete-empty">검색 결과 없음</div>`;
+    list.style.display = '';
+    return;
+  }
+
+  list.innerHTML = results.map(([code, name, en], i) =>
+    `<div class="autocomplete-item" data-name="${name}" onclick="acSelect('${name}','${listId}',event)">
+      <span class="ac-name">${name}</span>
+      <span class="ac-en">${en}</span>
+    </div>`
+  ).join('');
+  list.style.display = '';
+}
+
+function acSelect(name, listId, e) {
+  if (e) e.stopPropagation();
+  const list = document.getElementById(listId);
+  // input은 list의 바로 앞 형제
+  const input = list.previousElementSibling;
+  if (input) input.value = name;
+  list.style.display = 'none';
+}
+
+function acKeydown(e, listId) {
+  const list = document.getElementById(listId);
+  if (!list || list.style.display === 'none') return;
+  const items = list.querySelectorAll('.autocomplete-item');
+  if (!items.length) return;
+  const cur = list.querySelector('.autocomplete-item.selected');
+  let idx = cur ? [...items].indexOf(cur) : -1;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (cur) cur.classList.remove('selected');
+    items[Math.min(idx + 1, items.length - 1)].classList.add('selected');
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (cur) cur.classList.remove('selected');
+    items[Math.max(idx - 1, 0)].classList.add('selected');
+  } else if (e.key === 'Enter') {
+    const sel = list.querySelector('.autocomplete-item.selected');
+    if (sel) { e.preventDefault(); sel.click(); }
+  } else if (e.key === 'Escape') {
+    list.style.display = 'none';
+  }
+}
+
+// 외부 클릭 시 자동완성 닫기
+document.addEventListener('click', () => {
+  document.querySelectorAll('.autocomplete-list').forEach(l => l.style.display = 'none');
+});
+
+// 판매 모달 열릴 때 DB 미리 로드
+const _origOpenPurchaseModal = typeof openPurchaseModal === 'function' ? openPurchaseModal : null;
+
+// =============================================
+// 아이템 정보 페이지
+// =============================================
+let itemPageNo = 0;
+const ITEM_PAGE_SIZE = 60;
+let itemFilter = { main: '전체', job: '전체', sub: '전체' };
+
+function getItemMeta(code) {
+  const s = String(code);
+  const p3 = parseInt(s.substring(0, 3));
+  const p2 = parseInt(s.substring(0, 2));
+
+  if (s.startsWith('2')) return { main: '소비', sub: '', job: '' };
+  if (s.startsWith('3')) return { main: '설치', sub: '', job: '' };
+  if (s.startsWith('4')) return { main: '기타', sub: '', job: '' };
+  if (s.startsWith('5')) return { main: '캐시', sub: '', job: '' };
+
+  if (s.startsWith('1')) {
+    // 무기 (130~149)
+    if (p3 >= 130 && p3 <= 149) {
+      let job = '공용';
+      if ([130,131,132,140,141,142,143].includes(p3)) job = '전사';
+      else if ([137,138].includes(p3)) job = '마법사';
+      else if ([145,146].includes(p3)) job = '궁수';
+      else if ([133,147].includes(p3)) job = '도적';
+      return { main: '장비', sub: '무기', job };
+    }
+    // 방어구 (100~109 기본 장비류)
+    if (p3 >= 100 && p3 <= 110) return { main: '장비', sub: '방어구', job: '공용' };
+    // 장신구 (111~129)
+    if (p3 >= 111 && p3 <= 129) return { main: '장비', sub: '장신구', job: '공용' };
+    return { main: '장비', sub: '기타', job: '공용' };
+  }
+  return { main: '기타', sub: '', job: '' };
+}
+
+function setItemFilter(type, val) {
+  itemFilter[type] = val;
+  itemPageNo = 0;
+  // 탭 UI 업데이트
+  const groupMap = { main: 'itemMainTabs', job: 'itemJobFilter', sub: 'itemSubFilter' };
+  const container = document.getElementById(groupMap[type]);
+  if (container) container.querySelectorAll('.item-tab').forEach(b => {
+    b.classList.toggle('active', b.textContent.replace(/[⚔️✨🏹🗡️👥]/g,'').trim() === val || b.textContent.trim() === val);
+  });
+  // 장비 선택 시 직업/구분 필터 표시
+  const showEquip = itemFilter.main === '장비';
+  document.getElementById('itemJobFilter').style.display = showEquip ? 'flex' : 'none';
+  document.getElementById('itemSubFilter').style.display = showEquip ? 'flex' : 'none';
+  if (!showEquip) { itemFilter.job = '전체'; itemFilter.sub = '전체'; }
+  renderItemPage();
+}
+
+function renderItemPage() {
+  const grid = document.getElementById('itemPageGrid');
+  const pager = document.getElementById('itemPager');
+  const countEl = document.getElementById('itemCount');
+  if (!grid) return;
+
+  if (!ITEM_DB.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🎒</div><h3>데이터 로딩 중...</h3></div>`;
+    return;
+  }
+
+  const q = (document.getElementById('itemSearch')?.value || '').trim().toLowerCase();
+  const filtered = ITEM_DB.filter(([code, name, en]) => {
+    if (q && !name.toLowerCase().includes(q) && !en.toLowerCase().includes(q)) return false;
+    if (itemFilter.main !== '전체') {
+      const meta = getItemMeta(code);
+      if (meta.main !== itemFilter.main) return false;
+      if (itemFilter.job !== '전체' && meta.job !== itemFilter.job) return false;
+      if (itemFilter.sub !== '전체' && meta.sub !== itemFilter.sub) return false;
+    }
+    return true;
+  });
+
+  // 검색 시 첫 페이지로
+  if (q) itemPageNo = 0;
+
+  const total = filtered.length;
+  const totalPages = Math.ceil(total / ITEM_PAGE_SIZE);
+  itemPageNo = Math.min(itemPageNo, Math.max(totalPages - 1, 0));
+  const start = itemPageNo * ITEM_PAGE_SIZE;
+  const page = filtered.slice(start, start + ITEM_PAGE_SIZE);
+
+  countEl.textContent = `${total.toLocaleString()}개`;
+
+  if (!page.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🔍</div><h3>검색 결과 없음</h3></div>`;
+    pager.innerHTML = '';
+    return;
+  }
+
+  const IMG_BASE = 'https://maplestory.io/api/GMS/253/item';
+  grid.innerHTML = page.map(([code, name, en]) =>
+    `<div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:default;transition:.15s;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='var(--accent-light)'" onmouseout="this.style.background='#f9fafb'">
+      <img src="${IMG_BASE}/${code}/icon" width="36" height="36" style="object-fit:contain;flex-shrink:0;image-rendering:pixelated;" loading="lazy" onerror="this.style.display='none'">
+      <div style="min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+        <div style="font-size:11px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${en}</div>
+        <div style="font-size:10px;color:#9ca3af;margin-top:1px;">#${code}</div>
+      </div>
+    </div>`
+  ).join('');
+
+  // 페이저
+  if (totalPages <= 1) { pager.innerHTML = ''; return; }
+  const pages = [];
+  const showPages = new Set([0, totalPages-1, itemPageNo, itemPageNo-1, itemPageNo+1].filter(p => p >= 0 && p < totalPages));
+  [...showPages].sort((a,b)=>a-b).forEach((p, i, arr) => {
+    if (i > 0 && p - arr[i-1] > 1) pages.push(`<span style="padding:0 4px;color:var(--text-sub);">…</span>`);
+    pages.push(`<button onclick="itemGoPage(${p})" style="padding:6px 12px;border-radius:6px;border:1px solid ${p===itemPageNo?'var(--accent)':'var(--border)'};background:${p===itemPageNo?'var(--accent)':'#fff'};color:${p===itemPageNo?'#fff':'var(--text-sub)'};cursor:pointer;font-size:13px;">${p+1}</button>`);
+  });
+  pager.innerHTML = pages.join('');
+}
+
+function itemGoPage(p) {
+  itemPageNo = p;
+  renderItemPage();
+  document.getElementById('itemPageGrid').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// =============================================
+// 혼테일 단계별 타이머
+// =============================================
+const HT_SECTIONS = [
+  { label:'리저렉션', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">autorenew</span>', color:'#5b5fef',
+    timers:[
+      {name:'갠유용 사용중', sec:1800},
+      {name:'리저렉션-2',   sec:1800},
+      {name:'리저렉션-3',   sec:1800},
+      {name:'리저렉션-4',   sec:1800},
+      {name:'리저렉션-5',   sec:1800},
+      {name:'리저렉션-6',   sec:1800}
+    ]
+  },
+  { label:'사망 & 버프', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">monitor_heart</span>', color:'#d97706',
+    timers:[
+      {name:'사망 팅-1', sec:900},
+      {name:'사망 팅-2', sec:900},
+      {name:'인레이지',   sec:360}
+    ]
+  },
+  { label:'공무', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">sports_kabaddi</span>', color:'#059669',
+    timers:[
+      {name:'좌머리 공무', sec:45},
+      {name:'중머리 공무', sec:45},
+      {name:'우머리 공무', sec:45}
+    ]
+  },
+  { label:'버프해제', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">remove_circle_outline</span>', color:'#7c3aed', autoRestart:true,
+    timers:[
+      {name:'중머리 5갈',    sec:300, auto:true},
+      {name:'중머리 3갈',    sec:180, auto:true},
+      {name:'좌팔 HP:60%', sec:300, auto:true}
+    ]
+  },
+  { label:'유혹담당', icon:'<span class="material-icons" style="font-size:18px;vertical-align:middle;">psychology</span>', color:'#db2777',
+    timers:[
+      {name:'유혹 1', sec:120},
+      {name:'유혹 2', sec:120},
+      {name:'유혹 3', sec:120}
+    ]
+  }
+];
+
+const htState = {};
+
+function htKey(si, ti) { return `${si}_${ti}`; }
+
+function htFmt(sec) {
+  const m = Math.floor(Math.abs(sec) / 60), s = Math.abs(sec) % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function htInitState() {
+  HT_SECTIONS.forEach((sec, si) => {
+    sec.timers.forEach((t, ti) => {
+      const k = htKey(si, ti);
+      if (!htState[k]) htState[k] = { preset:t.sec, remain:t.sec, running:false, intervalId:null, auto:!!t.auto };
+    });
+  });
+}
+
+function htRender() {
+  const board = document.getElementById('htBoard');
+  if (!board) return;
+  htInitState();
+  board.innerHTML = HT_SECTIONS.map((sec, si) => `
+    <div class="ht-section">
+      <div class="ht-section-header" style="background:${sec.color};">
+        <span>${sec.icon}</span><span>${sec.label}</span>
+      </div>
+      <div class="ht-cards">
+        ${sec.timers.map((t, ti) => {
+          const k = htKey(si, ti);
+          const st = htState[k];
+          const tc = st.running ? 'running' : st.remain===0 ? 'done' : '';
+          const bc = st.running ? 'running' : st.remain===0 ? 'done' : 'idle';
+          const bl = st.running ? '정지' : st.remain===0 ? '완료' : '시작';
+          return `<div class="ht-card">
+            <div class="ht-card-top">
+              <span class="ht-card-title">${st.auto?'<span class="ht-auto-icon">↻</span>':''}<span id="httitle-${k}">${st.customName||t.name}</span></span>
+              <button class="ht-edit-btn" onclick="htEdit('${k}')">수정</button>
+            </div>
+            <div class="ht-card-time ${tc}" id="httime-${k}">${htFmt(st.remain)}</div>
+            <div class="ht-card-actions" id="htactions-${k}">
+              ${htActionHTML(k, st)}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function htActionHTML(k, st) {
+  if (st.running) {
+    return `<button class="ht-stop-btn" onclick="htToggle('${k}')">정지</button>
+            <button class="ht-reset-btn" onclick="htReset('${k}')">초기화</button>`;
+  }
+  if (st.remain === 0) {
+    return `<button class="ht-start-btn idle" onclick="htReset('${k}')">초기화</button>`;
+  }
+  return `<button class="ht-start-btn idle" onclick="htToggle('${k}')">시작</button>`;
+}
+
+function htToggle(k) {
+  const st = htState[k];
+  if (!st) return;
+  if (st.remain === 0 && !st.running) { htReset(k); return; }
+  if (st.running) {
+    clearInterval(st.intervalId);
+    st.running = false;
+    htUpdateCard(k);
+    return;
+  }
+  st.running = true;
+  htUpdateCard(k);
+  st.intervalId = setInterval(() => {
+    st.remain--;
+    const el = document.getElementById(`httime-${k}`);
+    if (el) { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${st.remain<=0?'done':'running'}`; }
+    if (st.remain <= 0) {
+      clearInterval(st.intervalId);
+      st.running = false;
+      htPlayBeep();
+      if (st.auto) {
+        setTimeout(() => { st.remain = st.preset; htToggle(k); }, 500);
+      } else {
+        htUpdateCard(k);
+      }
+    }
+  }, 1000);
+}
+
+function htUpdateCard(k) {
+  const st = htState[k];
+  if (!st) return;
+  const el      = document.getElementById(`httime-${k}`);
+  const actions = document.getElementById(`htactions-${k}`);
+  const tc = st.running ? 'running' : st.remain === 0 ? 'done' : '';
+  if (el) { el.textContent = htFmt(st.remain); el.className = `ht-card-time ${tc}`; }
+  if (actions) actions.innerHTML = htActionHTML(k, st);
+}
+
+function htEdit(k) {
+  const st = htState[k];
+  if (!st) return;
+  const el = document.getElementById(`httitle-${k}`);
+  const current = el ? el.textContent.trim() : '';
+  const input = prompt('타이머 이름 변경', current);
+  if (!input || !input.trim()) return;
+  st.customName = input.trim();
+  if (el) el.textContent = input.trim();
+}
+
+function htReset(k) {
+  const st = htState[k];
+  if (!st) return;
+  clearInterval(st.intervalId);
+  st.running = false;
+  st.remain = st.preset;
+  htUpdateCard(k);
+}
+
+function htResetAll() {
+  if (!confirm('전체 초기화 하시겠습니까?')) return;
+  Object.keys(htState).forEach(k => htReset(k));
+}
+
+function htPlayBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    o.start(); o.stop(ctx.currentTime + 0.6);
+  } catch(e) {}
+}
+
+// =============================================
+// 사이드바 메뉴 검색
+// =============================================
+function sidebarSearch(q) {
+  const nav = document.querySelector('.sidebar-nav');
+  if (!nav) return;
+  const clearBtn = document.getElementById('sidebarSearchClear');
+  if (clearBtn) clearBtn.style.display = q ? '' : 'none';
+
+  if (!q.trim()) {
+    // 초기화: 모든 요소 보이기
+    nav.querySelectorAll('.search-hidden').forEach(el => el.classList.remove('search-hidden'));
+    nav.querySelectorAll('.search-match').forEach(el => el.classList.remove('search-match'));
+    return;
+  }
+
+  const kw = q.trim().toLowerCase();
+  const sections = nav.querySelectorAll('.nav-section');
+  const accordions = nav.querySelectorAll('.nav-accordion');
+  const items = nav.querySelectorAll('.nav-item');
+
+  // 모든 항목 숨기기
+  sections.forEach(el => el.classList.add('search-hidden'));
+  accordions.forEach(el => el.classList.add('search-hidden'));
+  items.forEach(el => { el.classList.add('search-hidden'); el.classList.remove('search-match'); });
+  nav.querySelectorAll('.acc-body').forEach(el => el.classList.add('search-hidden'));
+
+  // 매칭 항목 표시
+  let anyMatch = false;
+  items.forEach(item => {
+    const label = (item.getAttribute('title') || item.textContent || '').toLowerCase();
+    if (label.includes(kw)) {
+      item.classList.remove('search-hidden');
+      item.classList.add('search-match');
+      anyMatch = true;
+      // 부모 acc-body와 nav-accordion 표시
+      const body = item.closest('.acc-body');
+      if (body) {
+        body.classList.remove('search-hidden');
+        const acc = body.previousElementSibling;
+        if (acc && acc.classList.contains('nav-accordion')) acc.classList.remove('search-hidden');
+      }
+    }
+  });
+
+  // 섹션은 매칭 항목이 있을 때만 표시
+  if (anyMatch) {
+    sections.forEach(el => el.classList.remove('search-hidden'));
+  }
+}
+
+function sidebarSearchReset() {
+  const inp = document.getElementById('sidebarSearchInput');
+  if (inp) { inp.value = ''; inp.focus(); }
+  sidebarSearch('');
+}
+
 // Discord callback
 (function(){const p=new URLSearchParams(window.location.search);const c=p.get('code');if(c){window.history.replaceState({},'',window.location.pathname);handleDiscordCallback(c);}})();
+
+// 프로필 캐시로 UI 즉시 복원 (Auth 응답 전 빠른 표시)
+(function(){
+  try{
+    const c=JSON.parse(localStorage.getItem('_profileCache')||'null');
+    if(!c||!c.name||c.name==='이름없음') return;
+    const nameEl=document.getElementById('userName');
+    const photoEl=document.getElementById('userPhoto');
+    const roleEl=document.getElementById('dashRoleBadge');
+    const loginBtn=document.getElementById('loginBtn');
+    const userInfo=document.getElementById('userInfo');
+    if(nameEl)nameEl.textContent=c.name;
+    if(photoEl)photoEl.src=c.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
+    if(loginBtn)loginBtn.style.display='none';
+    if(userInfo)userInfo.style.display='';
+    if(roleEl&&ROLES[c.role]){roleEl.textContent=ROLES[c.role].label;roleEl.style.display='';}
+  }catch(e){}
+})();
+
+// 초기 대시보드 렌더링
+renderDashboard();
+updateTabBar('dashboard');
+
+// 보스 타이머 자동 갱신 (1분마다)
+setInterval(() => {
+  const blEl = document.getElementById('dashBossList');
+  if (blEl) renderDashboard();
+}, 60000);
 </script>
 </body>
 </html>

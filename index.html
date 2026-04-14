@@ -207,7 +207,18 @@
   .stat-card { display: flex; justify-content: space-between; align-items: center; }
   .stat-card h3 { font-size: 28px; font-weight: 700; }
   .stat-card p { font-size: 14px; color: var(--text-sub); margin-top: 2px; }
-  .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; line-height: 1; }
+  .stat-icon .material-icons { display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .stat-icon-blue   { background: #eff6ff; }
+  .stat-icon-green  { background: #ecfdf5; }
+  .stat-icon-yellow { background: #fffbeb; }
+  .stat-icon-purple { background: #faf5ff; }
+  .stat-icon-red    { background: #fef2f2; }
+  [data-theme="dark"] .stat-icon-blue   { background: #0a1e3d; }
+  [data-theme="dark"] .stat-icon-green  { background: #052e1c; }
+  [data-theme="dark"] .stat-icon-yellow { background: #2d1f00; }
+  [data-theme="dark"] .stat-icon-purple { background: #1e1040; }
+  [data-theme="dark"] .stat-icon-red    { background: #2d0a0a; }
 
   .panel { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; }
   .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -716,28 +727,28 @@
             <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">전체 공대원</p>
             <h3 id="dashTotalMembers">-</h3>
           </div>
-          <div class="stat-icon" style="background:#eff6ff;"><span class="material-icons" style="color:#0b5cd5;font-size:22px;">groups</span></div>
+          <div class="stat-icon stat-icon-blue"><span class="material-icons" style="color:#0b5cd5;font-size:22px;">groups</span></div>
         </div>
         <div class="card stat-card">
           <div>
             <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">참여 가능</p>
             <h3 id="dashActiveMembers" style="color:#059669;">-</h3>
           </div>
-          <div class="stat-icon" style="background:#ecfdf5;"><span class="material-icons" style="color:#059669;font-size:22px;">check_circle</span></div>
+          <div class="stat-icon stat-icon-green"><span class="material-icons" style="color:#059669;font-size:22px;">check_circle</span></div>
         </div>
         <div class="card stat-card">
           <div>
             <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">이번달 판매액</p>
             <h3 id="dashMonthSales" style="color:#d97706;">-</h3>
           </div>
-          <div class="stat-icon" style="background:#fffbeb;"><span class="material-icons" style="color:#d97706;font-size:22px;">paid</span></div>
+          <div class="stat-icon stat-icon-yellow"><span class="material-icons" style="color:#d97706;font-size:22px;">paid</span></div>
         </div>
         <div class="card stat-card">
           <div>
             <p style="font-size:13px;color:var(--text-sub);margin-bottom:4px;">내 참여 상태</p>
             <h3 id="dashMyStatus" style="font-size:18px;">-</h3>
           </div>
-          <div class="stat-icon" style="background:#faf5ff;"><span class="material-icons" style="color:#7c3aed;font-size:22px;">person_check</span></div>
+          <div class="stat-icon stat-icon-purple"><span class="material-icons" style="color:#7c3aed;font-size:22px;">person_check</span></div>
         </div>
       </div>
 
@@ -1067,19 +1078,19 @@
       <div class="cards">
         <div class="card stat-card">
           <div><h3 id="statTotal">0</h3><p>전체 공대원</p></div>
-          <div class="stat-icon" style="background:#eff6ff;color:#3b82f6;">👥</div>
+          <div class="stat-icon stat-icon-blue" style="color:#3b82f6;">👥</div>
         </div>
         <div class="card stat-card">
           <div><h3 id="statActive">0</h3><p>참여 가능</p></div>
-          <div class="stat-icon" style="background:#ecfdf5;color:#059669;">✅</div>
+          <div class="stat-icon stat-icon-green" style="color:#059669;">✅</div>
         </div>
         <div class="card stat-card">
           <div><h3 id="statGold">0만</h3><p>총 골드 수입</p></div>
-          <div class="stat-icon" style="background:#fffbeb;color:#d97706;">💰</div>
+          <div class="stat-icon stat-icon-yellow" style="color:#d97706;">💰</div>
         </div>
         <div class="card stat-card">
           <div><h3 id="statAvg">0</h3><p>평균 1인 수입</p></div>
-          <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">📊</div>
+          <div class="stat-icon stat-icon-red" style="color:#dc2626;">📊</div>
         </div>
       </div>
 

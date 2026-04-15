@@ -720,6 +720,57 @@
   [data-theme="dark"] #settlementForm .st-ti:focus{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-addbtn:hover{background:var(--surface-alt)}
 
+  /* ===== 공대 찾기 (Raid Finder) ===== */
+  #page-raids .rf-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
+  #page-raids .rf-pt{font-size:15px;font-weight:500;margin-bottom:2px}
+  #page-raids .rf-ps{font-size:11px;color:var(--text-sub)}
+  #page-raids .rf-filter-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  #page-raids .rf-fl{font-size:10px;color:var(--text-sub);white-space:nowrap}
+  #page-raids .rf-chip{font-size:11px;padding:5px 11px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;white-space:nowrap;transition:all .12s}
+  #page-raids .rf-chip:hover{background:var(--bg)}
+  #page-raids .rf-chip.on{background:#FAEEDA;color:#854F0B;border-color:#BA7517;font-weight:500}
+  #page-raids .rf-chip.on-green{background:#EAF3DE;color:#3B6D11;border-color:#3B6D11;font-weight:500}
+  #page-raids .rf-result-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  #page-raids .rf-count{font-size:12px;color:var(--text-sub)}
+  #page-raids .rf-count strong{color:var(--text);font-weight:500}
+  #page-raids .rf-sort{font-size:11px;padding:4px 8px;border-radius:6px;border:0.5px solid var(--border);background:var(--card-bg);color:var(--text-sub);cursor:pointer;outline:none}
+  #page-raids .rf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+  @media(max-width:900px){#page-raids .rf-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:540px){#page-raids .rf-grid{grid-template-columns:1fr}}
+  #page-raids .rf-card{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px;transition:border-color .12s}
+  #page-raids .rf-card:hover{border-color:var(--text-sub)}
+  #page-raids .rf-card-top{display:flex;align-items:center;justify-content:space-between}
+  #page-raids .rf-boss{font-size:13px;font-weight:500;color:#854F0B}
+  #page-raids .rf-raid-name{font-size:12px;font-weight:500;line-height:1.3}
+  #page-raids .rf-leader{font-size:10px;color:var(--text-sub);margin-top:1px}
+  #page-raids .rf-progress-wrap{display:flex;flex-direction:column;gap:4px}
+  #page-raids .rf-bar{height:3px;background:var(--bg);border-radius:2px;overflow:hidden}
+  #page-raids .rf-fill{height:100%;border-radius:2px;background:#BA7517}
+  #page-raids .rf-fill.almost{background:#E24B4A}
+  #page-raids .rf-fill.full{background:#9ca3af}
+  #page-raids .rf-prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text-sub)}
+  #page-raids .rf-card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:2px;gap:6px;flex-wrap:wrap}
+  #page-raids .rf-status{font-size:10px;padding:2px 7px;border-radius:7px;flex-shrink:0}
+  #page-raids .rf-s-open{background:#EAF3DE;color:#3B6D11}
+  #page-raids .rf-s-almost{background:#FAEEDA;color:#854F0B}
+  #page-raids .rf-s-closed{background:var(--bg);color:var(--text-sub)}
+  #page-raids .rf-time{font-size:10px;color:var(--text-sub)}
+  #page-raids .rf-apply-btn{font-size:11px;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;background:#BA7517;color:white;font-weight:500;white-space:nowrap}
+  #page-raids .rf-apply-btn:hover{background:#854F0B}
+  #page-raids .rf-apply-btn.cancel{background:transparent;color:#dc2626;border:0.5px solid #dc2626}
+  #page-raids .rf-apply-btn.cancel:hover{background:#fef2f2}
+  #page-raids .rf-apply-btn:disabled{background:var(--bg);color:var(--text-sub);cursor:not-allowed}
+  #page-raids .rf-mgmt-btn{font-size:11px;padding:5px 10px;border-radius:6px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer}
+  #page-raids .rf-mgmt-btn:hover{background:var(--bg)}
+  #page-raids .rf-load-more{width:100%;padding:10px;border:0.5px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--text-sub);font-size:12px;cursor:pointer}
+  #page-raids .rf-load-more:hover{background:var(--bg)}
+  #page-raids .rf-empty{padding:40px;text-align:center;color:var(--text-sub);font-size:12px;background:var(--bg);border-radius:var(--radius);grid-column:1/-1}
+  [data-theme="dark"] #page-raids .rf-chip.on{background:#2d1800}
+  [data-theme="dark"] #page-raids .rf-chip.on-green{background:#052e1c}
+  [data-theme="dark"] #page-raids .rf-s-open{background:#052e1c;color:#34d399}
+  [data-theme="dark"] #page-raids .rf-s-almost{background:#2d1800;color:#fbbf24}
+  [data-theme="dark"] #page-raids .rf-s-closed{background:var(--surface-alt);color:var(--text-sub)}
+
   /* ===== Sidebar Profile Area ===== */
   .sidebar-profile-area { border-top: 1px solid #252830; margin-top: auto; padding: 8px; flex-shrink: 0; }
   .sidebar-user-count { display: flex; align-items: center; gap: 5px; padding: 0 6px 6px; }
@@ -1254,12 +1305,8 @@
 
     <!-- 공대 목록 -->
     <div id="page-raids" class="page-section">
-      <div class="top-bar">
-        <div><h1 class="page-title">공대 목록</h1><p class="page-desc">공대를 조회하고 가입 신청하세요</p></div>
-        <button class="btn btn-primary" id="btnCreateRaid" onclick="toggleRaidForm()" style="display:none;">+ 공대 등록</button>
-      </div>
 
-      <!-- 인라인 등록/수정 폼 -->
+      <!-- 인라인 등록/수정 폼 (공대장용) -->
       <div id="raidInlineForm" style="display:none;margin-bottom:20px;">
         <div class="panel">
           <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
@@ -1271,15 +1318,15 @@
             <div class="form-group"><label>보스 *</label>
               <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
                 <option value="">보스 선택</option>
-                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
+                <option>피마살</option><option>자쿰</option><option>혼테일</option><option>크우파</option><option>일반 보스</option><option>기타</option>
               </select>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group"><label>모집 인원</label><input type="number" id="rMax" placeholder="6" min="1" max="30"></div>
-            <div class="form-group"><label>클리어 시간</label><input type="text" id="rClearTime" placeholder="예) 약 1시간"></div>
+            <div class="form-group"><label>모집 일정</label><input type="text" id="rClearTime" placeholder="예) 매주 화 21:00"></div>
           </div>
-          <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 아이템 레벨, 조건 등 (선택)"></div>
+          <div class="form-group"><label>공대 설명</label><input type="text" id="rDesc" placeholder="요구 조건 등 (선택)"></div>
           <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
             <button class="btn btn-outline" onclick="closeRaidForm()">취소</button>
             <button class="btn btn-primary" onclick="saveRaid()">저장</button>
@@ -1288,7 +1335,48 @@
         </div>
       </div>
 
-      <div id="raidListGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+      <!-- 상단 타이틀 + 등록 버튼 -->
+      <div class="rf-top">
+        <div>
+          <div class="rf-pt">공대 찾기</div>
+          <div class="rf-ps">참여할 공대를 찾고 신청하세요</div>
+        </div>
+        <button class="btn btn-primary" id="btnCreateRaid" onclick="toggleRaidForm()" style="display:none;">+ 공대 등록</button>
+      </div>
+
+      <!-- 필터 -->
+      <div style="margin-bottom:12px">
+        <div class="rf-filter-row">
+          <span class="rf-fl">보스</span>
+          <button class="rf-chip on" data-rf="boss" data-rv="전체" onclick="raidFilter('boss','전체',this)">전체</button>
+          <button class="rf-chip" data-rf="boss" data-rv="피마살" onclick="raidFilter('boss','피마살',this)">피마살</button>
+          <button class="rf-chip" data-rf="boss" data-rv="자쿰" onclick="raidFilter('boss','자쿰',this)">자쿰</button>
+          <button class="rf-chip" data-rf="boss" data-rv="혼테일" onclick="raidFilter('boss','혼테일',this)">혼테일</button>
+          <button class="rf-chip" data-rf="boss" data-rv="크우파" onclick="raidFilter('boss','크우파',this)">크우파</button>
+          <button class="rf-chip" data-rf="boss" data-rv="일반 보스" onclick="raidFilter('boss','일반 보스',this)">일반 보스</button>
+        </div>
+        <div class="rf-filter-row">
+          <span class="rf-fl">상태</span>
+          <button class="rf-chip on" data-rf="status" data-rv="전체" onclick="raidFilter('status','전체',this)">전체</button>
+          <button class="rf-chip" data-rf="status" data-rv="모집중" onclick="raidFilter('status','모집중',this)">모집중만</button>
+          <button class="rf-chip" data-rf="status" data-rv="마감임박" onclick="raidFilter('status','마감임박',this)">마감임박</button>
+        </div>
+      </div>
+
+      <!-- 결과 바 -->
+      <div class="rf-result-bar">
+        <span class="rf-count">결과 <strong id="rfCount">-</strong>개</span>
+        <select class="rf-sort" id="rfSort" onchange="renderRaidList()">
+          <option value="latest">최신순</option>
+          <option value="open">모집중 먼저</option>
+          <option value="slots">자리 많은순</option>
+        </select>
+      </div>
+
+      <!-- 카드 그리드 -->
+      <div class="rf-grid" id="raidListGrid"></div>
+      <button class="rf-load-more" id="rfLoadMore" onclick="raidLoadMore()" style="display:none;">더 보기 (+6개)</button>
+
     </div>
 
     <!-- 내 공대 현황 -->
@@ -3342,6 +3430,25 @@ async function rejectGuest(id){
   renderGuestList();
 }
 
+// =============================================
+// 공대 찾기 필터 상태
+// =============================================
+let rfFilter={boss:'전체',status:'전체'};
+let rfShowCount=9;
+
+function raidFilter(key,val,btn){
+  rfFilter[key]=val;
+  document.querySelectorAll(`[data-rf="${key}"]`).forEach(b=>{
+    b.classList.remove('on','on-green');
+  });
+  if(key==='status'&&val==='모집중') btn.classList.add('on-green');
+  else btn.classList.add('on');
+  rfShowCount=9;
+  renderRaidList();
+}
+
+function raidLoadMore(){rfShowCount+=6;renderRaidList();}
+
 async function renderRaidList(){
   const grid=document.getElementById('raidListGrid');
   if(!grid)return;
@@ -3352,19 +3459,30 @@ async function renderRaidList(){
 
   const snap=await db.collection('raids').get();
   let raids=snap.docs.map(d=>({id:d.id,...d.data()}));
-  if(!raids.length){
-    grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🗡️</div><h3>등록된 공대가 없습니다</h3><p>공대장이 공대를 생성하면 여기에 표시됩니다</p></div>`;
-    return;
-  }
 
-  // 정렬: 모집중 > 진행중 > 완료
+  // 클라이언트 필터링
+  if(rfFilter.boss!=='전체') raids=raids.filter(r=>r.boss===rfFilter.boss);
+  if(rfFilter.status==='모집중') raids=raids.filter(r=>r.status==='모집중');
+  if(rfFilter.status==='마감임박') raids=raids.filter(r=>r.status==='진행중');
+
+  // 정렬
+  const sort=document.getElementById('rfSort')?.value||'latest';
   const statusOrder={'모집중':0,'진행중':1,'완료':2,'마감':2};
   raids.sort((a,b)=>{
-    const sa=statusOrder[a.status]??1, sb=statusOrder[b.status]??1;
-    if(sa!==sb)return sa-sb;
-    const ta=a.createdAt?.toMillis?.()||0, tb=b.createdAt?.toMillis?.()||0;
+    if(sort==='open'){const sa=statusOrder[a.status]??1,sb=statusOrder[b.status]??1;if(sa!==sb)return sa-sb;}
+    if(sort==='slots'){const aS=(a.maxCount||8)-(a._approved||0),bS=(b.maxCount||8)-(b._approved||0);if(aS!==bS)return bS-aS;}
+    const ta=a.createdAt?.toMillis?.()||0,tb=b.createdAt?.toMillis?.()||0;
     return tb-ta;
   });
+
+  const countEl=document.getElementById('rfCount');
+  if(countEl)countEl.textContent=raids.length;
+
+  if(!raids.length){
+    grid.innerHTML='<div class="rf-empty">조건에 맞는 공대가 없어요</div>';
+    const lb=document.getElementById('rfLoadMore');if(lb)lb.style.display='none';
+    return;
+  }
 
   // 내 신청 목록
   let myApps={};
@@ -3372,20 +3490,19 @@ async function renderRaidList(){
     const aSnap=await db.collection('raidApplications').where('uid','==',currentUser.uid).get();
     aSnap.docs.forEach(d=>{myApps[d.data().raidId]=d.id;});
   }
-  // 대기 신청자 수
+  // 대기 신청자 수 (관리자용 배지)
   const pendingSnap=await db.collection('raidApplications').where('status','==','대기').get();
   const pendingCount={};
   pendingSnap.docs.forEach(d=>{const rid=d.data().raidId;pendingCount[rid]=(pendingCount[rid]||0)+1;});
-  // 승인된 멤버 수 (슬롯 표시용)
+  // 승인 인원 수
   const approvedSnap=await db.collection('raidApplications').where('status','==','승인').get();
   const approvedCount={};
   approvedSnap.docs.forEach(d=>{const rid=d.data().raidId;approvedCount[rid]=(approvedCount[rid]||0)+1;});
 
   const isMaster=currentProfile&&currentProfile.role==='master';
-  const role=currentProfile?.role||'none';
-  const isGuest=['guest','none'].includes(role);
+  const visible=raids.slice(0,rfShowCount);
 
-  grid.innerHTML=raids.map(r=>{
+  grid.innerHTML=visible.map(r=>{
     const isMine=r.ownerUid===currentUser?.uid;
     const canManage=isMine||isMaster;
     const applied=myApps[r.id];
@@ -3393,50 +3510,66 @@ async function renderRaidList(){
     const approvedN=approvedCount[r.id]||0;
     const maxN=r.maxCount||8;
     const st=r.status||'모집중';
+    const pct=Math.min(Math.round(approvedN/maxN*100),100);
+    const isClosed=st==='완료'||st==='마감';
+    const isAlmost=st==='진행중';
 
     // 상태 배지
-    const badgeCls=st==='모집중'?'recruiting':st==='진행중'?'inprogress':'done';
-    const badgeInner=st==='모집중'?`<span class="pulse-dot"></span>${st}`:st;
-    const statusBadge=`<span class="raid-status-badge ${badgeCls}">${badgeInner}</span>`;
+    const statusCls=isClosed?'rf-s-closed':isAlmost?'rf-s-almost':'rf-s-open';
+    const statusLabel=isClosed?'마감':isAlmost?'마감임박':'모집중';
 
-    // 슬롯 시각화
-    const slotIcons=['⚔️','🏹','🔮','🗡️','🛡️','💚','⚡','🌟'];
-    let slots='';
-    for(let i=0;i<maxN;i++){
-      if(i<approvedN) slots+=`<div class="raid-slot-filled" title="참여 중">${slotIcons[i%slotIcons.length]}</div>`;
-      else slots+=`<div class="raid-slot-empty" title="빈 자리">+</div>`;
+    // 진행바 색
+    const fillCls=isClosed?'full':isAlmost?'almost':'';
+
+    // 신청 버튼
+    let actionBtn='';
+    if(canManage){
+      const badge=pCount>0?` <span style="background:#ef4444;color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;">${pCount}</span>`:'';
+      actionBtn=`<div style="display:flex;gap:5px;">
+        <button class="rf-mgmt-btn" onclick="openApplicantsModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}')">신청관리${badge}</button>
+        <button class="rf-mgmt-btn" onclick="openRaidModal('${r.id}')">수정</button>
+        <button class="rf-mgmt-btn" style="color:#dc2626;border-color:#fca5a5;" onclick="deleteRaid('${r.id}')">삭제</button>
+      </div>`;
+    } else if(st==='모집중'||isAlmost){
+      if(applied){
+        actionBtn=`<button class="rf-apply-btn cancel" onclick="cancelApply('${applied}')">신청취소</button>`;
+      } else {
+        actionBtn=`<div style="display:flex;gap:5px;">
+          <button class="rf-apply-btn" style="background:transparent;color:#854F0B;border:0.5px solid #BA7517;" onclick="openGuestApplyModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}','${r.boss||''}')">손님</button>
+          <button class="rf-apply-btn" onclick="openApplyModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}')">신청</button>
+        </div>`;
+      }
+    } else {
+      actionBtn=`<button class="rf-apply-btn" disabled>마감</button>`;
     }
 
-    return `<div class="panel" style="margin-bottom:0;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div style="min-width:0;flex:1;">
-          <div style="font-size:17px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name||''}</div>
-          <div style="font-size:12px;color:var(--text-sub);margin-top:3px;">${r.boss||''} · ${approvedN}/${maxN}인${r.clearTime?' · '+r.clearTime:''}</div>
-        </div>
-        ${statusBadge}
+    return `<div class="rf-card">
+      <div class="rf-card-top">
+        <span class="rf-boss">${r.boss||''}</span>
+        <span class="rf-status ${statusCls}">${statusLabel}</span>
       </div>
-      <div class="raid-slots">${slots}</div>
-      ${r.desc?`<div style="font-size:13px;color:var(--text-sub);margin-bottom:10px;padding:7px 10px;background:var(--bg);border-radius:6px;">${r.desc}</div>`:''}
-      <div style="font-size:12px;color:var(--text-sub);margin-bottom:12px;">공대장: ${r.ownerName||'-'}</div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
-        ${canManage?`
-          <button class="btn btn-outline" style="font-size:12px;padding:5px 11px;position:relative;" onclick="openApplicantsModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}')">
-            📋 신청 관리${pCount>0?` <span style="background:#ef4444;color:#fff;border-radius:20px;font-size:11px;padding:1px 6px;margin-left:2px;">${pCount}</span>`:''}
-          </button>
-          <button class="btn btn-outline" style="font-size:12px;padding:5px 11px;" onclick="openRaidModal('${r.id}')">수정</button>
-          <button class="btn btn-danger" style="font-size:12px;padding:5px 11px;" onclick="deleteRaid('${r.id}')">삭제</button>
-        `:''}
-        ${!canManage&&st==='모집중'?applied
-          ?`<button class="btn btn-outline" style="font-size:12px;padding:5px 11px;color:#dc2626;border-color:#dc2626;" onclick="cancelApply('${applied}')">신청취소</button>`
-          :`<div style="display:flex;gap:6px;">
-              <button class="btn btn-outline" style="font-size:12px;padding:5px 11px;" onclick="openGuestApplyModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}','${r.boss||''}')">🎫 손님 신청</button>
-              <button class="btn btn-primary" style="font-size:12px;padding:5px 11px;" onclick="openApplyModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}')">⚔️ 공대원 신청</button>
-            </div>`
-        :''}
-        ${canManage&&st==='모집중'?`<button class="btn btn-outline" style="font-size:12px;padding:5px 11px;color:#059669;border-color:#059669;" onclick="openStatusModal('${r.id}','${st}')">상태 변경</button>`:''}
+      <div>
+        <div class="rf-raid-name">${r.name||''}</div>
+        <div class="rf-leader">공대장 ${r.ownerName||'-'}</div>
+      </div>
+      ${r.desc?`<div style="font-size:11px;color:var(--text-sub);line-height:1.4;padding:5px 8px;background:var(--bg);border-radius:5px;">${r.desc}</div>`:''}
+      <div class="rf-progress-wrap">
+        <div class="rf-bar"><div class="rf-fill ${fillCls}" style="width:${pct}%"></div></div>
+        <div class="rf-prog-label"><span>${approvedN}/${maxN}명</span><span>${pct}%</span></div>
+      </div>
+      <div class="rf-card-bottom">
+        <span class="rf-time">${r.clearTime||''}</span>
+        ${actionBtn}
       </div>
     </div>`;
   }).join('');
+
+  const remaining=raids.length-rfShowCount;
+  const lb=document.getElementById('rfLoadMore');
+  if(lb){
+    lb.style.display=remaining>0?'block':'none';
+    if(remaining>0)lb.textContent=`더 보기 (+${Math.min(remaining,6)}개)`;
+  }
 }
 
 async function renderMyRaids(){

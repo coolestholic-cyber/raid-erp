@@ -363,58 +363,57 @@
   .dash-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .dash-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
 
-  /* 새 대시보드 메인 그리드 — 콘텐츠 높이 기준, 빈공간 없음 */
   /* ===== 대시보드 레이아웃 =====
-     PC:  상단 행 [유튜브+공지 (flex:1)] + [오늘의 보스 (280px)]
-          하단 행 [공대원관리/준비중 — 전체 너비]
+     PC:  상단 3열 [유튜브 | 공지 | 오늘의 보스]
+          하단 2열 [공대원관리/준비중 | 빠른이동]
   ===== */
-  .dash-main-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  /* 상단: 유튜브+공지 + 보스 */
+  .dash-main-grid { display: flex; flex-direction: column; gap: 14px; }
+
+  /* ── 상단 3열 그리드 ── */
   .dash-top-row {
     display: grid;
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: 1.3fr 1fr 280px;
     gap: 14px;
     align-items: start;
   }
-  /* 유튜브 + 공지 나란히 */
-  .dash-info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: stretch; }
+  /* 유튜브: 16:9 비율 유지 */
   .dash-yt-panel { padding: 0 !important; overflow: hidden; border-radius: var(--radius); margin-bottom: 0 !important; }
-  .dash-yt-wrap { width: 100%; height: 100%; min-height: 160px; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
+  .dash-yt-wrap { width: 100%; aspect-ratio: 16/9; background: #bfdbfe; border-radius: var(--radius); overflow: hidden; }
   .dash-yt-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
   [data-theme="dark"] .dash-yt-wrap { background: #1a3256; }
   /* 공지: 3줄만, 스크롤 없음 */
   .dash-notice-panel { overflow: hidden; margin-bottom: 0 !important; }
   .dash-notice-panel .notice-item:nth-child(n+5) { display: none; }
-  /* 오늘의 보스 열 */
+  /* 오늘의 보스 */
   .dash-right-col { margin-bottom: 0 !important; }
-  /* 하단 2열: 공대원관리(좌) + 빠른이동(우) */
+  /* 하단 없는 dash-info-row (제거됨) */
+  .dash-info-row { display: contents; }
+
+  /* ── 하단 2열: 공대원관리 + 빠른이동 ── */
   .dash-bottom-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
     align-items: start;
   }
-  .dash-bottom-left { display: contents; } /* CSS grid 참여용 */
   .dash-member-widget { margin-bottom: 0 !important; }
   .dash-coming-soon   { margin-bottom: 0 !important; }
   .dash-quicknav      { margin-bottom: 0 !important; }
-  /* 빠른 이동 링크 */
-  .quicknav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* 빠른 이동 — 4열 2행으로 압축 */
+  .quicknav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .quicknav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 14px; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 14px 8px; border-radius: 10px;
     background: var(--surface-alt); border: 1px solid var(--border);
-    cursor: pointer; transition: all .15s; text-decoration: none;
+    cursor: pointer; transition: all .15s; text-decoration: none; text-align: center;
   }
   .quicknav-item:hover { background: var(--accent-light); border-color: #bfdbfe; }
   .quicknav-item:hover .qn-label { color: var(--accent); }
-  .quicknav-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .qn-label { font-size: 13px; font-weight: 600; color: var(--text); }
-  .qn-sub   { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
+  .quicknav-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .qn-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .qn-sub   { display: none; }
+
   /* 공대원 관리 위젯 */
   .dash-member-stats { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
   .dm-stat { display: flex; flex-direction: column; align-items: center; background: var(--surface-alt); border-radius: 8px; padding: 10px 0; flex: 1; }
@@ -425,35 +424,30 @@
   .dash-member-table td { padding: 8px 10px; border-bottom: 1px solid var(--row-line); color: var(--text); vertical-align: middle; }
   .dash-member-table tbody tr:last-child td { border-bottom: none; }
   .dash-member-table tbody tr:hover { background: var(--surface-alt); }
-  /* 태블릿(1000px): 보스 패널 아래로 */
-  @media (max-width: 1000px) {
-    .dash-top-row { grid-template-columns: 1fr; gap: 12px; }
-    .dash-info-row { gap: 12px; }
+
+  /* ── 반응형 ── */
+  /* 1100px: 보스 열 축소 */
+  @media (max-width: 1100px) {
+    .dash-top-row { grid-template-columns: 1.2fr 1fr 240px; }
   }
-  /* 태블릿(900px): 하단 2열 → 1열 */
+  /* 900px: 상단 2열(유튜브+공지) + 보스 아래 / 하단 2열 유지 */
   @media (max-width: 900px) {
-    .dash-bottom-grid { grid-template-columns: 1fr; }
-    .quicknav-grid    { grid-template-columns: repeat(3, 1fr); }
+    .dash-top-row { grid-template-columns: 1fr 1fr; }
+    .dash-right-col { grid-column: 1 / -1; }
+    .quicknav-grid  { grid-template-columns: repeat(4, 1fr); }
   }
-  /* 모바일(768px): 패널 너비 100% 보장 */
+  /* 768px: 1열 스택 */
   @media (max-width: 768px) {
-    .dash-main-grid { gap: 12px; }
-    .dash-top-row   { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; }
-    .dash-bottom-grid { gap: 12px; }
-    .dash-info-row  { width: 100%; min-width: 0; }
-    .dash-right-col { width: 100%; min-width: 0; box-sizing: border-box; }
-    .dash-member-widget { width: 100%; min-width: 0; box-sizing: border-box; }
-    .dash-coming-soon   { width: 100%; min-width: 0; box-sizing: border-box; }
-    .dash-quicknav      { width: 100%; min-width: 0; box-sizing: border-box; }
+    .dash-main-grid   { gap: 12px; }
+    .dash-top-row     { grid-template-columns: 1fr; }
+    .dash-right-col   { grid-column: auto; }
+    .dash-bottom-grid { grid-template-columns: 1fr; gap: 12px; }
+    .quicknav-grid    { grid-template-columns: repeat(4, 1fr); }
+    .dash-member-widget, .dash-coming-soon, .dash-quicknav { width: 100%; box-sizing: border-box; }
   }
-  /* 모바일(480px): 빠른 이동 2열 */
+  /* 480px: 빠른이동 2열 */
   @media (max-width: 480px) {
-    .quicknav-grid { grid-template-columns: 1fr 1fr; }
-  }
-  /* 모바일(640px): 유튜브·공지 세로 1열 */
-  @media (max-width: 640px) {
-    .dash-info-row { grid-template-columns: 1fr; }
-    .dash-yt-wrap  { min-height: 190px; }
+    .quicknav-grid { grid-template-columns: repeat(2, 1fr); }
     .dm-stat { padding: 8px 0; }
     .dm-stat-num { font-size: 17px; }
   }

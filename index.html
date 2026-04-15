@@ -298,11 +298,16 @@
   .user-dropdown-header .dd-name { font-size: 14px; font-weight: 700; color: var(--text); }
   .user-dropdown-header .dd-role { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: var(--accent-light); color: var(--accent); margin-top: 3px; display: inline-block; }
   .user-dropdown-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; transition: background .12s; }
-  .user-dropdown-item:hover { background: var(--bg); }
+  .user-dropdown-item:hover { background: var(--surface-alt); }
   .user-dropdown-item.danger { color: #ef4444; }
   .user-dropdown-item.danger:hover { background: #fef2f2; }
   .user-dropdown-item .material-icons { font-size: 18px; color: var(--text-sub); }
   .user-dropdown-item.danger .material-icons { color: #ef4444; }
+  [data-theme="dark"] .user-dropdown { box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+  [data-theme="dark"] .user-dropdown-item:hover { background: #252830; }
+  [data-theme="dark"] .user-dropdown-item.danger:hover { background: #2d0a0a; }
+  [data-theme="dark"] .user-dropdown-item.danger { color: #f87171; }
+  [data-theme="dark"] .user-dropdown-item.danger .material-icons { color: #f87171; }
 
   /* ===== MAIN: Content (페이지별 변경) ===== */
   .main { flex: 1; padding: 24px; display: flex; flex-direction: column; }
@@ -2586,8 +2591,11 @@ function renderBossList() {
         <span class="material-icons">restart_alt</span>
       </button>` : ''}`;
 
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    const darkColorMap = {'#fee2e2':'#3b1010','#faf5ff':'#1e1040','#fffbeb':'#2d2000','#eff6ff':'#0a1e3d','#ecfdf5':'#052e1c','#fff7ed':'#2d1800','#f0fdf4':'#052e1c'};
+    const iconBg = isDark ? (darkColorMap[b.color]||'#1e2128') : b.color;
     return `<div class="boss-item">
-      <div class="boss-icon" style="background:${b.color};">${b.icon}</div>
+      <div class="boss-icon" style="background:${iconBg};">${b.icon}</div>
       <div class="boss-info" style="flex:1;min-width:0;">
         <div class="bname">${b.name}</div>
         ${infoHtml}

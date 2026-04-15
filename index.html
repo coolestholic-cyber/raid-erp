@@ -680,43 +680,43 @@
   }
 
   /* ===== 정산 시트 (Settlement Sheet) ===== */
-  #settlementForm .st-topbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-  #settlementForm .st-title{font-size:15px;font-weight:500;color:var(--text)}
-  #settlementForm .st-field{border:0.5px solid var(--border);border-radius:6px;padding:5px 9px;font-size:13px;color:var(--text);background:var(--card-bg);outline:none}
+  #settlementForm .st-topbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 18px}
+  #settlementForm .st-title{font-size:16px;font-weight:700;color:var(--text);white-space:nowrap}
+  #settlementForm .st-field{border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--text);background:var(--card-bg);outline:none}
   #settlementForm .st-field:focus{border-color:#BA7517}
-  #settlementForm .st-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:680px){#settlementForm .st-grid{grid-template-columns:1fr}}
-  #settlementForm .st-card{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px}
-  #settlementForm .st-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-  #settlementForm .st-card-ttl{font-size:13px;font-weight:500;color:var(--text)}
-  #settlementForm .st-card-sub{font-size:11px;color:var(--text-sub)}
+  #settlementForm .st-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){#settlementForm .st-grid{grid-template-columns:1fr}}
+  #settlementForm .st-card{background:var(--card-bg);border:0.5px solid var(--border);border-radius:12px;padding:20px}
+  #settlementForm .st-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  #settlementForm .st-card-ttl{font-size:15px;font-weight:700;color:var(--text)}
+  #settlementForm .st-card-sub{font-size:13px;color:var(--text-sub)}
   #settlementForm table{width:100%;border-collapse:collapse;table-layout:fixed}
-  #settlementForm th{font-size:11px;color:var(--text-sub);font-weight:400;text-align:left;padding:0 5px 7px;border-bottom:0.5px solid var(--border);white-space:nowrap;overflow:hidden}
-  #settlementForm td{padding:5px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+  #settlementForm th{font-size:13px;color:var(--text-sub);font-weight:500;text-align:left;padding:0 8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden}
+  #settlementForm td{padding:8px;border-bottom:0.5px solid var(--border);vertical-align:middle}
   #settlementForm tr:last-child td{border-bottom:none}
-  #settlementForm .st-ti{width:100%;background:transparent;border:none;font-size:12px;color:var(--text);outline:none;padding:1px 2px}
-  #settlementForm .st-ti:focus{background:var(--bg);border-radius:3px}
+  #settlementForm .st-ti{width:100%;background:transparent;border:none;font-size:14px;color:var(--text);outline:none;padding:2px 4px}
+  #settlementForm .st-ti:focus{background:var(--bg);border-radius:4px}
   #settlementForm .st-ti.num{text-align:right}
-  #settlementForm .st-mbtn{font-size:10px;padding:2px 7px;border-radius:10px;border:0.5px solid;cursor:pointer;background:transparent;white-space:nowrap}
+  #settlementForm .st-mbtn{font-size:12px;padding:4px 10px;border-radius:10px;border:1px solid;cursor:pointer;background:transparent;white-space:nowrap}
   #settlementForm .m-direct{border-color:#0F6E56;color:#0F6E56}
   #settlementForm .m-exchange{border-color:#185FA5;color:#185FA5}
-  #settlementForm .st-addbtn{width:100%;margin-top:9px;padding:7px;font-size:12px;border:0.5px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text-sub);cursor:pointer;text-align:center}
+  #settlementForm .st-addbtn{width:100%;margin-top:12px;padding:10px;font-size:14px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text-sub);cursor:pointer;text-align:center}
   #settlementForm .st-addbtn:hover{background:var(--bg)}
-  #settlementForm .st-delbtn{background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:13px;padding:1px 4px;line-height:1}
+  #settlementForm .st-delbtn{background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:16px;padding:2px 6px;line-height:1}
   #settlementForm .st-delbtn:hover{color:#E24B4A}
-  #settlementForm .st-totrow{display:flex;justify-content:space-between;align-items:baseline;margin-top:11px;padding-top:10px;border-top:0.5px solid var(--border)}
-  #settlementForm .st-totlbl{font-size:12px;color:var(--text-sub)}
-  #settlementForm .st-totval{font-size:14px;font-weight:500;color:#BA7517}
-  #settlementForm .st-sumbar{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-top:14px;display:flex;align-items:center;gap:0}
-  #settlementForm .st-sitem{flex:1;text-align:center;border-right:0.5px solid var(--border)}
+  #settlementForm .st-totrow{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+  #settlementForm .st-totlbl{font-size:14px;color:var(--text-sub)}
+  #settlementForm .st-totval{font-size:18px;font-weight:700;color:#BA7517}
+  #settlementForm .st-sumbar{background:var(--card-bg);border:0.5px solid var(--border);border-radius:12px;padding:18px 24px;margin-top:16px;display:flex;align-items:center;gap:0}
+  #settlementForm .st-sitem{flex:1;text-align:center;border-right:0.5px solid var(--border);padding:0 8px}
   #settlementForm .st-sitem:last-of-type{border-right:none}
-  #settlementForm .st-slbl{font-size:11px;color:var(--text-sub);margin-bottom:3px}
-  #settlementForm .st-sval{font-size:16px;font-weight:500;color:var(--text)}
-  #settlementForm .st-savebtn{background:#BA7517;color:white;border:none;padding:10px 22px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin-left:16px;flex-shrink:0}
+  #settlementForm .st-slbl{font-size:13px;color:var(--text-sub);margin-bottom:6px}
+  #settlementForm .st-sval{font-size:22px;font-weight:700;color:var(--text)}
+  #settlementForm .st-savebtn{background:#BA7517;color:white;border:none;padding:12px 28px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-left:20px;flex-shrink:0}
   #settlementForm .st-savebtn:hover{background:#854F0B}
   #settlementForm .st-nr{text-align:right}
-  #settlementForm .st-rev-val{font-size:11px;color:var(--text-sub);text-align:right}
-  #settlementForm .st-fee-note{font-size:11px;color:var(--text-sub);white-space:nowrap}
+  #settlementForm .st-rev-val{font-size:13px;color:var(--text-sub);text-align:right}
+  #settlementForm .st-fee-note{font-size:13px;color:var(--text-sub);white-space:nowrap}
   [data-theme="dark"] #settlementForm .st-ti:focus{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-addbtn:hover{background:var(--surface-alt)}
 

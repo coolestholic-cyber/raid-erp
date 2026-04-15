@@ -149,6 +149,13 @@
   .acc-body.open { max-height: 200px; }
   .acc-body .nav-item { padding-left: 48px; font-size: 14px; }
 
+  /* ===== Nav Divider ===== */
+  .nav-divider { height: 1px; background: #2d3139; margin: 6px 16px; }
+
+  /* ===== Nav Badge ===== */
+  .nav-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; border-radius: 9px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .nav-badge:empty, .nav-badge[data-count="0"] { display: none; }
+
   /* ===== Sidebar Collapse ===== */
   .sidebar { transition: width .25s ease; }
   .layout { transition: margin-left .25s ease; }
@@ -258,6 +265,8 @@
   body.sidebar-collapsed .nav-item { justify-content: center; padding: 11px 0; margin: 2px 4px; }
   body.sidebar-collapsed .nav-accordion { justify-content: center; padding: 11px 0; margin: 2px 4px; }
   body.sidebar-collapsed .acc-body { max-height: 0 !important; }
+  body.sidebar-collapsed .nav-badge { display: none !important; }
+  body.sidebar-collapsed .nav-divider { margin: 6px 8px; }
   body.sidebar-collapsed .sidebar-collapse-btn .material-icons { transform: rotate(180deg); }
 
   /* 접힌 상태에서 아이콘 툴팁 */
@@ -669,6 +678,77 @@
     .ht-card-actions { flex-wrap: wrap; }
     .ht-start-btn, .ht-stop-btn, .ht-reset-btn { padding: 10px 0; font-size: 14px; }
   }
+
+  /* ===== 정산 시트 (Settlement Sheet) ===== */
+  #settlementForm .st-topbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  #settlementForm .st-title{font-size:15px;font-weight:500;color:var(--text)}
+  #settlementForm .st-field{border:0.5px solid var(--border);border-radius:6px;padding:5px 9px;font-size:13px;color:var(--text);background:var(--card-bg);outline:none}
+  #settlementForm .st-field:focus{border-color:#BA7517}
+  #settlementForm .st-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){#settlementForm .st-grid{grid-template-columns:1fr}}
+  #settlementForm .st-card{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px}
+  #settlementForm .st-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  #settlementForm .st-card-ttl{font-size:13px;font-weight:500;color:var(--text)}
+  #settlementForm .st-card-sub{font-size:11px;color:var(--text-sub)}
+  #settlementForm table{width:100%;border-collapse:collapse;table-layout:fixed}
+  #settlementForm th{font-size:11px;color:var(--text-sub);font-weight:400;text-align:left;padding:0 5px 7px;border-bottom:0.5px solid var(--border);white-space:nowrap;overflow:hidden}
+  #settlementForm td{padding:5px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+  #settlementForm tr:last-child td{border-bottom:none}
+  #settlementForm .st-ti{width:100%;background:transparent;border:none;font-size:12px;color:var(--text);outline:none;padding:1px 2px}
+  #settlementForm .st-ti:focus{background:var(--bg);border-radius:3px}
+  #settlementForm .st-ti.num{text-align:right}
+  #settlementForm .st-mbtn{font-size:10px;padding:2px 7px;border-radius:10px;border:0.5px solid;cursor:pointer;background:transparent;white-space:nowrap}
+  #settlementForm .m-direct{border-color:#0F6E56;color:#0F6E56}
+  #settlementForm .m-exchange{border-color:#185FA5;color:#185FA5}
+  #settlementForm .st-addbtn{width:100%;margin-top:9px;padding:7px;font-size:12px;border:0.5px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text-sub);cursor:pointer;text-align:center}
+  #settlementForm .st-addbtn:hover{background:var(--bg)}
+  #settlementForm .st-delbtn{background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:13px;padding:1px 4px;line-height:1}
+  #settlementForm .st-delbtn:hover{color:#E24B4A}
+  #settlementForm .st-totrow{display:flex;justify-content:space-between;align-items:baseline;margin-top:11px;padding-top:10px;border-top:0.5px solid var(--border)}
+  #settlementForm .st-totlbl{font-size:12px;color:var(--text-sub)}
+  #settlementForm .st-totval{font-size:14px;font-weight:500;color:#BA7517}
+  #settlementForm .st-sumbar{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-top:14px;display:flex;align-items:center;gap:0}
+  #settlementForm .st-sitem{flex:1;text-align:center;border-right:0.5px solid var(--border)}
+  #settlementForm .st-sitem:last-of-type{border-right:none}
+  #settlementForm .st-slbl{font-size:11px;color:var(--text-sub);margin-bottom:3px}
+  #settlementForm .st-sval{font-size:16px;font-weight:500;color:var(--text)}
+  #settlementForm .st-savebtn{background:#BA7517;color:white;border:none;padding:10px 22px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin-left:16px;flex-shrink:0}
+  #settlementForm .st-savebtn:hover{background:#854F0B}
+  #settlementForm .st-nr{text-align:right}
+  #settlementForm .st-rev-val{font-size:11px;color:var(--text-sub);text-align:right}
+  #settlementForm .st-fee-note{font-size:11px;color:var(--text-sub);white-space:nowrap}
+  [data-theme="dark"] #settlementForm .st-ti:focus{background:var(--surface-alt)}
+  [data-theme="dark"] #settlementForm .st-addbtn:hover{background:var(--surface-alt)}
+
+  /* ===== Sidebar Profile Area ===== */
+  .sidebar-profile-area { border-top: 1px solid #252830; margin-top: auto; padding: 8px; flex-shrink: 0; }
+  .sidebar-user-count { display: flex; align-items: center; gap: 5px; padding: 0 6px 6px; }
+  .sidebar-user-count .material-icons { font-size: 13px; color: #4b5563; }
+  .sidebar-user-count span { font-size: 11px; color: #6b7280; }
+  .sidebar-profile-btn { display: flex; align-items: center; gap: 8px; width: 100%; background: transparent; border: none; cursor: pointer; padding: 7px 8px; border-radius: 8px; text-align: left; transition: background .15s; }
+  .sidebar-profile-btn:hover { background: var(--sidebar-hover); }
+  .sidebar-av { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: #5865F2; }
+  .sidebar-av-placeholder { width: 28px; height: 28px; border-radius: 50%; background: #374151; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sidebar-av-placeholder .material-icons { font-size: 16px; color: #6b7280; }
+  .sidebar-profile-info { flex: 1; min-width: 0; }
+  .sidebar-profile-name { font-size: 12px; font-weight: 500; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-profile-role-label { font-size: 10px; color: #6b7280; margin-top: 1px; }
+  .sidebar-chevron { font-size: 12px; color: #6b7280; flex-shrink: 0; transition: transform .2s; }
+  .sidebar-chevron.open { transform: rotate(180deg); }
+  .sidebar-role-picker { background: #111318; border: 0.5px solid #3a3d45; border-radius: 8px; overflow: hidden; margin-top: 4px; display: none; }
+  .sidebar-role-picker.open { display: block; }
+  .rp-item { display: flex; align-items: center; gap: 8px; padding: 9px 12px; cursor: pointer; font-size: 12px; color: #9ca3af; transition: background .12s; }
+  .rp-item:hover { background: var(--sidebar-hover); color: #e5e7eb; }
+  .rp-item.active { color: #e5e7eb; font-weight: 500; }
+  .rp-item.disabled { opacity: .35; cursor: default; pointer-events: none; }
+  .rp-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .rp-check { margin-left: auto; font-size: 11px; color: #34d399; }
+  .rp-hint { padding: 6px 12px 8px; font-size: 10px; color: #4b5563; border-top: 0.5px solid #2d3139; }
+  body.sidebar-collapsed .sidebar-profile-btn { justify-content: center; padding: 7px 0; }
+  body.sidebar-collapsed .sidebar-profile-info,
+  body.sidebar-collapsed .sidebar-chevron,
+  body.sidebar-collapsed .sidebar-user-count { display: none; }
+  body.sidebar-collapsed .sidebar-role-picker { display: none !important; }
 </style>
 </head>
 <body>
@@ -717,52 +797,127 @@
   </div>
 
   <nav class="sidebar-nav">
-    <div class="nav-section">메뉴</div>
 
-    <!-- 0. 대시보드 -->
-    <div class="nav-item active" onclick="showPage('dashboard',this)" title="대시보드"><span class="nav-icon"><span class="material-icons">dashboard</span></span><span class="nav-label"> 대시보드</span></div>
+    <!-- ===== 공대원 메뉴 (member / guest / none / 비로그인) ===== -->
+    <div id="navSetMember">
+      <div class="nav-section">메뉴</div>
 
-    <!-- 1. 내 캐릭터 -->
-    <div class="nav-accordion" onclick="toggleAccordion(this)" title="내 캐릭터">
-      <span class="nav-icon"><span class="material-icons">person</span></span><span class="nav-label"> 내 캐릭터</span> <span class="arr">▶</span>
+      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)" title="홈">
+        <span class="nav-icon"><span class="material-icons">home</span></span>
+        <span class="nav-label">홈</span>
+      </div>
+
+      <div class="nav-item" data-page="mysettlement" onclick="showPage('mysettlement',this)" title="내 정산">
+        <span class="nav-icon"><span class="material-icons">receipt_long</span></span>
+        <span class="nav-label">내 정산</span>
+      </div>
+
+      <div class="nav-item" data-page="raids" onclick="showPage('raids',this)" title="공대 찾기">
+        <span class="nav-icon"><span class="material-icons">search</span></span>
+        <span class="nav-label">공대 찾기</span>
+      </div>
+
+      <div class="nav-item" data-page="mychar" onclick="showPage('mychar',this)" title="내 캐릭터">
+        <span class="nav-icon"><span class="material-icons">person</span></span>
+        <span class="nav-label">내 캐릭터</span>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
+        <span class="nav-icon"><span class="material-icons">timer</span></span>
+        <span class="nav-label">타이머</span>
+      </div>
+
+      <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
+        <span class="nav-icon"><span class="material-icons">inventory_2</span></span>
+        <span class="nav-label">아이템 DB</span>
+      </div>
     </div>
-    <div class="acc-body">
-      <a class="nav-item" onclick="showPage('mychar',this)" title="캐릭터 정보"><span class="nav-icon"><span class="material-icons">badge</span></span><span class="nav-label"> 캐릭터 정보</span></a>
-      <a class="nav-item" onclick="showPage('myraids',this)" title="내 공대 현황"><span class="nav-icon"><span class="material-icons">event_available</span></span><span class="nav-label"> 내 공대 현황</span></a>
-      <a class="nav-item" onclick="showPage('equip',this)" title="내 장비관리"><span class="nav-icon"><span class="material-icons">build</span></span><span class="nav-label"> 내 장비관리</span></a>
-      <a class="nav-item" onclick="showPage('mysettlement',this)" title="내 정산내역"><span class="nav-icon"><span class="material-icons">receipt_long</span></span><span class="nav-label"> 내 정산내역</span></a>
+
+    <!-- ===== 공대장 메뉴 (leader / vice / master) ===== -->
+    <div id="navSetLeader" style="display:none">
+      <div class="nav-section">메뉴</div>
+
+      <div class="nav-item" data-page="dashboard" onclick="showPage('dashboard',this)" title="홈">
+        <span class="nav-icon"><span class="material-icons">home</span></span>
+        <span class="nav-label">홈</span>
+      </div>
+
+      <div class="nav-item" id="navSettlement" data-page="settlement" onclick="showPage('settlement',this)" title="정산 관리">
+        <span class="nav-icon"><span class="material-icons">payments</span></span>
+        <span class="nav-label">정산 관리</span>
+        <span class="nav-badge" id="navBadgeSettlement"></span>
+      </div>
+
+      <div class="nav-item" id="navMyRaidMgmt" data-page="members" onclick="showPage('members',this)" title="공대원 관리">
+        <span class="nav-icon"><span class="material-icons">manage_accounts</span></span>
+        <span class="nav-label">공대원 관리</span>
+        <span class="nav-badge" id="navBadgeApplicants"></span>
+      </div>
+
+      <div class="nav-item" id="navRaidsLeader" data-page="raids" onclick="showPage('raids',this)" title="공대 목록">
+        <span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span>
+        <span class="nav-label">공대 목록</span>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
+        <span class="nav-icon"><span class="material-icons">timer</span></span>
+        <span class="nav-label">타이머</span>
+      </div>
+
+      <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
+        <span class="nav-icon"><span class="material-icons">inventory_2</span></span>
+        <span class="nav-label">아이템 DB</span>
+      </div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-section">시스템</div>
+      <a class="nav-item" data-page="users" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리">
+        <span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span>
+        <span class="nav-label">권한 관리</span>
+      </a>
     </div>
 
-    <!-- 2. 공대관리 -->
-    <div class="nav-accordion open" onclick="toggleAccordion(this)" title="공대관리">
-      <span class="nav-icon"><span class="material-icons">groups</span></span><span class="nav-label"> 공대관리</span> <span class="arr">▶</span>
-    </div>
-    <div class="acc-body open">
-      <a class="nav-item" onclick="showPage('raids',this)" title="공대 목록"><span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span><span class="nav-label"> 공대 목록</span></a>
-      <a class="nav-item" id="navMyRaidMgmt" style="display:none;" onclick="showPage('members',this)" title="내 공대 관리"><span class="nav-icon"><span class="material-icons">manage_accounts</span></span><span class="nav-label"> 내 공대 관리</span></a>
-    </div>
-
-    <!-- 3. 혼테일 -->
-    <div class="nav-accordion" onclick="toggleAccordion(this)" title="혼테일">
-      <span class="nav-icon"><span class="material-icons">sports_martial_arts</span></span><span class="nav-label"> 혼테일</span> <span class="arr">▶</span>
-    </div>
-    <div class="acc-body">
-      <a class="nav-item" onclick="showPage('horntail-timer',this)" title="타이머"><span class="nav-icon"><span class="material-icons">timer</span></span><span class="nav-label"> 타이머</span></a>
-    </div>
-
-    <!-- 4. 아이템 정보 -->
-    <div class="nav-item" onclick="showPage('items',this)" title="아이템 정보"><span class="nav-icon"><span class="material-icons">inventory_2</span></span><span class="nav-label"> 아이템 정보</span></div>
-
-    <!-- 5. 길드관리 -->
-    <div class="nav-item" onclick="showPage('guild-promo',this)" title="길드관리"><span class="nav-icon"><span class="material-icons">castle</span></span><span class="nav-label"> 길드관리</span></div>
-
-    <div class="nav-section">시스템</div>
-    <a class="nav-item" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리"><span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span><span class="nav-label"> 권한 관리</span></a>
   </nav>
 
-  <div style="padding:8px 16px 14px;border-top:1px solid #252830;margin-top:auto;display:flex;align-items:center;gap:6px;">
-    <span class="material-icons" style="font-size:14px;color:#4b5563;">people</span>
-    <span id="sidebarUserTotal" style="font-size:13px;font-weight:700;color:#6b7280;">-</span>
+  <!-- 사이드바 하단 프로필 + 역할 선택 -->
+  <div class="sidebar-profile-area">
+    <!-- 총 유저 수 -->
+    <div class="sidebar-user-count">
+      <span class="material-icons">people</span>
+      <span id="sidebarUserTotal">-</span>
+    </div>
+
+    <!-- 역할 선택 팝업 (위로 올라옴) -->
+    <div class="sidebar-role-picker" id="sidebarRolePicker">
+      <div class="rp-item" id="rpMember" onclick="switchSidebarView('member')">
+        <span class="rp-dot" style="background:#185FA5"></span>
+        공대원 뷰
+        <span class="rp-check" id="rpCheckMember" style="display:none">✓</span>
+      </div>
+      <div class="rp-item" id="rpLeader" onclick="switchSidebarView('leader')">
+        <span class="rp-dot" style="background:#BA7517"></span>
+        공대장 뷰
+        <span class="rp-check" id="rpCheckLeader" style="display:none">✓</span>
+      </div>
+      <div class="rp-hint">권한이 있는 역할만 표시됩니다</div>
+    </div>
+
+    <!-- 프로필 버튼 -->
+    <button class="sidebar-profile-btn" id="sidebarProfileBtn" onclick="toggleSidebarRolePicker()">
+      <div class="sidebar-av-placeholder" id="sidebarAvWrap">
+        <span class="material-icons">person</span>
+      </div>
+      <div class="sidebar-profile-info">
+        <div class="sidebar-profile-name" id="sidebarProfileName">로그인 필요</div>
+        <div class="sidebar-profile-role-label" id="sidebarProfileRoleLabel">-</div>
+      </div>
+      <span class="sidebar-chevron" id="sidebarRoleChevron">▾</span>
+    </button>
   </div>
 
 </aside>
@@ -1293,76 +1448,89 @@
       </div>
 
       <!-- 정산 입력 폼 (토글) -->
-      <div id="settlementForm" style="display:none;">
-        <div class="panel" style="margin-bottom:16px;">
-          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
-            <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">📊</span>
-            정산 정보 입력
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>날짜 *</label><input type="date" id="stDate"></div>
-            <div class="form-group"><label>보스 *</label>
-              <select id="stBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
-                <option value="">보스 선택</option>
-                <option>자쿰</option><option>혼테일</option><option>일반 보스</option><option>필드 보스</option><option>크우파</option><option>기타</option>
-              </select>
+      <div id="settlementForm" style="display:none;padding-bottom:16px;">
+
+        <!-- 상단 바 -->
+        <div class="st-topbar">
+          <span class="st-title">공대 일일 정산</span>
+          <input class="st-field" type="date" id="stDate" style="width:130px">
+          <select class="st-field" id="stBoss" style="width:120px">
+            <option value="">보스 선택</option>
+            <option>피마살</option><option>자쿰</option><option>혼테일</option><option>크우파</option><option>일반 보스</option><option>기타</option>
+          </select>
+          <input class="st-field" id="stNote" placeholder="메모 (선택)" style="flex:1;min-width:100px">
+          <span class="st-fee-note">수수료 자동 반영</span>
+        </div>
+
+        <!-- 2열 그리드 -->
+        <div class="st-grid">
+
+          <!-- 왼쪽: 아이템 판매 -->
+          <div class="st-card">
+            <div class="st-card-hd">
+              <span class="st-card-ttl">더치페이 판매 정산</span>
+              <span class="st-card-sub" id="stItemCnt">0개</span>
+            </div>
+            <table>
+              <colgroup><col style="width:33%"><col style="width:13%"><col style="width:22%"><col style="width:8%"><col style="width:19%"><col style="width:5%"></colgroup>
+              <thead><tr>
+                <th>아이템명</th><th>방식</th><th class="st-nr">판매가</th><th class="st-nr">수량</th><th class="st-nr">매출</th><th></th>
+              </tr></thead>
+              <tbody id="stItemsBody"></tbody>
+            </table>
+            <button class="st-addbtn" onclick="stAddItem()">+ 아이템 추가</button>
+            <div class="st-totrow">
+              <span class="st-totlbl">수익 합계</span>
+              <span class="st-totval" id="stTotalRev">0 메소</span>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group"><label>난이도</label>
-              <select id="stDiff" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;">
-                <option>이지</option><option>노말</option><option selected>하드</option><option>카오스</option>
-              </select>
+
+          <!-- 오른쪽: 참여 인원 -->
+          <div class="st-card">
+            <div class="st-card-hd">
+              <span class="st-card-ttl">참여 인원 명단</span>
+              <span class="st-card-sub" id="stMemCnt">0명</span>
             </div>
-            <div class="form-group"><label>클리어 골드 (만)</label><input type="number" id="stClearGold" placeholder="0" oninput="calcSettlement()"></div>
+            <table>
+              <colgroup><col style="width:32%"><col style="width:20%"><col style="width:12%"><col style="width:31%"><col style="width:5%"></colgroup>
+              <thead><tr>
+                <th>이름</th><th>직업</th><th class="st-nr">%</th><th class="st-nr">배분금</th><th></th>
+              </tr></thead>
+              <tbody id="stMemBody"></tbody>
+            </table>
+            <button class="st-addbtn" onclick="stAddMember()">+ 인원 추가</button>
+            <div class="st-totrow">
+              <span class="st-totlbl">1인당 배분금</span>
+              <span class="st-totval" id="stPerPerson">0 메소</span>
+            </div>
           </div>
-          <div class="form-row">
-            <div class="form-group"><label>판매 추가 골드 (만)</label><input type="number" id="stSaleGold" placeholder="0" oninput="calcSettlement()"></div>
-            <div class="form-group"><label>메모</label><input type="text" id="stNote" placeholder="선택사항"></div>
+
+        </div>
+
+        <!-- 하단 요약 바 -->
+        <div class="st-sumbar">
+          <div class="st-sitem">
+            <div class="st-slbl">총 수익</div>
+            <div class="st-sval" id="stFRev">0만</div>
+          </div>
+          <div class="st-sitem">
+            <div class="st-slbl">참여 인원</div>
+            <div class="st-sval" id="stFMem">0명</div>
+          </div>
+          <div class="st-sitem">
+            <div class="st-slbl">1인당 배분</div>
+            <div class="st-sval" id="stFPer">0만</div>
+          </div>
+          <div class="st-sitem">
+            <div class="st-slbl">확인 완료</div>
+            <div class="st-sval" id="stFConf">0명</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-left:16px;flex-shrink:0;">
+            <button class="btn btn-outline" onclick="closeSettlementForm()">취소</button>
+            <button class="st-savebtn" onclick="saveSettlement()">정산 완료</button>
           </div>
         </div>
 
-        <!-- 공대원 참여 체크 -->
-        <div class="panel" style="margin-bottom:16px;">
-          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
-            <span style="display:flex;align-items:center;gap:8px;">
-              <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;">👥</span>
-              참여 공대원 선택
-            </span>
-            <div style="display:flex;gap:8px;">
-              <button type="button" class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="stSelectAll(true)">전체 참여</button>
-              <button type="button" class="btn btn-outline" style="font-size:13px;padding:6px 12px;" onclick="stSelectAll(false)">전체 해제</button>
-            </div>
-          </div>
-          <div id="stMemberList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;"></div>
-        </div>
-
-        <!-- 계산 결과 -->
-        <div class="panel" style="margin-bottom:16px;">
-          <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
-            <span style="width:28px;height:28px;background:#ecfdf5;color:#059669;border-radius:8px;display:flex;align-items:center;justify-content:center;">💰</span>
-            분배 계산
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-            <div style="background:var(--bg);border-radius:10px;padding:16px;text-align:center;">
-              <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">참여 인원</div>
-              <div id="stCountResult" style="font-size:24px;font-weight:700;color:var(--text);">0명</div>
-            </div>
-            <div style="background:var(--bg);border-radius:10px;padding:16px;text-align:center;">
-              <div style="font-size:12px;color:var(--text-sub);margin-bottom:6px;">총 골드</div>
-              <div id="stTotalResult" style="font-size:24px;font-weight:700;color:var(--text);">0만</div>
-            </div>
-            <div style="background:var(--accent-light);border-radius:10px;padding:16px;text-align:center;">
-              <div style="font-size:12px;color:var(--accent);margin-bottom:6px;font-weight:600;">1인당 수령</div>
-              <div id="stPerResult" style="font-size:24px;font-weight:700;color:var(--accent);">0만</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px;">
-          <button class="btn btn-outline" onclick="closeSettlementForm()">취소</button>
-          <button class="btn btn-primary" onclick="saveSettlement()">정산 저장</button>
-        </div>
       </div>
 
       <!-- 정산 히스토리 -->
@@ -1370,7 +1538,7 @@
         <div style="font-size:15px;font-weight:700;margin-bottom:16px;">정산 내역</div>
         <div class="table-wrap">
           <table><thead><tr>
-            <th>날짜</th><th>보스</th><th>난이도</th><th>클리어골드</th><th>판매골드</th><th>총골드</th><th>참여인원</th><th>1인당</th><th>메모</th><th>관리</th>
+            <th>날짜</th><th>보스</th><th>판매 아이템</th><th>총수익</th><th>참여인원</th><th>1인당</th><th>메모</th><th>관리</th>
           </tr></thead><tbody id="settlementTableBody"></tbody></table>
         </div>
       </div>
@@ -1568,24 +1736,50 @@
 </div><!-- .layout -->
 
 <!-- ===== MOBILE: Bottom Tab Bar ===== -->
-<nav class="mobile-tab-bar" id="mobileTabBar">
-  <a class="tab-item" id="tab-mychar" onclick="showPage('mychar',null);updateTabBar('mychar')">
+
+<!-- 공대원 탭바 -->
+<nav class="mobile-tab-bar" id="tabBarMember">
+  <a class="tab-item" id="tab-m-home" onclick="showPage('dashboard',null);updateTabBar('dashboard')">
+    <span class="material-icons">home</span>
+    <span>홈</span>
+  </a>
+  <a class="tab-item" id="tab-m-settlement" onclick="showPage('mysettlement',null);updateTabBar('mysettlement')">
+    <span class="material-icons">receipt_long</span>
+    <span>내 정산</span>
+  </a>
+  <a class="tab-item" id="tab-m-raids" onclick="showPage('raids',null);updateTabBar('raids')">
+    <span class="material-icons">search</span>
+    <span>공대 찾기</span>
+  </a>
+  <a class="tab-item" id="tab-m-mychar" onclick="showPage('mychar',null);updateTabBar('mychar')">
     <span class="material-icons">person</span>
     <span>내 캐릭터</span>
   </a>
-  <a class="tab-item" id="tab-members" onclick="showPage('members',null);updateTabBar('members')">
-    <span class="material-icons">groups</span>
-    <span>공대</span>
+  <a class="tab-item tab-more" id="tab-m-more" onclick="toggleSidebar()">
+    <span class="material-icons">menu</span>
+    <span>더보기</span>
   </a>
-  <a class="tab-item" id="tab-horntail-timer" onclick="showPage('horntail-timer',null);updateTabBar('horntail-timer')">
-    <span class="material-icons">timer</span>
-    <span>타이머</span>
+</nav>
+
+<!-- 공대장 탭바 -->
+<nav class="mobile-tab-bar" id="tabBarLeader" style="display:none">
+  <a class="tab-item" id="tab-l-home" onclick="showPage('dashboard',null);updateTabBar('dashboard')">
+    <span class="material-icons">home</span>
+    <span>홈</span>
   </a>
-  <a class="tab-item" id="tab-items" onclick="showPage('items',null);updateTabBar('items')">
-    <span class="material-icons">inventory_2</span>
-    <span>아이템</span>
+  <a class="tab-item" id="tab-l-settlement" onclick="showPage('settlement',null);updateTabBar('settlement')">
+    <span class="material-icons">payments</span>
+    <span>정산</span>
   </a>
-  <a class="tab-item tab-more" id="tab-more" onclick="toggleSidebar()">
+  <a class="tab-item" id="tab-l-members" onclick="showPage('members',null);updateTabBar('members')">
+    <span class="material-icons">manage_accounts</span>
+    <span>공대원</span>
+  </a>
+  <a class="tab-item" id="tab-l-raids" onclick="showPage('raids',null);updateTabBar('raids')">
+    <span class="material-icons">format_list_bulleted</span>
+    <span>공대 목록</span>
+  </a>
+  <a class="tab-item tab-more" id="tab-l-more" onclick="toggleSidebar()">
     <span class="material-icons">menu</span>
     <span>더보기</span>
   </a>
@@ -1803,11 +1997,16 @@ function updateLoginUI(){
     if(ddPhoto)ddPhoto.src=photoSrc;
     if(ddName)ddName.textContent=currentProfile.name;
     if(ddRole){ddRole.textContent=r.label;}
-    document.getElementById('navUsers').style.display=canManageUsers()?'':'none';
+    // 역할에 따라 기본 사이드바 뷰 설정
+    const canLeader = ['leader','vice','master'].includes(currentProfile.role);
+    currentSidebarView = canLeader ? 'leader' : 'member';
+    updateSidebarProfileArea();
+    updateSidebarMenuSet();
     updateMyRaidNavVisibility();
   }else{
-    document.getElementById('navUsers').style.display='none';
-    const navMgmt=document.getElementById('navMyRaidMgmt');if(navMgmt)navMgmt.style.display='none';
+    currentSidebarView = 'member';
+    updateSidebarProfileArea();
+    updateSidebarMenuSet();
     const btnCreate=document.getElementById('btnCreateRaid');if(btnCreate)btnCreate.style.display='none';
     // 로그아웃 상태면 캐릭터 카드 초기화
     window._myCharData=null;
@@ -1832,6 +2031,11 @@ function closeUserDropdown(){
 document.addEventListener('click',function(e){
   const chip=document.getElementById('userChip');
   if(chip&&!chip.contains(e.target))closeUserDropdown();
+  const profileArea=document.getElementById('sidebarProfileBtn');
+  const picker=document.getElementById('sidebarRolePicker');
+  if(profileArea&&picker&&!profileArea.contains(e.target)&&!picker.contains(e.target)){
+    closeSidebarRolePicker();
+  }
 });
 
 auth.onAuthStateChanged(async(user)=>{
@@ -2598,20 +2802,27 @@ const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 
 const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestsettlement:'내 공대 관리',guestlist:'손님 신청목록',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
 
 // 탭바 페이지 매핑
-const tabPageMap = {
-  dashboard:null,
-  mychar:'mychar', myraids:'mychar', equip:'mychar', mysettlement:'mychar',
-  members:'members', raids:'members', settlement:'members', guestsettlement:'members', purchase:'members', gold:'members',
-  'horntail-timer':'horntail-timer',
-  items:'items'
+// 공대원 탭바 매핑: pageId → tab id suffix
+const tabMapMember = {
+  dashboard:'home', mychar:'mychar', myraids:'mychar', equip:'mychar',
+  mysettlement:'settlement', raids:'raids', 'horntail-timer':null, items:null
+};
+// 공대장 탭바 매핑: pageId → tab id suffix
+const tabMapLeader = {
+  dashboard:'home', settlement:'settlement', guestsettlement:'settlement',
+  guestlist:'settlement', members:'members', raids:'raids', 'horntail-timer':null, items:null
 };
 
 function updateTabBar(id) {
-  const mapped = tabPageMap[id] || null;
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-  if (mapped) {
-    const el = document.getElementById('tab-' + mapped);
-    if (el) el.classList.add('active');
+  const role = currentProfile?.role;
+  const isLeader = ['leader','vice','master'].includes(role);
+  if(isLeader){
+    const suffix = tabMapLeader[id];
+    if(suffix){ const el=document.getElementById('tab-l-'+suffix); if(el)el.classList.add('active'); }
+  } else {
+    const suffix = tabMapMember[id];
+    if(suffix){ const el=document.getElementById('tab-m-'+suffix); if(el)el.classList.add('active'); }
   }
 }
 
@@ -2631,7 +2842,14 @@ function showPage(id,el){
     if(mgmtPages.includes(id)){
       document.querySelectorAll('.raid-mgmt-tab').forEach(t=>t.classList.remove('active'));
       const at=document.getElementById('raidTab-'+id);if(at)at.classList.add('active');
-      const nav=document.getElementById('navMyRaidMgmt');if(nav&&!el)nav.classList.add('active');
+      if(!el){
+        const settlementPages=['settlement','guestsettlement','guestlist'];
+        if(settlementPages.includes(id)){
+          const navS=document.getElementById('navSettlement');if(navS)navS.classList.add('active');
+        }else if(id==='members'){
+          const navM=document.getElementById('navMyRaidMgmt');if(navM)navM.classList.add('active');
+        }
+      }
     }
     // 손님 신청목록 탭 마스터만 표시
     const glTab=document.getElementById('tabGuestList');
@@ -2811,11 +3029,93 @@ function updateRaidNavVisibility(){
   });
 }
 
+let currentSidebarView = 'member'; // 'member' | 'leader'
+
+function updateSidebarMenuSet(){
+  const isLeader = currentSidebarView === 'leader';
+  const setMember = document.getElementById('navSetMember');
+  const setLeader = document.getElementById('navSetLeader');
+  if(setMember) setMember.style.display = isLeader ? 'none' : '';
+  if(setLeader) setLeader.style.display = isLeader ? '' : 'none';
+  // 모바일 탭바 전환
+  const tbMember = document.getElementById('tabBarMember');
+  const tbLeader = document.getElementById('tabBarLeader');
+  if(tbMember) tbMember.style.display = isLeader ? 'none' : '';
+  if(tbLeader) tbLeader.style.display = isLeader ? '' : 'none';
+  // 현재 활성 페이지의 nav-item 재설정
+  const activePage = document.querySelector('.page-section.active');
+  if(activePage){
+    const pageId = activePage.id.replace('page-','');
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
+    const activeSet = isLeader ? setLeader : setMember;
+    if(activeSet){
+      const navItem = activeSet.querySelector(`.nav-item[data-page="${pageId}"]`);
+      if(navItem) navItem.classList.add('active');
+    }
+    updateTabBar(pageId);
+  }
+  updateSidebarRolePickerUI();
+}
+
+function switchSidebarView(view){
+  currentSidebarView = view;
+  updateSidebarMenuSet();
+  closeSidebarRolePicker();
+}
+
+function toggleSidebarRolePicker(){
+  if(!currentProfile) return;
+  const picker = document.getElementById('sidebarRolePicker');
+  const chevron = document.getElementById('sidebarRoleChevron');
+  const isOpen = picker.classList.toggle('open');
+  chevron.classList.toggle('open', isOpen);
+}
+
+function closeSidebarRolePicker(){
+  document.getElementById('sidebarRolePicker')?.classList.remove('open');
+  document.getElementById('sidebarRoleChevron')?.classList.remove('open');
+}
+
+function updateSidebarRolePickerUI(){
+  const role = currentProfile?.role;
+  const canLeader = ['leader','vice','master'].includes(role);
+  const rpLeader = document.getElementById('rpLeader');
+  const rpMember = document.getElementById('rpMember');
+  if(rpLeader) rpLeader.classList.toggle('disabled', !canLeader);
+  const isLeaderView = currentSidebarView === 'leader';
+  document.getElementById('rpCheckMember').style.display = isLeaderView ? 'none' : 'inline';
+  document.getElementById('rpCheckLeader').style.display  = isLeaderView ? 'inline' : 'none';
+  if(rpMember)  rpMember.classList.toggle('active', !isLeaderView);
+  if(rpLeader && canLeader) rpLeader.classList.toggle('active', isLeaderView);
+}
+
+function updateSidebarProfileArea(){
+  const nameEl = document.getElementById('sidebarProfileName');
+  const roleEl = document.getElementById('sidebarProfileRoleLabel');
+  const avWrap = document.getElementById('sidebarAvWrap');
+  if(!currentProfile){
+    if(nameEl) nameEl.textContent = '로그인 필요';
+    if(roleEl) roleEl.textContent = '-';
+    if(avWrap) avWrap.innerHTML = '<span class="material-icons">person</span>';
+    return;
+  }
+  if(nameEl) nameEl.textContent = currentProfile.name || '';
+  const roleLabels = {master:'사이트마스터',leader:'공대장',vice:'부공대장',member:'공대원',guest:'손님',none:'권한없음'};
+  const viewLabel = currentSidebarView === 'leader' ? '공대장 뷰' : '공대원 뷰';
+  if(roleEl) roleEl.textContent = (roleLabels[currentProfile.role]||'') + ' · ' + viewLabel;
+  if(avWrap){
+    if(currentProfile.photo){
+      avWrap.innerHTML = `<img class="sidebar-av" src="${currentProfile.photo}" alt="${currentProfile.name||''}">`;
+    } else {
+      avWrap.innerHTML = '<span class="material-icons">person</span>';
+    }
+  }
+  // navUsers 표시
+  document.getElementById('navUsers').style.display = canManageUsers() ? '' : 'none';
+}
+
 function updateMyRaidNavVisibility(){
   const role = currentProfile?.role;
-  const canSee = ['member','vice','leader','master'].includes(role);
-  const navMgmt = document.getElementById('navMyRaidMgmt');
-  if(navMgmt) navMgmt.style.display = canSee ? '' : 'none';
   // 공대 목록 내 등록 버튼: 공대장/부공대장/마스터만
   const canCreate = ['leader','vice','master'].includes(role);
   const btnCreate = document.getElementById('btnCreateRaid');
@@ -2835,7 +3135,7 @@ function subscribeRaids(){
 subscribeRaids();
 
 function toggleRaidForm(forceOpen){
-  showPage('raids', document.querySelector('.nav-item[title="공대 목록"]'));
+  showPage('raids', document.getElementById('navRaidsLeader') || document.querySelector('.nav-item[title="공대 찾기"]'));
   const form=document.getElementById('raidInlineForm');
   const open=forceOpen!==undefined ? forceOpen : form.style.display==='none';
   if(open){
@@ -3260,91 +3560,121 @@ async function changeAppRole(appId, uid, newRole, raidId){
 // updateLoginUI에서 공대생성 버튼 연동은 renderRaidList 내부에서 처리
 
 // =============================================
-// 보스 정산
 // =============================================
+// 보스 정산 시트
+// =============================================
+let stItems=[], stMembers=[];
+
+function stFmt(n){return Math.round(n).toLocaleString();}
+function stFmtM(n){return Math.round(n/10000).toLocaleString()+'만';}
+function stFee(p){return p>=100000000?.06:p>=25000000?.05:p>=10000000?.04:p>=5000000?.03:p>=1000000?.018:.008;}
+function stRevenue(it){
+  const g=it.price*it.qty;
+  return it.method==='직접'?g:Math.floor(it.price*(1-stFee(it.price)))*it.qty;
+}
+
+function stRecalc(){
+  const totalRev=stItems.reduce((s,it)=>s+stRevenue(it),0);
+  const totalAlloc=stMembers.reduce((s,m)=>s+m.alloc,0);
+  const perUnit=totalAlloc>0?totalRev/totalAlloc:0;
+  const confirmed=stMembers.filter(m=>m.conf).length;
+
+  const e=id=>document.getElementById(id);
+  if(e('stTotalRev'))e('stTotalRev').textContent=stFmt(totalRev)+' 메소';
+  if(e('stPerPerson'))e('stPerPerson').textContent=stFmt(perUnit*100)+' 메소';
+  if(e('stItemCnt'))e('stItemCnt').textContent=stItems.length+'개';
+  if(e('stMemCnt'))e('stMemCnt').textContent=stMembers.length+'명';
+  if(e('stFRev'))e('stFRev').textContent=stFmtM(totalRev);
+  if(e('stFMem'))e('stFMem').textContent=stMembers.length+'명';
+  if(e('stFPer'))e('stFPer').textContent=stFmtM(perUnit*100);
+  if(e('stFConf'))e('stFConf').textContent=confirmed+'/'+stMembers.length+'명';
+
+  stMembers.forEach((_,i)=>{
+    const el=document.getElementById('std'+i);
+    if(el)el.textContent=stFmt(perUnit*stMembers[i].alloc);
+  });
+  stItems.forEach((it,i)=>{
+    const el=document.getElementById('str'+i);
+    if(el)el.textContent=stFmt(stRevenue(it));
+  });
+}
+
+function stRenderItems(){
+  const tb=document.getElementById('stItemsBody');
+  if(!tb)return;
+  tb.innerHTML='';
+  stItems.forEach((it,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input class="st-ti" type="text" value="${it.name||''}" placeholder="아이템명" onchange="stItems[${i}].name=this.value"></td>
+      <td><button class="st-mbtn ${it.method==='직접'?'m-direct':'m-exchange'}" onclick="stItems[${i}].method=stItems[${i}].method==='직접'?'교환':'직접';stRenderItems()">${it.method}</button></td>
+      <td><input class="st-ti num" type="number" value="${it.price||0}" onchange="stItems[${i}].price=parseInt(this.value)||0;stRecalc()"></td>
+      <td><input class="st-ti num" type="number" value="${it.qty||1}" min="1" style="width:32px" onchange="stItems[${i}].qty=parseInt(this.value)||1;stRecalc()"></td>
+      <td class="st-rev-val" id="str${i}">${stFmt(stRevenue(it))}</td>
+      <td><button class="st-delbtn" onclick="stItems.splice(${i},1);stRenderItems()">×</button></td>
+    `;
+    tb.appendChild(tr);
+  });
+  stRecalc();
+}
+
+function stRenderMembers(){
+  const tb=document.getElementById('stMemBody');
+  if(!tb)return;
+  tb.innerHTML='';
+  stMembers.forEach((m,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input class="st-ti" type="text" value="${m.name||''}" placeholder="이름" onchange="stMembers[${i}].name=this.value"></td>
+      <td><input class="st-ti" type="text" value="${m.cls||''}" placeholder="직업" onchange="stMembers[${i}].cls=this.value"></td>
+      <td><input class="st-ti num" type="number" value="${m.alloc}" min="0" max="200" style="width:36px" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
+      <td class="st-rev-val" id="std${i}">0</td>
+      <td><button class="st-delbtn" onclick="stMembers.splice(${i},1);stRenderMembers()">×</button></td>
+    `;
+    tb.appendChild(tr);
+  });
+  stRecalc();
+}
+
+function stAddItem(){stItems.push({name:'',method:'교환',price:0,qty:1});stRenderItems();}
+function stAddMember(){stMembers.push({id:'manual_'+Date.now(),name:'',cls:'',role:'딜러',alloc:100,conf:false});stRenderMembers();}
+
 function openSettlementForm(){
   document.getElementById('settlementForm').style.display='';
-  // 오늘 날짜 기본값
   const today=new Date().toISOString().split('T')[0];
   document.getElementById('stDate').value=today;
-  document.getElementById('stClearGold').value='';
-  document.getElementById('stSaleGold').value='';
   document.getElementById('stNote').value='';
   document.getElementById('stBoss').value='';
-  renderStMemberList();
-  calcSettlement();
+  // allMembers에서 초기 인원 세팅 (참여 상태 공대원)
+  stItems=[];
+  stMembers=allMembers
+    .filter(m=>m.status==='참여')
+    .map(m=>({id:m.id,name:m.name||'',cls:m.cls||'',role:m.role||'딜러',alloc:100,conf:false}));
+  if(!stMembers.length){
+    stMembers=allMembers.map(m=>({id:m.id,name:m.name||'',cls:m.cls||'',role:m.role||'딜러',alloc:100,conf:false}));
+  }
+  stRenderItems();
+  stRenderMembers();
   document.getElementById('settlementForm').scrollIntoView({behavior:'smooth'});
 }
 function closeSettlementForm(){
   document.getElementById('settlementForm').style.display='none';
 }
 
-function renderStMemberList(){
-  const wrap=document.getElementById('stMemberList');
-  if(!wrap)return;
-  if(!allMembers.length){
-    wrap.innerHTML='<div style="color:var(--text-sub);font-size:14px;">등록된 공대원이 없습니다</div>';
-    return;
-  }
-  wrap.innerHTML=allMembers.map(m=>`
-    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s;" id="stmLabel_${m.id}">
-      <input type="checkbox" id="stm_${m.id}" value="${m.id}" checked onchange="calcSettlement();stUpdateLabel('${m.id}')">
-      <span>
-        <span style="font-weight:600;font-size:14px;">${m.name||''}</span>
-        <span style="font-size:12px;color:var(--text-sub);margin-left:6px;">${m.cls||''}</span>
-        <span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}" style="margin-left:4px;font-size:11px;">${m.role||''}</span>
-      </span>
-    </label>
-  `).join('');
-  allMembers.forEach(m=>stUpdateLabel(m.id));
-}
-
-function stUpdateLabel(id){
-  const cb=document.getElementById('stm_'+id);
-  const lb=document.getElementById('stmLabel_'+id);
-  if(!cb||!lb)return;
-  lb.style.borderColor=cb.checked?'var(--accent)':'var(--border)';
-  lb.style.background=cb.checked?'var(--accent-light)':'#fff';
-}
-
-function stSelectAll(checked){
-  allMembers.forEach(m=>{
-    const cb=document.getElementById('stm_'+m.id);
-    if(cb){cb.checked=checked;stUpdateLabel(m.id);}
-  });
-  calcSettlement();
-}
-
-function calcSettlement(){
-  const clear=parseInt(document.getElementById('stClearGold')?.value)||0;
-  const sale=parseInt(document.getElementById('stSaleGold')?.value)||0;
-  const total=clear+sale;
-  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;});
-  const count=participants.length;
-  const per=count>0?Math.floor(total/count):0;
-  const cEl=document.getElementById('stCountResult');
-  const tEl=document.getElementById('stTotalResult');
-  const pEl=document.getElementById('stPerResult');
-  if(cEl)cEl.textContent=count+'명';
-  if(tEl)tEl.textContent=total.toLocaleString()+'만';
-  if(pEl)pEl.textContent=per.toLocaleString()+'만';
-}
-
 async function saveSettlement(){
   const date=document.getElementById('stDate').value;
   const boss=document.getElementById('stBoss').value;
   if(!date||!boss){alert('날짜와 보스를 선택하세요.');return;}
-  const clear=parseInt(document.getElementById('stClearGold').value)||0;
-  const sale=parseInt(document.getElementById('stSaleGold').value)||0;
-  const total=clear+sale;
-  const participants=allMembers.filter(m=>{const cb=document.getElementById('stm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
-  const count=participants.length;
-  const per=count>0?Math.floor(total/count):0;
-  if(!count){alert('참여 공대원을 1명 이상 선택하세요.');return;}
+  if(!stMembers.length){alert('참여 인원을 1명 이상 추가하세요.');return;}
+  const totalRev=stItems.reduce((s,it)=>s+stRevenue(it),0);
+  const totalAlloc=stMembers.reduce((s,m)=>s+m.alloc,0);
+  const perUnit=totalAlloc>0?Math.round(totalRev/totalAlloc):0;
+  const participants=stMembers.map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role,alloc:m.alloc,perGold:perUnit*m.alloc}));
   await db.collection('settlements').add({
-    date,boss,diff:document.getElementById('stDiff').value,
-    clearGold:clear,saleGold:sale,totalGold:total,
-    participants,count,perGold:per,
+    date,boss,
+    items:stItems.map(it=>({name:it.name,method:it.method,price:it.price,qty:it.qty,revenue:stRevenue(it)})),
+    totalGold:totalRev,
+    participants,count:participants.length,perGold:perUnit*100,
     note:document.getElementById('stNote').value.trim(),
     ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
@@ -3361,15 +3691,16 @@ async function renderSettlementHistory(){
   tbody.innerHTML=snap.docs.map(d=>{
     const s={id:d.id,...d.data()};
     const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
+    const totalM=Math.round((s.totalGold||0)/10000).toLocaleString();
+    const perM=Math.round((s.perGold||0)/10000).toLocaleString();
+    const itemNames=(s.items||[]).map(it=>it.name).filter(Boolean).join(', ')||'-';
     return `<tr>
       <td>${s.date||''}</td>
       <td><strong>${s.boss||''}</strong></td>
-      <td>${s.diff||''}</td>
-      <td>${(s.clearGold||0).toLocaleString()}만</td>
-      <td>${(s.saleGold||0).toLocaleString()}만</td>
-      <td><strong>${(s.totalGold||0).toLocaleString()}만</strong></td>
+      <td style="font-size:12px;color:var(--text-sub);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemNames}">${itemNames}</td>
+      <td><strong>${totalM}만</strong></td>
       <td>${s.count||0}명</td>
-      <td style="color:var(--accent);font-weight:700;">${(s.perGold||0).toLocaleString()}만</td>
+      <td style="color:#BA7517;font-weight:700;">${perM}만</td>
       <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
       <td>${canDel?`<button class="btn btn-danger" style="font-size:12px;padding:4px 10px;" onclick="deleteSettlement('${s.id}')">삭제</button>`:''}</td>
     </tr>`;

@@ -721,55 +721,147 @@
   [data-theme="dark"] #settlementForm .st-addbtn:hover{background:var(--surface-alt)}
 
   /* ===== 공대 찾기 (Raid Finder) ===== */
-  #page-raids .rf-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
-  #page-raids .rf-pt{font-size:15px;font-weight:500;margin-bottom:2px}
-  #page-raids .rf-ps{font-size:11px;color:var(--text-sub)}
-  #page-raids .rf-filter-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-  #page-raids .rf-fl{font-size:10px;color:var(--text-sub);white-space:nowrap}
-  #page-raids .rf-chip{font-size:11px;padding:5px 11px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;white-space:nowrap;transition:all .12s}
-  #page-raids .rf-chip:hover{background:var(--bg)}
-  #page-raids .rf-chip.on{background:#FAEEDA;color:#854F0B;border-color:#BA7517;font-weight:500}
-  #page-raids .rf-chip.on-green{background:#EAF3DE;color:#3B6D11;border-color:#3B6D11;font-weight:500}
-  #page-raids .rf-result-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  #page-raids .rf-count{font-size:12px;color:var(--text-sub)}
-  #page-raids .rf-count strong{color:var(--text);font-weight:500}
-  #page-raids .rf-sort{font-size:11px;padding:4px 8px;border-radius:6px;border:0.5px solid var(--border);background:var(--card-bg);color:var(--text-sub);cursor:pointer;outline:none}
-  #page-raids .rf-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
-  @media(max-width:900px){#page-raids .rf-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:540px){#page-raids .rf-grid{grid-template-columns:1fr}}
-  #page-raids .rf-card{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px;transition:border-color .12s}
-  #page-raids .rf-card:hover{border-color:var(--text-sub)}
-  #page-raids .rf-card-top{display:flex;align-items:center;justify-content:space-between}
-  #page-raids .rf-boss{font-size:13px;font-weight:500;color:#854F0B}
-  #page-raids .rf-raid-name{font-size:12px;font-weight:500;line-height:1.3}
-  #page-raids .rf-leader{font-size:10px;color:var(--text-sub);margin-top:1px}
-  #page-raids .rf-progress-wrap{display:flex;flex-direction:column;gap:4px}
-  #page-raids .rf-bar{height:3px;background:var(--bg);border-radius:2px;overflow:hidden}
-  #page-raids .rf-fill{height:100%;border-radius:2px;background:#BA7517}
-  #page-raids .rf-fill.almost{background:#E24B4A}
-  #page-raids .rf-fill.full{background:#9ca3af}
-  #page-raids .rf-prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text-sub)}
-  #page-raids .rf-card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:2px;gap:6px;flex-wrap:wrap}
-  #page-raids .rf-status{font-size:10px;padding:2px 7px;border-radius:7px;flex-shrink:0}
+  #page-raids .rf-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;gap:8px;flex-wrap:wrap}
+  #page-raids .rf-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px}
+  #page-raids .rf-subtitle{font-size:13px;color:var(--text-sub)}
+  #page-raids .rf-filters{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;display:flex;flex-direction:column;gap:10px}
+  #page-raids .rf-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  #page-raids .rf-fl{font-size:12px;color:var(--text-sub);white-space:nowrap;min-width:28px;font-weight:500}
+  #page-raids .rf-chip{font-size:12px;padding:6px 14px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;white-space:nowrap;transition:all .12s;font-weight:400}
+  #page-raids .rf-chip:hover{background:var(--bg);color:var(--text)}
+  #page-raids .rf-chip.on{background:#FAEEDA;color:#854F0B;border-color:#BA7517;font-weight:600}
+  #page-raids .rf-result-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  #page-raids .rf-count{font-size:13px;color:var(--text-sub)}
+  #page-raids .rf-count strong{color:var(--text);font-weight:600}
+  #page-raids .rf-sort{font-size:13px;padding:6px 10px;border-radius:8px;border:0.5px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;outline:none}
+  #page-raids .rf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+  @media(max-width:720px){#page-raids .rf-grid{grid-template-columns:1fr}}
+  /* 카드 */
+  #page-raids .rf-card{background:var(--card-bg);border:0.5px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px;transition:border-color .15s,box-shadow .15s;cursor:default}
+  #page-raids .rf-card:hover{border-color:#BA7517;box-shadow:0 4px 16px rgba(186,117,23,.12)}
+  #page-raids .rf-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  #page-raids .rf-boss{font-size:13px;font-weight:700;color:#854F0B;background:#FAEEDA;padding:3px 10px;border-radius:20px;display:inline-block}
+  #page-raids .rf-status{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;flex-shrink:0}
   #page-raids .rf-s-open{background:#EAF3DE;color:#3B6D11}
   #page-raids .rf-s-almost{background:#FAEEDA;color:#854F0B}
   #page-raids .rf-s-closed{background:var(--bg);color:var(--text-sub)}
-  #page-raids .rf-time{font-size:10px;color:var(--text-sub)}
-  #page-raids .rf-apply-btn{font-size:11px;padding:5px 12px;border-radius:6px;border:none;cursor:pointer;background:#BA7517;color:white;font-weight:500;white-space:nowrap}
+  #page-raids .rf-raid-name{font-size:16px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:3px}
+  #page-raids .rf-leader{font-size:12px;color:var(--text-sub)}
+  #page-raids .rf-desc{font-size:12px;color:var(--text-sub);line-height:1.5;padding:8px 10px;background:var(--bg);border-radius:7px}
+  #page-raids .rf-progress-wrap{display:flex;flex-direction:column;gap:6px}
+  #page-raids .rf-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+  #page-raids .rf-fill{height:100%;border-radius:3px;background:#BA7517;transition:width .3s}
+  #page-raids .rf-fill.almost{background:#E24B4A}
+  #page-raids .rf-fill.full{background:#9ca3af}
+  #page-raids .rf-prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-sub)}
+  #page-raids .rf-prog-label strong{color:var(--text);font-weight:600}
+  #page-raids .rf-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:2px}
+  #page-raids .rf-time{font-size:12px;color:var(--text-sub);display:flex;align-items:center;gap:4px}
+  #page-raids .rf-time .material-icons{font-size:14px}
+  #page-raids .rf-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+  #page-raids .rf-apply-btn{font-size:13px;padding:7px 18px;border-radius:8px;border:none;cursor:pointer;background:#BA7517;color:white;font-weight:600;white-space:nowrap;transition:background .12s}
   #page-raids .rf-apply-btn:hover{background:#854F0B}
-  #page-raids .rf-apply-btn.cancel{background:transparent;color:#dc2626;border:0.5px solid #dc2626}
+  #page-raids .rf-apply-btn.guest{background:transparent;color:#854F0B;border:0.5px solid #BA7517;font-weight:500}
+  #page-raids .rf-apply-btn.guest:hover{background:#FAEEDA}
+  #page-raids .rf-apply-btn.cancel{background:transparent;color:#dc2626;border:0.5px solid #dc2626;font-weight:500}
   #page-raids .rf-apply-btn.cancel:hover{background:#fef2f2}
-  #page-raids .rf-apply-btn:disabled{background:var(--bg);color:var(--text-sub);cursor:not-allowed}
-  #page-raids .rf-mgmt-btn{font-size:11px;padding:5px 10px;border-radius:6px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer}
-  #page-raids .rf-mgmt-btn:hover{background:var(--bg)}
-  #page-raids .rf-load-more{width:100%;padding:10px;border:0.5px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--text-sub);font-size:12px;cursor:pointer}
+  #page-raids .rf-apply-btn:disabled{background:var(--bg);color:var(--text-sub);cursor:not-allowed;border:0.5px solid var(--border)}
+  #page-raids .rf-mgmt-btn{font-size:12px;padding:6px 12px;border-radius:7px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;transition:background .12s}
+  #page-raids .rf-mgmt-btn:hover{background:var(--bg);color:var(--text)}
+  #page-raids .rf-mgmt-btn.danger{color:#dc2626;border-color:#fca5a5}
+  #page-raids .rf-mgmt-btn.danger:hover{background:#fef2f2}
+  #page-raids .rf-load-more{width:100%;padding:14px;border:0.5px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--text-sub);font-size:14px;cursor:pointer;font-weight:500;transition:background .12s}
   #page-raids .rf-load-more:hover{background:var(--bg)}
-  #page-raids .rf-empty{padding:40px;text-align:center;color:var(--text-sub);font-size:12px;background:var(--bg);border-radius:var(--radius);grid-column:1/-1}
+  #page-raids .rf-empty{padding:60px 40px;text-align:center;color:var(--text-sub);font-size:14px;background:var(--card-bg);border:0.5px solid var(--border);border-radius:12px;grid-column:1/-1}
+  [data-theme="dark"] #page-raids .rf-boss{background:#2d1800}
   [data-theme="dark"] #page-raids .rf-chip.on{background:#2d1800}
-  [data-theme="dark"] #page-raids .rf-chip.on-green{background:#052e1c}
   [data-theme="dark"] #page-raids .rf-s-open{background:#052e1c;color:#34d399}
   [data-theme="dark"] #page-raids .rf-s-almost{background:#2d1800;color:#fbbf24}
   [data-theme="dark"] #page-raids .rf-s-closed{background:var(--surface-alt);color:var(--text-sub)}
+  [data-theme="dark"] #page-raids .rf-apply-btn.guest:hover{background:#2d1800}
+  [data-theme="dark"] #page-raids .rf-card:hover{box-shadow:0 4px 16px rgba(186,117,23,.18)}
+
+  /* ===== 대시보드 뷰 (dv-*) ===== */
+  .dv-hero{border-radius:12px;padding:22px 24px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .dv-hero-member{background:linear-gradient(135deg,#0b5cd5 0%,#1e40af 100%)}
+  .dv-hero-leader{background:linear-gradient(135deg,#BA7517 0%,#854F0B 100%)}
+  .dv-hero-label{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:5px;font-weight:500}
+  .dv-hero-amount{font-size:24px;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.2}
+  .dv-hero-sub{font-size:12px;color:rgba(255,255,255,.65)}
+  .dv-hero-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap;transition:background .15s;flex-shrink:0}
+  .dv-hero-btn:hover{background:rgba(255,255,255,.28)}
+  .dv-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .dv-stats-4{grid-template-columns:repeat(4,1fr)}
+  .dv-stat{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px}
+  .dv-stat-val{font-size:20px;font-weight:700;color:var(--text);line-height:1.1}
+  .dv-stat-label{font-size:11px;color:var(--text-sub);margin-top:5px}
+  .dv-quicknav{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .dv-qn-btn{display:flex;align-items:center;gap:10px;background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;cursor:pointer;transition:border-color .12s,background .12s;text-align:left;width:100%}
+  .dv-qn-btn:hover{border-color:var(--text-sub);background:var(--surface-alt)}
+  .dv-qn-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .dv-qn-label{font-size:13px;font-weight:500;color:var(--text)}
+  .dv-settle-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--row-line)}
+  .dv-settle-row:last-child{border-bottom:none}
+  .dv-settle-date{font-size:11px;color:var(--text-sub);white-space:nowrap;min-width:52px}
+  .dv-settle-boss{font-size:11px;padding:2px 7px;border-radius:5px;background:#FAEEDA;color:#854F0B;font-weight:500;white-space:nowrap;flex-shrink:0}
+  .dv-settle-sub{font-size:11px;color:var(--text-sub);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dv-settle-gold{font-size:13px;font-weight:700;color:#BA7517;white-space:nowrap}
+  .dv-settle-badge{font-size:10px;padding:2px 7px;border-radius:5px;background:#ecfdf5;color:#059669;white-space:nowrap;flex-shrink:0}
+  .dv-bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .dv-applicant-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--row-line)}
+  .dv-applicant-row:last-child{border-bottom:none}
+  .dv-av{width:32px;height:32px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .dv-ap-name{font-size:13px;font-weight:500;color:var(--text)}
+  .dv-ap-sub{font-size:11px;color:var(--text-sub)}
+  .dv-ap-btns{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+  .dv-ap-ok{font-size:11px;padding:5px 12px;border-radius:6px;border:none;background:#0b5cd5;color:#fff;cursor:pointer;font-weight:500}
+  .dv-ap-ok:hover{background:#0a4db5}
+  .dv-ap-ng{font-size:11px;padding:5px 12px;border-radius:6px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer}
+  .dv-ap-ng:hover{background:var(--bg);color:#ef4444;border-color:#ef4444}
+  @media(max-width:900px){.dv-stats-4{grid-template-columns:repeat(2,1fr)}.dv-bottom-grid{grid-template-columns:1fr}}
+  @media(max-width:600px){.dv-stats{grid-template-columns:repeat(3,1fr)}.dv-quicknav{grid-template-columns:repeat(3,1fr)}.dv-hero-amount{font-size:19px}}
+  @media(max-width:480px){.dv-stats{grid-template-columns:1fr 1fr}.dv-quicknav{grid-template-columns:repeat(3,1fr)}}
+  [data-theme="dark"] .dv-settle-boss{background:#2d1800;color:#fbbf24}
+  [data-theme="dark"] .dv-settle-badge{background:#052e1c;color:#34d399}
+
+  /* ===== 내 정산 (My Settlement) ===== */
+  #page-mysettlement .ms-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+  @media(max-width:600px){#page-mysettlement .ms-summary{grid-template-columns:1fr 1fr}}
+  #page-mysettlement .ms-stat{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+  #page-mysettlement .ms-stat-lbl{font-size:11px;color:var(--text-sub);margin-bottom:6px}
+  #page-mysettlement .ms-stat-val{font-size:20px;font-weight:700;color:var(--text)}
+  #page-mysettlement .ms-stat-sub{font-size:10px;color:var(--text-sub);margin-top:2px}
+  #page-mysettlement .ms-stat.gold .ms-stat-val{color:#BA7517}
+  #page-mysettlement .ms-filter-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  #page-mysettlement .ms-chip{font-size:11px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;transition:all .12s}
+  #page-mysettlement .ms-chip.on{background:#FAEEDA;color:#854F0B;border-color:#BA7517;font-weight:500}
+  #page-mysettlement .ms-chip:hover{background:var(--bg)}
+  #page-mysettlement .ms-table-wrap{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  #page-mysettlement .ms-table{width:100%;border-collapse:collapse;table-layout:auto}
+  #page-mysettlement .ms-table th{font-size:11px;color:var(--text-sub);font-weight:400;padding:10px 12px;border-bottom:0.5px solid var(--border);background:var(--surface-alt);white-space:nowrap;text-align:left}
+  #page-mysettlement .ms-table td{padding:10px 12px;font-size:13px;border-bottom:0.5px solid var(--row-line);vertical-align:middle}
+  #page-mysettlement .ms-table tr:last-child td{border-bottom:none}
+  #page-mysettlement .ms-table tbody tr:hover{background:var(--surface-alt)}
+  #page-mysettlement .ms-gold{color:#BA7517;font-weight:700}
+  #page-mysettlement .ms-boss-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:6px;background:#FAEEDA;color:#854F0B;font-weight:500}
+  #page-mysettlement .ms-expand-btn{background:none;border:none;cursor:pointer;color:var(--text-sub);font-size:13px;padding:2px 6px;border-radius:4px;transition:background .12s}
+  #page-mysettlement .ms-expand-btn:hover{background:var(--bg)}
+  #page-mysettlement .ms-detail-row{background:var(--surface-alt)}
+  #page-mysettlement .ms-detail-inner{padding:10px 14px;font-size:12px;color:var(--text-sub)}
+  #page-mysettlement .ms-item-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  #page-mysettlement .ms-item-chip{background:var(--bg);border:0.5px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11px;color:var(--text)}
+  #page-mysettlement .ms-empty{padding:48px;text-align:center;color:var(--text-sub);font-size:13px}
+  #page-mysettlement .ms-month-label{font-size:12px;font-weight:600;color:var(--text-sub);padding:8px 12px;background:var(--surface-alt);border-bottom:0.5px solid var(--row-line)}
+  /* 대시보드 내 정산 위젯 */
+  .dash-ms-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--row-line)}
+  .dash-ms-row:last-child{border-bottom:none}
+  .dash-ms-date{font-size:11px;color:var(--text-sub);white-space:nowrap;min-width:60px}
+  .dash-ms-boss{font-size:11px;padding:2px 7px;border-radius:5px;background:#FAEEDA;color:#854F0B;font-weight:500;white-space:nowrap}
+  .dash-ms-items{font-size:12px;color:var(--text-sub);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dash-ms-gold{font-size:13px;font-weight:700;color:#BA7517;white-space:nowrap}
+  [data-theme="dark"] #page-mysettlement .ms-chip.on{background:#2d1800}
+  [data-theme="dark"] #page-mysettlement .ms-boss-badge{background:#2d1800;color:#fbbf24}
+  [data-theme="dark"] .dash-ms-boss{background:#2d1800;color:#fbbf24}
 
   /* ===== Sidebar Profile Area ===== */
   .sidebar-profile-area { border-top: 1px solid #252830; margin-top: auto; padding: 8px; flex-shrink: 0; }
@@ -861,6 +953,7 @@
       <div class="nav-item" data-page="mysettlement" onclick="showPage('mysettlement',this)" title="내 정산">
         <span class="nav-icon"><span class="material-icons">receipt_long</span></span>
         <span class="nav-label">내 정산</span>
+        <span class="nav-badge" id="navBadgeMySettlement"></span>
       </div>
 
       <div class="nav-item" data-page="raids" onclick="showPage('raids',this)" title="공대 찾기">
@@ -873,7 +966,7 @@
         <span class="nav-label">내 캐릭터</span>
       </div>
 
-      <div class="nav-divider"></div>
+      <div class="nav-section" style="margin-top:4px;">도구</div>
 
       <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
         <span class="nav-icon"><span class="material-icons">timer</span></span>
@@ -888,7 +981,7 @@
 
     <!-- ===== 공대장 메뉴 (leader / vice / master) ===== -->
     <div id="navSetLeader" style="display:none">
-      <div class="nav-section">메뉴</div>
+      <div class="nav-section">핵심</div>
 
       <div class="nav-item" data-page="dashboard" onclick="showPage('dashboard',this)" title="홈">
         <span class="nav-icon"><span class="material-icons">home</span></span>
@@ -907,12 +1000,12 @@
         <span class="nav-badge" id="navBadgeApplicants"></span>
       </div>
 
+      <div class="nav-section" style="margin-top:4px;">도구</div>
+
       <div class="nav-item" id="navRaidsLeader" data-page="raids" onclick="showPage('raids',this)" title="공대 목록">
         <span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span>
         <span class="nav-label">공대 목록</span>
       </div>
-
-      <div class="nav-divider"></div>
 
       <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
         <span class="nav-icon"><span class="material-icons">timer</span></span>
@@ -924,9 +1017,7 @@
         <span class="nav-label">아이템 DB</span>
       </div>
 
-      <div class="nav-divider"></div>
-
-      <div class="nav-section">시스템</div>
+      <div class="nav-section" style="margin-top:4px;">설정</div>
       <a class="nav-item" data-page="users" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리">
         <span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span>
         <span class="nav-label">권한 관리</span>
@@ -1037,74 +1128,126 @@
     <!-- 대시보드 -->
     <div id="page-dashboard" class="page-section active">
 
-      <!-- 환영 배너 -->
-      <div class="dash-welcome" id="dashWelcome">
-        <div>
-          <h2 id="dashGreeting">안녕하세요!</h2>
-          <p id="dashSub">오늘도 메이플랜드 공략 화이팅 🍁</p>
+      <!-- ===== 공대원 뷰 대시보드 ===== -->
+      <div id="dashViewMember">
+        <!-- 히어로 카드 (블루) -->
+        <div class="dv-hero dv-hero-member">
+          <div style="flex:1;min-width:0;">
+            <div class="dv-hero-label" id="dvmHeroLabel">안녕하세요</div>
+            <div class="dv-hero-amount" id="dvmHeroAmount">로그인 후 확인</div>
+            <div class="dv-hero-sub" id="dvmHeroSub">내 정산 내역을 확인해보세요</div>
+          </div>
+          <button class="dv-hero-btn" onclick="showPage('mysettlement',null)">정산 내역 보기 →</button>
         </div>
-        <div class="welcome-char">
-          <div class="char-badge" id="dashCharBadge" style="display:none;"></div>
-          <div class="char-badge" id="dashRoleBadge"></div>
+        <!-- 통계 3칸 -->
+        <div class="dv-stats">
+          <div class="dv-stat">
+            <div class="dv-stat-val" id="dvmMonthTotal">-</div>
+            <div class="dv-stat-label">이번달 누적</div>
+          </div>
+          <div class="dv-stat">
+            <div class="dv-stat-val" id="dvmRaidCount">-</div>
+            <div class="dv-stat-label">참여 공대</div>
+          </div>
+          <div class="dv-stat" id="dvmPendingStat">
+            <div class="dv-stat-val" id="dvmPending">-</div>
+            <div class="dv-stat-label">신청 대기</div>
+          </div>
+        </div>
+        <!-- 빠른 이동 3칸 -->
+        <div class="dv-quicknav">
+          <button class="dv-qn-btn" onclick="showPage('mysettlement',null)">
+            <span class="dv-qn-icon" style="background:#eff6ff;">💰</span>
+            <span class="dv-qn-label">내 정산</span>
+          </button>
+          <button class="dv-qn-btn" onclick="showPage('raids',null)">
+            <span class="dv-qn-icon" style="background:#ecfdf5;">🛡️</span>
+            <span class="dv-qn-label">공대 찾기</span>
+          </button>
+          <button class="dv-qn-btn" onclick="showPage('mychar',null)">
+            <span class="dv-qn-icon" style="background:#fefce8;">🍄</span>
+            <span class="dv-qn-label">내 캐릭터</span>
+          </button>
+        </div>
+        <!-- 최근 정산 내역 -->
+        <div class="panel" style="margin-bottom:14px;">
+          <div class="panel-header" style="margin-bottom:12px;">
+            <div style="font-size:14px;font-weight:600;color:var(--text);">최근 정산 내역</div>
+            <button class="btn btn-outline" onclick="showPage('mysettlement',null)" style="font-size:12px;padding:5px 14px;">전체 보기 →</button>
+          </div>
+          <div id="dvmSettlements">
+            <div style="padding:24px;text-align:center;color:var(--text-sub);font-size:13px;">정산 내역이 없습니다</div>
+          </div>
+        </div>
+        <!-- 내 공대 신청 현황 -->
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:12px;">
+            <div style="font-size:14px;font-weight:600;color:var(--text);">내 공대 신청 현황</div>
+          </div>
+          <div id="dvmApplications">
+            <div style="padding:24px;text-align:center;color:var(--text-sub);font-size:13px;">신청 내역이 없습니다</div>
+          </div>
         </div>
       </div>
 
-      <!-- 대시보드 메인 -->
-      <div class="dash-main-grid">
-
-        <!-- Row 1: [유튜브] + [공지] + [오늘의 보스] (3등분) -->
-        <div class="dash-top-row">
-          <div class="panel dash-yt-panel">
-            <div class="dash-yt-wrap">
-              <iframe id="dashYtFrame" src="https://www.youtube.com/embed/n6qf1b7TjPg?autoplay=1&mute=1&loop=1&playlist=n6qf1b7TjPg" title="메이플랜드 영상" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-            </div>
+      <!-- ===== 공대장 뷰 대시보드 ===== -->
+      <div id="dashViewLeader" style="display:none;">
+        <!-- 히어로 카드 (앰버) -->
+        <div class="dv-hero dv-hero-leader">
+          <div style="flex:1;min-width:0;">
+            <div class="dv-hero-label" id="dvlHeroLabel">안녕하세요</div>
+            <div class="dv-hero-amount" id="dvlHeroAmount">정산 현황 로딩 중</div>
+            <div class="dv-hero-sub" id="dvlHeroSub">정산 관리 페이지에서 진행해주세요</div>
           </div>
-          <div class="panel dash-notice-panel">
-            <div class="dash-section-title"><span class="material-icons">campaign</span> 공지 & 업데이트</div>
-            <div class="notice-list">
-              <div class="notice-item"><div class="notice-dot" style="background:#ef5a25;"></div><div><div class="notice-text">공대 등록/신청·승인 시스템 오픈. 역할 자동 부여 적용.</div><div class="notice-date">2026.04.14</div></div></div>
-              <div class="notice-item"><div class="notice-dot" style="background:#0b5cd5;"></div><div><div class="notice-text">내 공대 관리 탭(공대원·보스정산·손님정산) 추가.</div><div class="notice-date">2026.04.14</div></div></div>
-              <div class="notice-item"><div class="notice-dot" style="background:#059669;"></div><div><div class="notice-text">아이템 정보 2,732개 DB 연동 완료. 직업별 필터 지원.</div><div class="notice-date">2026.04.10</div></div></div>
-              <div class="notice-item"><div class="notice-dot" style="background:#d97706;"></div><div><div class="notice-text">혼테일 타이머 — 리저렉션/사망/공무/버프해제/유혹 섹션 지원.</div><div class="notice-date">2026.04.09</div></div></div>
-              <div class="notice-item"><div class="notice-dot" style="background:#7c3aed;"></div><div><div class="notice-text">메소 가계부 / 장비 관리 기능 준비 중입니다.</div><div class="notice-date">예정</div></div></div>
-            </div>
+          <button class="dv-hero-btn" onclick="showPage('settlement',null)">정산 시작 →</button>
+        </div>
+        <!-- 통계 4칸 -->
+        <div class="dv-stats dv-stats-4">
+          <div class="dv-stat">
+            <div class="dv-stat-val" id="dvlWeekSales">-</div>
+            <div class="dv-stat-label">이번 주 총 수익</div>
           </div>
-          <div class="panel dash-right-col">
-            <div class="dash-section-title"><span class="material-icons">event</span> 오늘의 보스</div>
+          <div class="dv-stat">
+            <div class="dv-stat-val" id="dvlMemberCount">-</div>
+            <div class="dv-stat-label">공대원</div>
+          </div>
+          <div class="dv-stat">
+            <div class="dv-stat-val" id="dvlPerGold">-</div>
+            <div class="dv-stat-label">1인당 분배</div>
+          </div>
+          <div class="dv-stat">
+            <div class="dv-stat-val" id="dvlPending" style="color:#ef4444;">-</div>
+            <div class="dv-stat-label">신청 대기</div>
+          </div>
+        </div>
+        <!-- 2단 그리드: 오늘의 보스 + 공대원 신청 대기 -->
+        <div class="dv-bottom-grid">
+          <!-- 오늘의 보스 -->
+          <div class="panel">
+            <div class="panel-header" style="margin-bottom:12px;">
+              <div style="font-size:14px;font-weight:600;color:var(--text);">오늘의 보스</div>
+            </div>
             <div class="boss-list" id="dashBossList"></div>
           </div>
-        </div>
-
-        <!-- Row 2: 빠른 이동 (전체 너비, 8칸) -->
-        <div class="panel dash-quicknav">
-          <div class="dash-section-title"><span class="material-icons">apps</span> 빠른 이동</div>
-          <div class="quicknav-grid">
-            <a class="quicknav-item" onclick="showPage('members',null)"><div class="quicknav-icon" style="background:#eff6ff;">👥</div><div><div class="qn-label">공대원</div></div></a>
-            <a class="quicknav-item" onclick="showPage('guestsettlement',null)"><div class="quicknav-icon" style="background:#fff7ed;">🎫</div><div><div class="qn-label">손님 정산</div></div></a>
-            <a class="quicknav-item" onclick="showPage('settlement',null)"><div class="quicknav-icon" style="background:#ecfdf5;">💰</div><div><div class="qn-label">보스 정산</div></div></a>
-            <a class="quicknav-item" onclick="showPage('horntail-timer',null)"><div class="quicknav-icon" style="background:#fdf4ff;">⏱️</div><div><div class="qn-label">혼테일</div></div></a>
-            <a class="quicknav-item" onclick="showPage('items',null)"><div class="quicknav-icon" style="background:#f8fafc;">🗡️</div><div><div class="qn-label">아이템</div></div></a>
-            <a class="quicknav-item" onclick="showPage('raids',null)"><div class="quicknav-icon" style="background:#eff6ff;">🛡️</div><div><div class="qn-label">공대 목록</div></div></a>
-            <a class="quicknav-item" onclick="showPage('myraids',null)"><div class="quicknav-icon" style="background:#f0fdf4;">🏕️</div><div><div class="qn-label">내 공대</div></div></a>
-            <a class="quicknav-item" onclick="showPage('mychar',null)"><div class="quicknav-icon" style="background:#fefce8;">🍄</div><div><div class="qn-label">내 캐릭터</div></div></a>
+          <!-- 공대원 신청 대기 -->
+          <div class="panel">
+            <div class="panel-header" style="margin-bottom:12px;">
+              <div style="font-size:14px;font-weight:600;color:var(--text);">공대원 신청 대기</div>
+              <button class="btn btn-outline" onclick="showPage('members',null)" style="font-size:12px;padding:5px 14px;">관리 →</button>
+            </div>
+            <div id="dvlApplicants">
+              <div style="padding:24px;text-align:center;color:var(--text-sub);font-size:13px;">신청 대기자가 없습니다</div>
+            </div>
           </div>
         </div>
-
-        <!-- Row 3: 공대원 관리 (전체 너비, 공대장/부공대장/마스터 전용) -->
-        <div class="panel dash-member-widget">
-          <div class="panel-header" style="margin-bottom:14px;">
-            <div class="dash-section-title" style="margin-bottom:0;"><span class="material-icons">groups</span> 공대원 관리</div>
+        <!-- 공대원 목록 (전체) -->
+        <div class="panel" style="margin-top:0;">
+          <div class="panel-header" style="margin-bottom:12px;">
+            <div style="font-size:14px;font-weight:600;color:var(--text);">공대원 관리</div>
             <button class="btn btn-outline" onclick="showPage('members',null)" style="font-size:12px;padding:5px 14px;">전체 보기 →</button>
           </div>
           <div class="dash-member-stats" id="dashMemberStatRow"></div>
           <div id="dashMemberList"></div>
-        </div>
-        <div class="panel dash-coming-soon" style="display:none;">
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:10px;">
-            <span class="material-icons" style="font-size:36px;color:var(--text-sub);opacity:.4;">lock</span>
-            <div style="font-size:14px;font-weight:600;color:var(--text-sub);">공대장 전용 메뉴</div>
-            <div style="font-size:12px;color:var(--text-sub);opacity:.7;">공대원 관리는 공대장/마스터만 접근 가능합니다</div>
-          </div>
         </div>
       </div>
 
@@ -1114,6 +1257,7 @@
         <div id="dashRecentMembers"></div><div id="dashRecentPurchases"></div>
         <div id="dashTotalMembers"></div><div id="dashActiveMembers"></div>
         <div id="dashMonthSales"></div><div id="dashMyStatus"></div>
+        <div id="dashMySettlementList"></div>
       </div>
 
     </div><!-- /page-dashboard -->
@@ -1299,8 +1443,61 @@
 
     <!-- 내 정산내역 -->
     <div id="page-mysettlement" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">내 정산내역</h1><p class="page-desc">내 골드 정산 내역을 확인합니다</p></div></div>
-      <div class="panel"><div class="empty-state"><div class="icon">💰</div><h3>준비 중</h3><p>정산내역 기능이 곧 추가됩니다</p></div></div>
+      <div class="top-bar">
+        <div>
+          <h1 class="page-title">내 정산내역</h1>
+          <p class="page-desc">참여한 공대의 골드 정산 내역을 확인합니다</p>
+        </div>
+      </div>
+
+      <!-- 요약 카드 3칸 -->
+      <div class="ms-summary">
+        <div class="ms-stat gold">
+          <div class="ms-stat-lbl">이번 달 수령액</div>
+          <div class="ms-stat-val" id="msMonthGold">-</div>
+          <div class="ms-stat-sub" id="msMonthCount">0건</div>
+        </div>
+        <div class="ms-stat gold">
+          <div class="ms-stat-lbl">누적 수령액</div>
+          <div class="ms-stat-val" id="msTotalGold">-</div>
+          <div class="ms-stat-sub" id="msTotalCount">총 0건</div>
+        </div>
+        <div class="ms-stat">
+          <div class="ms-stat-lbl">최근 정산일</div>
+          <div class="ms-stat-val" id="msLastDate" style="font-size:15px;margin-top:4px;">-</div>
+          <div class="ms-stat-sub" id="msLastBoss">-</div>
+        </div>
+      </div>
+
+      <!-- 필터 칩 (보스별) -->
+      <div class="ms-filter-row">
+        <span style="font-size:11px;color:var(--text-sub);">보스</span>
+        <button class="ms-chip on" data-ms="all" onclick="msFilter('all',this)">전체</button>
+        <button class="ms-chip" data-ms="피마살" onclick="msFilter('피마살',this)">피마살</button>
+        <button class="ms-chip" data-ms="자쿰" onclick="msFilter('자쿰',this)">자쿰</button>
+        <button class="ms-chip" data-ms="혼테일" onclick="msFilter('혼테일',this)">혼테일</button>
+        <button class="ms-chip" data-ms="크우파" onclick="msFilter('크우파',this)">크우파</button>
+      </div>
+
+      <!-- 정산 테이블 -->
+      <div class="ms-table-wrap">
+        <table class="ms-table">
+          <thead>
+            <tr>
+              <th style="width:26px;"></th>
+              <th>날짜</th>
+              <th>보스</th>
+              <th>아이템</th>
+              <th>총 매출</th>
+              <th>내 배분</th>
+              <th style="color:#BA7517;">내 수령액</th>
+            </tr>
+          </thead>
+          <tbody id="msTableBody">
+            <tr><td colspan="7" class="ms-empty">불러오는 중…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- 공대 목록 -->
@@ -1335,17 +1532,17 @@
         </div>
       </div>
 
-      <!-- 상단 타이틀 + 등록 버튼 -->
-      <div class="rf-top">
+      <!-- 헤더 -->
+      <div class="rf-header">
         <div>
-          <div class="rf-pt">공대 찾기</div>
-          <div class="rf-ps">참여할 공대를 찾고 신청하세요</div>
+          <div class="rf-title">공대 찾기</div>
+          <div class="rf-subtitle">참여할 공대를 찾고 신청하세요</div>
         </div>
         <button class="btn btn-primary" id="btnCreateRaid" onclick="toggleRaidForm()" style="display:none;">+ 공대 등록</button>
       </div>
 
-      <!-- 필터 -->
-      <div style="margin-bottom:12px">
+      <!-- 필터 패널 -->
+      <div class="rf-filters">
         <div class="rf-filter-row">
           <span class="rf-fl">보스</span>
           <button class="rf-chip on" data-rf="boss" data-rv="전체" onclick="raidFilter('boss','전체',this)">전체</button>
@@ -2029,6 +2226,7 @@ function isSuperAdmin(discordId, email){
 // =============================================
 let currentUser = null, currentProfile = null;
 let allMembers = [], allUsers = [], allPurchases = [], allGuildPromos = [];
+let allRaidApplications = [];
 const ROLES = {
   master:{label:'사이트마스터',badge:'badge-red',level:4},
   leader:{label:'공대장',badge:'badge-purple',level:3},
@@ -2210,7 +2408,7 @@ auth.onAuthStateChanged(async(user)=>{
     const el=document.getElementById('sidebarUserTotal');
     if(el){const uids=snap.exists?(snap.data().uids||[]):[];el.textContent=uids.length+'명';}
   });
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();updateMyRaidNavVisibility();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();subscribeRaidApplications();updateMyRaidNavVisibility();loadMySettlements();
   await loadBossTimers();
   renderBossList();
 });
@@ -2404,102 +2602,210 @@ function renderBossList() {
 }
 
 function renderDashboard() {
+  const isLeader = currentSidebarView === 'leader';
+  const memberView = document.getElementById('dashViewMember');
+  const leaderView = document.getElementById('dashViewLeader');
+  if(memberView) memberView.style.display = isLeader ? 'none' : '';
+  if(leaderView) leaderView.style.display = isLeader ? '' : 'none';
+
+  if(isLeader) renderDashLeader();
+  else renderDashMember();
+}
+
+function renderDashMember(){
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 6 ? '좋은 밤이에요' : hour < 12 ? '좋은 아침이에요' : hour < 18 ? '안녕하세요' : '좋은 저녁이에요';
-
-  // 환영 배너
   const name = currentProfile ? currentProfile.name : '모험가';
-  const el = document.getElementById('dashGreeting');
-  if(el) el.textContent = `${greeting}, ${name}님 👋`;
+  const uid  = currentUser?.uid;
+  const mc   = window._myCharData;
 
-  // 역할 배지
-  const rb = document.getElementById('dashRoleBadge');
-  if(rb && currentProfile) {
-    const r = ROLES[currentProfile.role] || ROLES.none;
-    rb.textContent = r.label;
-    rb.style.display = '';
+  // 히어로
+  const heroLabel = document.getElementById('dvmHeroLabel');
+  const heroAmt   = document.getElementById('dvmHeroAmount');
+  const heroSub   = document.getElementById('dvmHeroSub');
+  if(heroLabel) heroLabel.textContent = `${greeting}, ${name}님`;
+  if(mc && mc.name && heroSub){
+    const charParts = [mc.party ? mc.party+'파티' : '', mc.cls||'', mc.role||''].filter(Boolean).join(' · ');
+    if(heroSub) heroSub.textContent = charParts || '내 캐릭터를 등록해보세요';
   }
 
-  // 내 캐릭터 배지
-  const cb = document.getElementById('dashCharBadge');
-  const mc = window._myCharData;
-  if(cb && mc && mc.name) {
-    cb.textContent = `Lv.${mc.level||'?'} ${mc.job||''} ${mc.name}`;
-    cb.style.display = '';
+  // 이번 주 수령 예정 (최근 정산 중 이번 주치)
+  let heroGold = 0;
+  let heroSubText = '정산 내역을 불러오는 중';
+  if(uid && allMySettlements.length){
+    const now2 = new Date();
+    const weekStart = new Date(now2);
+    weekStart.setDate(now2.getDate() - now2.getDay());
+    const weekStr = weekStart.toISOString().split('T')[0].slice(0,7);
+    const weekItems = allMySettlements.filter(s=>(s.date||'').slice(0,7)===weekStr);
+    weekItems.forEach(s=>{
+      const me=(s.participants||[]).find(p=>p.id===uid);
+      heroGold+=(me?.perGold||0);
+    });
+    const latest = allMySettlements[0];
+    heroSubText = latest ? `${latest.boss||''} 정산 완료` : '정산 내역이 없습니다';
+    if(heroAmt) heroAmt.textContent = heroGold>=10000 ? Math.round(heroGold/10000).toLocaleString()+'만 메소' : heroGold.toLocaleString()+' 메소';
+  } else {
+    if(heroAmt) heroAmt.textContent = uid ? '정산 내역 없음' : '로그인 후 확인';
+    heroSubText = uid ? '내 정산 내역을 확인해보세요' : '디스코드로 로그인해주세요';
   }
+  if(heroSub && !mc?.name) heroSub.textContent = heroSubText;
 
-  // 요약 카드
-  const total = allMembers.length;
-  const active = allMembers.filter(m => m.status === '참여').length;
-  const undecided = allMembers.filter(m => m.status === '미정').length;
-  const absent = allMembers.filter(m => m.status === '불참').length;
-  const s = t => document.getElementById(t);
-  if(s('dashTotalMembers')) s('dashTotalMembers').textContent = total + '명';
-  if(s('dashActiveMembers')) s('dashActiveMembers').textContent = active + '명';
-  if(s('dStat1')) s('dStat1').textContent = active;
-  if(s('dStat2')) s('dStat2').textContent = undecided;
-  if(s('dStat3')) s('dStat3').textContent = absent;
-
-  // 이번달 판매액
+  // 통계
   const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const monthSales = allPurchases.filter(p => (p.date||'').startsWith(ym)).reduce((sum, p) => sum + (p.price||0), 0);
-  if(s('dashMonthSales')) s('dashMonthSales').textContent = monthSales >= 10000 ? (monthSales/10000).toFixed(1)+'만G' : monthSales.toLocaleString()+'G';
+  let monthGold=0;
+  if(uid) allMySettlements.filter(s=>(s.date||'').startsWith(ym)).forEach(s=>{
+    const me=(s.participants||[]).find(p=>p.id===uid);
+    monthGold+=(me?.perGold||0);
+  });
+  const fmtG = g => g>=10000 ? Math.round(g/10000).toLocaleString()+'만' : g.toLocaleString();
+  const el=id=>document.getElementById(id);
+  if(el('dvmMonthTotal')) el('dvmMonthTotal').textContent = uid ? fmtG(monthGold) : '-';
+  // 참여 공대 수
+  const myRaids = typeof allRaids!=='undefined' ? allRaids.filter(r=>(r.members||[]).includes(uid)||(r.applicants||[]).some(a=>a.uid===uid&&a.status==='승인')).length : 0;
+  if(el('dvmRaidCount')) el('dvmRaidCount').textContent = myRaids+'개';
+  // 신청 대기 (내 신청 중 대기 중인 것)
+  const pendingCount = typeof allRaidApplications!=='undefined'
+    ? allRaidApplications.filter(a=>a.uid===uid&&a.status==='대기').length : 0;
+  if(el('dvmPending')) el('dvmPending').textContent = pendingCount+'건';
+  const pendingStat = el('dvmPendingStat');
+  if(pendingStat) pendingStat.style.borderColor = pendingCount>0 ? '#ef4444' : '';
 
-  // 내 참여 상태
-  if(s('dashMyStatus') && currentProfile) {
-    const me = allMembers.find(m => m.discordId === currentProfile.discordId);
-    const statusMap = {'참여':'✅ 참여','미정':'⚠️ 미정','불참':'❌ 불참'};
-    s('dashMyStatus').textContent = me ? (statusMap[me.status]||me.status) : '미등록';
-  }
-
-  // 최근 등록 공대원 (5명)
-  const rmEl = s('dashRecentMembers');
-  if(rmEl) {
-    const recent = [...allMembers].slice(-5).reverse();
-    if(!recent.length) {
-      rmEl.innerHTML = '<div class="empty-state" style="padding:16px;"><p>공대원이 없습니다</p></div>';
+  // 최근 정산 (3건)
+  const dvmS = el('dvmSettlements');
+  if(dvmS){
+    const recent = allMySettlements.slice(0,3);
+    if(!recent.length){
+      dvmS.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);font-size:13px;">정산 내역이 없습니다</div>';
     } else {
-      const statusColor = {참여:'#059669', 미정:'#d97706', 불참:'#ef4444'};
-      rmEl.innerHTML = recent.map(m => `
-        <div class="my-raid-item">
-          <div class="my-raid-dot" style="background:${statusColor[m.status]||'#9ca3af'};"></div>
-          <div style="flex:1;min-width:0;">
-            <div class="my-raid-name">${m.name||'-'}</div>
-            <div class="my-raid-sub">${m.job||''} ${m.level ? 'Lv.'+m.level : ''}</div>
-          </div>
-          <span class="badge ${m.status==='참여'?'badge-green':m.status==='불참'?'badge-red':'badge-yellow'}">${m.status||'-'}</span>
-        </div>`).join('');
+      dvmS.innerHTML=recent.map(s=>{
+        const me=(s.participants||[]).find(p=>p.id===uid);
+        const g=me?.perGold||0;
+        const cnt=s.count||0;
+        return `<div class="dv-settle-row">
+          <span class="dv-settle-date">${(s.date||'').slice(5)}</span>
+          <span class="dv-settle-boss">${s.boss||''}</span>
+          <span class="dv-settle-sub">${cnt}명 참여</span>
+          <span class="dv-settle-gold">+${Math.round(g/10000).toLocaleString()}만</span>
+          <span class="dv-settle-badge">수령완료</span>
+        </div>`;
+      }).join('');
     }
   }
 
-  // 보스 일정
+  // 내 공대 신청 현황
+  const dvmA = el('dvmApplications');
+  if(dvmA && typeof allRaidApplications!=='undefined'){
+    const myApps = allRaidApplications.filter(a=>a.uid===uid);
+    if(!myApps.length){
+      dvmA.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);font-size:13px;">신청 내역이 없습니다</div>';
+    } else {
+      dvmA.innerHTML=myApps.map(a=>{
+        const raid=typeof allRaids!=='undefined'?allRaids.find(r=>r.id===a.raidId):null;
+        const statusCls=a.status==='승인'?'badge-green':a.status==='거절'?'badge-red':'badge-yellow';
+        return `<div class="dv-settle-row">
+          <span class="dv-settle-date">${(a.appliedAt||a.date||'').toString().slice(5,10)}</span>
+          <span class="dv-settle-boss">${raid?.boss||''}</span>
+          <span class="dv-settle-sub">${raid?.name||a.raidName||''}</span>
+          <span class="badge ${statusCls}">${a.status||'대기'}</span>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+function renderDashLeader(){
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 6 ? '좋은 밤이에요' : hour < 12 ? '좋은 아침이에요' : hour < 18 ? '안녕하세요' : '좋은 저녁이에요';
+  const name = currentProfile ? currentProfile.name : '';
+  const el=id=>document.getElementById(id);
+
+  // 히어로
+  if(el('dvlHeroLabel')) el('dvlHeroLabel').textContent = `${greeting}, ${name}님`;
+  // 미완료 정산 카운트 (participants가 없거나 count=0인 것들, 여기서는 아직 공대가 있는 날 기준)
+  const todayStr = now.toISOString().split('T')[0];
+  const todayBosses = typeof BOSS_SCHEDULE!=='undefined'?BOSS_SCHEDULE.filter(b=>b.days.includes(now.getDay())):[];
+  const pending = todayBosses.length;
+  if(el('dvlHeroAmount')) el('dvlHeroAmount').textContent = pending>0 ? `${pending}건 대기 중` : '정산 완료';
+  if(el('dvlHeroSub')){
+    const bossNames = todayBosses.map(b=>b.name).join(', ');
+    el('dvlHeroSub').textContent = pending>0 ? `오늘 ${bossNames} 정산 진행하세요` : '오늘 예정된 보스가 없습니다';
+  }
+
+  // 통계
+  const total = allMembers.length;
+  const active = allMembers.filter(m=>m.status==='참여').length;
+  const undecided = allMembers.filter(m=>m.status==='미정').length;
+  const absent = allMembers.filter(m=>m.status==='불참').length;
+
+  // 이번 주 총 수익
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate()-now.getDay());
+  weekStart.setHours(0,0,0,0);
+  const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  let weekSales=0;
+  (typeof allMySettlements!=='undefined'?allMySettlements:[]).forEach(s=>{
+    const d=new Date(s.date||'');
+    if(d>=weekStart) weekSales+=(s.totalGold||0);
+  });
+  const fmtG=g=>g>=10000?Math.round(g/10000).toLocaleString()+'만':g.toLocaleString();
+  if(el('dvlWeekSales')) el('dvlWeekSales').textContent = fmtG(weekSales);
+  if(el('dvlMemberCount')) el('dvlMemberCount').textContent = total+'명';
+
+  // 1인당 분배 (최근 정산 기준)
+  const lastSt = typeof allMySettlements!=='undefined'&&allMySettlements.length ? allMySettlements[0] : null;
+  const perG = lastSt ? Math.round((lastSt.perGold||0)/10000) : 0;
+  if(el('dvlPerGold')) el('dvlPerGold').textContent = perG ? perG.toLocaleString()+'만' : '-';
+
+  // 신청 대기
+  const appsSnap = typeof allRaidApplications!=='undefined' ? allRaidApplications.filter(a=>a.status==='대기') : [];
+  if(el('dvlPending')) el('dvlPending').textContent = appsSnap.length+'명';
+
+  // 오늘의 보스
   renderBossList();
 
+  // 공대원 신청 대기
+  const dvlA = el('dvlApplicants');
+  if(dvlA){
+    if(!appsSnap.length){
+      dvlA.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);font-size:13px;">신청 대기자가 없습니다</div>';
+    } else {
+      dvlA.innerHTML=appsSnap.slice(0,4).map(a=>{
+        const initial=(a.charName||a.name||'?')[0].toUpperCase();
+        return `<div class="dv-applicant-row">
+          <div class="dv-av">${initial}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="dv-ap-name">${a.charName||a.name||'-'}</div>
+            <div class="dv-ap-sub">${a.cls||''} ${a.level?'· Lv.'+a.level:''}</div>
+          </div>
+          <div class="dv-ap-btns">
+            <button class="dv-ap-ok" onclick="approveApplication('${a.id}')">승인</button>
+            <button class="dv-ap-ng" onclick="rejectApplication('${a.id}')">거절</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
 
-  // 공대원 관리 위젯 (공대장/부공대장/마스터)
-  const memberWidget = document.querySelector('.dash-member-widget');
-  const comingSoon = document.querySelector('.dash-coming-soon');
-  const canSeeMgmt = currentProfile && ['master','leader','vice'].includes(currentProfile.role);
-  if(memberWidget) memberWidget.style.display = canSeeMgmt ? '' : 'none';
-  if(comingSoon) comingSoon.style.display = canSeeMgmt ? 'none' : '';
-
-  const statRow = s('dashMemberStatRow');
-  if(statRow && canSeeMgmt) {
-    statRow.innerHTML = `
+  // 공대원 관리 테이블
+  const statRow = el('dashMemberStatRow');
+  if(statRow){
+    statRow.innerHTML=`
       <div class="dm-stat"><span class="dm-stat-num">${total}</span><span class="dm-stat-label">전체</span></div>
       <div class="dm-stat"><span class="dm-stat-num" style="color:#059669">${active}</span><span class="dm-stat-label">참여</span></div>
       <div class="dm-stat"><span class="dm-stat-num" style="color:#d97706">${undecided}</span><span class="dm-stat-label">미정</span></div>
       <div class="dm-stat"><span class="dm-stat-num" style="color:#ef4444">${absent}</span><span class="dm-stat-label">불참</span></div>`;
   }
-  const mlEl = s('dashMemberList');
-  if(mlEl && canSeeMgmt) {
-    if(!allMembers.length) {
-      mlEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-sub);font-size:13px;">등록된 공대원이 없습니다</div>';
+  const mlEl = el('dashMemberList');
+  if(mlEl){
+    if(!allMembers.length){
+      mlEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-sub);font-size:13px;">등록된 공대원이 없습니다</div>';
     } else {
-      const sbadge = {참여:'badge-green', 미정:'badge-yellow', 불참:'badge-red'};
-      const rbadge = {딜러:'badge-blue', 서폿:'badge-purple'};
-      mlEl.innerHTML = `<table class="dash-member-table">
+      const sbadge={참여:'badge-green',미정:'badge-yellow',불참:'badge-red'};
+      const rbadge={딜러:'badge-blue',서폿:'badge-purple'};
+      mlEl.innerHTML=`<table class="dash-member-table">
         <thead><tr><th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>레벨</th><th>상태</th></tr></thead>
         <tbody>${allMembers.map((m,i)=>`
           <tr>
@@ -2954,6 +3260,7 @@ function showPage(id,el){
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){loadLoginLogs();}
+  if(id==='mysettlement'){loadMySettlements();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
 }
@@ -3149,6 +3456,9 @@ function switchSidebarView(view){
   currentSidebarView = view;
   updateSidebarMenuSet();
   closeSidebarRolePicker();
+  // 현재 홈 페이지면 즉시 갱신
+  const activePage = document.querySelector('.page-section.active');
+  if(activePage && activePage.id === 'page-dashboard') renderDashboard();
 }
 
 function toggleSidebarRolePicker(){
@@ -3524,23 +3834,23 @@ async function renderRaidList(){
     // 신청 버튼
     let actionBtn='';
     if(canManage){
-      const badge=pCount>0?` <span style="background:#ef4444;color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;">${pCount}</span>`:'';
-      actionBtn=`<div style="display:flex;gap:5px;">
+      const badge=pCount>0?` <span style="background:#ef4444;color:#fff;border-radius:10px;font-size:10px;padding:1px 5px;margin-left:2px;">${pCount}</span>`:'';
+      actionBtn=`<div class="rf-actions">
         <button class="rf-mgmt-btn" onclick="openApplicantsModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}')">신청관리${badge}</button>
         <button class="rf-mgmt-btn" onclick="openRaidModal('${r.id}')">수정</button>
-        <button class="rf-mgmt-btn" style="color:#dc2626;border-color:#fca5a5;" onclick="deleteRaid('${r.id}')">삭제</button>
+        <button class="rf-mgmt-btn danger" onclick="deleteRaid('${r.id}')">삭제</button>
       </div>`;
     } else if(st==='모집중'||isAlmost){
       if(applied){
-        actionBtn=`<button class="rf-apply-btn cancel" onclick="cancelApply('${applied}')">신청취소</button>`;
+        actionBtn=`<div class="rf-actions"><button class="rf-apply-btn cancel" onclick="cancelApply('${applied}')">신청취소</button></div>`;
       } else {
-        actionBtn=`<div style="display:flex;gap:5px;">
-          <button class="rf-apply-btn" style="background:transparent;color:#854F0B;border:0.5px solid #BA7517;" onclick="openGuestApplyModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}','${r.boss||''}')">손님</button>
+        actionBtn=`<div class="rf-actions">
+          <button class="rf-apply-btn guest" onclick="openGuestApplyModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}','${r.boss||''}')">손님</button>
           <button class="rf-apply-btn" onclick="openApplyModal('${r.id}','${(r.name||'').replace(/'/g,"\\'")}')">신청</button>
         </div>`;
       }
     } else {
-      actionBtn=`<button class="rf-apply-btn" disabled>마감</button>`;
+      actionBtn=`<div class="rf-actions"><button class="rf-apply-btn" disabled>마감</button></div>`;
     }
 
     return `<div class="rf-card">
@@ -3552,13 +3862,13 @@ async function renderRaidList(){
         <div class="rf-raid-name">${r.name||''}</div>
         <div class="rf-leader">공대장 ${r.ownerName||'-'}</div>
       </div>
-      ${r.desc?`<div style="font-size:11px;color:var(--text-sub);line-height:1.4;padding:5px 8px;background:var(--bg);border-radius:5px;">${r.desc}</div>`:''}
+      ${r.desc?`<div class="rf-desc">${r.desc}</div>`:''}
       <div class="rf-progress-wrap">
         <div class="rf-bar"><div class="rf-fill ${fillCls}" style="width:${pct}%"></div></div>
-        <div class="rf-prog-label"><span>${approvedN}/${maxN}명</span><span>${pct}%</span></div>
+        <div class="rf-prog-label"><span><strong>${approvedN}/${maxN}명</strong></span><span>${pct}%</span></div>
       </div>
       <div class="rf-card-bottom">
-        <span class="rf-time">${r.clearTime||''}</span>
+        <span class="rf-time">${r.clearTime?`<span class="material-icons">schedule</span>${r.clearTime}`:''}</span>
         ${actionBtn}
       </div>
     </div>`;
@@ -3847,9 +4157,151 @@ async function deleteSettlement(id){
 }
 
 // =============================================
+// 내 정산내역 (My Settlement)
+// =============================================
+let allMySettlements = [];
+let msFilterBoss = 'all';
+
+async function loadMySettlements(){
+  if(!currentUser) return;
+  const uid = currentUser.uid;
+  const snap = await db.collection('settlements').orderBy('date','desc').get();
+  // participants에 내 uid가 있는 정산만 필터
+  allMySettlements = snap.docs
+    .map(d=>({id:d.id,...d.data()}))
+    .filter(s=>(s.participants||[]).some(p=>p.id===uid));
+  renderMySettlements();
+  renderDashMySettlement();
+}
+
+function msFilter(boss, btn){
+  msFilterBoss = boss;
+  document.querySelectorAll('#page-mysettlement .ms-chip').forEach(c=>c.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  renderMySettlements();
+}
+
+function renderMySettlements(){
+  const uid = currentUser?.uid;
+  const list = msFilterBoss==='all'
+    ? allMySettlements
+    : allMySettlements.filter(s=>s.boss===msFilterBoss);
+
+  // 요약 집계
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  let totalGold=0, monthGold=0, monthCount=0;
+  allMySettlements.forEach(s=>{
+    const me = (s.participants||[]).find(p=>p.id===uid);
+    const gold = me?.perGold || 0;
+    totalGold += gold;
+    if((s.date||'').startsWith(thisMonth)){ monthGold+=gold; monthCount++; }
+  });
+  const fmt = g => g>=100000000 ? (g/100000000).toFixed(1)+'억'
+    : g>=10000 ? Math.round(g/10000).toLocaleString()+'만'
+    : g.toLocaleString()+'메소';
+  document.getElementById('msMonthGold').textContent = fmt(monthGold);
+  document.getElementById('msMonthCount').textContent = monthCount+'건';
+  document.getElementById('msTotalGold').textContent  = fmt(totalGold);
+  document.getElementById('msTotalCount').textContent = '총 '+allMySettlements.length+'건';
+  if(allMySettlements.length){
+    const last = allMySettlements[0];
+    document.getElementById('msLastDate').textContent = last.date||'-';
+    document.getElementById('msLastBoss').textContent = last.boss||'-';
+  }
+
+  // 테이블 렌더
+  const tbody = document.getElementById('msTableBody');
+  if(!tbody) return;
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="7" class="ms-empty"><span class="material-icons" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px;">receipt_long</span>정산 내역이 없습니다</td></tr>`;
+    return;
+  }
+
+  // 월별 그룹
+  const groups = {};
+  list.forEach(s=>{
+    const ym = (s.date||'').slice(0,7);
+    if(!groups[ym]) groups[ym]=[];
+    groups[ym].push(s);
+  });
+
+  tbody.innerHTML = Object.entries(groups).map(([ym, rows])=>{
+    const monthLabel = `<tr><td colspan="7" class="ms-month-label">${ym.replace('-','년 ')}월</td></tr>`;
+    const dataRows = rows.map((s,idx)=>{
+      const me = (s.participants||[]).find(p=>p.id===uid);
+      const myGold = me?.perGold || 0;
+      const myAlloc = me?.alloc ?? '-';
+      const totalM = Math.round((s.totalGold||0)/10000);
+      const myM = Math.round(myGold/10000);
+      const itemNames = (s.items||[]).map(it=>it.name).filter(Boolean).join(', ')||'-';
+      const shortItems = itemNames.length>20 ? itemNames.slice(0,20)+'…' : itemNames;
+      const detailId = `msDetail_${s.id}`;
+      return `<tr>
+        <td><button class="ms-expand-btn" onclick="msToggleDetail('${s.id}')" title="상세보기">
+          <span class="material-icons" id="msExp_${s.id}" style="font-size:15px;vertical-align:middle;">expand_more</span>
+        </button></td>
+        <td style="white-space:nowrap;color:var(--text-sub);font-size:12px;">${s.date||'-'}</td>
+        <td><span class="ms-boss-badge">${s.boss||'-'}</span></td>
+        <td style="font-size:12px;color:var(--text-sub);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemNames}">${shortItems}</td>
+        <td style="text-align:right;white-space:nowrap;">${totalM.toLocaleString()}만</td>
+        <td style="text-align:right;white-space:nowrap;color:var(--text-sub);">${myAlloc}%</td>
+        <td style="text-align:right;white-space:nowrap;" class="ms-gold">${myM.toLocaleString()}만</td>
+      </tr>
+      <tr id="${detailId}" style="display:none;" class="ms-detail-row">
+        <td colspan="7">
+          <div class="ms-detail-inner">
+            <strong>아이템 목록</strong>
+            <div class="ms-item-list">${
+              (s.items||[]).filter(it=>it.name).map(it=>`
+                <span class="ms-item-chip">${it.name} (${it.method}) ${Math.round((it.revenue||0)/10000)}만</span>
+              `).join('')||'<span style="color:var(--text-sub)">-</span>'
+            }</div>
+            ${s.note?`<div style="margin-top:8px;color:var(--text-sub);">메모: ${s.note}</div>`:''}
+            <div style="margin-top:8px;display:flex;gap:16px;">
+              <span>참여 인원: <strong>${s.count||0}명</strong></span>
+              <span>1단위 수령: <strong style="color:#BA7517;">${Math.round((s.perGold||0)/10000)}만</strong></span>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    return monthLabel + dataRows;
+  }).join('');
+}
+
+function msToggleDetail(id){
+  const row = document.getElementById(`msDetail_${id}`);
+  const icon = document.getElementById(`msExp_${id}`);
+  if(!row) return;
+  const isOpen = row.style.display !== 'none';
+  row.style.display = isOpen ? 'none' : '';
+  if(icon) icon.textContent = isOpen ? 'expand_more' : 'expand_less';
+}
+
+function renderDashMySettlement(){
+  // 대시보드가 활성 상태이면 member 뷰 갱신
+  const activePage=document.querySelector('.page-section.active');
+  if(activePage&&activePage.id==='page-dashboard') renderDashMember();
+}
+
+// =============================================
 // 손님정산
 // =============================================
 let allGuestSettlements = [];
+
+function subscribeRaidApplications(){
+  db.collection('raidApplications').onSnapshot(s=>{
+    allRaidApplications=s.docs.map(d=>({id:d.id,...d.data()}));
+    // 대시보드가 활성이면 갱신
+    const activePage=document.querySelector('.page-section.active');
+    if(activePage&&activePage.id==='page-dashboard') renderDashboard();
+    // 공대원 관리 배지 업데이트
+    const pending=allRaidApplications.filter(a=>a.status==='대기');
+    const badge=document.getElementById('navBadgeApplicants');
+    if(badge) badge.textContent=pending.length||'';
+  });
+}
 
 function subscribeGuestSettlements(){
   db.collection('guestSettlements').orderBy('date','desc').onSnapshot(s=>{

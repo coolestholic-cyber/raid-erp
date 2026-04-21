@@ -700,6 +700,7 @@
   #settlementForm .st-field{border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--text);background:var(--card-bg);outline:none}
   #settlementForm .st-field:focus{border-color:#BA7517}
   #settlementForm .st-grid{display:grid;grid-template-columns:55fr 45fr;gap:16px}
+  #settlementForm .st-grid>.st-card{min-width:0}
   @media(max-width:960px){#settlementForm .st-grid{grid-template-columns:1fr}}
   #settlementForm .st-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
   #settlementForm table{min-width:480px}
@@ -1549,6 +1550,10 @@
           <button class="rf-chip on" data-rf="status" data-rv="전체" onclick="raidFilter('status','전체',this)">전체</button>
           <button class="rf-chip" data-rf="status" data-rv="모집중" onclick="raidFilter('status','모집중',this)">모집중만</button>
           <button class="rf-chip" data-rf="status" data-rv="마감임박" onclick="raidFilter('status','마감임박',this)">마감임박</button>
+        </div>
+        <div class="rf-filter-row">
+          <span class="rf-fl">검색</span>
+          <input type="text" id="rfSearch" placeholder="공대명 또는 공대장 이름..." oninput="rfShowCount=9;renderRaidList()" style="flex:1;min-width:100px;max-width:320px;padding:6px 14px;border:0.5px solid var(--border);border-radius:20px;font-size:13px;background:var(--card-bg);color:var(--text);outline:none;">
         </div>
       </div>
 
@@ -4113,6 +4118,8 @@ async function renderRaidList(){
   if(rfFilter.boss!=='전체') raids=raids.filter(r=>r.boss===rfFilter.boss);
   if(rfFilter.status==='모집중') raids=raids.filter(r=>r.status==='모집중');
   if(rfFilter.status==='마감임박') raids=raids.filter(r=>r.status==='진행중');
+  const rfSearchVal=(document.getElementById('rfSearch')?.value||'').toLowerCase().trim();
+  if(rfSearchVal) raids=raids.filter(r=>(r.name||'').toLowerCase().includes(rfSearchVal)||(r.ownerName||'').toLowerCase().includes(rfSearchVal));
 
   // 정렬
   const sort=document.getElementById('rfSort')?.value||'latest';
@@ -4143,10 +4150,16 @@ async function renderRaidList(){
   const pendingSnap=await db.collection('raidApplications').where('status','==','대기').get();
   const pendingCount={};
   pendingSnap.docs.forEach(d=>{const rid=d.data().raidId;pendingCount[rid]=(pendingCount[rid]||0)+1;});
-  // 승인 인원 수
-  const approvedSnap=await db.collection('raidApplications').where('status','==','승인').get();
+  // 승인 인원 수: allMembers 기준 (raidId 있으면 per-raid, 없으면 전체 참여 인원 레거시 폴백)
   const approvedCount={};
-  approvedSnap.docs.forEach(d=>{const rid=d.data().raidId;approvedCount[rid]=(approvedCount[rid]||0)+1;});
+  const membersWithRaid=allMembers.filter(m=>m.raidId&&m.status==='참여');
+  if(membersWithRaid.length>0){
+    membersWithRaid.forEach(m=>{approvedCount[m.raidId]=(approvedCount[m.raidId]||0)+1;});
+  } else {
+    // 레거시: raidId 없는 구 멤버 데이터 → 참여 인원 전체 수를 해당 공대에 표시
+    const legacyTotal=allMembers.filter(m=>m.status==='참여').length;
+    if(legacyTotal>0) raids.forEach(r=>{approvedCount[r.id]=legacyTotal;});
+  }
 
   const isMaster=currentProfile&&currentProfile.role==='master';
   const visible=raids.slice(0,rfShowCount);

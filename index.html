@@ -2903,14 +2903,18 @@ function renderMemberTable(){
       const sc=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
       const rt=m.rate||0,rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
       const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
-      const detailCols=canDetail?`
-      <td>${(m.level||0).toLocaleString()}</td>
-      <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
-      <td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
-      <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td>`:'';
-      return `<tr><td>${i+1}</td><td><strong>${m.name||''}</strong></td><td>${m.cls||''}</td>
-      <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
-      <td><span class="badge ${sc}">${m.status||''}</span></td>${detailCols}</tr>`;
+      let detailCols='';
+      if(canDetail){
+        const editBtn=canE?'<button class="btn btn-outline btn-sm" onclick="editMember(\''+m.id+'\')">수정</button>':'';
+        const delBtn=ce?'<button class="btn btn-danger btn-sm" onclick="deleteMember(\''+m.id+'\',\''+m.name+'\')">삭제</button>':'';
+        detailCols='<td>'+(m.level||0).toLocaleString()+'</td>'
+          +'<td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:'+rt+'%;background:'+rc+';"></div></div><span style="font-size:11px;">'+rt+'%</span></div></td>'
+          +'<td style="color:var(--text-sub);font-size:12px;">'+(m.note||'')+'</td>'
+          +'<td>'+editBtn+' '+delBtn+'</td>';
+      }
+      return '<tr><td>'+(i+1)+'</td><td><strong>'+(m.name||'')+'</strong></td><td>'+(m.cls||'')+'</td>'
+        +'<td><span class="badge '+(m.role==='서폿'?'badge-blue':'badge-green')+'">'+(m.role||'')+'</span></td>'
+        +'<td><span class="badge '+sc+'">'+(m.status||'')+'</span></td>'+detailCols+'</tr>';
     }).join('');
   }
   // 그리드 뷰 렌더
@@ -2932,19 +2936,23 @@ function renderMemberTable(){
         const roleColor=m.role==='서폿'?'#eff6ff':'#ecfdf5';
         const icon=JOB_ICON[m.cls]||'👤';
         const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
-        return `<div class="member-card">
-          <div class="mc-status-dot" style="background:${dotColor};" title="${m.status||''}"></div>
-          <div class="mc-icon" style="background:${roleColor};">${icon}</div>
-          <div class="mc-name" title="${m.name||''}">${m.name||''}</div>
-          <div class="mc-cls">${m.cls||'-'}</div>
-          ${canDetail?`<div class="mc-level">Lv.${(m.level||0).toLocaleString()}</div>
-          <div class="mc-rate-bar" style="width:90%;"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
-          <div style="font-size:10px;color:${rc};">${rt}%</div>`:''}
-          ${(canE||ce)&&canDetail?`<div class="mc-actions">
-            ${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')" style="padding:3px 8px;font-size:11px;">수정</button>`:''}
-            ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')" style="padding:3px 8px;font-size:11px;">삭제</button>`:''}
-          </div>`:''}
-        </div>`;
+        let cardDetail='';
+        if(canDetail){
+          cardDetail='<div class="mc-level">Lv.'+(m.level||0).toLocaleString()+'</div>'
+            +'<div class="mc-rate-bar" style="width:90%;"><div class="mc-rate-fill" style="width:'+rt+'%;background:'+rc+';"></div></div>'
+            +'<div style="font-size:10px;color:'+rc+';">'+rt+'%</div>';
+          if(canE||ce){
+            const eb=canE?'<button class="btn btn-outline btn-sm" onclick="editMember(\''+m.id+'\')" style="padding:3px 8px;font-size:11px;">수정</button>':'';
+            const db2=ce?'<button class="btn btn-danger btn-sm" onclick="deleteMember(\''+m.id+'\',\''+m.name+'\')" style="padding:3px 8px;font-size:11px;">삭제</button>':'';
+            cardDetail+='<div class="mc-actions">'+eb+db2+'</div>';
+          }
+        }
+        return '<div class="member-card">'
+          +'<div class="mc-status-dot" style="background:'+dotColor+';" title="'+(m.status||'')+'"></div>'
+          +'<div class="mc-icon" style="background:'+roleColor+';">'+icon+'</div>'
+          +'<div class="mc-name" title="'+(m.name||'')+'">'+(m.name||'')+'</div>'
+          +'<div class="mc-cls">'+(m.cls||'-')+'</div>'
+          +cardDetail+'</div>';
       }).join('');
     }
   }

@@ -957,9 +957,13 @@
 
       <div class="nav-section" style="margin-top:4px;">도구</div>
 
-      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="오늘의 보스">
-        <span class="nav-icon"><span class="material-icons">sports_kabaddi</span></span>
+      <div class="nav-item" data-page="todayboss" onclick="showPage('todayboss',this)" title="오늘의 보스">
+        <span class="nav-icon"><span class="material-icons">today</span></span>
         <span class="nav-label">오늘의 보스</span>
+      </div>
+      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
+        <span class="nav-icon"><span class="material-icons">timer</span></span>
+        <span class="nav-label">타이머</span>
       </div>
 
       <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
@@ -996,9 +1000,13 @@
         <span class="nav-label">공대 목록</span>
       </div>
 
-      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="오늘의 보스">
-        <span class="nav-icon"><span class="material-icons">sports_kabaddi</span></span>
+      <div class="nav-item" data-page="todayboss" onclick="showPage('todayboss',this)" title="오늘의 보스">
+        <span class="nav-icon"><span class="material-icons">today</span></span>
         <span class="nav-label">오늘의 보스</span>
+      </div>
+      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
+        <span class="nav-icon"><span class="material-icons">timer</span></span>
+        <span class="nav-label">타이머</span>
       </div>
 
       <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
@@ -1544,6 +1552,16 @@
         </div>
         <div id="itemPageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:600px;overflow-y:auto;padding:4px 0;"></div>
         <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap;" id="itemPager"></div>
+      </div>
+    </div>
+
+    <!-- 오늘의 보스 -->
+    <div id="page-todayboss" class="page-section">
+      <div class="top-bar">
+        <div><h1 class="page-title">오늘의 보스</h1><p class="page-desc">보스 입장 현황을 관리합니다</p></div>
+      </div>
+      <div class="panel" style="max-width:560px;">
+        <div class="boss-list" id="todayBossList"></div>
       </div>
     </div>
 
@@ -2424,10 +2442,11 @@ async function bossResetTimer(name) {
 // 보스 리스트 단독 렌더 (dashboard 전체 재렌더 없이)
 function renderBossList() {
   const blEl = document.getElementById('dashBossList');
+  const tbEl = document.getElementById('todayBossList');
   const timerData = getBossTimers();
   const nowMs = Date.now();
 
-  if (blEl) blEl.innerHTML = BOSS_SCHEDULE.map(b => {
+  const html = BOSS_SCHEDULE.map(b => {
     const clearMs = timerData[b.name];
     const cooldownMs = b.cooldownHours * 3600000;
     const isEditing = _bossEditing === b.name;
@@ -2509,6 +2528,8 @@ function renderBossList() {
       </div>
     </div>`;
   }).join('');
+  if (blEl) blEl.innerHTML = html;
+  if (tbEl) tbEl.innerHTML = html;
 }
 
 function renderDashboard() {
@@ -3103,18 +3124,18 @@ async function saveGuildPromo(){
 // Navigation
 // =============================================
 const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestlist:'공대관리 / 내 공대 관리 / 손님 신청목록',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
-const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestlist:'손님 신청목록',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
+const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestlist:'손님 신청목록',purchase:'판매내역',gold:'분배내역',users:'권한 관리',todayboss:'오늘의 보스','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
 
 // 탭바 페이지 매핑
 // 공대원 탭바 매핑: pageId → tab id suffix
 const tabMapMember = {
   dashboard:'home', mychar:'mychar', myraids:'mychar', equip:'mychar',
-  mysettlement:'settlement', raids:'raids', 'horntail-timer':null, items:null
+  mysettlement:'settlement', raids:'raids', todayboss:null, 'horntail-timer':null, items:null
 };
 // 공대장 탭바 매핑: pageId → tab id suffix
 const tabMapLeader = {
   dashboard:'home', settlement:'settlement',
-  guestlist:'settlement', members:'members', raids:'raids', 'horntail-timer':null, items:null
+  guestlist:'settlement', members:'members', raids:'raids', todayboss:null, 'horntail-timer':null, items:null
 };
 
 function updateTabBar(id) {
@@ -3166,6 +3187,7 @@ function showPage(id,el){
   if(id==='myraids')renderMyRaids();
   if(id==='settlement'){renderSettlementHistory();}
   if(id==='guestlist'){renderGuestList();}
+  if(id==='todayboss'){renderBossList();}
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){loadLoginLogs();}

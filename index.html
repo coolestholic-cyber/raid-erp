@@ -527,6 +527,14 @@
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sub); }
+
+  /* Boss 추가 모달 리셋 타입 버튼 */
+  .reset-type-btn { flex:1; padding:9px 10px; border:1.5px solid var(--border); border-radius:8px; background:var(--card-bg); color:var(--text-sub); font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
+  .reset-type-btn.active { border-color:var(--accent); background:rgba(11,92,213,.08); color:var(--accent); }
+  .reset-type-btn:hover:not(.active) { border-color:var(--accent); color:var(--accent); }
+  .reset-preset-btn { padding:8px 14px; border:1.5px solid var(--border); border-radius:20px; background:var(--card-bg); color:var(--text-sub); font-size:13px; cursor:pointer; transition:all .15s; }
+  .reset-preset-btn.active { border-color:var(--accent); background:var(--accent); color:#fff; font-weight:600; }
+  .reset-preset-btn:hover:not(.active) { border-color:var(--accent); color:var(--accent); }
   .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
   .empty-state h3 { font-size: 18px; margin-bottom: 4px; color: var(--text); }
   .empty-state p { font-size: 15px; }
@@ -1641,7 +1649,7 @@
 
     <!-- 보스 추가 모달 -->
     <div class="modal-overlay" id="addBossModal">
-      <div class="modal" style="max-width:400px;">
+      <div class="modal" style="max-width:440px;">
         <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
           <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚔️</span>
           보스 추가 등록
@@ -1650,19 +1658,38 @@
           <label>보스 이름 *</label>
           <input type="text" id="abName" class="form-control" placeholder="예) 발록">
         </div>
-        <div class="form-group">
-          <label>아이콘 (이모지)</label>
-          <input type="text" id="abIcon" class="form-control" placeholder="예) 🔥" maxlength="2" style="font-size:20px;width:70px;">
-        </div>
+        <!-- 아이콘 input: 추후 자동매칭 확장 대비로 hidden 유지 -->
+        <input type="hidden" id="abIcon" value="⭐">
         <div class="form-group">
           <label>리셋 주기</label>
-          <div style="display:flex;gap:8px;margin-top:6px;">
-            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;" id="abReset24lbl">
-              <input type="radio" name="abReset" value="24" id="abReset24" onchange="abUpdateReset()" checked> 24시간
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;" id="abReset168lbl">
-              <input type="radio" name="abReset" value="168" id="abReset168" onchange="abUpdateReset()"> 7일
-            </label>
+          <div style="display:flex;gap:6px;margin-top:6px;margin-bottom:10px;">
+            <button type="button" class="reset-type-btn active" data-type="fixed" onclick="selectResetType('fixed')">정기 리셋</button>
+            <button type="button" class="reset-type-btn" data-type="random" onclick="selectResetType('random')">랜덤 젠</button>
+            <button type="button" class="reset-type-btn" data-type="custom" onclick="selectResetType('custom')">직접 입력</button>
+          </div>
+          <div id="resetTypeFixed" class="reset-type-panel">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button type="button" class="reset-preset-btn active" data-hours="24" onclick="selectResetPreset(24)">24시간</button>
+              <button type="button" class="reset-preset-btn" data-hours="168" onclick="selectResetPreset(168)">7일</button>
+              <button type="button" class="reset-preset-btn" data-hours="12" onclick="selectResetPreset(12)">12시간</button>
+              <button type="button" class="reset-preset-btn" data-hours="6" onclick="selectResetPreset(6)">6시간</button>
+            </div>
+          </div>
+          <div id="resetTypeRandom" class="reset-type-panel" style="display:none;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="font-size:13px;color:var(--text-sub);">최소</span>
+              <input type="number" id="abResetMin" min="1" max="168" placeholder="2" style="width:70px;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;">
+              <span style="font-size:13px;color:var(--text-sub);">시간 ~</span>
+              <span style="font-size:13px;color:var(--text-sub);">최대</span>
+              <input type="number" id="abResetMax" min="1" max="168" placeholder="6" style="width:70px;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;">
+              <span style="font-size:13px;color:var(--text-sub);">시간</span>
+            </div>
+          </div>
+          <div id="resetTypeCustom" class="reset-type-panel" style="display:none;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="number" id="abResetCustom" min="1" max="720" placeholder="24" style="width:100px;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:14px;">
+              <span style="font-size:13px;color:var(--text-sub);">시간</span>
+            </div>
           </div>
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:24px;">
@@ -2607,26 +2634,51 @@ async function loadCustomBosses(){
 }
 function getAllBosses(){ return [...BOSS_SCHEDULE,..._customBosses]; }
 
+let _currentResetType='fixed';
+let _currentResetHours=24;
+function selectResetType(type){
+  _currentResetType=type;
+  document.querySelectorAll('.reset-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===type));
+  document.getElementById('resetTypeFixed').style.display=type==='fixed'?'':'none';
+  document.getElementById('resetTypeRandom').style.display=type==='random'?'':'none';
+  document.getElementById('resetTypeCustom').style.display=type==='custom'?'':'none';
+}
+function selectResetPreset(hours){
+  _currentResetHours=hours;
+  document.querySelectorAll('.reset-preset-btn').forEach(b=>b.classList.toggle('active',parseInt(b.dataset.hours)===hours));
+}
 function openAddBossModal(){
   document.getElementById('abName').value='';
-  document.getElementById('abIcon').value='';
-  document.getElementById('abReset24').checked=true;
-  abUpdateReset();
+  document.getElementById('abResetMin').value='';
+  document.getElementById('abResetMax').value='';
+  document.getElementById('abResetCustom').value='';
+  _currentResetType='fixed';
+  _currentResetHours=24;
+  selectResetType('fixed');
+  selectResetPreset(24);
   document.getElementById('addBossModal').classList.add('show');
 }
 function closeAddBossModal(){ document.getElementById('addBossModal').classList.remove('show'); }
-function abUpdateReset(){
-  const is24=document.getElementById('abReset24').checked;
-  document.getElementById('abReset24lbl').style.borderColor=is24?'var(--accent)':'var(--border)';
-  document.getElementById('abReset168lbl').style.borderColor=!is24?'var(--accent)':'var(--border)';
-}
 async function saveCustomBoss(){
   const name=document.getElementById('abName').value.trim();
   if(!name){alert('보스 이름을 입력하세요.');return;}
-  const icon=document.getElementById('abIcon').value.trim()||'⭐';
-  const hours=parseInt(document.getElementById('abReset24').checked?'24':'168');
-  const reset=hours===24?'24시간':'7일';
-  const resetBadge=hours===24?'badge-red':'badge-blue';
+  const icon='⭐';
+  let hours,reset,resetBadge;
+  if(_currentResetType==='fixed'){
+    hours=_currentResetHours;
+    if(hours<=24){reset='24시간';resetBadge='badge-red';}
+    else if(hours<=48){reset='48시간';resetBadge='badge-red';}
+    else{reset=Math.round(hours/24)+'일';resetBadge='badge-blue';}
+  } else if(_currentResetType==='random'){
+    const mn=parseInt(document.getElementById('abResetMin').value)||1;
+    const mx=parseInt(document.getElementById('abResetMax').value)||24;
+    hours=Math.round((mn+mx)/2);
+    reset=mn+'~'+mx+'시간';resetBadge='badge-yellow';
+  } else {
+    hours=parseInt(document.getElementById('abResetCustom').value)||24;
+    if(hours<=24){reset='24시간';resetBadge='badge-red';}
+    else{reset=Math.round(hours/24)+'일';resetBadge='badge-blue';}
+  }
   const color=AB_COLORS[_customBosses.length%AB_COLORS.length];
   _customBosses.push({name,icon,color,cooldownHours:hours,reset,resetBadge,days:[0,1,2,3,4,5,6],custom:true});
   if(currentUser){

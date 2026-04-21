@@ -1230,11 +1230,14 @@
       <div class="top-bar">
         <div><h1 class="page-title">캐릭터 정보</h1><p class="page-desc">내 캐릭터 기본 정보를 관리합니다</p></div>
       </div>
-      <!-- 3카드 그리드 -->
+      <!-- 6카드 그리드 (3열 2행) -->
       <div id="myCharsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-bottom:24px;">
         <div class="panel" id="myCharCard0" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
         <div class="panel" id="myCharCard1" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
         <div class="panel" id="myCharCard2" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard3" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard4" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard5" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
       </div>
     </div>
 
@@ -2213,7 +2216,7 @@ function updateLoginUI(){
     updateSidebarMenuSet();
     const btnCreate=document.getElementById('btnCreateRaid');if(btnCreate)btnCreate.style.display='none';
     // 로그아웃 상태면 캐릭터 카드 초기화
-    window._myCharsData=[null,null,null];
+    window._myCharsData=[null,null,null,null,null,null];
     mcRenderAllCards();
   }
 }
@@ -2240,7 +2243,7 @@ document.addEventListener('click',function(e){
 });
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();window._myCharsData=[null,null,null];mcRenderAllCards();return;}
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();window._myCharsData=[null,null,null,null,null,null];mcRenderAllCards();return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -3238,7 +3241,7 @@ function exportMembers(){
 // =============================================
 // 내 캐릭터 정보
 // =============================================
-window._myCharsData=[null,null,null];
+window._myCharsData=[null,null,null,null,null,null];
 
 function openMyCharModal(slot){
   const s=slot||0;
@@ -3295,7 +3298,7 @@ function mcLoadFormFromSlot(slot){
 function mcRenderSlot(slot, d){
   const card=document.getElementById('myCharCard'+slot);
   if(!card)return;
-  const slotLabel=['1번 캐릭터','2번 캐릭터','3번 캐릭터'][slot]||`캐릭터 ${slot+1}`;
+  const slotLabel=['1번 캐릭터','2번 캐릭터','3번 캐릭터','4번 캐릭터','5번 캐릭터','6번 캐릭터'][slot]||`캐릭터 ${slot+1}`;
   if(!d){
     card.innerHTML=`
       <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
@@ -3339,12 +3342,12 @@ function mcRenderSlot(slot, d){
     </div>`;
 }
 function mcRenderAllCards(){
-  const data=window._myCharsData||[null,null,null];
-  for(let i=0;i<3;i++)mcRenderSlot(i,data[i]||null);
+  const data=window._myCharsData||[null,null,null,null,null,null];
+  for(let i=0;i<6;i++)mcRenderSlot(i,data[i]||null);
 }
 async function mcDeleteSlot(slot){
   if(!confirm(`${slot+1}번 캐릭터를 삭제할까요?`))return;
-  const arr=window._myCharsData||[null,null,null];
+  const arr=window._myCharsData||[null,null,null,null,null,null];
   arr[slot]=null;
   window._myCharsData=[...arr];
   if(currentUser){
@@ -3362,7 +3365,7 @@ async function mcSave(){
   if(!currentUser){discordLogin();return;}
   if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
   const d={cls,name,level,role,skillAtk};
-  const arr=window._myCharsData||[null,null,null];
+  const arr=window._myCharsData||[null,null,null,null,null,null];
   arr[slot]=d;
   window._myCharsData=[...arr];
   await db.collection('users').doc(currentUser.uid).set({myChars:window._myCharsData},{merge:true});
@@ -3370,21 +3373,21 @@ async function mcSave(){
   closeMyCharModal();
 }
 async function mcLoadMyChar(){
-  let arr=[null,null,null];
+  let arr=[null,null,null,null,null,null];
   if(currentUser){
     const snap=await db.collection('users').doc(currentUser.uid).get();
     if(snap.exists){
       const data=snap.data();
       if(data.myChars&&Array.isArray(data.myChars)){
         arr=data.myChars.map(x=>x||null);
-        while(arr.length<3)arr.push(null);
+        while(arr.length<6)arr.push(null);
       } else if(data.myChar){
-        arr=[data.myChar,null,null];
+        arr=[data.myChar,null,null,null,null,null];
       }
     }
   } else {
     const raw=localStorage.getItem('myChar_anon');
-    if(raw){try{const p=JSON.parse(raw);arr=Array.isArray(p)?p:[p,null,null];}catch(e){}}
+    if(raw){try{const p=JSON.parse(raw);arr=Array.isArray(p)?p:[p,null,null,null,null,null];}catch(e){}}
   }
   window._myCharsData=arr;
   mcRenderAllCards();

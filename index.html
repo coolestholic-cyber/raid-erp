@@ -5,9 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>메랜ERP</title>
 <link rel="icon" type="image/x-icon" href="MapleERP.ico">
-<link rel="icon" type="image/png" href="MapleERP.png">
+<link rel="icon" type="image/png" sizes="128x128" href="MapleERP.png">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="apple-touch-icon" href="MapleERP.png">
+<link rel="apple-touch-icon" sizes="128x128" href="MapleERP.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b5cd5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="메랜ERP">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script>(function(){ document.documentElement.setAttribute('data-theme', localStorage.getItem('erp-theme')||'light'); })();</script>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -88,6 +94,7 @@
   /* 검색 입력 / 셀렉트 */
   [data-theme="dark"] .search-input { background: var(--surface); color: var(--text); }
   [data-theme="dark"] select.filter-select { background: var(--surface); color: var(--text); }
+  [data-theme="dark"] select { background: var(--surface); color: var(--text); color-scheme: dark; }
   [data-theme="dark"] .boss-edit-field-input { background: var(--surface); color: var(--text); border-color: var(--border); }
   [data-theme="dark"] .boss-edit-cancel { background: var(--surface); color: var(--text-sub); border-color: var(--border); }
   [data-theme="dark"] .autocomplete-list { background: var(--surface); border-color: var(--border); }
@@ -452,7 +459,6 @@
   .member-card .mc-name { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .member-card .mc-cls { font-size: 11px; color: var(--text-sub); }
   .member-card .mc-level { font-size: 11px; color: var(--text-sub); }
-  .member-card .mc-gold { font-size: 12px; font-weight: 600; color: #d97706; }
   .member-card .mc-rate-bar { width: 100%; height: 4px; background: #f3f4f6; border-radius: 2px; overflow: hidden; }
   .member-card .mc-rate-fill { height: 100%; border-radius: 2px; }
   .member-card .mc-actions { display: flex; gap: 4px; margin-top: 4px; }
@@ -1685,7 +1691,7 @@
         </div>
         <div id="memberTableWrap" class="table-wrap">
           <table><thead><tr>
-            <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>아이템 레벨</th><th>주급 골드</th><th>참여율</th><th>상태</th><th>비고</th><th>관리</th>
+            <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>상태</th>
           </tr></thead><tbody id="memberTableBody"></tbody></table>
         </div>
         <div id="memberGridWrap" style="display:none;">
@@ -2057,7 +2063,7 @@
         <button type="button" id="tab-궁수"   class="class-tab" onclick="selectClassTab('궁수')">🏹 궁수</button>
         <button type="button" id="tab-도적"   class="class-tab" onclick="selectClassTab('도적')">🗡️ 도적</button>
       </div>
-      <select id="classCombo" onchange="onClassComboChange()" style="display:none;margin-top:8px;width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#fff;color:var(--text);cursor:pointer;">
+      <select id="classCombo" onchange="onClassComboChange()" style="display:none;margin-top:8px;width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--text);cursor:pointer;">
         <option value="">직업 선택...</option>
       </select>
       <input type="hidden" id="fClass" value="">
@@ -2079,7 +2085,6 @@
     </div>
     <div class="form-row">
       <div class="form-group"><label>레벨</label><input type="number" id="fLevel" placeholder="200"></div>
-      <div class="form-group"><label>주급 골드 (만)</label><input type="number" id="fGold" placeholder="150"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>상태</label>
@@ -2886,17 +2891,26 @@ function renderMemberTable(){
   const s=(document.getElementById('memberSearch')?.value||'').toLowerCase(),rF=document.getElementById('memberRoleFilter')?.value||'',sF=document.getElementById('memberStatusFilter')?.value||'';
   let f=allMembers.filter(m=>{if(s&&!m.name.toLowerCase().includes(s)&&!(m.cls||'').toLowerCase().includes(s))return false;if(rF&&m.role!==rF)return false;if(sF&&m.status!==sF)return false;return true;});
   const ce=canManageMembers(),tb=document.getElementById('memberTableBody');
+  const canDetail=['leader','master'].includes(currentProfile?.role);
+  // 헤더 동적 업데이트
+  const thead=tb?.closest('table')?.querySelector('thead tr');
+  if(thead){
+    thead.innerHTML=`<th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>상태</th>`
+      +(canDetail?`<th>아이템 레벨</th><th>참여율</th><th>비고</th><th>관리</th>`:'');
+  }
   if(tb){
     tb.innerHTML=f.map((m,i)=>{
       const sc=m.status==='참여'?'badge-green':m.status==='미정'?'badge-yellow':'badge-red';
       const rt=m.rate||0,rc=rt>=90?'#059669':rt>=70?'#d97706':'#dc2626';
       const mine=m.ownerUid===(currentUser&&currentUser.uid),canE=ce||(canEditSelf()&&mine);
+      const detailCols=canDetail?`
+      <td>${(m.level||0).toLocaleString()}</td>
+      <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
+      <td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
+      <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td>`:'';
       return `<tr><td>${i+1}</td><td><strong>${m.name||''}</strong></td><td>${m.cls||''}</td>
       <td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role||''}</span></td>
-      <td>${(m.level||0).toLocaleString()}</td><td>${m.gold||0}만</td>
-      <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${rt}%;background:${rc};"></div></div><span style="font-size:11px;">${rt}%</span></div></td>
-      <td><span class="badge ${sc}">${m.status||''}</span></td><td style="color:var(--text-sub);font-size:12px;">${m.note||''}</td>
-      <td>${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')">수정</button>`:''} ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')">삭제</button>`:''}</td></tr>`;
+      <td><span class="badge ${sc}">${m.status||''}</span></td>${detailCols}</tr>`;
     }).join('');
   }
   // 그리드 뷰 렌더
@@ -2923,11 +2937,10 @@ function renderMemberTable(){
           <div class="mc-icon" style="background:${roleColor};">${icon}</div>
           <div class="mc-name" title="${m.name||''}">${m.name||''}</div>
           <div class="mc-cls">${m.cls||'-'}</div>
-          <div class="mc-level">Lv.${(m.level||0).toLocaleString()}</div>
-          <div class="mc-gold">💰 ${m.gold||0}만</div>
+          ${canDetail?`<div class="mc-level">Lv.${(m.level||0).toLocaleString()}</div>
           <div class="mc-rate-bar" style="width:90%;"><div class="mc-rate-fill" style="width:${rt}%;background:${rc};"></div></div>
-          <div style="font-size:10px;color:${rc};">${rt}%</div>
-          ${canE||ce?`<div class="mc-actions">
+          <div style="font-size:10px;color:${rc};">${rt}%</div>`:''}
+          ${(canE||ce)&&canDetail?`<div class="mc-actions">
             ${canE?`<button class="btn btn-outline btn-sm" onclick="editMember('${m.id}')" style="padding:3px 8px;font-size:11px;">수정</button>`:''}
             ${ce?`<button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}','${m.name}')" style="padding:3px 8px;font-size:11px;">삭제</button>`:''}
           </div>`:''}
@@ -2993,13 +3006,14 @@ function selectClass(name,type){
 }
 
 function selectRole(role){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   document.getElementById('fRole').value=role;
   const d=document.getElementById('roleDealer'),s=document.getElementById('roleSupport');
   d.style.borderColor=role==='딜러'?'var(--accent)':'var(--border)';
-  d.style.background=role==='딜러'?'var(--accent-light)':'#fff';
+  d.style.background=role==='딜러'?'var(--accent-light)':'var(--surface)';
   d.style.color=role==='딜러'?'var(--accent)':'var(--text-sub)';
   s.style.borderColor=role==='서폿'?'#059669':'var(--border)';
-  s.style.background=role==='서폿'?'#ecfdf5':'#fff';
+  s.style.background=role==='서폿'?(isDark?'#052e1c':'#ecfdf5'):'var(--surface)';
   s.style.color=role==='서폿'?'#059669':'var(--text-sub)';
 }
 
@@ -3017,13 +3031,13 @@ function openMemberModal(id){
   titleEl.innerHTML=id?'<span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">✏️</span> 공대원 수정':'<span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">👥</span> 공대원 등록';
   if(id){
     const m=allMembers.find(x=>x.id===id);
-    if(m){document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fGold').value=m.gold||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';
+    if(m){document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';
       renderClassGrid(m.cls);selectRole(m.role||'딜러');
       // 상태 버튼 복원
       document.querySelectorAll('.status-btn').forEach(b=>{if(b.textContent===m.status){selectStatus(m.status,b);}});
     }
   }else{
-    ['fName','fLevel','fGold','fNote'].forEach(x=>document.getElementById(x).value='');
+    ['fName','fLevel','fNote'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('fClass').value='';document.getElementById('fRole').value='딜러';document.getElementById('fStatus').value='참여';
     renderClassGrid('');selectRole('딜러');
   }
@@ -3033,7 +3047,7 @@ function closeMemberModal(){document.getElementById('memberModal').classList.rem
 function editMember(id){openMemberModal(id);}
 async function saveMember(){
   const id=document.getElementById('fEditId').value;
-  const d={name:document.getElementById('fName').value.trim(),cls:document.getElementById('fClass').value,role:document.getElementById('fRole').value,level:parseInt(document.getElementById('fLevel').value)||0,gold:parseInt(document.getElementById('fGold').value)||0,status:document.getElementById('fStatus').value,note:document.getElementById('fNote').value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  const d={name:document.getElementById('fName').value.trim(),cls:document.getElementById('fClass').value,role:document.getElementById('fRole').value,level:parseInt(document.getElementById('fLevel').value)||0,status:document.getElementById('fStatus').value,note:document.getElementById('fNote').value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   if(!d.name||!d.cls){alert('캐릭터명과 직업을 입력하세요.');return;}
   if(id){await db.collection('members').doc(id).update(d);}else{d.rate=100;d.ownerUid=currentUser?currentUser.uid:'anon';d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('members').add(d);}
   closeMemberModal();

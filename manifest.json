@@ -1,0 +1,18 @@
+{
+  "name": "메랜ERP",
+  "short_name": "메랜ERP",
+  "description": "메이플랜드 공대 관리 ERP",
+  "start_url": "/raid-erp/",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0b5cd5",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "MapleERP.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

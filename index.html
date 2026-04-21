@@ -1524,6 +1524,8 @@
           <div class="rf-subtitle">참여할 공대를 찾고 신청하세요</div>
         </div>
         <button class="btn btn-primary" id="btnCreateRaid" onclick="toggleRaidForm()" style="display:none;">+ 공대 등록</button>
+        <!-- 공대원/손님용 공대장 신청 버튼 -->
+        <button class="btn btn-primary" id="btnApplyLeaderInRaids" onclick="openLeaderAppModal()" style="display:none;background:#7c3aed;border-color:#7c3aed;">⭐ 공대장 신청</button>
       </div>
 
       <!-- 필터 패널 -->
@@ -5116,15 +5118,16 @@ function updateLeaderAppBadge(){
 // member/guest만 공대장 신청 버튼 노출
 function updateApplyLeaderButton(){
   const wrap = document.getElementById('navApplyLeaderWrap');
+  const inPage = document.getElementById('btnApplyLeaderInRaids');
   console.log('[LeaderApplyBtn]', {
     wrap: !!wrap,
     role: currentProfile?.role,
     view: currentSidebarView
   });
-  if(!wrap) return;
   const role = currentProfile?.role;
   const canApply = ['member','guest'].includes(role);
-  wrap.style.display = canApply ? '' : 'none';
+  if(wrap) wrap.style.display = canApply ? '' : 'none';
+  if(inPage) inPage.style.display = canApply ? '' : 'none';
 }
 
 // 신청 가능 여부 확인 (프론트 검증)

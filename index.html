@@ -3294,8 +3294,8 @@ async function deletePurchase(id){if(confirm('삭제?'))await db.collection('pur
 function subscribeUsers(){
   db.collection('users').orderBy('createdAt').onSnapshot(s=>{
     allUsers=s.docs.map(d=>({id:d.id,...d.data()}));
-    renderUserTable();
-  });
+    if(document.getElementById('page-users')?.classList.contains('active')) renderUserTable();
+  }, e=>{console.error('[subscribeUsers]',e);});
 }
 let userPageNo=0;
 function userGoPage(p){userPageNo=p;renderUserTable();}
@@ -3305,6 +3305,8 @@ function renderUserTable(){
   const deduped=allUsers.filter(u=>{const key=u.discordId||u.id;if(seen.has(key))return false;seen.add(key);return true;});
   let f=deduped.filter(u=>{if(s&&!(u.name||'').toLowerCase().includes(s)&&!(u.email||'').toLowerCase().includes(s))return false;if(rF&&u.role!==rF)return false;return true;});
   const tb=document.getElementById('userTableBody');if(!tb)return;
+  const ucBadge=document.getElementById('userCountBadge');
+  if(ucBadge)ucBadge.textContent='총 '+f.length+'명';
   const PAGE=10;
   const totalPages=Math.ceil(f.length/PAGE)||1;
   if(userPageNo>=totalPages)userPageNo=totalPages-1;
@@ -3505,7 +3507,22 @@ function showPage(id,el){
   if(id==='todayboss'){renderBossList();}
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
-  if(id==='users'){loadLoginLogs();switchUsersTab('users');}
+  if(id==='users'){
+    try{
+      const pU=document.getElementById('usersPanel-users');
+      const pL=document.getElementById('usersPanel-leaderapps');
+      if(pU)pU.style.display='';
+      if(pL)pL.style.display='none';
+      const bU=document.getElementById('usersTab-users');
+      const bL=document.getElementById('usersTab-leaderapps');
+      if(bU){bU.classList.add('active');}
+      if(bL){bL.classList.remove('active');}
+      const adminTools=document.getElementById('adminToolsPanel');
+      if(adminTools)adminTools.style.display=isAdmin(currentProfile)?'':'none';
+      renderUserTable();
+      loadLoginLogs();
+    }catch(e){console.error('[권한관리 페이지 오류]',e);}
+  }
   if(id==='mysettlement'){loadMySettlements();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}

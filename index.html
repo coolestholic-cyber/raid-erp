@@ -1025,6 +1025,12 @@
         <span class="nav-icon"><span class="material-icons">inventory_2</span></span>
         <span class="nav-label">아이템 DB</span>
       </div>
+      <!-- 권한 관리: 마스터일 때만 표시 (member 뷰에서도 접근 가능하도록) -->
+      <div class="nav-section" id="navSectionMemberSettings" style="display:none;margin-top:4px;">설정</div>
+      <a class="nav-item" data-page="users" onclick="showPage('users',this)" id="navUsersMember" style="display:none;" title="권한 관리">
+        <span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span>
+        <span class="nav-label">권한 관리</span>
+      </a>
       <!-- 공대장 신청 버튼: member/guest만 JS로 렌더링 -->
       <div id="navApplyLeaderWrap" class="nav-item-apply" style="display:none;">
         <button class="btn-apply-leader" onclick="openLeaderAppModal()">
@@ -1687,11 +1693,17 @@
         <div><h1 class="page-title">공대원 목록</h1><p class="page-desc">공대원 정보를 등록하고 관리합니다</p></div>
         <div style="display:flex;gap:8px;align-items:center;">
           <button class="btn btn-outline" onclick="exportMembers()" style="display:flex;align-items:center;gap:6px;">📥 내보내기</button>
-          <button class="btn btn-primary" id="btnAddMember" onclick="openMemberModal()" style="display:flex;align-items:center;gap:8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
-            공대원 등록
+          <button class="btn btn-outline" id="btnAddMember" onclick="openMemberModal()" style="display:none;align-items:center;gap:8px;font-size:12px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+            [관리용] 수동 등록
           </button>
         </div>
+      </div>
+      <div class="alert alert-info" id="memberGuideBanner" style="display:none;margin-bottom:16px;">
+        <span>💡</span>
+        <span><strong>공대원 추가 방법이 변경됐어요!</strong><br>
+        공대원은 "공대 찾기" 페이지에서 가입 신청 후 공대장이 승인하는 방식으로 등록됩니다.
+        이 방법으로 등록된 공대원만 정산 내역을 정상적으로 확인할 수 있어요.</span>
       </div>
 
       <!-- 요약 카드 -->
@@ -2088,6 +2100,22 @@
           </div>
         </div>
       </div><!-- /usersPanel-leaderapps -->
+
+      <!-- 관리 도구 (사이트마스터 전용) -->
+      <div class="panel" id="adminToolsPanel" style="display:none;margin-top:16px;">
+        <div class="panel-header" style="margin-bottom:12px;">
+          <h2 style="font-size:15px;">🛠️ 관리 도구</h2>
+        </div>
+        <div class="alert" style="background:#fffbeb;border-color:#fde68a;margin-bottom:12px;">
+          <span>⚠️</span>
+          <span>이 작업들은 데이터베이스를 직접 수정합니다. 실행 전 백업을 권장합니다.</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+          <button class="btn btn-outline" onclick="dryRunMigrateMembers()">🔍 마이그레이션 미리보기 (dry run)</button>
+          <button class="btn btn-danger" onclick="migrateMembersToUid()">⚡ 기존 공대원 데이터 마이그레이션 실행</button>
+        </div>
+        <div id="migrationLog" style="font-size:12px;color:var(--text-sub);max-height:200px;overflow-y:auto;font-family:monospace;background:var(--surface-alt);border-radius:8px;padding:10px;"></div>
+      </div>
     </div>
 
   </div><!-- .main -->
@@ -2397,7 +2425,10 @@ function updateLoginUI(){
   document.getElementById('loginArea').style.display=ok?'none':'';
   document.getElementById('userArea').style.display=ok?'':'none';
   const ba=document.getElementById('btnAddMember'),bg=document.getElementById('btnCreateGuild');
-  if(ba)ba.style.display=canManageMembers()?'flex':'none';
+  if(ba)ba.style.display=(currentProfile?.role==='master')?'flex':'none';
+  // 안내 배너: 마스터 외에게만 표시
+  const gb=document.getElementById('memberGuideBanner');
+  if(gb)gb.style.display=(currentProfile&&currentProfile.role!=='master')?'':'none';
   if(bg)bg.style.display=ok?'':'none';
   if(ok){
     const photoSrc=currentProfile.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
@@ -3073,7 +3104,8 @@ function renderMemberTable(){
           +'<td style="color:var(--text-sub);font-size:12px;">'+(m.note||'')+'</td>'
           +'<td>'+editBtn+' '+delBtn+'</td>';
       }
-      return '<tr><td>'+(i+1)+'</td><td><strong>'+(m.name||'')+'</strong></td><td>'+(m.cls||'')+'</td>'
+      const unlinkBadge=!m.uid?'<span class="badge badge-yellow" style="font-size:10px;margin-left:5px;padding:2px 5px;" title="로그인 계정 미연결 — 본인 정산 조회 불가">⚠️ 미연결</span>':'';
+      return '<tr><td>'+(i+1)+'</td><td><strong>'+(m.name||'')+'</strong>'+unlinkBadge+'</td><td>'+(m.cls||'')+'</td>'
         +'<td><span class="badge '+(m.role==='서폿'?'badge-blue':'badge-green')+'">'+(m.role||'')+'</span></td>'
         +'<td><span class="badge '+sc+'">'+(m.status||'')+'</span></td>'+detailCols+'</tr>';
     }).join('');
@@ -3108,12 +3140,13 @@ function renderMemberTable(){
             cardDetail+='<div class="mc-actions">'+eb+db2+'</div>';
           }
         }
+        const cardUnlink=!m.uid?'<div style="font-size:10px;color:#d97706;margin-top:2px;" title="로그인 계정 미연결 — 본인 정산 조회 불가">⚠️ 미연결</div>':'';
         return '<div class="member-card">'
           +'<div class="mc-status-dot" style="background:'+dotColor+';" title="'+(m.status||'')+'"></div>'
           +'<div class="mc-icon" style="background:'+roleColor+';">'+icon+'</div>'
           +'<div class="mc-name" title="'+(m.name||'')+'">'+(m.name||'')+'</div>'
           +'<div class="mc-cls">'+(m.cls||'-')+'</div>'
-          +cardDetail+'</div>';
+          +cardUnlink+cardDetail+'</div>';
       }).join('');
     }
   }
@@ -3790,8 +3823,14 @@ function updateSidebarProfileArea(){
       avWrap.innerHTML = '<span class="material-icons">person</span>';
     }
   }
-  // navUsers 표시
-  document.getElementById('navUsers').style.display = canManageUsers() ? '' : 'none';
+  // navUsers 표시 (leader 뷰 + member 뷰 양쪽)
+  const canUsers = canManageUsers();
+  const navUsersL = document.getElementById('navUsers');
+  const navUsersM = document.getElementById('navUsersMember');
+  const navSecM   = document.getElementById('navSectionMemberSettings');
+  if(navUsersL) navUsersL.style.display = canUsers ? '' : 'none';
+  if(navUsersM) navUsersM.style.display = canUsers ? '' : 'none';
+  if(navSecM)   navSecM.style.display   = canUsers ? '' : 'none';
 }
 
 function updateMyRaidNavVisibility(){
@@ -4256,12 +4295,35 @@ async function renderApplicants(raidId){
 }
 
 async function approveApp(appId, raidId){
-  const appDoc=await db.collection('raidApplications').doc(appId).get();
-  const appData=appDoc.data();
+  const appDoc = await db.collection('raidApplications').doc(appId).get();
+  const appData = appDoc.data();
+  if(!appData) return;
+  // 1. 신청 상태 업데이트
   await db.collection('raidApplications').doc(appId).update({status:'승인', userRole:'member'});
-  // 신청자 ERP 롤 → 공대원
-  if(appData?.uid){
-    const uDoc=await db.collection('users').doc(appData.uid).get();
+  // 2. 중복 체크 후 members에 uid 포함 자동 등록
+  const existingSnap = await db.collection('members')
+    .where('uid','==',appData.uid)
+    .where('raidId','==',raidId)
+    .get();
+  if(existingSnap.empty){
+    await db.collection('members').add({
+      uid: appData.uid,
+      raidId: raidId,
+      name: appData.name,
+      cls: appData.cls,
+      role: appData.role,
+      level: appData.level || 0,
+      skillAtk: appData.skillAtk || 0,
+      status: '참여',
+      rate: 100,
+      ownerUid: appData.uid,
+      linkedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+  // 3. users role 업데이트
+  if(appData.uid){
+    const uDoc = await db.collection('users').doc(appData.uid).get();
     if(uDoc.exists && ['guest','none'].includes(uDoc.data().role)){
       await db.collection('users').doc(appData.uid).update({role:'member'});
     }
@@ -4372,12 +4434,15 @@ function openSettlementForm(){
   document.getElementById('stBoss').value='';
   // allMembers에서 초기 인원 세팅 (참여 상태 공대원)
   stItems=[];
-  stMembers=allMembers
-    .filter(m=>m.status==='참여')
-    .map(m=>({id:m.id,name:m.name||'',cls:m.cls||'',role:m.role||'딜러',alloc:100,conf:false}));
-  if(!stMembers.length){
-    stMembers=allMembers.map(m=>({id:m.id,name:m.name||'',cls:m.cls||'',role:m.role||'딜러',alloc:100,conf:false}));
-  }
+  const toStMember = m => ({
+    id: m.uid || m.id,
+    memberId: m.id,
+    uid: m.uid || null,
+    name: m.name||'', cls: m.cls||'', role: m.role||'딜러',
+    alloc: 100, conf: false, isLinked: !!m.uid
+  });
+  stMembers = allMembers.filter(m=>m.status==='참여').map(toStMember);
+  if(!stMembers.length){ stMembers = allMembers.map(toStMember); }
   stRenderItems();
   stRenderMembers();
   document.getElementById('settlementForm').scrollIntoView({behavior:'smooth'});
@@ -4394,7 +4459,11 @@ async function saveSettlement(){
   const totalRev=stItems.reduce((s,it)=>s+stRevenue(it),0);
   const totalAlloc=stMembers.reduce((s,m)=>s+m.alloc,0);
   const perUnit=totalAlloc>0?Math.round(totalRev/totalAlloc):0;
-  const participants=stMembers.map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role,alloc:m.alloc,perGold:perUnit*m.alloc}));
+  const participants=stMembers.map(m=>({
+    id:m.id, uid:m.uid||null, memberId:m.memberId||null,
+    name:m.name, cls:m.cls, role:m.role,
+    alloc:m.alloc, perGold:perUnit*m.alloc, isLinked:m.isLinked||false
+  }));
   await db.collection('settlements').add({
     date,boss,
     items:stItems.map(it=>({name:it.name,method:it.method,price:it.price,qty:it.qty,revenue:stRevenue(it)})),
@@ -4451,7 +4520,7 @@ async function loadMySettlements(){
   // participants에 내 uid가 있는 정산만 필터
   allMySettlements = snap.docs
     .map(d=>({id:d.id,...d.data()}))
-    .filter(s=>(s.participants||[]).some(p=>p.id===uid));
+    .filter(s=>(s.participants||[]).some(p => p.id===uid || p.uid===uid));
   renderMySettlements();
   renderDashMySettlement();
 }
@@ -5221,6 +5290,9 @@ function switchUsersTab(tab){
   });
   if(tab==='leaderapps') renderLeaderApplications();
   if(tab==='users') renderUserTable();
+  // 관리 도구 패널: 마스터만, 사용자 목록 탭에서만 표시
+  const adminTools = document.getElementById('adminToolsPanel');
+  if(adminTools) adminTools.style.display = (isAdmin(currentProfile) && tab==='users') ? '' : 'none';
 }
 
 // 공대장 신청 목록 렌더링
@@ -5317,6 +5389,75 @@ async function processLeaderApp(appId, action, reason=''){
   }
 }
 
+// =============================================
+// Phase 1.5: 마이그레이션 도구 (사이트마스터 전용)
+// =============================================
+async function dryRunMigrateMembers(){
+  if(!isAdmin(currentProfile)){alert('권한 없음');return;}
+  const log=document.getElementById('migrationLog');
+  log.innerHTML='<div>🔍 분석 중...</div>';
+  try{
+    const snap=await db.collection('members').get();
+    let needUpdate=0,alreadyLinked=0,nameMatch=0,noMatch=0;
+    const details=[];
+    for(const doc of snap.docs){
+      const data=doc.data();
+      if(data.uid!==undefined){alreadyLinked++;continue;}
+      needUpdate++;
+      const userSnap=await db.collection('users').where('name','==',data.name).get();
+      if(userSnap.docs.length===1){
+        nameMatch++;
+        details.push('✅ '+data.name+' → '+userSnap.docs[0].id+' 매칭 가능');
+      }else if(userSnap.docs.length>1){
+        details.push('⚠️ '+data.name+' → '+userSnap.docs.length+'명 중복, 수동 처리 필요');
+        noMatch++;
+      }else{
+        details.push('❌ '+data.name+' → 매칭 없음');
+        noMatch++;
+      }
+    }
+    log.innerHTML='<div><strong>분석 결과:</strong></div>'
+      +'<div>전체: '+snap.size+'건 | 이미 연결됨: '+alreadyLinked+'건 | 업데이트 대상: '+needUpdate+'건</div>'
+      +'<div>자동 매칭 가능: '+nameMatch+'건 | 수동 처리 필요: '+noMatch+'건</div>'
+      +'<hr style="margin:6px 0;">'
+      +details.slice(0,50).map(d=>'<div>'+d+'</div>').join('')
+      +(details.length>50?'<div>... 그 외 '+(details.length-50)+'건</div>':'');
+  }catch(e){
+    log.innerHTML='<div style="color:#dc2626;">오류: '+e.message+'</div>';
+  }
+}
+
+async function migrateMembersToUid(){
+  if(!isAdmin(currentProfile)){alert('권한 없음');return;}
+  if(!confirm('기존 공대원 데이터에 uid 필드를 추가합니다.\n먼저 dry run으로 미리보기를 확인하세요. 계속하시겠습니까?'))return;
+  const log=document.getElementById('migrationLog');
+  log.innerHTML='<div>⚡ 마이그레이션 시작...</div>';
+  try{
+    const snap=await db.collection('members').get();
+    let updated=0,skipped=0,failed=0;
+    for(const doc of snap.docs){
+      const data=doc.data();
+      if(data.uid!==undefined){skipped++;continue;}
+      try{
+        const userSnap=await db.collection('users').where('name','==',data.name).get();
+        const matchedUid=userSnap.docs.length===1?userSnap.docs[0].id:null;
+        await doc.ref.update({
+          uid: matchedUid,
+          linkedAt: matchedUid?firebase.firestore.FieldValue.serverTimestamp():null
+        });
+        updated++;
+      }catch(e2){
+        failed++;
+        log.innerHTML+='<div style="color:#dc2626;">❌ '+data.name+' 실패: '+e2.message+'</div>';
+      }
+    }
+    const msg='✅ 완료: '+updated+'건 업데이트, '+skipped+'건 스킵'+(failed?', '+failed+'건 실패':'');
+    log.innerHTML+='<div><strong>'+msg+'</strong></div>';
+    alert(msg+'\n이름 기반 매칭이므로 공대원 목록에서 수동 확인을 권장합니다.');
+  }catch(e){
+    log.innerHTML='<div style="color:#dc2626;">오류: '+e.message+'</div>';
+  }
+}
 </script>
 </body>
 </html>

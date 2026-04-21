@@ -62,10 +62,22 @@ service cloud.firestore {
     // ─────────────────────────────────────────
     // members (공대원 데이터)
     // ─────────────────────────────────────────
-    match /members/{id} {
+    match /members/{memberId} {
       allow read: if request.auth != null;
-      allow create, update, delete: if isLeader()
-        || (request.auth != null && resource.data.ownerUid == request.auth.uid && userDoc().role == 'member');
+
+      // 생성: 공대장/부공대장/마스터만 (승인 플로우에서 서버 측 생성)
+      allow create: if request.auth != null
+        && userDoc().role in ['master', 'leader', 'vice'];
+
+      // 수정: 공대장급 또는 본인 문서 (ownerUid 기준)
+      allow update: if request.auth != null && (
+        userDoc().role in ['master', 'leader', 'vice']
+        || resource.data.ownerUid == request.auth.uid
+      );
+
+      // 삭제: 공대장급만
+      allow delete: if request.auth != null
+        && userDoc().role in ['master', 'leader', 'vice'];
     }
 
     // ─────────────────────────────────────────

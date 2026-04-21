@@ -188,7 +188,6 @@
   /* 탭바 아래 페이지 콘텐츠 상단 여백 */
   #page-members.active > .top-bar,
   #page-settlement.active > .top-bar,
-  #page-guestsettlement.active > .top-bar,
   #page-guestlist.active > .top-bar { margin-top: 8px; }
 
   /* ── 대시보드 레이아웃 ── */
@@ -689,8 +688,10 @@
   #settlementForm .st-title{font-size:16px;font-weight:700;color:var(--text);white-space:nowrap}
   #settlementForm .st-field{border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--text);background:var(--card-bg);outline:none}
   #settlementForm .st-field:focus{border-color:#BA7517}
-  #settlementForm .st-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media(max-width:760px){#settlementForm .st-grid{grid-template-columns:1fr}}
+  #settlementForm .st-grid{display:grid;grid-template-columns:55fr 45fr;gap:16px}
+  @media(max-width:960px){#settlementForm .st-grid{grid-template-columns:1fr}}
+  #settlementForm .st-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #settlementForm table{min-width:480px}
   #settlementForm .st-card{background:var(--card-bg);border:0.5px solid var(--border);border-radius:12px;padding:20px}
   #settlementForm .st-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
   #settlementForm .st-card-ttl{font-size:15px;font-weight:700;color:var(--text)}
@@ -1081,8 +1082,7 @@
   <div id="myRaidTabBar" style="display:none;">
     <button id="raidTab-members" class="raid-mgmt-tab active" onclick="showPage('members',null)">👥 공대원</button>
     <button id="raidTab-settlement" class="raid-mgmt-tab" onclick="showPage('settlement',null)">💰 보스 정산</button>
-    <button id="raidTab-guestsettlement" class="raid-mgmt-tab" onclick="showPage('guestsettlement',null)">🎫 손님 정산</button>
-    <button id="raidTab-guestlist" class="raid-mgmt-tab" onclick="showPage('guestlist',null)" id="tabGuestList" style="display:none;">📋 손님 신청목록</button>
+    <button id="raidTab-guestlist" class="raid-mgmt-tab" onclick="showPage('guestlist',null)" style="display:none;">📋 손님 신청목록</button>
   </div>
 
   <!-- ===== MAIN: Content ===== -->
@@ -1677,13 +1677,15 @@
               <span class="st-card-ttl">더치페이 판매 정산</span>
               <span class="st-card-sub" id="stItemCnt">0개</span>
             </div>
+            <div class="st-table-wrap">
             <table>
-              <colgroup><col style="width:33%"><col style="width:13%"><col style="width:22%"><col style="width:8%"><col style="width:19%"><col style="width:5%"></colgroup>
+              <colgroup><col style="min-width:120px"><col style="min-width:80px"><col style="min-width:100px"><col style="min-width:60px"><col style="min-width:100px"><col style="width:32px"></colgroup>
               <thead><tr>
                 <th>아이템명</th><th>방식</th><th class="st-nr">판매가</th><th class="st-nr">수량</th><th class="st-nr">매출</th><th></th>
               </tr></thead>
               <tbody id="stItemsBody"></tbody>
             </table>
+            </div>
             <button class="st-addbtn" onclick="stAddItem()">+ 아이템 추가</button>
             <div class="st-totrow">
               <span class="st-totlbl">수익 합계</span>
@@ -1697,13 +1699,15 @@
               <span class="st-card-ttl">참여 인원 명단</span>
               <span class="st-card-sub" id="stMemCnt">0명</span>
             </div>
+            <div class="st-table-wrap">
             <table>
-              <colgroup><col style="width:32%"><col style="width:20%"><col style="width:12%"><col style="width:31%"><col style="width:5%"></colgroup>
+              <colgroup><col style="min-width:100px"><col style="min-width:90px"><col style="min-width:50px"><col style="min-width:110px"><col style="width:32px"></colgroup>
               <thead><tr>
                 <th>이름</th><th>직업</th><th class="st-nr">%</th><th class="st-nr">배분금</th><th></th>
               </tr></thead>
               <tbody id="stMemBody"></tbody>
             </table>
+            </div>
             <button class="st-addbtn" onclick="stAddMember()">+ 인원 추가</button>
             <div class="st-totrow">
               <span class="st-totlbl">1인당 배분금</span>
@@ -1750,12 +1754,9 @@
       </div>
     </div>
 
-    <!-- 손님정산 -->
-    <div id="page-guestsettlement" class="page-section">
+    <!-- 손님정산 제거됨 -->
+    <div id="page-guestsettlement" class="page-section" style="display:none!important;">
       <div class="top-bar">
-        <div><h1 class="page-title">손님정산</h1><p class="page-desc">손님 거래 수수료 및 공대원 분배를 자동 계산합니다</p></div>
-        <button class="btn btn-primary" onclick="openGuestForm()">+ 새 정산</button>
-      </div>
 
       <!-- 수수료 안내 -->
       <div class="alert alert-info" style="margin-bottom:16px;">
@@ -2243,7 +2244,7 @@ document.addEventListener('click',function(e){
 });
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();subscribeGuestSettlements();window._myCharsData=[null,null,null,null,null,null];mcRenderAllCards();return;}
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharsData=[null,null,null,null,null,null];mcRenderAllCards();return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -2322,7 +2323,7 @@ auth.onAuthStateChanged(async(user)=>{
       uids:firebase.firestore.FieldValue.arrayUnion(doc.id)
     },{merge:true}).catch(()=>{});
   }
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeGuestSettlements();subscribeRaidApplications();updateMyRaidNavVisibility();loadMySettlements();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();updateMyRaidNavVisibility();loadMySettlements();
   await loadBossTimers();
   renderBossList();
 });
@@ -3109,8 +3110,8 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestsettlement:'공대관리 / 내 공대 관리 / 손님 정산',guestlist:'공대관리 / 내 공대 관리 / 손님 신청목록',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
-const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestsettlement:'내 공대 관리',guestlist:'손님 신청목록',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
+const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestlist:'공대관리 / 내 공대 관리 / 손님 신청목록',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
+const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestlist:'손님 신청목록',purchase:'판매내역',gold:'분배내역',users:'권한 관리','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
 
 // 탭바 페이지 매핑
 // 공대원 탭바 매핑: pageId → tab id suffix
@@ -3120,7 +3121,7 @@ const tabMapMember = {
 };
 // 공대장 탭바 매핑: pageId → tab id suffix
 const tabMapLeader = {
-  dashboard:'home', settlement:'settlement', guestsettlement:'settlement',
+  dashboard:'home', settlement:'settlement',
   guestlist:'settlement', members:'members', raids:'raids', 'horntail-timer':null, items:null
 };
 
@@ -3146,7 +3147,7 @@ function showPage(id,el){
   const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent=mobileTitleMap[id]||'';
   // 내 공대 관리 탭바
   const isMasterUser=currentProfile&&currentProfile.role==='master';
-  const mgmtPages=['members','settlement','guestsettlement','guestlist'];
+  const mgmtPages=['members','settlement','guestlist'];
   const tabBar=document.getElementById('myRaidTabBar');
   if(tabBar){
     tabBar.style.display=mgmtPages.includes(id)?'':'none';
@@ -3154,7 +3155,7 @@ function showPage(id,el){
       document.querySelectorAll('.raid-mgmt-tab').forEach(t=>t.classList.remove('active'));
       const at=document.getElementById('raidTab-'+id);if(at)at.classList.add('active');
       if(!el){
-        const settlementPages=['settlement','guestsettlement','guestlist'];
+        const settlementPages=['settlement','guestlist'];
         if(settlementPages.includes(id)){
           const navS=document.getElementById('navSettlement');if(navS)navS.classList.add('active');
         }else if(id==='members'){
@@ -3172,7 +3173,6 @@ function showPage(id,el){
   if(id==='raids')renderRaidList();
   if(id==='myraids')renderMyRaids();
   if(id==='settlement'){renderSettlementHistory();}
-  if(id==='guestsettlement'){renderGuestSettlementHistory();}
   if(id==='guestlist'){renderGuestList();}
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
@@ -4273,7 +4273,6 @@ function renderDashMySettlement(){
 // =============================================
 // 손님정산
 // =============================================
-let allGuestSettlements = [];
 
 function subscribeRaidApplications(){
   db.collection('raidApplications').onSnapshot(s=>{
@@ -4288,153 +4287,7 @@ function subscribeRaidApplications(){
   });
 }
 
-function subscribeGuestSettlements(){
-  db.collection('guestSettlements').orderBy('date','desc').onSnapshot(s=>{
-    allGuestSettlements=s.docs.map(d=>({id:d.id,...d.data()}));
-    renderGuestSettlementHistory();
-  });
-}
-
-function calcGuestFeeRate(amount){
-  // amount: 만메소 단위
-  if(amount>=10000)return 6.0;   // 1억 이상
-  if(amount>=2500) return 5.0;   // 2500만 이상
-  if(amount>=1000) return 4.0;   // 1000만 이상
-  if(amount>=500)  return 3.0;   // 500만 이상
-  if(amount>=100)  return 1.8;   // 100만 이상
-  if(amount>=10)   return 0.8;   // 10만 이상
-  return 0;
-}
-
-function calcGuestFee(){
-  const amt=parseFloat(document.getElementById('gsAmount')?.value)||0;
-  const rate=calcGuestFeeRate(amt);
-  const fee=Math.floor(amt*rate/100*10)/10; // 소수점 1자리
-  const net=Math.round((amt-fee)*10)/10;
-  // 4칸 결과
-  const fmt=v=>v%1===0?v.toLocaleString()+'만':(v.toLocaleString()+'만');
-  const el=id=>document.getElementById(id);
-  if(el('gsAmountResult'))el('gsAmountResult').textContent=amt.toLocaleString()+'만';
-  if(el('gsFeeRate'))el('gsFeeRate').textContent=rate+'%';
-  if(el('gsFeeAmount'))el('gsFeeAmount').textContent=fee.toLocaleString()+'만';
-  if(el('gsNetAmount'))el('gsNetAmount').textContent=net.toLocaleString()+'만';
-  // 분배 재계산
-  calcGuestDist(net);
-}
-
-function calcGuestDist(net){
-  const participants=allMembers.filter(m=>{const cb=document.getElementById('gsm_'+m.id);return cb&&cb.checked;});
-  const count=participants.length;
-  const per=count>0?Math.floor(net/count*10)/10:0;
-  const el=id=>document.getElementById(id);
-  if(el('gsCountResult'))el('gsCountResult').textContent=count+'명';
-  if(el('gsTotalResult'))el('gsTotalResult').textContent=(net||0).toLocaleString()+'만';
-  if(el('gsPerResult'))el('gsPerResult').textContent=per.toLocaleString()+'만';
-}
-
-function renderGsMemberList(){
-  const wrap=document.getElementById('gsMemberList');
-  if(!wrap)return;
-  if(!allMembers.length){
-    wrap.innerHTML='<div style="color:var(--text-sub);font-size:14px;">등록된 공대원이 없습니다</div>';
-    return;
-  }
-  wrap.innerHTML=allMembers.map(m=>`
-    <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s;" id="gsmLabel_${m.id}">
-      <input type="checkbox" id="gsm_${m.id}" value="${m.id}" checked onchange="calcGuestFee();gsUpdateLabel('${m.id}')">
-      <span>
-        <span style="font-weight:600;font-size:14px;">${m.name||''}</span>
-        <span style="font-size:12px;color:var(--text-sub);margin-left:6px;">${m.cls||''}</span>
-        <span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}" style="margin-left:4px;font-size:11px;">${m.role||''}</span>
-      </span>
-    </label>
-  `).join('');
-  allMembers.forEach(m=>gsUpdateLabel(m.id));
-}
-
-function gsUpdateLabel(id){
-  const cb=document.getElementById('gsm_'+id);
-  const lb=document.getElementById('gsmLabel_'+id);
-  if(!cb||!lb)return;
-  lb.style.borderColor=cb.checked?'var(--accent)':'var(--border)';
-  lb.style.background=cb.checked?'var(--accent-light)':'#fff';
-}
-
-function gsSelectAll(checked){
-  allMembers.forEach(m=>{
-    const cb=document.getElementById('gsm_'+m.id);
-    if(cb){cb.checked=checked;gsUpdateLabel(m.id);}
-  });
-  calcGuestFee();
-}
-
-function openGuestForm(){
-  document.getElementById('guestForm').style.display='';
-  const today=new Date().toISOString().split('T')[0];
-  document.getElementById('gsDate').value=today;
-  document.getElementById('gsItem').value='';
-  document.getElementById('gsAmount').value='';
-  document.getElementById('gsNote').value='';
-  renderGsMemberList();
-  calcGuestFee();
-  document.getElementById('guestForm').scrollIntoView({behavior:'smooth'});
-}
-
-function closeGuestForm(){
-  document.getElementById('guestForm').style.display='none';
-}
-
-async function saveGuestSettlement(){
-  const date=document.getElementById('gsDate').value;
-  const item=document.getElementById('gsItem').value.trim();
-  const amt=parseFloat(document.getElementById('gsAmount').value)||0;
-  if(!date||!item||!amt){alert('날짜, 거래내용, 금액을 모두 입력하세요.');return;}
-  const rate=calcGuestFeeRate(amt);
-  const fee=Math.floor(amt*rate/100*10)/10;
-  const net=Math.round((amt-fee)*10)/10;
-  const participants=allMembers.filter(m=>{const cb=document.getElementById('gsm_'+m.id);return cb&&cb.checked;}).map(m=>({id:m.id,name:m.name,cls:m.cls,role:m.role}));
-  const count=participants.length;
-  const per=count>0?Math.floor(net/count*10)/10:0;
-  if(!count){alert('분배 공대원을 1명 이상 선택하세요.');return;}
-  await db.collection('guestSettlements').add({
-    date,item,amount:amt,feeRate:rate,feeAmount:fee,netAmount:net,
-    participants,count,perGold:per,
-    note:document.getElementById('gsNote').value.trim(),
-    ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-  closeGuestForm();
-  renderGuestSettlementHistory();
-}
-
-async function renderGuestSettlementHistory(){
-  const tbody=document.getElementById('guestSettlementTableBody');
-  if(!tbody)return;
-  if(!allGuestSettlements.length){
-    tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;
-    return;
-  }
-  tbody.innerHTML=allGuestSettlements.map(s=>{
-    const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
-    return `<tr>
-      <td>${s.date||''}</td>
-      <td><strong>${s.item||''}</strong></td>
-      <td>${(s.amount||0).toLocaleString()}만</td>
-      <td><span class="badge badge-yellow">${s.feeRate||0}%</span></td>
-      <td style="color:#dc2626;">${(s.feeAmount||0).toLocaleString()}만</td>
-      <td style="color:var(--accent);font-weight:700;">${(s.netAmount||0).toLocaleString()}만</td>
-      <td>${s.count||0}명</td>
-      <td style="color:var(--accent);font-weight:700;">${(s.perGold||0).toLocaleString()}만</td>
-      <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
-      <td>${canDel?`<button class="btn btn-danger" style="font-size:12px;padding:4px 10px;" onclick="deleteGuestSettlement('${s.id}')">삭제</button>`:''}</td>
-    </tr>`;
-  }).join('');
-}
-
-async function deleteGuestSettlement(id){
-  if(!confirm('정산 내역을 삭제하시겠습니까?'))return;
-  await db.collection('guestSettlements').doc(id).delete();
-}
+// 손님 정산 기능 제거됨
 
 // Modal close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});});

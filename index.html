@@ -703,6 +703,9 @@
   #settlementForm .st-ti{width:100%;background:transparent;border:none;font-size:14px;color:var(--text);outline:none;padding:2px 4px}
   #settlementForm .st-ti:focus{background:var(--bg);border-radius:4px}
   #settlementForm .st-ti.num{text-align:right}
+  #settlementForm .st-ti[type="number"]::-webkit-inner-spin-button,
+  #settlementForm .st-ti[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0}
+  #settlementForm .st-ti[type="number"]{-moz-appearance:textfield;appearance:textfield}
   #settlementForm .st-mbtn{font-size:12px;padding:4px 10px;border-radius:10px;border:1px solid;cursor:pointer;background:transparent;white-space:nowrap}
   #settlementForm .m-direct{border-color:#0F6E56;color:#0F6E56}
   #settlementForm .m-exchange{border-color:#185FA5;color:#185FA5}
@@ -1701,7 +1704,7 @@
             </div>
             <div class="st-table-wrap">
             <table>
-              <colgroup><col style="min-width:100px"><col style="min-width:90px"><col style="min-width:50px"><col style="min-width:110px"><col style="width:32px"></colgroup>
+              <colgroup><col style="min-width:100px"><col style="min-width:90px"><col style="min-width:64px"><col style="min-width:110px"><col style="width:32px"></colgroup>
               <thead><tr>
                 <th>이름</th><th>직업</th><th class="st-nr">%</th><th class="st-nr">배분금</th><th></th>
               </tr></thead>
@@ -4055,7 +4058,7 @@ function stRenderMembers(){
     tr.innerHTML=`
       <td><input class="st-ti" type="text" value="${m.name||''}" placeholder="이름" onchange="stMembers[${i}].name=this.value"></td>
       <td><input class="st-ti" type="text" value="${m.cls||''}" placeholder="직업" onchange="stMembers[${i}].cls=this.value"></td>
-      <td><input class="st-ti num" type="number" value="${m.alloc}" min="0" max="200" style="width:36px" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
+      <td><input class="st-ti num" type="number" value="${m.alloc}" min="0" max="200" style="width:52px" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
       <td class="st-rev-val" id="std${i}">0</td>
       <td><button class="st-delbtn" onclick="stMembers.splice(${i},1);stRenderMembers()">×</button></td>
     `;

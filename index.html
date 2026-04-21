@@ -892,6 +892,50 @@
   .role-switch-btn.disabled { opacity: .35; cursor: default; pointer-events: none; }
   .sidebar-chevron { display: none; }
   .sidebar-role-picker { display: none; }
+
+  /* ===== 공대장 신청 ===== */
+  .la-form-group { margin-bottom: 14px; }
+  .la-form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .la-form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text); resize: vertical; min-height: 80px; box-sizing: border-box; }
+  .la-form-group select, .la-form-group input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text); box-sizing: border-box; }
+  .la-char-count { font-size: 11px; color: var(--text-sub); text-align: right; margin-top: 3px; }
+  .la-warn { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #92400e; margin-bottom: 14px; }
+  [data-theme="dark"] .la-warn { background: #2d2000; border-color: #78350f; color: #fbbf24; }
+  /* 공대장 신청 목록 탭 */
+  .users-tab-bar { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1.5px solid var(--border); padding-bottom: 0; }
+  .users-tab { padding: 9px 16px; font-size: 13px; font-weight: 600; color: var(--text-sub); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1.5px; transition: .15s; font-family: inherit; }
+  .users-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .la-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .la-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .la-card-header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .la-card-meta { flex: 1; min-width: 0; }
+  .la-card-meta strong { font-size: 14px; display: block; }
+  .la-card-meta span { font-size: 12px; color: var(--text-sub); }
+  .la-card-body { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 12px; }
+  .la-card-body .la-field { display: flex; gap: 6px; margin-bottom: 4px; }
+  .la-card-body .la-field-label { color: var(--text-sub); min-width: 70px; font-size: 12px; }
+  .la-card-actions { display: flex; gap: 8px; }
+  .btn-approve { background: #059669; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-hold { background: #d97706; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-reject { background: #dc2626; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .la-status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .la-status-pending { background: #fffbeb; color: #d97706; }
+  .la-status-approved { background: #ecfdf5; color: #059669; }
+  .la-status-rejected { background: #fee2e2; color: #dc2626; }
+  .la-status-hold { background: #f3f4f6; color: #6b7280; }
+  [data-theme="dark"] .la-status-pending { background: #2d1c00; color: #fbbf24; }
+  [data-theme="dark"] .la-status-approved { background: #052e1c; color: #34d399; }
+  [data-theme="dark"] .la-status-rejected { background: #2d0a0a; color: #f87171; }
+  [data-theme="dark"] .la-status-hold { background: #1f2128; color: #9ca3af; }
+  /* 마스터 대시보드 배지 */
+  .master-pending-badge { display: inline-flex; align-items: center; gap: 6px; background: #fee2e2; color: #dc2626; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+  [data-theme="dark"] .master-pending-badge { background: #2d0a0a; color: #f87171; }
+  /* nav 신청 버튼 */
+  .nav-item-apply { margin: 8px 8px 0; }
+  .nav-item-apply .btn-apply-leader { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid #7c3aed; background: #faf5ff; color: #7c3aed; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; transition: .15s; }
+  .nav-item-apply .btn-apply-leader:hover { background: #ede9fe; }
+  [data-theme="dark"] .nav-item-apply .btn-apply-leader { background: #1e1433; border-color: #7c3aed; color: #a78bfa; }
+  [data-theme="dark"] .nav-item-apply .btn-apply-leader:hover { background: #2d1d4a; }
 </style>
 </head>
 <body>
@@ -980,6 +1024,13 @@
       <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
         <span class="nav-icon"><span class="material-icons">inventory_2</span></span>
         <span class="nav-label">아이템 DB</span>
+      </div>
+      <!-- 공대장 신청 버튼: member/guest만 JS로 렌더링 -->
+      <div id="navApplyLeaderWrap" class="nav-item-apply" style="display:none;">
+        <button class="btn-apply-leader" onclick="openLeaderAppModal()">
+          <span class="material-icons" style="font-size:16px;">military_tech</span>
+          공대장 신청
+        </button>
       </div>
     </div>
 
@@ -1947,11 +1998,33 @@
 
     <!-- 권한 관리 -->
     <div id="page-users" class="page-section">
-      <div class="top-bar"><div><h1 class="page-title">권한 관리</h1><p class="page-desc">사용자 권한을 관리합니다</p></div></div>
+      <div class="top-bar">
+        <div>
+          <h1 class="page-title">권한 관리</h1>
+          <p class="page-desc">사용자 권한을 관리합니다</p>
+        </div>
+        <div id="masterPendingBadgeWrap" style="display:none;">
+          <span class="master-pending-badge">
+            <span class="material-icons" style="font-size:14px;">pending</span>
+            공대장 신청 대기 <span id="masterPendingCount">0</span>건
+          </span>
+        </div>
+      </div>
       <div class="alert alert-info">
         <span>ℹ️</span> <strong>권한:</strong> 사이트마스터=전체 | 공대장/부공대장=관리+등록 | 공대원=자기정보 | 손님=판매기록 열람
       </div>
 
+      <!-- 탭 바 -->
+      <div class="users-tab-bar">
+        <button class="users-tab active" id="usersTab-users" onclick="switchUsersTab('users')">사용자 목록</button>
+        <button class="users-tab" id="usersTab-leaderapps" onclick="switchUsersTab('leaderapps')">
+          공대장 신청
+          <span id="usersTabLeaderBadge" style="display:none;margin-left:6px;background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
+        </button>
+      </div>
+
+      <!-- 사용자 목록 패널 -->
+      <div id="usersPanel-users">
       <!-- 사용자 목록 -->
       <div class="panel" style="margin-bottom:16px;">
         <div class="panel-header" style="margin-bottom:12px;">
@@ -1991,6 +2064,28 @@
         </div>
         <div id="loginLogPager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
       </div>
+      </div><!-- /usersPanel-users -->
+
+      <!-- 공대장 신청 목록 패널 -->
+      <div id="usersPanel-leaderapps" style="display:none;">
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:16px;">
+            <h2 style="font-size:15px;">공대장 신청 목록</h2>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <select class="filter-select" id="laStatusFilter" onchange="renderLeaderApplications()" style="font-size:12px;padding:6px 10px;">
+                <option value="">전체</option>
+                <option value="pending" selected>대기중</option>
+                <option value="hold">보류</option>
+                <option value="approved">승인됨</option>
+                <option value="rejected">거절됨</option>
+              </select>
+            </div>
+          </div>
+          <div id="leaderAppList">
+            <div style="padding:32px;text-align:center;color:var(--text-sub);font-size:13px;">신청 내역이 없습니다</div>
+          </div>
+        </div>
+      </div><!-- /usersPanel-leaderapps -->
     </div>
 
   </div><!-- .main -->
@@ -2045,6 +2140,63 @@
     <span>더보기</span>
   </a>
 </nav>
+
+<!-- 공대장 신청 Modal -->
+<div class="modal-overlay" id="leaderAppModal">
+  <div class="modal" style="width:520px;">
+    <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <span style="width:36px;height:36px;background:#faf5ff;color:#7c3aed;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">
+        <span class="material-icons" style="font-size:20px;">military_tech</span>
+      </span>
+      공대장 신청
+    </h2>
+    <p style="font-size:13px;color:var(--text-sub);margin-bottom:20px;">신청 후 사이트마스터 검토를 거쳐 승인됩니다.</p>
+    <div id="leaderAppFormWrap">
+      <div id="leaderAppWarnArea"></div>
+      <div class="la-form-group">
+        <label>희망 공대명 <span style="font-weight:400;color:var(--text-sub);">(선택)</span></label>
+        <input type="text" id="laRaidName" placeholder="예: 혼테일 공대 A팀" maxlength="30">
+      </div>
+      <div class="la-form-group">
+        <label>주력 보스 *</label>
+        <select id="laMainBoss">
+          <option value="">선택...</option>
+          <option value="자쿰">자쿰</option>
+          <option value="혼테일">혼테일</option>
+          <option value="크우파">크우파</option>
+          <option value="파풀라투스">파풀라투스</option>
+          <option value="일반보스">일반보스</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="la-form-group">
+        <label>신청 사유 / 자기소개 <span style="font-weight:400;color:var(--text-sub);">(선택, 200자 이내)</span></label>
+        <textarea id="laReason" placeholder="간단한 자기소개나 공대 운영 계획을 적어주세요." maxlength="200" oninput="document.getElementById('laReasonCount').textContent=this.value.length+'/200'"></textarea>
+        <div class="la-char-count"><span id="laReasonCount">0/200</span></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+        <button class="btn btn-outline" onclick="closeLeaderAppModal()">취소</button>
+        <button class="btn btn-primary" onclick="submitLeaderApplication()" id="laSubmitBtn">신청하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 거절 사유 입력 Modal -->
+<div class="modal-overlay" id="laRejectModal">
+  <div class="modal" style="width:420px;">
+    <h2 style="font-size:18px;margin-bottom:16px;">거절 사유 입력</h2>
+    <input type="hidden" id="laRejectTargetId">
+    <div class="la-form-group">
+      <label>거절 사유 <span style="font-weight:400;color:var(--text-sub);">(선택, 신청자에게 표시됩니다)</span></label>
+      <textarea id="laRejectReason" placeholder="예: 동일 보스 공대가 이미 운영 중입니다." style="min-height:70px;" maxlength="200"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-outline" onclick="document.getElementById('laRejectModal').classList.remove('show')">취소</button>
+      <button class="btn btn-danger" onclick="confirmRejectApp()">거절 확정</button>
+    </div>
+  </div>
+</div>
 
 <!-- Member Modal -->
 <div class="modal-overlay" id="memberModal">
@@ -2376,7 +2528,7 @@ auth.onAuthStateChanged(async(user)=>{
       uids:firebase.firestore.FieldValue.arrayUnion(doc.id)
     },{merge:true}).catch(()=>{});
   }
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();updateMyRaidNavVisibility();loadMySettlements();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
   await loadBossTimers();
   await loadCustomBosses();
   renderBossList();
@@ -3311,7 +3463,7 @@ function showPage(id,el){
   if(id==='todayboss'){renderBossList();}
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
-  if(id==='users'){loadLoginLogs();}
+  if(id==='users'){loadLoginLogs();switchUsersTab('users');}
   if(id==='mysettlement'){loadMySettlements();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
   if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
@@ -4910,6 +5062,251 @@ setInterval(() => {
   const blEl = document.getElementById('dashBossList');
   if (blEl) renderDashboard();
 }, 60000);
+
+// =============================================
+// Phase 1: 공대장 신청 시스템
+// =============================================
+let allLeaderApps = [];
+let _leaderAppUnsub = null;
+
+// 실시간 구독 (pending 배지용)
+function subscribeLeaderApplications(){
+  if(_leaderAppUnsub) _leaderAppUnsub();
+  if(!currentProfile) return;
+  _leaderAppUnsub = db.collection('leader_applications')
+    .orderBy('createdAt','desc')
+    .onSnapshot(snap=>{
+      allLeaderApps = snap.docs.map(d=>({id:d.id,...d.data()}));
+      updateLeaderAppBadge();
+      // 권한 관리 페이지가 열려 있으면 즉시 갱신
+      if(document.getElementById('page-users')?.classList.contains('active')){
+        renderLeaderApplications();
+      }
+    }, ()=>{});
+}
+
+function updateLeaderAppBadge(){
+  const pending = allLeaderApps.filter(a=>a.status==='pending').length;
+  // 마스터 대시보드 배지
+  const wrap = document.getElementById('masterPendingBadgeWrap');
+  const cnt  = document.getElementById('masterPendingCount');
+  if(wrap){ wrap.style.display = (isAdmin(currentProfile) && pending>0) ? '' : 'none'; }
+  if(cnt)  cnt.textContent = pending;
+  // 탭 배지
+  const tabBadge = document.getElementById('usersTabLeaderBadge');
+  if(tabBadge){
+    tabBadge.style.display = pending>0 ? '' : 'none';
+    tabBadge.textContent   = pending;
+  }
+  // 권한 관리 nav 배지 (선택적)
+  const navBadge = document.getElementById('navBadgeUsers');
+  if(navBadge){ navBadge.textContent = pending > 0 ? pending : ''; }
+  // 공대장 신청 nav 버튼 상태 갱신
+  updateApplyLeaderButton();
+}
+
+// member/guest만 공대장 신청 버튼 노출
+function updateApplyLeaderButton(){
+  const wrap = document.getElementById('navApplyLeaderWrap');
+  if(!wrap) return;
+  const role = currentProfile?.role;
+  const canApply = ['member','guest'].includes(role);
+  wrap.style.display = canApply ? '' : 'none';
+}
+
+// 신청 가능 여부 확인 (프론트 검증)
+async function checkLeaderAppEligibility(){
+  if(!currentProfile) return {ok:false, msg:'로그인이 필요합니다.'};
+  const role = currentProfile.role;
+  if(!['member','guest'].includes(role)) return {ok:false, msg:'공대원 또는 손님만 신청할 수 있습니다.'};
+  // pending 신청 확인
+  if(currentProfile.hasPendingLeaderApp){
+    return {ok:false, msg:'이미 검토 중인 신청이 있습니다. 결과를 기다려주세요.'};
+  }
+  // 24시간 재신청 제한 확인
+  if(currentProfile.leaderAppRejectedAt){
+    const rejectedMs = currentProfile.leaderAppRejectedAt.toMillis
+      ? currentProfile.leaderAppRejectedAt.toMillis()
+      : currentProfile.leaderAppRejectedAt;
+    const reapplyAt = rejectedMs + 24*60*60*1000;
+    if(Date.now() < reapplyAt){
+      const remain = Math.ceil((reapplyAt - Date.now()) / 3600000);
+      return {ok:false, msg:'거절 후 24시간이 지나야 재신청할 수 있습니다. (약 '+remain+'시간 후 가능)'};
+    }
+  }
+  return {ok:true};
+}
+
+async function openLeaderAppModal(){
+  const el = document.getElementById('leaderAppModal');
+  if(!el) return;
+  // 자격 확인
+  const chk = await checkLeaderAppEligibility();
+  const warnArea = document.getElementById('leaderAppWarnArea');
+  const submitBtn = document.getElementById('laSubmitBtn');
+  if(!chk.ok){
+    warnArea.innerHTML = '<div class="la-warn">⚠️ '+chk.msg+'</div>';
+    if(submitBtn) submitBtn.disabled = true;
+  } else {
+    warnArea.innerHTML = '';
+    if(submitBtn) submitBtn.disabled = false;
+  }
+  // 폼 초기화
+  ['laRaidName','laMainBoss','laReason'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('laReasonCount').textContent='0/200';
+  el.classList.add('show');
+}
+function closeLeaderAppModal(){
+  document.getElementById('leaderAppModal')?.classList.remove('show');
+}
+
+async function submitLeaderApplication(){
+  const chk = await checkLeaderAppEligibility();
+  if(!chk.ok){ alert(chk.msg); return; }
+  const boss = document.getElementById('laMainBoss').value;
+  if(!boss){ alert('주력 보스를 선택해주세요.'); return; }
+  const btn = document.getElementById('laSubmitBtn');
+  if(btn){ btn.disabled=true; btn.textContent='제출 중...'; }
+  try{
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('leader_applications').add({
+      uid: currentUser.uid,
+      name: currentProfile.name,
+      photo: currentProfile.photo||'',
+      discordId: currentProfile.discordId||'',
+      raidName: document.getElementById('laRaidName').value.trim(),
+      mainBoss: boss,
+      reason: document.getElementById('laReason').value.trim(),
+      status: 'pending',
+      createdAt: now,
+      processedAt: null,
+      processedBy: null,
+      rejectReason: ''
+    });
+    // 유저 문서에 hasPendingLeaderApp 마킹
+    await db.collection('users').doc(currentUser.uid).update({hasPendingLeaderApp: true});
+    closeLeaderAppModal();
+    alert('신청이 완료되었습니다. 사이트마스터 검토 후 결과를 알려드립니다.');
+  }catch(e){
+    alert('신청 중 오류가 발생했습니다: '+e.message);
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='신청하기'; }
+  }
+}
+
+// 권한 관리 탭 전환
+function switchUsersTab(tab){
+  ['users','leaderapps'].forEach(t=>{
+    document.getElementById('usersPanel-'+t).style.display = t===tab ? '' : 'none';
+    const btn = document.getElementById('usersTab-'+t);
+    if(btn) btn.classList.toggle('active', t===tab);
+  });
+  if(tab==='leaderapps') renderLeaderApplications();
+  if(tab==='users') renderUserTable();
+}
+
+// 공대장 신청 목록 렌더링
+function renderLeaderApplications(){
+  const container = document.getElementById('leaderAppList');
+  if(!container) return;
+  const filter = document.getElementById('laStatusFilter')?.value || '';
+  const list = filter ? allLeaderApps.filter(a=>a.status===filter) : allLeaderApps;
+  if(!list.length){
+    container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text-sub);font-size:13px;">신청 내역이 없습니다</div>';
+    return;
+  }
+  const STATUS_LABEL = {pending:'대기중',approved:'승인됨',rejected:'거절됨',hold:'보류'};
+  const STATUS_CLASS = {pending:'la-status-pending',approved:'la-status-approved',rejected:'la-status-rejected',hold:'la-status-hold'};
+  container.innerHTML = list.map(a=>{
+    const dt = a.createdAt?.toDate ? a.createdAt.toDate().toLocaleString('ko') : '-';
+    const isMaster = isAdmin(currentProfile);
+    const actions = isMaster && a.status==='pending'
+      ? '<div class="la-card-actions">'
+        +'<button class="btn-approve" onclick="processLeaderApp(\''+a.id+'\',\'approved\')">✓ 승인</button>'
+        +'<button class="btn-hold"   onclick="processLeaderApp(\''+a.id+'\',\'hold\')">⏸ 보류</button>'
+        +'<button class="btn-reject" onclick="openRejectModal(\''+a.id+'\')">✕ 거절</button>'
+        +'</div>'
+      : (isMaster && a.status==='hold'
+        ? '<div class="la-card-actions">'
+          +'<button class="btn-approve" onclick="processLeaderApp(\''+a.id+'\',\'approved\')">✓ 승인</button>'
+          +'<button class="btn-reject"  onclick="openRejectModal(\''+a.id+'\')">✕ 거절</button>'
+          +'</div>'
+        : '');
+    const rejectNote = a.rejectReason
+      ? '<div class="la-field"><span class="la-field-label">거절 사유</span><span style="color:#dc2626;">'+a.rejectReason+'</span></div>' : '';
+    return '<div class="la-card">'
+      +'<div class="la-card-header">'
+      +'<img src="'+(a.photo||'https://cdn.discordapp.com/embed/avatars/0.png')+'" alt="">'
+      +'<div class="la-card-meta"><strong>'+a.name+'</strong><span>Discord: '+(a.discordId||'-')+'</span></div>'
+      +'<span class="la-status-badge '+STATUS_CLASS[a.status]+'">'+STATUS_LABEL[a.status]+'</span>'
+      +'</div>'
+      +'<div class="la-card-body">'
+      +'<div class="la-field"><span class="la-field-label">주력 보스</span><span>'+a.mainBoss+'</span></div>'
+      +(a.raidName ? '<div class="la-field"><span class="la-field-label">희망 공대명</span><span>'+a.raidName+'</span></div>' : '')
+      +(a.reason ? '<div class="la-field"><span class="la-field-label">신청 사유</span><span>'+a.reason+'</span></div>' : '')
+      +rejectNote
+      +'<div class="la-field"><span class="la-field-label">신청일</span><span>'+dt+'</span></div>'
+      +'</div>'
+      +actions
+      +'</div>';
+  }).join('');
+}
+
+function openRejectModal(appId){
+  document.getElementById('laRejectTargetId').value = appId;
+  document.getElementById('laRejectReason').value = '';
+  document.getElementById('laRejectModal').classList.add('show');
+}
+
+async function confirmRejectApp(){
+  const appId = document.getElementById('laRejectTargetId').value;
+  const reason = document.getElementById('laRejectReason').value.trim();
+  await processLeaderApp(appId, 'rejected', reason);
+  document.getElementById('laRejectModal').classList.remove('show');
+}
+
+async function processLeaderApp(appId, action, reason=''){
+  if(!isAdmin(currentProfile)){ alert('사이트마스터만 처리할 수 있습니다.'); return; }
+  const app = allLeaderApps.find(a=>a.id===appId);
+  if(!app) return;
+  try{
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+    const updateData = {
+      status: action,
+      processedAt: now,
+      processedBy: currentUser.uid,
+      rejectReason: reason
+    };
+    await db.collection('leader_applications').doc(appId).update(updateData);
+    // 승인 시 → 유저 role을 leader로 변경
+    if(action==='approved'){
+      await db.collection('users').doc(app.uid).update({
+        role: 'leader',
+        hasPendingLeaderApp: false,
+        leader_approved_at: now
+      });
+    }
+    // 거절 시 → 24시간 재신청 제한 설정
+    if(action==='rejected'){
+      await db.collection('users').doc(app.uid).update({
+        hasPendingLeaderApp: false,
+        leaderAppRejectedAt: now
+      });
+    }
+    // 보류 시 → 대기 상태 유지 (hasPendingLeaderApp 그대로)
+  }catch(e){
+    alert('처리 중 오류: '+e.message);
+  }
+}
+
+// updateLoginUI에 공대장 신청 버튼 제어 연동
+const _origUpdateLoginUI = updateLoginUI;
+updateLoginUI = function(){
+  _origUpdateLoginUI();
+  updateApplyLeaderButton();
+};
 </script>
 </body>
 </html>

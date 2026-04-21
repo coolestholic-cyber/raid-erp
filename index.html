@@ -3292,9 +3292,10 @@ async function deletePurchase(id){if(confirm('삭제?'))await db.collection('pur
 // Users
 // =============================================
 function subscribeUsers(){
-  db.collection('users').orderBy('createdAt').onSnapshot(s=>{
-    allUsers=s.docs.map(d=>({id:d.id,...d.data()}));
-    if(document.getElementById('page-users')?.classList.contains('active')) renderUserTable();
+  db.collection('users').onSnapshot(s=>{
+    allUsers=s.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    renderUserTable();
   }, e=>{console.error('[subscribeUsers]',e);});
 }
 let userPageNo=0;

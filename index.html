@@ -364,6 +364,11 @@
 
   /* 보스 일정 */
   .boss-list { display: flex; flex-direction: column; gap: 8px; }
+  /* 오늘의 보스 페이지 그리드 */
+  .tb-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .tb-grid .boss-item { background: var(--card-bg); border: 0.5px solid var(--border); border-radius: 14px; padding: 16px; }
+  @media(max-width:960px){ .tb-grid { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:600px){ .tb-grid { grid-template-columns: 1fr; } }
   .boss-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border); }
   .boss-item.today { background: #eff6ff; border-color: #bfdbfe; }
   .boss-item.done { opacity: .45; }
@@ -1559,9 +1564,41 @@
     <div id="page-todayboss" class="page-section">
       <div class="top-bar">
         <div><h1 class="page-title">오늘의 보스</h1><p class="page-desc">보스 입장 현황을 관리합니다</p></div>
+        <button class="btn btn-primary" onclick="openAddBossModal()">+ 보스 추가</button>
       </div>
-      <div class="panel" style="max-width:560px;">
-        <div class="boss-list" id="todayBossList"></div>
+      <div id="todayBossList" class="tb-grid"></div>
+    </div>
+
+    <!-- 보스 추가 모달 -->
+    <div class="modal-overlay" id="addBossModal">
+      <div class="modal" style="max-width:400px;">
+        <h2 style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚔️</span>
+          보스 추가 등록
+        </h2>
+        <div class="form-group">
+          <label>보스 이름 *</label>
+          <input type="text" id="abName" class="form-control" placeholder="예) 발록">
+        </div>
+        <div class="form-group">
+          <label>아이콘 (이모지)</label>
+          <input type="text" id="abIcon" class="form-control" placeholder="예) 🔥" maxlength="2" style="font-size:20px;width:70px;">
+        </div>
+        <div class="form-group">
+          <label>리셋 주기</label>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;" id="abReset24lbl">
+              <input type="radio" name="abReset" value="24" id="abReset24" onchange="abUpdateReset()" checked> 24시간
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px;" id="abReset168lbl">
+              <input type="radio" name="abReset" value="168" id="abReset168" onchange="abUpdateReset()"> 7일
+            </label>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:24px;">
+          <button class="btn btn-outline" onclick="closeAddBossModal()">취소</button>
+          <button class="btn btn-primary" onclick="saveCustomBoss()">추가</button>
+        </div>
       </div>
     </div>
 
@@ -2336,6 +2373,7 @@ auth.onAuthStateChanged(async(user)=>{
   }
   updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();updateMyRaidNavVisibility();loadMySettlements();
   await loadBossTimers();
+  await loadCustomBosses();
   renderBossList();
 });
 
@@ -2349,6 +2387,64 @@ const BOSS_SCHEDULE = [
   { name:'피아누스',  icon:'🐟', color:'#eff6ff', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-blue',   cooldownHours:168 },
   { name:'크우파',    icon:'🐢', color:'#ecfdf5', days:[0,1,2,3,4,5,6], reset:'7일',    resetBadge:'badge-green',  cooldownHours:168 },
 ];
+
+// =============================================
+// 커스텀 보스
+// =============================================
+let _customBosses = [];
+const AB_COLORS = ['#fff7ed','#f0fdf4','#fdf4ff','#fefce8','#f0f9ff','#fdf2f8'];
+
+async function loadCustomBosses(){
+  if(currentUser){
+    const doc=await db.collection('users').doc(currentUser.uid).get();
+    if(doc.exists) _customBosses=doc.data().customBosses||[];
+  } else {
+    const raw=localStorage.getItem('customBosses_anon');
+    if(raw) try{_customBosses=JSON.parse(raw);}catch(e){}
+  }
+}
+function getAllBosses(){ return [...BOSS_SCHEDULE,..._customBosses]; }
+
+function openAddBossModal(){
+  document.getElementById('abName').value='';
+  document.getElementById('abIcon').value='';
+  document.getElementById('abReset24').checked=true;
+  abUpdateReset();
+  document.getElementById('addBossModal').classList.add('show');
+}
+function closeAddBossModal(){ document.getElementById('addBossModal').classList.remove('show'); }
+function abUpdateReset(){
+  const is24=document.getElementById('abReset24').checked;
+  document.getElementById('abReset24lbl').style.borderColor=is24?'var(--accent)':'var(--border)';
+  document.getElementById('abReset168lbl').style.borderColor=!is24?'var(--accent)':'var(--border)';
+}
+async function saveCustomBoss(){
+  const name=document.getElementById('abName').value.trim();
+  if(!name){alert('보스 이름을 입력하세요.');return;}
+  const icon=document.getElementById('abIcon').value.trim()||'⭐';
+  const hours=parseInt(document.getElementById('abReset24').checked?'24':'168');
+  const reset=hours===24?'24시간':'7일';
+  const resetBadge=hours===24?'badge-red':'badge-blue';
+  const color=AB_COLORS[_customBosses.length%AB_COLORS.length];
+  _customBosses.push({name,icon,color,cooldownHours:hours,reset,resetBadge,days:[0,1,2,3,4,5,6],custom:true});
+  if(currentUser){
+    await db.collection('users').doc(currentUser.uid).set({customBosses:_customBosses},{merge:true});
+  } else {
+    localStorage.setItem('customBosses_anon',JSON.stringify(_customBosses));
+  }
+  closeAddBossModal();
+  renderBossList();
+}
+async function deleteCustomBoss(name){
+  if(!confirm(`'${name}' 보스를 삭제할까요?`))return;
+  _customBosses=_customBosses.filter(b=>b.name!==name);
+  if(currentUser){
+    await db.collection('users').doc(currentUser.uid).set({customBosses:_customBosses},{merge:true});
+  } else {
+    localStorage.setItem('customBosses_anon',JSON.stringify(_customBosses));
+  }
+  renderBossList();
+}
 
 // =============================================
 // Boss Timer (Firestore 유저별 저장)
@@ -2446,7 +2542,7 @@ function renderBossList() {
   const timerData = getBossTimers();
   const nowMs = Date.now();
 
-  const html = BOSS_SCHEDULE.map(b => {
+  const html = getAllBosses().map(b => {
     const clearMs = timerData[b.name];
     const cooldownMs = b.cooldownHours * 3600000;
     const isEditing = _bossEditing === b.name;
@@ -2510,6 +2606,9 @@ function renderBossList() {
       </button>
       ${hasClear ? `<button class="boss-action-btn btn-reset" onclick="bossResetTimer('${b.name}')" title="초기화" aria-label="초기화">
         <span class="material-icons">restart_alt</span>
+      </button>` : ''}
+      ${b.custom ? `<button class="boss-action-btn" onclick="deleteCustomBoss('${b.name}')" title="삭제" style="color:#ef4444;">
+        <span class="material-icons">delete</span>
       </button>` : ''}`;
 
     const isDark = document.documentElement.getAttribute('data-theme')==='dark';

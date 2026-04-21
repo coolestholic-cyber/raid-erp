@@ -313,7 +313,7 @@
   .main { flex: 1; padding: 24px; display: flex; flex-direction: column; }
   .page-section { display: none; }
   .page-section.active { display: block; flex: 1; }
-  #page-mychar.active { display: flex; flex-direction: column; }
+  #page-mychar.active { display: flex; flex-direction: column; flex: 1; }
 
   .page-title { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
   .page-desc { font-size: 15px; color: var(--text-sub); margin-bottom: 20px; }
@@ -1231,13 +1231,13 @@
         <div><h1 class="page-title">캐릭터 정보</h1><p class="page-desc">내 캐릭터 기본 정보를 관리합니다</p></div>
       </div>
       <!-- 6카드 그리드 (3열 2행) -->
-      <div id="myCharsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-bottom:24px;">
-        <div class="panel" id="myCharCard0" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard1" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard2" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard3" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard4" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard5" style="display:flex;flex-direction:column;min-height:260px;margin-bottom:0;"></div>
+      <div id="myCharsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:16px;flex:1;min-height:0;">
+        <div class="panel" id="myCharCard0" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard1" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard2" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard3" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard4" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
+        <div class="panel" id="myCharCard5" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
       </div>
     </div>
 

@@ -2416,6 +2416,12 @@ function updateLoginUI(){
     updateSidebarProfileArea();
     updateSidebarMenuSet();
     updateMyRaidNavVisibility();
+    // 손님/공대원은 반드시 member 뷰 강제
+    if(['member','guest'].includes(currentProfile.role)){
+      currentSidebarView = 'member';
+      updateSidebarMenuSet();
+    }
+    updateApplyLeaderButton();
   }else{
     currentSidebarView = 'member';
     updateSidebarProfileArea();
@@ -2424,6 +2430,7 @@ function updateLoginUI(){
     // 로그아웃 상태면 캐릭터 카드 초기화
     window._myCharsData=[null,null,null,null,null,null];
     mcRenderAllCards();
+    updateApplyLeaderButton();
   }
 }
 
@@ -3724,6 +3731,7 @@ function switchSidebarView(view){
   currentSidebarView = view;
   updateSidebarMenuSet();
   closeSidebarRolePicker();
+  updateApplyLeaderButton();
   // 현재 홈 페이지면 즉시 갱신
   const activePage = document.querySelector('.page-section.active');
   if(activePage && activePage.id === 'page-dashboard') renderDashboard();
@@ -5108,6 +5116,11 @@ function updateLeaderAppBadge(){
 // member/guest만 공대장 신청 버튼 노출
 function updateApplyLeaderButton(){
   const wrap = document.getElementById('navApplyLeaderWrap');
+  console.log('[LeaderApplyBtn]', {
+    wrap: !!wrap,
+    role: currentProfile?.role,
+    view: currentSidebarView
+  });
   if(!wrap) return;
   const role = currentProfile?.role;
   const canApply = ['member','guest'].includes(role);
@@ -5301,12 +5314,6 @@ async function processLeaderApp(appId, action, reason=''){
   }
 }
 
-// updateLoginUI에 공대장 신청 버튼 제어 연동
-const _origUpdateLoginUI = updateLoginUI;
-updateLoginUI = function(){
-  _origUpdateLoginUI();
-  updateApplyLeaderButton();
-};
 </script>
 </body>
 </html>

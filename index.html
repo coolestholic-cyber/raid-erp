@@ -267,20 +267,6 @@
   body.sidebar-collapsed .nav-badge { display: none !important; }
   body.sidebar-collapsed .nav-divider { margin: 6px 8px; }
   body.sidebar-collapsed .sidebar-collapse-btn .material-icons { transform: rotate(180deg); }
-  body.sidebar-collapsed .side-boss-panel { display: none; }
-
-  /* 사이드바 오늘의 보스 패널 */
-  .side-boss-panel { padding: 0 12px 10px; border-top: 1px solid var(--border); margin-top: 4px; }
-  .side-boss-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 4px 6px; }
-  .side-boss-title { font-size: 11px; font-weight: 700; color: var(--text-sub); letter-spacing: .4px; text-transform: uppercase; }
-  .side-boss-mgr { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-sub); cursor: pointer; }
-  .side-boss-mgr:hover { background: var(--bg); color: var(--text); }
-  .side-boss-item { display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-radius: 8px; }
-  .side-boss-item:hover { background: var(--bg); }
-  .side-boss-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
-  .side-boss-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .side-boss-ok { font-size: 11px; font-weight: 700; color: #059669; white-space: nowrap; }
-  .side-boss-wait { font-size: 11px; font-weight: 700; color: #ef4444; white-space: nowrap; }
 
   /* 접힌 상태에서 아이콘 툴팁 */
   body.sidebar-collapsed .nav-item,
@@ -971,9 +957,9 @@
 
       <div class="nav-section" style="margin-top:4px;">도구</div>
 
-      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
-        <span class="nav-icon"><span class="material-icons">timer</span></span>
-        <span class="nav-label">타이머</span>
+      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="오늘의 보스">
+        <span class="nav-icon"><span class="material-icons">sports_kabaddi</span></span>
+        <span class="nav-label">오늘의 보스</span>
       </div>
 
       <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
@@ -1010,9 +996,9 @@
         <span class="nav-label">공대 목록</span>
       </div>
 
-      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
-        <span class="nav-icon"><span class="material-icons">timer</span></span>
-        <span class="nav-label">타이머</span>
+      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="오늘의 보스">
+        <span class="nav-icon"><span class="material-icons">sports_kabaddi</span></span>
+        <span class="nav-label">오늘의 보스</span>
       </div>
 
       <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
@@ -1028,15 +1014,6 @@
     </div>
 
   </nav>
-
-  <!-- 사이드바 오늘의 보스 -->
-  <div class="side-boss-panel">
-    <div class="side-boss-header">
-      <span class="side-boss-title">오늘의 보스</span>
-      <button class="side-boss-mgr" onclick="showPage('horntail-timer',null)">관리</button>
-    </div>
-    <div id="sideBossList"></div>
-  </div>
 
   <!-- 사이드바 하단 역할 선택 -->
   <div class="sidebar-profile-area">
@@ -2444,40 +2421,6 @@ async function bossResetTimer(name) {
   renderBossList();
 }
 
-// 사이드바 보스 리스트 (compact)
-function renderSideBossList() {
-  const el = document.getElementById('sideBossList');
-  if (!el) return;
-  const timerData = getBossTimers();
-  const nowMs = Date.now();
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const darkColorMap = {'#fee2e2':'#3b1010','#faf5ff':'#1e1040','#fffbeb':'#2d2000','#eff6ff':'#0a1e3d','#ecfdf5':'#052e1c','#fff7ed':'#2d1800','#f0fdf4':'#052e1c'};
-  el.innerHTML = BOSS_SCHEDULE.map(b => {
-    const clearMs = timerData[b.name];
-    const cooldownMs = b.cooldownHours * 3600000;
-    const iconBg = isDark ? (darkColorMap[b.color]||'#1e2128') : b.color;
-    let statusHtml;
-    if (clearMs) {
-      const remaining = (clearMs + cooldownMs) - nowMs;
-      if (remaining > 0) {
-        const d = Math.floor(remaining / 86400000);
-        const h = Math.floor((remaining % 86400000) / 3600000);
-        const label = d > 0 ? `${d}일 ${h}시` : `${h}시간`;
-        statusHtml = `<span class="side-boss-wait">${label}</span>`;
-      } else {
-        statusHtml = `<span class="side-boss-ok">가능</span>`;
-      }
-    } else {
-      statusHtml = `<span class="side-boss-ok">가능</span>`;
-    }
-    return `<div class="side-boss-item">
-      <div class="side-boss-icon" style="background:${iconBg};">${b.icon}</div>
-      <span class="side-boss-name">${b.name}</span>
-      ${statusHtml}
-    </div>`;
-  }).join('');
-}
-
 // 보스 리스트 단독 렌더 (dashboard 전체 재렌더 없이)
 function renderBossList() {
   const blEl = document.getElementById('dashBossList');
@@ -2566,7 +2509,6 @@ function renderBossList() {
       </div>
     </div>`;
   }).join('');
-  renderSideBossList();
 }
 
 function renderDashboard() {

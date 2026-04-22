@@ -4028,6 +4028,27 @@ subscribeRaids();
 // =============================================
 // 1단계: 해시 라우터 + 공대 상세 페이지
 // =============================================
+function canViewTab(tab, role, raid, uid){
+  const isLeaderOfRaid = role==='master'||(role==='leader'&&raid?.ownerUid===uid);
+  switch(tab){
+    case 'members':      return ['master','leader','vice','member'].includes(role);
+    case 'applications': return ['master','leader','vice'].includes(role);
+    case 'settlements':  return ['master','leader','vice','member'].includes(role);
+    case 'settings':     return isLeaderOfRaid;
+    default: return false;
+  }
+}
+
+function canEditTab(tab, role, raid, uid){
+  switch(tab){
+    case 'members':      return ['master','leader','vice'].includes(role);
+    case 'applications': return ['master','leader','vice'].includes(role);
+    case 'settlements':  return ['master','leader','vice'].includes(role);
+    case 'settings':     return role==='master'||(role==='leader'&&raid?.ownerUid===uid);
+    default: return false;
+  }
+}
+
 let currentRaidId = null;
 let currentRaidTab = 'members';
 let myRaidsNavOpen = localStorage.getItem('_myRaidsNavOpen') !== '0';
@@ -4072,15 +4093,15 @@ function rdShowTab(tab, raidId){
 
   const role = currentProfile?.role||'none';
   const uid = currentUser?.uid;
-  const canManage = ['master','leader','vice'].includes(role);
-  const isLeaderOfRaid = role==='master'||raid?.ownerUid===uid;
 
-  const tabApps = document.getElementById('rdTab-applications');
-  const tabSet  = document.getElementById('rdTab-settings');
-  if(tabApps) tabApps.style.display = canManage?'':'none';
-  if(tabSet)  tabSet.style.display  = isLeaderOfRaid?'':'none';
+  // 탭 가시성: canViewTab 기반
+  ['members','applications','settlements','settings'].forEach(t=>{
+    const tabEl=document.getElementById('rdTab-'+t);
+    if(tabEl) tabEl.style.display=canViewTab(t,role,raid,uid)?'':'none';
+  });
 
-  if((tab==='applications'&&!canManage)||(tab==='settings'&&!isLeaderOfRaid)) tab='members';
+  // 접근 불가 탭이면 공대원으로 폴백
+  if(!canViewTab(tab,role,raid,uid)) tab='members';
 
   document.querySelectorAll('.rd-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('rdTab-'+tab)?.classList.add('active');
@@ -4107,7 +4128,7 @@ function rdRenderMembers(raidId){
   const role=currentProfile?.role||'none';
   const uid=currentUser?.uid;
   const raid=allRaids.find(r=>r.id===raidId);
-  const canEdit=['master','leader','vice'].includes(role)||raid?.ownerUid===uid;
+  const canEdit=canEditTab('members',role,raid,uid);
   const members=allMembers.filter(m=>m.raidId===raidId);
 
   if(!members.length){
@@ -4196,16 +4217,19 @@ async function rdRenderSettlements(raidId){
   if(!el) return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);">불러오는 중...</div>';
 
+  const role=currentProfile?.role||'none';
+  const uid=currentUser?.uid;
+  const raid=allRaids.find(r=>r.id===raidId);
+  const canEdit=canEditTab('settlements',role,raid,uid);
+
   const snap=await db.collection('settlements').orderBy('date','desc').get();
   const allSt=snap.docs.map(d=>({id:d.id,...d.data()}));
   const noRaidId=allSt.filter(s=>!s.raidId).length;
 
-  const role=currentProfile?.role;
-  const uid=currentUser?.uid;
-  const raid=allRaids.find(r=>r.id===raidId);
-  const canCreate=['master','leader'].includes(role)||raid?.ownerUid===uid;
+  const myMember=allMembers.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
 
   el.innerHTML=`
+    ${canEdit?`
     <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;">
       <span style="font-size:20px;flex-shrink:0;">🚧</span>
       <div>
@@ -4214,12 +4238,17 @@ async function rdRenderSettlements(raidId){
         3단계 마이그레이션 대상: <strong>${noRaidId}건</strong> (raidId 미할당)</div>
       </div>
     </div>
-    ${canCreate?`<div style="margin-bottom:16px;">
+    <div style="margin-bottom:16px;">
       <button class="btn btn-primary" disabled title="3단계에서 완성 예정" style="opacity:0.55;cursor:not-allowed;">+ 새 정산 (준비 중)</button>
     </div>`:''}
     <div class="panel" style="padding:0;overflow:auto;">
       <table>
-        <thead><tr><th>날짜</th><th>보스</th><th>판매 아이템</th><th>총수익</th><th>참여인원</th><th>1인당</th><th>메모</th></tr></thead>
+        <thead><tr>
+          <th>날짜</th><th>보스</th><th>판매 아이템</th>
+          <th>총수익</th><th>참여인원</th>
+          <th${myMember?' style="color:#BA7517;"':''}>1인당${myMember?' ★':''}</th>
+          <th>메모</th>
+        </tr></thead>
         <tbody>${allSt.length?allSt.map(s=>{
           const tM=Math.round((s.totalGold||0)/10000).toLocaleString();
           const pM=Math.round((s.perGold||0)/10000).toLocaleString();
@@ -4228,7 +4257,7 @@ async function rdRenderSettlements(raidId){
             <td>${s.date||''}</td><td><strong>${s.boss||''}</strong></td>
             <td style="font-size:12px;color:var(--text-sub);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${names}">${names}</td>
             <td><strong>${tM}만</strong></td><td>${s.count||0}명</td>
-            <td style="color:#BA7517;font-weight:700;">${pM}만</td>
+            <td style="color:#BA7517;font-weight:700;${myMember?'font-size:15px;':''}">${pM}만</td>
             <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
           </tr>`;
         }).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>'}

@@ -1,0 +1,17 @@
+# 테스트/장난 용어
+
+test
+asdf
+qwer
+zxcv
+hello
+tester
+guest
+dummy
+temp
+sample
+example
+aaaa
+bbbb
+
+── inappropriate.txt 끝 ──

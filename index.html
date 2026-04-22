@@ -1023,8 +1023,8 @@
   .sortable-ghost{opacity:0.3;background:var(--sidebar-active);border-radius:8px;}
   .sortable-chosen{opacity:0.8;transform:rotate(1deg);}
   .sortable-drag{opacity:0.8;}
-  .nav-tree-raid .drag-handle{display:flex;align-items:center;color:#4b5563;font-size:14px;flex-shrink:0;cursor:grab;padding:0 2px;opacity:0;transition:opacity 0.15s;}
-  .nav-tree-raid:hover .drag-handle{opacity:0.6;}
+  .nav-tree-raid .drag-handle{display:flex;align-items:center;color:rgba(255,255,255,0.6);font-size:14px;flex-shrink:0;cursor:grab;padding:0 4px;opacity:0.4;transition:opacity 0.15s;}
+  .nav-tree-raid:hover .drag-handle{opacity:0.8;}
   .nav-tree-raid .drag-handle:active{cursor:grabbing;}
   body.sidebar-collapsed .drag-handle{display:none!important;}
 </style>
@@ -2492,6 +2492,7 @@
 <!-- 아이템 DB -->
 <script src="item_db.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="utils/forbiddenWordsLoader.js"></script>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -4801,9 +4802,9 @@ function _initRaidsSortable(count){
     chosenClass:'sortable-chosen',
     dragClass:'sortable-drag',
     handle:'.drag-handle',
-    delay:100,
-    delayOnTouchOnly:true,
-    touchStartThreshold:5,
+    delay:200,
+    delayOnTouchOnly:false,
+    touchStartThreshold:3,
     onEnd:async()=>{
       const items=list.querySelectorAll('[data-raid-id]');
       const newOrder=[...items].map(el=>el.dataset.raidId);
@@ -4908,6 +4909,10 @@ async function saveRaid(){
   const name=document.getElementById('rName').value.trim();
   const boss=document.getElementById('rBoss').value;
   if(!name||!boss){alert('공대명과 보스를 입력하세요.');return;}
+  if(typeof validateForbiddenWords==='function'){
+    const fw=await validateForbiddenWords(name);
+    if(!fw.valid){alert(fw.error);return;}
+  }
   const d={name,boss,maxCount:parseInt(document.getElementById('rMax').value)||6,clearTime:document.getElementById('rClearTime').value.trim(),desc:document.getElementById('rDesc').value.trim(),status:'모집중',ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   const id=document.getElementById('rEditId').value;
   if(id){await db.collection('raids').doc(id).update(d);}

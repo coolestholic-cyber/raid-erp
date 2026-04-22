@@ -1,0 +1,23 @@
+# 운영진/시스템 사칭 방지 금칙어
+# 한 줄에 하나씩 입력
+
+관리자
+운영자
+운영진
+마스터
+admin
+administrator
+master
+root
+system
+시스템
+공식
+official
+moderator
+mod
+bot
+봇
+staff
+스태프
+
+── system.txt 끝 ──

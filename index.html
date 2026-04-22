@@ -1934,9 +1934,9 @@
         </button>
       </div>
       <div class="rd-tabs" id="rdTabBar">
-        <button class="rd-tab active" id="rdTab-members" onclick="rdShowTab('members')">공대원</button>
+        <button class="rd-tab active" id="rdTab-settlements" onclick="rdShowTab('settlements')">정산</button>
+        <button class="rd-tab" id="rdTab-members" onclick="rdShowTab('members')">공대원</button>
         <button class="rd-tab" id="rdTab-applications" onclick="rdShowTab('applications')">신청자<span class="rd-badge" id="rdBadgeApps"></span></button>
-        <button class="rd-tab" id="rdTab-settlements" onclick="rdShowTab('settlements')">정산</button>
         <button class="rd-tab" id="rdTab-settings" onclick="rdShowTab('settings')">설정</button>
       </div>
       <div id="rdPanel-members"></div>
@@ -4163,11 +4163,12 @@ async function leaveRaid(memberId, memberName, raidId){
 }
 
 let currentRaidId = null;
+let stRaidId = null; // 공대 컨텍스트에서 새 정산 생성 시 사용
 let currentRaidTab = 'members';
 let myRaidsNavOpen = localStorage.getItem('_myRaidsNavOpen') !== '0';
 
 function openRaidDetail(raidId, tab){
-  tab = tab||'members';
+  tab = tab||'settlements';
   currentRaidId = raidId;
   currentRaidTab = tab;
   showPage('raid-detail', null);
@@ -4351,24 +4352,14 @@ async function rdRenderSettlements(raidId){
   const raid=allRaids.find(r=>r.id===raidId);
   const canEdit=canEditTab('settlements',role,raid,uid);
 
-  const snap=await db.collection('settlements').orderBy('date','desc').get();
-  const allSt=snap.docs.map(d=>({id:d.id,...d.data()}));
-  const noRaidId=allSt.filter(s=>!s.raidId).length;
+  const snap=await db.collection('settlements').where('raidId','==',raidId).orderBy('date','desc').get();
+  const raidSt=snap.docs.map(d=>({id:d.id,...d.data()}));
 
   const myMember=allMembers.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
 
   el.innerHTML=`
-    ${canEdit?`
-    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;">
-      <span style="font-size:20px;flex-shrink:0;">🚧</span>
-      <div>
-        <div style="font-weight:700;font-size:14px;margin-bottom:4px;">정산 공대별 분리 — 3단계에서 완성 예정</div>
-        <div style="font-size:13px;color:var(--text-sub);">현재 모든 정산 데이터는 공대 구분 없이 저장되어 있습니다.<br>
-        3단계 마이그레이션 대상: <strong>${noRaidId}건</strong> (raidId 미할당)</div>
-      </div>
-    </div>
-    <div style="margin-bottom:16px;">
-      <button class="btn btn-primary" disabled title="3단계에서 완성 예정" style="opacity:0.55;cursor:not-allowed;">+ 새 정산 (준비 중)</button>
+    ${canEdit?`<div style="margin-bottom:16px;">
+      <button class="btn btn-primary" onclick="rdOpenSettlementForm('${raidId}')">+ 새 정산</button>
     </div>`:''}
     <div class="panel" style="padding:0;overflow:auto;">
       <table>
@@ -4378,7 +4369,7 @@ async function rdRenderSettlements(raidId){
           <th${myMember?' style="color:#BA7517;"':''}>1인당${myMember?' ★':''}</th>
           <th>메모</th>
         </tr></thead>
-        <tbody>${allSt.length?allSt.map(s=>{
+        <tbody>${raidSt.length?raidSt.map(s=>{
           const tM=Math.round((s.totalGold||0)/10000).toLocaleString();
           const pM=Math.round((s.perGold||0)/10000).toLocaleString();
           const names=(s.items||[]).map(it=>it.name).filter(Boolean).join(', ')||'-';
@@ -4389,7 +4380,7 @@ async function rdRenderSettlements(raidId){
             <td style="color:#BA7517;font-weight:700;${myMember?'font-size:15px;':''}">${pM}만</td>
             <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
           </tr>`;
-        }).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>'}
+        }).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-sub);">이 공대의 정산 내역이 없습니다</td></tr>'}
         </tbody>
       </table>
     </div>`;
@@ -4514,7 +4505,7 @@ function renderMyRaidsNav(){
     <div style="border-top:1px solid rgba(255,255,255,0.07);margin:6px 0 2px;"></div>
     <div class="nav-tree-hd"><span>내 공대</span></div>
     ${myRaids.map(r=>`
-      <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" onclick="openRaidDetail('${r.id}','members')">
+      <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" onclick="openRaidDetail('${r.id}','settlements')">
         <span class="nav-icon"><span class="material-icons" style="font-size:18px;color:#BA7517;">shield</span></span>
         <span class="nav-label" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.name||r.boss||'공대'}</span>
       </div>`).join('')}`;
@@ -4522,7 +4513,7 @@ function renderMyRaidsNav(){
 
 function toggleMyRaidsNav(){}
 
-function toggleRaidNav(raidId){ openRaidDetail(raidId,'members'); }
+function toggleRaidNav(raidId){ openRaidDetail(raidId,'settlements'); }
 
 function filterMyRaidsNav(val){}
 
@@ -5163,7 +5154,6 @@ function openSettlementForm(){
   document.getElementById('stDate').value=today;
   document.getElementById('stNote').value='';
   document.getElementById('stBoss').value='';
-  // allMembers에서 초기 인원 세팅 (참여 상태 공대원)
   stItems=[];
   const toStMember = m => ({
     id: m.uid || m.id,
@@ -5172,14 +5162,22 @@ function openSettlementForm(){
     name: m.name||'', cls: m.cls||'', role: m.role||'딜러',
     alloc: 100, conf: false, isLinked: !!m.uid
   });
-  stMembers = allMembers.filter(m=>m.status==='참여').map(toStMember);
-  if(!stMembers.length){ stMembers = allMembers.map(toStMember); }
+  // 공대 컨텍스트면 해당 공대원만, 아니면 전체 참여 공대원
+  const pool = stRaidId ? allMembers.filter(m=>m.raidId===stRaidId) : allMembers;
+  stMembers = pool.filter(m=>m.status==='참여').map(toStMember);
+  if(!stMembers.length){ stMembers = pool.map(toStMember); }
   stRenderItems();
   stRenderMembers();
   document.getElementById('settlementForm').scrollIntoView({behavior:'smooth'});
 }
+function rdOpenSettlementForm(raidId){
+  stRaidId = raidId;
+  showPage('settlement', document.getElementById('raidTab-settlement') || null);
+  setTimeout(openSettlementForm, 50);
+}
 function closeSettlementForm(){
   document.getElementById('settlementForm').style.display='none';
+  stRaidId = null;
 }
 
 async function saveSettlement(){
@@ -5197,6 +5195,7 @@ async function saveSettlement(){
   }));
   await db.collection('settlements').add({
     date,boss,
+    raidId:stRaidId||null,
     items:stItems.map(it=>({name:it.name,method:it.method,price:it.price,qty:it.qty,revenue:stRevenue(it)})),
     totalGold:totalRev,
     participants,count:participants.length,perGold:perUnit*100,

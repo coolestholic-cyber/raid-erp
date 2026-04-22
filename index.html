@@ -3481,9 +3481,11 @@ async function backupUsersJson(){
 }
 window.backupUsersJson=backupUsersJson;
 
+let _usersUnsub = null;
 function subscribeUsers(){
+  if(_usersUnsub){ _usersUnsub(); _usersUnsub=null; }
   console.log('[권한관리] subscribeUsers 리스너 등록');
-  db.collection('users').onSnapshot(s=>{
+  _usersUnsub = db.collection('users').onSnapshot(s=>{
     console.log(`[권한관리] Firestore users 조회 완료: ${s.docs.length}명`);
     allUsers=s.docs.map(d=>({id:d.id,...d.data()}))
       .sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
@@ -3499,6 +3501,12 @@ let userPageNo=0;
 function userGoPage(p){userPageNo=p;renderUserTable();}
 function renderUserTable(){
   console.log(`[권한관리] renderUserTable 호출 — allUsers: ${allUsers.length}명`);
+  // page-users가 활성화된 경우 패널 가시성 강제 보장
+  const pageEl=document.getElementById('page-users');
+  if(pageEl?.classList.contains('active')){
+    const pU=document.getElementById('usersPanel-users');
+    if(pU&&pU.style.display==='none'){ console.warn('[권한관리] usersPanel-users 강제 표시');pU.style.display='block'; }
+  }
   const s=(document.getElementById('userSearch')?.value||'').toLowerCase(),rF=document.getElementById('userRoleFilter2')?.value||'';
   const seen=new Set();
   const deduped=allUsers.filter(u=>{const key=u.discordId||u.id;if(seen.has(key))return false;seen.add(key);return true;});
@@ -3721,16 +3729,19 @@ function showPage(id,el){
     try{
       const pU=document.getElementById('usersPanel-users');
       const pL=document.getElementById('usersPanel-leaderapps');
-      if(pU)pU.style.display='';
-      if(pL)pL.style.display='none';
+      if(pU){ pU.style.display='block'; }
+      if(pL){ pL.style.display='none'; }
       const bU=document.getElementById('usersTab-users');
       const bL=document.getElementById('usersTab-leaderapps');
       if(bU){bU.classList.add('active');}
       if(bL){bL.classList.remove('active');}
       const adminTools=document.getElementById('adminToolsPanel');
-      if(adminTools)adminTools.style.display=isAdmin(currentProfile)?'':'none';
-      renderUserTable();
-      loadLoginLogs();
+      if(adminTools)adminTools.style.display=isAdmin(currentProfile)?'block':'none';
+      requestAnimationFrame(()=>{
+        console.log(`[권한관리] rAF 렌더링 — allUsers: ${allUsers.length}명`);
+        renderUserTable();
+        loadLoginLogs();
+      });
     }catch(e){console.error('[권한관리 페이지 오류]',e);}
   }
   if(id==='mysettlement'){loadMySettlements();}

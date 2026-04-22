@@ -2275,6 +2275,25 @@
   </div>
 </div>
 
+<!-- 공대 삭제 확인 Modal -->
+<div class="modal-overlay" id="deleteRaidConfirmModal">
+  <div class="modal" style="max-width:420px;">
+    <h2 style="font-size:18px;margin-bottom:8px;">공대 삭제</h2>
+    <p style="font-size:13px;color:var(--text-sub);margin-bottom:20px;">삭제하면 공대 정보가 영구적으로 제거됩니다. 계속하려면 아래에 공대명을 정확히 입력하세요.</p>
+    <input type="hidden" id="deleteRaidTargetId">
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--text-sub);margin-bottom:6px;" id="deleteRaidNameLabel">공대명 입력</label>
+      <input type="text" id="deleteRaidNameInput" placeholder="공대명을 입력하세요"
+        oninput="checkDeleteRaidInput()"
+        style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--text);box-sizing:border-box;">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeDeleteRaidModal()">취소</button>
+      <button class="btn btn-danger" id="deleteRaidConfirmBtn" disabled onclick="executeDeleteRaid()" style="opacity:.45;cursor:not-allowed;">삭제 확인</button>
+    </div>
+  </div>
+</div>
+
 <!-- 거절 사유 입력 Modal -->
 <div class="modal-overlay" id="laRejectModal">
   <div class="modal" style="width:420px;">
@@ -4025,7 +4044,7 @@ function updateSidebarProfileArea(){
 function updateMyRaidNavVisibility(){
   const role = currentProfile?.role;
   // 공대 목록 내 등록 버튼: 공대장/부공대장/마스터만
-  const canCreate = ['leader','vice','master'].includes(role);
+  const canCreate = ['leader','master'].includes(role);
   const btnCreate = document.getElementById('btnCreateRaid');
   if(btnCreate) btnCreate.style.display = canCreate ? '' : 'none';
   // 손님 신청목록 탭: 마스터만
@@ -4065,6 +4084,17 @@ function canEditTab(tab, role, raid, uid){
     case 'settings':     return role==='master'||(role==='leader'&&raid?.ownerUid===uid);
     default: return false;
   }
+}
+
+function canKickMember(role){ return role==='master'; }
+function canDeleteSettlement(role, raid, uid){
+  return role==='master'||(role==='leader'&&raid?.ownerUid===uid);
+}
+async function leaveRaid(memberId, memberName, raidId){
+  if(!confirm(`"${memberName}" 공대에서 탈퇴하시겠습니까?`)) return;
+  await db.collection('members').doc(memberId).delete();
+  rdRenderMembers(raidId);
+  renderMyRaidsNav();
 }
 
 let currentRaidId = null;
@@ -4147,7 +4177,9 @@ function rdRenderMembers(raidId){
   const uid=currentUser?.uid;
   const raid=allRaids.find(r=>r.id===raidId);
   const canEdit=canEditTab('members',role,raid,uid);
+  const canKick=canKickMember(role);
   const members=allMembers.filter(m=>m.raidId===raidId);
+  const hasActions=canEdit||canKick||!!uid;
 
   if(!members.length){
     el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-sub);">공대원이 없습니다. 공대 찾기에서 신청을 승인해주세요.</div>';
@@ -4162,10 +4194,16 @@ function rdRenderMembers(raidId){
       <table>
         <thead><tr>
           <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>레벨</th><th>스킬공격력</th><th>상태</th>
-          ${canEdit?'<th>관리</th>':''}
+          ${hasActions?'<th>관리</th>':''}
         </tr></thead>
         <tbody>
-          ${members.map((m,i)=>`<tr>
+          ${members.map((m,i)=>{
+            const isMine=uid&&(m.ownerUid===uid||m.uid===uid);
+            const btns=[];
+            if(canEdit) btns.push(`<button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`);
+            if(canKick&&!isMine) btns.push(`<button class="btn btn-danger" style="font-size:11px;padding:3px 8px;" onclick="leaveRaid('${m.id}','${(m.name||'').replace(/'/g,"\\'")}','${raidId}')">강퇴</button>`);
+            if(isMine) btns.push(`<button class="btn btn-outline" style="font-size:11px;padding:3px 8px;color:#dc2626;border-color:#fca5a5;" onclick="leaveRaid('${m.id}','${(m.name||'').replace(/'/g,"\\'")}','${raidId}')">탈퇴</button>`);
+            return `<tr>
             <td style="color:var(--text-sub)">${i+1}</td>
             <td><strong>${m.name||'-'}</strong></td>
             <td>${m.cls||'-'}</td>
@@ -4173,11 +4211,9 @@ function rdRenderMembers(raidId){
             <td>${m.level||0}</td>
             <td>${(m.skillAtk||0).toLocaleString()}</td>
             <td><span class="badge ${sb[m.status]||'badge-yellow'}">${m.status||'-'}</span></td>
-            ${canEdit?`<td style="display:flex;gap:4px;flex-wrap:wrap;">
-              <button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>
-              <button class="btn btn-danger" style="font-size:11px;padding:3px 8px;" onclick="deleteMember('${m.id}','${(m.name||'').replace(/'/g,"\\'")}')">삭제</button>
-            </td>`:''}
-          </tr>`).join('')}
+            ${hasActions?`<td style="display:flex;gap:4px;flex-wrap:wrap;">${btns.join('')}</td>`:''}
+          </tr>`;
+          }).join('')}
         </tbody>
       </table>
     </div>`;
@@ -4355,7 +4391,7 @@ function rdRenderSettings(raidId){
       <div class="rd-danger-zone">
         <div class="rd-danger-title">⚠️ 위험 구역</div>
         <div class="rd-danger-desc">공대를 삭제하면 공대 정보가 영구 삭제됩니다.<br>삭제 전 공대원 목록과 정산 내역을 반드시 확인하세요.</div>
-        <button class="btn btn-danger" onclick="deleteRaid('${raidId}')">공대 삭제</button>
+        <button class="btn btn-danger" onclick="openDeleteRaidModal('${raidId}')">공대 삭제</button>
       </div>`:''}
     </div>`;
 }
@@ -4497,11 +4533,42 @@ async function saveRaid(){
   updateMyRaidNavVisibility();
 }
 
-async function deleteRaid(id){
-  if(!confirm('공대를 삭제하시겠습니까?'))return;
-  await db.collection('raids').doc(id).delete();
+function openDeleteRaidModal(raidId){
+  const raid = allRaids.find(r=>r.id===raidId);
+  if(!raid) return;
+  document.getElementById('deleteRaidTargetId').value = raidId;
+  document.getElementById('deleteRaidNameLabel').textContent = `공대명 "${raid.name}" 을 입력하세요`;
+  document.getElementById('deleteRaidNameInput').value = '';
+  const btn = document.getElementById('deleteRaidConfirmBtn');
+  btn.disabled = true; btn.style.opacity = '.45'; btn.style.cursor = 'not-allowed';
+  document.getElementById('deleteRaidConfirmModal').classList.add('show');
+}
+function closeDeleteRaidModal(){
+  document.getElementById('deleteRaidConfirmModal').classList.remove('show');
+}
+function checkDeleteRaidInput(){
+  const raidId = document.getElementById('deleteRaidTargetId').value;
+  const raid = allRaids.find(r=>r.id===raidId);
+  const input = document.getElementById('deleteRaidNameInput').value;
+  const btn = document.getElementById('deleteRaidConfirmBtn');
+  const match = raid && input === raid.name;
+  btn.disabled = !match;
+  btn.style.opacity = match ? '1' : '.45';
+  btn.style.cursor = match ? 'pointer' : 'not-allowed';
+}
+async function executeDeleteRaid(){
+  const raidId = document.getElementById('deleteRaidTargetId').value;
+  if(!raidId) return;
+  closeDeleteRaidModal();
+  await db.collection('raids').doc(raidId).delete();
   renderRaidList();
   updateRaidNavVisibility();
+  updateMyRaidNavVisibility();
+  renderMyRaidsNav();
+  showPage('raids', document.querySelector('.nav-item[title="공대 찾기"]'));
+}
+async function deleteRaid(id){
+  openDeleteRaidModal(id);
 }
 
 // 공대원 신청 팝업 열기

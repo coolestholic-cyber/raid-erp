@@ -4202,16 +4202,10 @@ async function renderRaidList(){
   const pendingSnap=await db.collection('raidApplications').where('status','==','대기').get();
   const pendingCount={};
   pendingSnap.docs.forEach(d=>{const rid=d.data().raidId;pendingCount[rid]=(pendingCount[rid]||0)+1;});
-  // 승인 인원 수: allMembers 기준 (raidId 있으면 per-raid, 없으면 전체 참여 인원 레거시 폴백)
+  // 승인 인원 수: raidId 기준으로 공대별 집계 (raidId 없는 멤버는 카드에 표시하지 않음)
   const approvedCount={};
-  const membersWithRaid=allMembers.filter(m=>m.raidId&&m.status==='참여');
-  if(membersWithRaid.length>0){
-    membersWithRaid.forEach(m=>{approvedCount[m.raidId]=(approvedCount[m.raidId]||0)+1;});
-  } else {
-    // 레거시: raidId 없는 구 멤버 데이터 → 참여 인원 전체 수를 해당 공대에 표시
-    const legacyTotal=allMembers.filter(m=>m.status==='참여').length;
-    if(legacyTotal>0) raids.forEach(r=>{approvedCount[r.id]=legacyTotal;});
-  }
+  allMembers.filter(m=>m.raidId&&m.status==='참여')
+    .forEach(m=>{approvedCount[m.raidId]=(approvedCount[m.raidId]||0)+1;});
 
   const isMaster=currentProfile&&currentProfile.role==='master';
   const visible=raids.slice(0,rfShowCount);

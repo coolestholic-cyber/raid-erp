@@ -1021,11 +1021,13 @@
   body.sidebar-collapsed .nav-tree-raid .arr,body.sidebar-collapsed .nav-tree-raid .nav-label{display:none;}
   /* ── Sortable 드래그 ── */
   .sortable-ghost{opacity:0.25;background:var(--sidebar-active);border-radius:8px;outline:1px dashed rgba(255,255,255,0.3);}
-  .sortable-chosen{opacity:0.9;transform:rotate(0.5deg);}
+  .sortable-chosen{opacity:0.9;transform:rotate(0.5deg);cursor:grabbing!important;}
   .sortable-drag{opacity:0.9;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
-  .nav-tree-raid .drag-handle{display:flex;align-items:center;color:rgba(255,255,255,0.6);font-size:14px;flex-shrink:0;cursor:grab;padding:0 4px;opacity:0.4;transition:opacity 0.15s;user-select:none;}
-  .nav-tree-raid:hover .drag-handle{opacity:0.8;}
-  .nav-tree-raid .drag-handle:active,.sortable-chosen .drag-handle{cursor:grabbing;opacity:1;}
+  #myRaidsNavList .nav-tree-raid{cursor:grab;}
+  #myRaidsNavList .nav-tree-raid:active{cursor:grabbing;}
+  .nav-tree-raid .drag-handle{display:flex;align-items:center;color:rgba(255,255,255,0.35);font-size:13px;flex-shrink:0;padding:0 4px;opacity:0;transition:opacity 0.15s;user-select:none;pointer-events:none;}
+  .nav-tree-raid:hover .drag-handle{opacity:0.5;}
+  .sortable-chosen .drag-handle{opacity:0.8;}
   body.sidebar-collapsed .drag-handle{display:none!important;}
 </style>
 </head>
@@ -4792,7 +4794,7 @@ function renderMyRaidsNav(){
       <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" data-raid-id="${r.id}">
         <span class="nav-icon" onclick="openRaidDetail('${r.id}','settlements')" style="cursor:pointer;flex-shrink:0;"><span class="material-icons" style="font-size:18px;color:#BA7517;">shield</span></span>
         <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;max-width:140px;" title="${_n}" onclick="openRaidDetail('${r.id}','settlements')">${_d}</span>
-        <span class="drag-handle" title="드래그로 순서 변경" onclick="event.stopPropagation()">⠿</span>
+        <span class="drag-handle">⠿</span>
       </div>`;}).join('')}
     </div>`;
 
@@ -4816,15 +4818,13 @@ function _initRaidsSortable(count){
     ghostClass:'sortable-ghost',
     chosenClass:'sortable-chosen',
     dragClass:'sortable-drag',
-    handle:'.drag-handle',
-    delay:150,
-    delayOnTouchOnly:true,
-    touchStartThreshold:5,
+    delay:120,
+    delayOnTouchOnly:false,
+    touchStartThreshold:4,
     forceFallback:false,
-    onStart:()=>{ list.style.pointerEvents='none'; list.querySelectorAll('.drag-handle').forEach(h=>h.style.pointerEvents='auto'); },
+    filter:'.nav-icon,span[onclick]',
+    preventOnFilter:false,
     onEnd:async(evt)=>{
-      list.style.pointerEvents='';
-      list.querySelectorAll('.drag-handle').forEach(h=>h.style.pointerEvents='');
       if(evt.oldIndex===evt.newIndex) return;
       const items=list.querySelectorAll('[data-raid-id]');
       const newOrder=[...items].map(el=>el.dataset.raidId);

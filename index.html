@@ -960,8 +960,7 @@
   .nav-tree-hd-btn{background:none;border:none;color:#6b7280;cursor:pointer;padding:0;display:flex;align-items:center;line-height:1;}
   .nav-tree-raid{display:flex;align-items:center;padding:9px 8px 9px 14px;margin:1px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:13px;font-weight:600;transition:.15s;gap:6px;user-select:none;}
   .nav-tree-raid:hover{background:var(--sidebar-hover);color:#e5e7eb;}
-  .nav-tree-raid .arr{margin-left:auto;font-size:14px;transition:transform .2s;flex-shrink:0;}
-  .nav-tree-raid.open .arr{transform:rotate(90deg);}
+  .nav-tree-raid.active{background:var(--sidebar-active);color:#fff;}
   .nav-tree-children{overflow:hidden;max-height:0;transition:max-height .25s ease;}
   .nav-tree-children.open{max-height:400px;}
   .nav-tree-child{display:flex;align-items:center;padding:7px 10px 7px 36px;margin:1px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:13px;transition:.15s;gap:7px;}
@@ -1904,7 +1903,7 @@
       <div class="top-bar">
         <div>
           <h1 class="page-title" id="rdRaidName">공대</h1>
-          <p class="page-desc" id="rdRaidDesc"></p>
+          <p class="page-desc" id="rdRaidMeta" style="margin-top:2px;font-size:13px;color:var(--text-sub);"></p>
         </div>
       </div>
       <div class="rd-tabs" id="rdTabBar">
@@ -4048,10 +4047,7 @@ function openRaidDetail(raidId, tab){
 }
 
 function _rdSyncNavActive(raidId, tab){
-  document.querySelectorAll('.nav-tree-child').forEach(c=>c.classList.remove('active'));
-  document.querySelector(`.nav-tree-child[data-raid="${raidId}"][data-tab="${tab}"]`)?.classList.add('active');
-  document.querySelectorAll('.nav-tree-raid').forEach(r=>r.classList.toggle('open', r.id==='navRaid-'+raidId));
-  document.querySelectorAll('.nav-tree-children').forEach(c=>c.classList.toggle('open', c.id==='navRaidChildren-'+raidId));
+  document.querySelectorAll('.nav-tree-raid').forEach(r=>r.classList.toggle('active', r.id==='navRaid-'+raidId));
 }
 
 function rdShowTab(tab, raidId){
@@ -4061,8 +4057,18 @@ function rdShowTab(tab, raidId){
   currentRaidTab = tab;
 
   const raid = allRaids.find(r=>r.id===raidId);
-  document.getElementById('rdRaidName').textContent = raid?(raid.name+(raid.boss?' ('+raid.boss+')':'')):'공대';
-  document.getElementById('rdRaidDesc').textContent = raid?.desc||'';
+  document.getElementById('rdRaidName').textContent = raid?.name||'공대';
+  const rdMeta = document.getElementById('rdRaidMeta');
+  if(rdMeta){
+    if(raid){
+      const mc = allMembers.filter(m=>m.raidId===raidId).length;
+      const parts = [];
+      if(raid.boss) parts.push(raid.boss);
+      if(raid.ownerName) parts.push('공대장: '+raid.ownerName);
+      parts.push(mc+'/'+(raid.maxCount||6)+'명');
+      rdMeta.textContent = parts.join(' · ');
+    } else { rdMeta.textContent=''; }
+  }
 
   const role = currentProfile?.role||'none';
   const uid = currentUser?.uid;
@@ -4324,95 +4330,40 @@ function renderMyRaidsNav(){
 
   if(!myRaids.length){el.innerHTML='';return;}
 
-  const canCreate=['master','leader'].includes(role);
-  const isOpen=myRaidsNavOpen;
-  const pByRaid={};
-  allRaidApplications.filter(a=>a.status==='대기').forEach(a=>{
-    if(a.raidId) pByRaid[a.raidId]=(pByRaid[a.raidId]||0)+1;
-  });
-
-  const searchVal=document.getElementById('myRaidsSearchInput')?.value?.toLowerCase()||'';
-  const filtered=searchVal?myRaids.filter(r=>(r.name||r.boss||'').toLowerCase().includes(searchVal)):myRaids;
-
   el.innerHTML=`
     <div style="border-top:1px solid rgba(255,255,255,0.07);margin:6px 0 2px;"></div>
-    <div class="nav-tree-hd">
-      <span>내 공대</span>
-      <button class="nav-tree-hd-btn" onclick="toggleMyRaidsNav()" title="${isOpen?'접기':'펼치기'}">
-        <span class="material-icons" style="font-size:18px;transition:transform .2s;${isOpen?'':'transform:rotate(-90deg)'}">expand_more</span>
-      </button>
-    </div>
-    <div id="navMyRaidsBody" style="${isOpen?'':'display:none;'}">
-      <div class="nav-tree-search">
-        <span class="material-icons" style="font-size:14px;color:#4b5563;">search</span>
-        <input type="text" placeholder="공대 검색..." oninput="filterMyRaidsNav(this.value)" id="myRaidsSearchInput" value="${searchVal}">
-      </div>
-      ${filtered.map(r=>{
-        const isThisOpen=r.id===currentRaidId;
-        const p=pByRaid[r.id]||0;
-        const canManage=['master','leader','vice'].includes(role);
-        const isLeaderOfRaid=role==='master'||r.ownerUid===uid;
-        return `
-        <div class="nav-tree-raid${isThisOpen?' open':''}" id="navRaid-${r.id}" onclick="toggleRaidNav('${r.id}')">
-          <span class="material-icons" style="font-size:15px;color:#BA7517;flex-shrink:0;">shield</span>
-          <span class="nav-label" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.name||r.boss||'공대'}</span>
-          ${p>0?`<span class="nav-badge">${p}</span>`:''}
-          <span class="material-icons arr">chevron_right</span>
-        </div>
-        <div class="nav-tree-children${isThisOpen?' open':''}" id="navRaidChildren-${r.id}">
-          <div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='members'?' active':''}" data-raid="${r.id}" data-tab="members" onclick="openRaidDetail('${r.id}','members')">
-            <span class="material-icons" style="font-size:14px;">groups</span> 공대원
-          </div>
-          ${canManage?`<div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='applications'?' active':''}" data-raid="${r.id}" data-tab="applications" onclick="openRaidDetail('${r.id}','applications')">
-            <span class="material-icons" style="font-size:14px;">assignment</span> 신청자${p>0?`<span class="nav-badge">${p}</span>`:''}
-          </div>`:''}
-          <div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='settlements'?' active':''}" data-raid="${r.id}" data-tab="settlements" onclick="openRaidDetail('${r.id}','settlements')">
-            <span class="material-icons" style="font-size:14px;">payments</span> 정산
-          </div>
-          ${isLeaderOfRaid?`<div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='settings'?' active':''}" data-raid="${r.id}" data-tab="settings" onclick="openRaidDetail('${r.id}','settings')">
-            <span class="material-icons" style="font-size:14px;">settings</span> 설정
-          </div>`:''}
-        </div>`;
-      }).join('')}
-      ${canCreate?`<button class="nav-tree-new" onclick="openRaidModal()">
-        <span class="material-icons" style="font-size:15px;">add</span>
-        <span class="nav-label">새 공대 만들기</span>
-      </button>`:''}
-    </div>`;
+    <div class="nav-tree-hd"><span>내 공대</span></div>
+    ${myRaids.map(r=>`
+      <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" onclick="openRaidDetail('${r.id}','members')">
+        <span class="material-icons" style="font-size:15px;color:#BA7517;flex-shrink:0;">shield</span>
+        <span class="nav-label" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.name||r.boss||'공대'}</span>
+      </div>`).join('')}`;
 }
 
-function toggleMyRaidsNav(){
-  myRaidsNavOpen=!myRaidsNavOpen;
-  localStorage.setItem('_myRaidsNavOpen', myRaidsNavOpen?'1':'0');
-  const body=document.getElementById('navMyRaidsBody');
-  if(body) body.style.display=myRaidsNavOpen?'':'none';
-  const icon=document.querySelector('#navMyRaidsTree .nav-tree-hd-btn .material-icons');
-  if(icon) icon.style.transform=myRaidsNavOpen?'':'rotate(-90deg)';
-}
+function toggleMyRaidsNav(){}
 
-function toggleRaidNav(raidId){
-  const children=document.getElementById('navRaidChildren-'+raidId);
-  if(!children) return;
-  if(!children.classList.contains('open')||currentRaidId!==raidId){
-    openRaidDetail(raidId,'members');
-  } else {
-    document.getElementById('navRaid-'+raidId)?.classList.remove('open');
-    children.classList.remove('open');
-  }
-}
+function toggleRaidNav(raidId){ openRaidDetail(raidId,'members'); }
 
-function filterMyRaidsNav(val){renderMyRaidsNav();}
+function filterMyRaidsNav(val){}
 
 function handleHashChange(){
   const hash=window.location.hash.slice(1);
-  const m=hash.match(/^raids\/([^/]+)\/(.+)$/);
-  if(m){
-    const [,raidId,tab]=m;
+  const mFull=hash.match(/^raids\/([^/]+)\/(.+)$/);
+  const mShort=hash.match(/^raids\/([^/]+)$/);
+  if(mFull){
+    const [,raidId,tab]=mFull;
     currentRaidId=raidId; currentRaidTab=tab;
     document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
     document.getElementById('page-raid-detail')?.classList.add('active');
     rdShowTab(tab,raidId);
     _rdSyncNavActive(raidId,tab);
+  } else if(mShort){
+    const [,raidId]=mShort;
+    currentRaidId=raidId; currentRaidTab='members';
+    document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-raid-detail')?.classList.add('active');
+    rdShowTab('members',raidId);
+    _rdSyncNavActive(raidId,'members');
   }
 }
 window.addEventListener('hashchange',handleHashChange);

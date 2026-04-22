@@ -1022,111 +1022,77 @@
 
   <nav class="sidebar-nav">
 
-    <!-- ===== 공대원 메뉴 (member / guest / none / 비로그인) ===== -->
-    <div id="navSetMember">
-      <div class="nav-section">메뉴</div>
+    <div class="nav-section">메뉴</div>
 
-      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)" title="홈">
-        <span class="nav-icon"><span class="material-icons">home</span></span>
-        <span class="nav-label">홈</span>
-      </div>
-
-      <div class="nav-item" data-page="mysettlement" onclick="showPage('mysettlement',this)" title="내 정산">
-        <span class="nav-icon"><span class="material-icons">receipt_long</span></span>
-        <span class="nav-label">내 정산</span>
-        <span class="nav-badge" id="navBadgeMySettlement"></span>
-      </div>
-
-      <div class="nav-item" data-page="raids" onclick="showPage('raids',this)" title="공대 찾기">
-        <span class="nav-icon"><span class="material-icons">search</span></span>
-        <span class="nav-label">공대 찾기</span>
-      </div>
-
-      <div class="nav-item" data-page="mychar" onclick="showPage('mychar',this)" title="내 캐릭터">
-        <span class="nav-icon"><span class="material-icons">person</span></span>
-        <span class="nav-label">내 캐릭터</span>
-      </div>
-
-      <div class="nav-section" style="margin-top:4px;">도구</div>
-
-      <div class="nav-item" data-page="todayboss" onclick="showPage('todayboss',this)" title="오늘의 보스">
-        <span class="nav-icon"><span class="material-icons">today</span></span>
-        <span class="nav-label">오늘의 보스</span>
-      </div>
-      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
-        <span class="nav-icon"><span class="material-icons">timer</span></span>
-        <span class="nav-label">타이머</span>
-      </div>
-
-      <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
-        <span class="nav-icon"><span class="material-icons">inventory_2</span></span>
-        <span class="nav-label">아이템 DB</span>
-      </div>
-      <!-- 권한 관리: 마스터일 때만 표시 (member 뷰에서도 접근 가능하도록) -->
-      <div class="nav-section" id="navSectionMemberSettings" style="display:none;margin-top:4px;">설정</div>
-      <a class="nav-item" data-page="users" onclick="showPage('users',this)" id="navUsersMember" style="display:none;" title="권한 관리">
-        <span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span>
-        <span class="nav-label">권한 관리</span>
-      </a>
-      <!-- 공대장 신청 버튼: member/guest만 JS로 렌더링 -->
-      <div id="navApplyLeaderWrap" class="nav-item-apply" style="display:none;">
-        <button class="btn-apply-leader" onclick="openLeaderAppModal()">
-          <span class="material-icons" style="font-size:16px;">military_tech</span>
-          공대장 신청
-        </button>
-      </div>
+    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)" title="홈">
+      <span class="nav-icon"><span class="material-icons">home</span></span>
+      <span class="nav-label">홈</span>
     </div>
 
-    <!-- ===== 공대장 메뉴 (leader / vice / master) ===== -->
-    <div id="navSetLeader" style="display:none">
-      <div class="nav-section">핵심</div>
-
-      <div class="nav-item" data-page="dashboard" onclick="showPage('dashboard',this)" title="홈">
-        <span class="nav-icon"><span class="material-icons">home</span></span>
-        <span class="nav-label">홈</span>
-      </div>
-
-      <span style="display:none" id="navBadgeSettlement"></span>
-
-      <span style="display:none" id="navBadgeApplicants"></span>
-
-      <div class="nav-section" style="margin-top:4px;">도구</div>
-
-      <div class="nav-item" id="navRaidsLeader" data-page="raids" onclick="showPage('raids',this)" title="공대 목록">
-        <span class="nav-icon"><span class="material-icons">format_list_bulleted</span></span>
-        <span class="nav-label">공대 목록</span>
-      </div>
-
-      <div class="nav-item" data-page="todayboss" onclick="showPage('todayboss',this)" title="오늘의 보스">
-        <span class="nav-icon"><span class="material-icons">today</span></span>
-        <span class="nav-label">오늘의 보스</span>
-      </div>
-      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
-        <span class="nav-icon"><span class="material-icons">timer</span></span>
-        <span class="nav-label">타이머</span>
-      </div>
-
-      <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
-        <span class="nav-icon"><span class="material-icons">inventory_2</span></span>
-        <span class="nav-label">아이템 DB</span>
-      </div>
-
-      <div class="nav-section" style="margin-top:4px;">설정</div>
-      <a class="nav-item" data-page="users" onclick="showPage('users',this)" id="navUsers" style="display:none;" title="권한 관리">
-        <span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span>
-        <span class="nav-label">권한 관리</span>
-      </a>
+    <div class="nav-item" data-page="mychar" onclick="showPage('mychar',this)" title="내 캐릭터">
+      <span class="nav-icon"><span class="material-icons">person</span></span>
+      <span class="nav-label">내 캐릭터</span>
     </div>
 
+    <div class="nav-item" data-page="raids" onclick="showPage('raids',this)" title="공대 찾기">
+      <span class="nav-icon"><span class="material-icons">search</span></span>
+      <span class="nav-label">공대 찾기</span>
+    </div>
 
     <!-- 내 공대 트리 (renderMyRaidsNav()가 동적으로 채움) -->
     <div id="navMyRaidsTree"></div>
+
+    <div class="nav-item" data-page="mysettlement" onclick="showPage('mysettlement',this)" title="내 정산">
+      <span class="nav-icon"><span class="material-icons">receipt_long</span></span>
+      <span class="nav-label">내 정산</span>
+      <span class="nav-badge" id="navBadgeMySettlement"></span>
+    </div>
+
+    <div class="nav-item" data-page="todayboss" onclick="showPage('todayboss',this)" title="오늘의 보스">
+      <span class="nav-icon"><span class="material-icons">today</span></span>
+      <span class="nav-label">오늘의 보스</span>
+    </div>
+
+    <!-- 도구 섹션: 마스터만 표시 -->
+    <div id="navToolsSection" style="display:none;">
+      <div class="nav-section" style="margin-top:4px;">도구</div>
+      <div class="nav-item" data-page="horntail-timer" onclick="showPage('horntail-timer',this)" title="타이머">
+        <span class="nav-icon"><span class="material-icons">timer</span></span>
+        <span class="nav-label">타이머</span>
+      </div>
+      <div class="nav-item" data-page="items" onclick="showPage('items',this)" title="아이템 DB">
+        <span class="nav-icon"><span class="material-icons">inventory_2</span></span>
+        <span class="nav-label">아이템 DB</span>
+      </div>
+    </div>
+
+    <!-- 관리 섹션: 마스터만 표시 -->
+    <div id="navAdminSection" style="display:none;">
+      <div class="nav-section" style="margin-top:4px;">관리</div>
+      <a class="nav-item" data-page="users" onclick="showPage('users',this)" id="navUsers" title="권한 관리">
+        <span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span>
+        <span class="nav-label">권한 관리</span>
+      </a>
+    </div>
+
+    <!-- 호환성: 다른 JS에서 참조하는 숨겨진 ID -->
+    <span style="display:none" id="navBadgeSettlement"></span>
+    <span style="display:none" id="navBadgeApplicants"></span>
+    <span style="display:none" id="navUsersMember"></span>
+
+    <!-- 공대장 신청 버튼: member/guest만 JS로 표시 -->
+    <div id="navApplyLeaderWrap" class="nav-item-apply" style="display:none;">
+      <button class="btn-apply-leader" onclick="openLeaderAppModal()">
+        <span class="material-icons" style="font-size:16px;">military_tech</span>
+        공대장 신청
+      </button>
+    </div>
 
   </nav>
 
   <!-- 사이드바 하단 역할 선택 -->
   <div class="sidebar-profile-area">
-    <div class="sidebar-role-switcher">
+    <div class="sidebar-role-switcher" style="display:none;">
       <button class="role-switch-btn" id="rpBtnMember" onclick="switchSidebarView('member')" type="button">
         <span class="material-icons" style="font-size:16px;">groups</span>
         공대원 뷰
@@ -2520,21 +2486,12 @@ function updateLoginUI(){
     if(ddPhoto)ddPhoto.src=photoSrc;
     if(ddName)ddName.textContent=currentProfile.name;
     if(ddRole){ddRole.textContent=r.label;}
-    // 역할에 따라 기본 사이드바 뷰 설정
-    const canLeader = ['leader','vice','master'].includes(currentProfile.role);
-    currentSidebarView = canLeader ? 'leader' : 'member';
     updateSidebarProfileArea();
     updateSidebarMenuSet();
     updateMyRaidNavVisibility();
     renderMyRaidsNav();
-    // 손님/공대원은 반드시 member 뷰 강제
-    if(['member','guest'].includes(currentProfile.role)){
-      currentSidebarView = 'member';
-      updateSidebarMenuSet();
-    }
     updateApplyLeaderButton();
   }else{
-    currentSidebarView = 'member';
     updateSidebarProfileArea();
     updateSidebarMenuSet();
     renderMyRaidsNav();
@@ -3952,26 +3909,23 @@ function updateRaidNavVisibility(){
 let currentSidebarView = 'member'; // 'member' | 'leader'
 
 function updateSidebarMenuSet(){
-  const isLeader = currentSidebarView === 'leader';
-  const setMember = document.getElementById('navSetMember');
-  const setLeader = document.getElementById('navSetLeader');
-  if(setMember) setMember.style.display = isLeader ? 'none' : '';
-  if(setLeader) setLeader.style.display = isLeader ? '' : 'none';
-  // 모바일 탭바 전환
+  const isMaster = currentProfile?.role === 'master';
+  const toolsSection = document.getElementById('navToolsSection');
+  const adminSection = document.getElementById('navAdminSection');
+  if(toolsSection) toolsSection.style.display = isMaster ? '' : 'none';
+  if(adminSection) adminSection.style.display = isMaster ? '' : 'none';
+  // 모바일 탭바: 통합 뷰이므로 member 탭바만 사용
   const tbMember = document.getElementById('tabBarMember');
   const tbLeader = document.getElementById('tabBarLeader');
-  if(tbMember) tbMember.style.display = isLeader ? 'none' : '';
-  if(tbLeader) tbLeader.style.display = isLeader ? '' : 'none';
+  if(tbMember) tbMember.style.display = '';
+  if(tbLeader) tbLeader.style.display = 'none';
   // 현재 활성 페이지의 nav-item 재설정
   const activePage = document.querySelector('.page-section.active');
   if(activePage){
     const pageId = activePage.id.replace('page-','');
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
-    const activeSet = isLeader ? setLeader : setMember;
-    if(activeSet){
-      const navItem = activeSet.querySelector(`.nav-item[data-page="${pageId}"]`);
-      if(navItem) navItem.classList.add('active');
-    }
+    const navItem = document.querySelector(`.sidebar-nav .nav-item[data-page="${pageId}"]`);
+    if(navItem) navItem.classList.add('active');
     updateTabBar(pageId);
   }
   updateSidebarRolePickerUI();

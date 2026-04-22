@@ -2604,6 +2604,7 @@ auth.onAuthStateChanged(async(user)=>{
   await loadBossTimers();
   await loadCustomBosses();
   renderBossList();
+  autoBackupAndMigrate();
 });
 
 // =============================================
@@ -3641,6 +3642,98 @@ function exportMembers(){
   allMembers.forEach((m,i)=>{csv+=`${i+1},${m.name},${m.cls},${m.role},${m.level},${m.gold},${m.rate},${m.status},${m.note}\n`;});
   const b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='공대원목록.csv';a.click();
 }
+async function backupMembersJson(){
+  const snap=await db.collection('members').get();
+  const data=snap.docs.map(d=>({_docId:d.id,...d.data()}));
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`members_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();
+  console.log(`백업 완료: ${data.length}건`);
+}
+
+async function autoBackupAndMigrate(){
+  // 마스터/리더/부공대장만 Firestore 쓰기 권한 있음
+  if(!currentProfile||!['master','leader','vice'].includes(currentProfile.role))return;
+  // 기기당 1회만 실행
+  if(localStorage.getItem('_membersMigrated_v1'))return;
+
+  try{
+    // ── 백업: localStorage에 members 전체 스냅샷 저장 ──
+    const membersSnap=await db.collection('members').get();
+    const backup=membersSnap.docs.map(d=>({_docId:d.id,...d.data()}));
+    try{localStorage.setItem('_membersBackup_v1',JSON.stringify(backup));}catch(e){}
+    console.log('[AutoMigrate] 백업 완료:',backup.length,'건');
+
+    // ── raidId 없는 고아 멤버 탐색 ──
+    const orphans=membersSnap.docs.filter(d=>!d.data().raidId);
+    if(!orphans.length){
+      localStorage.setItem('_membersMigrated_v1','1');
+      console.log('[AutoMigrate] 마이그레이션 불필요');
+      return;
+    }
+    console.log('[AutoMigrate] 고아 멤버',orphans.length,'명 발견, 매칭 시작');
+
+    // 공대 목록
+    const raidsSnap=await db.collection('raids').get();
+    const raids=raidsSnap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!raids.length){console.warn('[AutoMigrate] 공대 없음, 중단');return;}
+
+    // 승인된 신청서 (uid→raidId 매핑)
+    const appsSnap=await db.collection('raidApplications').where('status','==','승인').get();
+    const appsByUid={};
+    appsSnap.docs.forEach(d=>{
+      const a=d.data();
+      if(a.uid&&a.raidId){(appsByUid[a.uid]=appsByUid[a.uid]||[]).push(a);}
+    });
+
+    const batch=db.batch();
+    let migrated=0;
+    for(const doc of orphans){
+      const m=doc.data();
+      let targetId=null;
+
+      // 전략1: uid → 승인된 신청서에서 raidId 역추적 (가장 정확)
+      if(m.ownerUid&&appsByUid[m.ownerUid]){
+        const apps=[...appsByUid[m.ownerUid]].sort(
+          (a,b)=>(b.createdAt?.toMillis?.()??0)-(a.createdAt?.toMillis?.()??0));
+        targetId=apps[0].raidId;
+      }
+
+      // 전략2: 멤버 생성 시점 이전에 존재하던 공대 중 가장 최근 것
+      if(!targetId){
+        const mt=m.createdAt?.toMillis?.()??Date.now();
+        const eligible=raids
+          .filter(r=>r.createdAt?.toMillis?.()!=null&&r.createdAt.toMillis()<=mt)
+          .sort((a,b)=>b.createdAt.toMillis()-a.createdAt.toMillis());
+        if(eligible.length)targetId=eligible[0].id;
+      }
+
+      // 전략3: 공대 하나뿐이면 그 공대
+      if(!targetId&&raids.length===1)targetId=raids[0].id;
+
+      // 전략4: 가장 오래된 공대 (최후 수단)
+      if(!targetId){
+        const sorted=[...raids].sort(
+          (a,b)=>(a.createdAt?.toMillis?.()??0)-(b.createdAt?.toMillis?.()??0));
+        targetId=sorted[0].id;
+        console.warn('[AutoMigrate] 시간 매칭 불가, 최초 공대 배정:',m.name);
+      }
+
+      batch.update(doc.ref,{raidId:targetId});
+      migrated++;
+    }
+
+    if(migrated>0){
+      await batch.commit();
+      console.log('[AutoMigrate]',migrated,'명 마이그레이션 완료');
+      renderRaidList();
+    }
+    localStorage.setItem('_membersMigrated_v1','1');
+  }catch(e){
+    console.error('[AutoMigrate] 오류:',e);
+  }
+}
+
 
 // =============================================
 // 내 캐릭터 정보

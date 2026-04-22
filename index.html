@@ -949,7 +949,7 @@
   [data-theme="dark"] .nav-item-apply .btn-apply-leader { background: #1e1433; border-color: #7c3aed; color: #a78bfa; }
   [data-theme="dark"] .nav-item-apply .btn-apply-leader:hover { background: #2d1d4a; }
   /* ===== 공대 상세 탭 ===== */
-  .rd-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;}
+  .rd-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;overflow-y:hidden;}
   .rd-tab{padding:10px 18px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-sub);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;font-family:inherit;}
   .rd-tab:hover{color:var(--text);}
   .rd-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;}
@@ -958,9 +958,9 @@
   /* ===== 사이드바 공대 트리 ===== */
   .nav-tree-hd{padding:14px 16px 6px;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;}
   .nav-tree-hd-btn{background:none;border:none;color:#6b7280;cursor:pointer;padding:0;display:flex;align-items:center;line-height:1;}
-  .nav-tree-raid{display:flex;align-items:center;padding:9px 8px 9px 14px;margin:1px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:13px;font-weight:600;transition:.15s;gap:6px;user-select:none;}
+  .nav-tree-raid{display:flex;align-items:center;padding:11px 16px;margin:2px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:15px;transition:all .15s;gap:10px;user-select:none;}
   .nav-tree-raid:hover{background:var(--sidebar-hover);color:#e5e7eb;}
-  .nav-tree-raid.active{background:var(--sidebar-active);color:#fff;}
+  .nav-tree-raid.active{background:var(--sidebar-active);color:#fff;font-weight:600;}
   .nav-tree-children{overflow:hidden;max-height:0;transition:max-height .25s ease;}
   .nav-tree-children.open{max-height:400px;}
   .nav-tree-child{display:flex;align-items:center;padding:7px 10px 7px 36px;margin:1px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:13px;transition:.15s;gap:7px;}
@@ -4335,7 +4335,7 @@ function renderMyRaidsNav(){
     <div class="nav-tree-hd"><span>내 공대</span></div>
     ${myRaids.map(r=>`
       <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" onclick="openRaidDetail('${r.id}','members')">
-        <span class="material-icons" style="font-size:15px;color:#BA7517;flex-shrink:0;">shield</span>
+        <span class="nav-icon"><span class="material-icons" style="font-size:18px;color:#BA7517;">shield</span></span>
         <span class="nav-label" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.name||r.boss||'공대'}</span>
       </div>`).join('')}`;
 }

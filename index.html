@@ -1023,8 +1023,9 @@
   .sortable-ghost{opacity:0.3;background:var(--sidebar-active);border-radius:8px;}
   .sortable-chosen{opacity:0.8;transform:rotate(1deg);}
   .sortable-drag{opacity:0.8;}
-  .nav-tree-raid .drag-handle{display:none;color:#4b5563;font-size:14px;flex-shrink:0;cursor:grab;padding:0 2px;align-items:center;}
-  .nav-tree-raid:hover .drag-handle{display:flex;}
+  .nav-tree-raid .drag-handle{display:flex;align-items:center;color:#4b5563;font-size:14px;flex-shrink:0;cursor:grab;padding:0 2px;opacity:0;transition:opacity 0.15s;}
+  .nav-tree-raid:hover .drag-handle{opacity:0.6;}
+  .nav-tree-raid .drag-handle:active{cursor:grabbing;}
   body.sidebar-collapsed .drag-handle{display:none!important;}
 </style>
 </head>
@@ -1554,7 +1555,7 @@
             <span id="raidFormTitle">공대 등록</span>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>공대명 *</label><input type="text" id="rName" placeholder="예) 자쿰 하드 공대"></div>
+            <div class="form-group"><label>공대명 *</label><input type="text" id="rName" placeholder="예) 자쿰 하드 공대" maxlength="20"></div>
             <div class="form-group"><label>보스 *</label>
               <select id="rBoss" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:var(--text-md);">
                 <option value="">보스 선택</option>
@@ -4771,12 +4772,12 @@ function renderMyRaidsNav(){
     <div style="border-top:1px solid rgba(255,255,255,0.07);margin:6px 0 2px;"></div>
     <div class="nav-tree-hd"><span>내 공대</span></div>
     <div id="myRaidsNavList">
-    ${orderedRaids.map(r=>`
+    ${orderedRaids.map(r=>{const _n=r.name||r.boss||'공대';const _d=_n.length>8?_n.slice(0,8)+'…':_n;return`
       <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" data-raid-id="${r.id}">
+        <span class="nav-icon" onclick="openRaidDetail('${r.id}','settlements')" style="cursor:pointer;flex-shrink:0;"><span class="material-icons" style="font-size:18px;color:#BA7517;">shield</span></span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;max-width:140px;" title="${_n}" onclick="openRaidDetail('${r.id}','settlements')">${_d}</span>
         <span class="drag-handle" title="드래그로 순서 변경">⠿</span>
-        <span class="nav-icon" onclick="openRaidDetail('${r.id}','settlements')" style="cursor:pointer;"><span class="material-icons" style="font-size:18px;color:#BA7517;">shield</span></span>
-        <span class="nav-label" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;" onclick="openRaidDetail('${r.id}','settlements')">${r.name||r.boss||'공대'}</span>
-      </div>`).join('')}
+      </div>`;}).join('')}
     </div>`;
 
   _initRaidsSortable(orderedRaids.length);

@@ -3513,7 +3513,7 @@ function renderUserTable(){
     const pager=document.getElementById('userTablePager');if(pager)pager.innerHTML='';
     return;
   }
-  const PAGE=10;
+  const PAGE=50;
   const totalPages=Math.ceil(f.length/PAGE)||1;
   if(userPageNo>=totalPages)userPageNo=totalPages-1;
   const page=f.slice(userPageNo*PAGE,(userPageNo+1)*PAGE);

@@ -945,6 +945,34 @@
   .nav-item-apply .btn-apply-leader:hover { background: #ede9fe; }
   [data-theme="dark"] .nav-item-apply .btn-apply-leader { background: #1e1433; border-color: #7c3aed; color: #a78bfa; }
   [data-theme="dark"] .nav-item-apply .btn-apply-leader:hover { background: #2d1d4a; }
+  /* ===== 공대 상세 탭 ===== */
+  .rd-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;}
+  .rd-tab{padding:10px 18px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-sub);border-bottom:3px solid transparent;margin-bottom:-2px;transition:.15s;white-space:nowrap;font-family:inherit;}
+  .rd-tab:hover{color:var(--text);}
+  .rd-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;}
+  .rd-tab .rd-badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;border-radius:9px;margin-left:5px;vertical-align:middle;}
+  .rd-tab .rd-badge:empty{display:none;}
+  /* ===== 사이드바 공대 트리 ===== */
+  .nav-tree-hd{padding:14px 16px 6px;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;}
+  .nav-tree-hd-btn{background:none;border:none;color:#6b7280;cursor:pointer;padding:0;display:flex;align-items:center;line-height:1;}
+  .nav-tree-raid{display:flex;align-items:center;padding:9px 8px 9px 14px;margin:1px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:13px;font-weight:600;transition:.15s;gap:6px;user-select:none;}
+  .nav-tree-raid:hover{background:var(--sidebar-hover);color:#e5e7eb;}
+  .nav-tree-raid .arr{margin-left:auto;font-size:14px;transition:transform .2s;flex-shrink:0;}
+  .nav-tree-raid.open .arr{transform:rotate(90deg);}
+  .nav-tree-children{overflow:hidden;max-height:0;transition:max-height .25s ease;}
+  .nav-tree-children.open{max-height:400px;}
+  .nav-tree-child{display:flex;align-items:center;padding:7px 10px 7px 36px;margin:1px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:13px;transition:.15s;gap:7px;}
+  .nav-tree-child:hover{background:var(--sidebar-hover);color:#e5e7eb;}
+  .nav-tree-child.active{background:var(--sidebar-active);color:#fff;font-weight:600;}
+  .nav-tree-child .nav-badge{margin-left:auto;}
+  .nav-tree-new{display:flex;align-items:center;padding:7px 10px;margin:4px 8px;border-radius:8px;cursor:pointer;color:#9ca3af;font-size:13px;transition:.15s;gap:6px;border:1.5px dashed #374151;background:none;width:calc(100% - 16px);font-family:inherit;box-sizing:border-box;}
+  .nav-tree-new:hover{border-color:#BA7517;color:#BA7517;}
+  .nav-tree-search{margin:4px 12px 6px;display:flex;align-items:center;background:rgba(255,255,255,0.05);border-radius:8px;padding:4px 10px;gap:6px;}
+  .nav-tree-search input{background:none;border:none;color:#9ca3af;font-size:13px;flex:1;min-width:0;padding:4px 0;outline:none;font-family:inherit;}
+  .nav-tree-search input::placeholder{color:#4b5563;}
+  body.sidebar-collapsed .nav-tree-hd,body.sidebar-collapsed .nav-tree-children,body.sidebar-collapsed .nav-tree-new,body.sidebar-collapsed .nav-tree-search{display:none;}
+  body.sidebar-collapsed .nav-tree-raid{justify-content:center;padding:11px 0;margin:2px 4px;}
+  body.sidebar-collapsed .nav-tree-raid .arr,body.sidebar-collapsed .nav-tree-raid .nav-label{display:none;}
 </style>
 </head>
 <body>
@@ -1058,17 +1086,9 @@
         <span class="nav-label">홈</span>
       </div>
 
-      <div class="nav-item" id="navSettlement" data-page="settlement" onclick="showPage('settlement',this)" title="정산 관리">
-        <span class="nav-icon"><span class="material-icons">payments</span></span>
-        <span class="nav-label">정산 관리</span>
-        <span class="nav-badge" id="navBadgeSettlement"></span>
-      </div>
+      <span style="display:none" id="navBadgeSettlement"></span>
 
-      <div class="nav-item" id="navMyRaidMgmt" data-page="members" onclick="showPage('members',this)" title="공대원 관리">
-        <span class="nav-icon"><span class="material-icons">manage_accounts</span></span>
-        <span class="nav-label">공대원 관리</span>
-        <span class="nav-badge" id="navBadgeApplicants"></span>
-      </div>
+      <span style="display:none" id="navBadgeApplicants"></span>
 
       <div class="nav-section" style="margin-top:4px;">도구</div>
 
@@ -1097,6 +1117,10 @@
         <span class="nav-label">권한 관리</span>
       </a>
     </div>
+
+
+    <!-- 내 공대 트리 (renderMyRaidsNav()가 동적으로 채움) -->
+    <div id="navMyRaidsTree"></div>
 
   </nav>
 
@@ -1905,6 +1929,27 @@
       </div>
     </div>
 
+
+    <!-- ===== 공대 상세 페이지 (1단계) ===== -->
+    <div id="page-raid-detail" class="page-section">
+      <div class="top-bar">
+        <div>
+          <h1 class="page-title" id="rdRaidName">공대</h1>
+          <p class="page-desc" id="rdRaidDesc"></p>
+        </div>
+      </div>
+      <div class="rd-tabs" id="rdTabBar">
+        <button class="rd-tab active" id="rdTab-members" onclick="rdShowTab('members')">공대원</button>
+        <button class="rd-tab" id="rdTab-applications" onclick="rdShowTab('applications')">신청자<span class="rd-badge" id="rdBadgeApps"></span></button>
+        <button class="rd-tab" id="rdTab-settlements" onclick="rdShowTab('settlements')">정산</button>
+        <button class="rd-tab" id="rdTab-settings" onclick="rdShowTab('settings')">설정</button>
+      </div>
+      <div id="rdPanel-members"></div>
+      <div id="rdPanel-applications" style="display:none;"></div>
+      <div id="rdPanel-settlements" style="display:none;"></div>
+      <div id="rdPanel-settings" style="display:none;"></div>
+    </div>
+
     <!-- 손님정산 제거됨 -->
     <div id="page-guestsettlement" class="page-section" style="display:none!important;">
       <div class="top-bar">
@@ -2481,6 +2526,7 @@ function updateLoginUI(){
     updateSidebarProfileArea();
     updateSidebarMenuSet();
     updateMyRaidNavVisibility();
+    renderMyRaidsNav();
     // 손님/공대원은 반드시 member 뷰 강제
     if(['member','guest'].includes(currentProfile.role)){
       currentSidebarView = 'member';
@@ -2491,6 +2537,7 @@ function updateLoginUI(){
     currentSidebarView = 'member';
     updateSidebarProfileArea();
     updateSidebarMenuSet();
+    renderMyRaidsNav();
     const btnCreate=document.getElementById('btnCreateRaid');if(btnCreate)btnCreate.style.display='none';
     // 로그아웃 상태면 캐릭터 카드 초기화
     window._myCharsData=[null,null,null,null,null,null];
@@ -3109,7 +3156,7 @@ function renderDashLeader(){
 // =============================================
 // Members
 // =============================================
-function subscribeMembers(){db.collection('members').orderBy('name').onSnapshot(s=>{allMembers=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberTable();renderGoldTable();renderStats();renderDashboard();});}
+function subscribeMembers(){db.collection('members').orderBy('name').onSnapshot(s=>{allMembers=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberTable();renderGoldTable();renderStats();renderDashboard();renderMyRaidsNav();});}
 
 function renderStats(){
   const t=allMembers.length,a=allMembers.filter(m=>m.status==='참여').length,g=allMembers.reduce((s,m)=>s+(m.gold||0),0);
@@ -4017,9 +4064,404 @@ function subscribeRaids(){
     allRaids=snap.docs.map(d=>({id:d.id,...d.data()}));
     updateRaidNavVisibility();
     updateMyRaidNavVisibility();
+    renderMyRaidsNav();
   });
 }
 subscribeRaids();
+
+// =============================================
+// 1단계: 해시 라우터 + 공대 상세 페이지
+// =============================================
+let currentRaidId = null;
+let currentRaidTab = 'members';
+let myRaidsNavOpen = localStorage.getItem('_myRaidsNavOpen') !== '0';
+
+function openRaidDetail(raidId, tab){
+  tab = tab||'members';
+  currentRaidId = raidId;
+  currentRaidTab = tab;
+  showPage('raid-detail', null);
+  rdShowTab(tab, raidId);
+  _rdSyncNavActive(raidId, tab);
+  history.pushState(null, null, '#raids/'+raidId+'/'+tab);
+  if(window.innerWidth<=768){
+    document.querySelector('.sidebar')?.classList.remove('open');
+    document.getElementById('mobileOverlay')?.classList.remove('show');
+  }
+}
+
+function _rdSyncNavActive(raidId, tab){
+  document.querySelectorAll('.nav-tree-child').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.nav-tree-child[data-raid="${raidId}"][data-tab="${tab}"]`)?.classList.add('active');
+  document.querySelectorAll('.nav-tree-raid').forEach(r=>r.classList.toggle('open', r.id==='navRaid-'+raidId));
+  document.querySelectorAll('.nav-tree-children').forEach(c=>c.classList.toggle('open', c.id==='navRaidChildren-'+raidId));
+}
+
+function rdShowTab(tab, raidId){
+  raidId = raidId||currentRaidId;
+  if(!raidId) return;
+  currentRaidId = raidId;
+  currentRaidTab = tab;
+
+  const raid = allRaids.find(r=>r.id===raidId);
+  document.getElementById('rdRaidName').textContent = raid?(raid.name+(raid.boss?' ('+raid.boss+')':'')):'공대';
+  document.getElementById('rdRaidDesc').textContent = raid?.desc||'';
+
+  const role = currentProfile?.role||'none';
+  const uid = currentUser?.uid;
+  const canManage = ['master','leader','vice'].includes(role);
+  const isLeaderOfRaid = role==='master'||raid?.ownerUid===uid;
+
+  const tabApps = document.getElementById('rdTab-applications');
+  const tabSet  = document.getElementById('rdTab-settings');
+  if(tabApps) tabApps.style.display = canManage?'':'none';
+  if(tabSet)  tabSet.style.display  = isLeaderOfRaid?'':'none';
+
+  if((tab==='applications'&&!canManage)||(tab==='settings'&&!isLeaderOfRaid)) tab='members';
+
+  document.querySelectorAll('.rd-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('rdTab-'+tab)?.classList.add('active');
+  document.querySelectorAll('[id^="rdPanel-"]').forEach(p=>p.style.display='none');
+  const panel = document.getElementById('rdPanel-'+tab);
+  if(panel) panel.style.display='';
+
+  if(tab==='members')           rdRenderMembers(raidId);
+  else if(tab==='applications') rdRenderApplications(raidId);
+  else if(tab==='settlements')  rdRenderSettlements(raidId);
+  else if(tab==='settings')     rdRenderSettings(raidId);
+
+  const tabLabel={members:'공대원',applications:'신청자',settlements:'정산',settings:'설정'}[tab]||tab;
+  const rName=raid?.name||'공대';
+  const bc=document.getElementById('breadcrumb');
+  const mt=document.getElementById('mobilePageTitle');
+  if(bc) bc.textContent=rName+' > '+tabLabel;
+  if(mt) mt.textContent=rName;
+}
+
+function rdRenderMembers(raidId){
+  const el=document.getElementById('rdPanel-members');
+  if(!el) return;
+  const role=currentProfile?.role||'none';
+  const uid=currentUser?.uid;
+  const raid=allRaids.find(r=>r.id===raidId);
+  const canEdit=['master','leader','vice'].includes(role)||raid?.ownerUid===uid;
+  const members=allMembers.filter(m=>m.raidId===raidId);
+
+  if(!members.length){
+    el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-sub);">공대원이 없습니다. 공대 찾기에서 신청을 승인해주세요.</div>';
+    return;
+  }
+
+  const sb={참여:'badge-green',미정:'badge-yellow',불참:'badge-red'};
+  const rb={딜러:'badge-green',서폿:'badge-blue'};
+
+  el.innerHTML=`
+    <div class="panel" style="padding:0;overflow:auto;">
+      <table>
+        <thead><tr>
+          <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>레벨</th><th>스킬공격력</th><th>상태</th>
+          ${canEdit?'<th>관리</th>':''}
+        </tr></thead>
+        <tbody>
+          ${members.map((m,i)=>`<tr>
+            <td style="color:var(--text-sub)">${i+1}</td>
+            <td><strong>${m.name||'-'}</strong></td>
+            <td>${m.cls||'-'}</td>
+            <td><span class="badge ${rb[m.role]||'badge-green'}">${m.role||'-'}</span></td>
+            <td>${m.level||0}</td>
+            <td>${(m.skillAtk||0).toLocaleString()}</td>
+            <td><span class="badge ${sb[m.status]||'badge-yellow'}">${m.status||'-'}</span></td>
+            ${canEdit?`<td style="display:flex;gap:4px;flex-wrap:wrap;">
+              <button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>
+              <button class="btn btn-danger" style="font-size:11px;padding:3px 8px;" onclick="deleteMember('${m.id}','${(m.name||'').replace(/'/g,"\\'")}')">삭제</button>
+            </td>`:''}
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+async function rdRenderApplications(raidId){
+  const el=document.getElementById('rdPanel-applications');
+  if(!el) return;
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);">불러오는 중...</div>';
+
+  const snap=await db.collection('raidApplications').where('raidId','==',raidId).orderBy('createdAt','desc').get();
+  if(snap.empty){
+    el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-sub);">신청자가 없습니다.</div>';
+    const b=document.getElementById('rdBadgeApps');if(b)b.textContent='';
+    return;
+  }
+
+  const apps=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const ss={대기:{bg:'#fffbeb',color:'#d97706'},승인:{bg:'#ecfdf5',color:'#059669'},거절:{bg:'#fef2f2',color:'#dc2626'}};
+
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">
+    ${apps.map(a=>{
+      const st=ss[a.status]||ss['대기'];
+      return `<div style="border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+            <div>
+              <div style="font-weight:700;font-size:15px;">${a.name||''}</div>
+              <div style="font-size:12px;color:var(--text-sub);margin-top:2px;">${a.cls||''} · Lv.${a.level||0} · 스킬공격력 ${(a.skillAtk||0).toLocaleString()}</div>
+              ${a.memo?`<div style="font-size:12px;color:var(--text-sub);margin-top:4px;">📝 ${a.memo}</div>`:''}
+            </div>
+            <span class="badge ${a.role==='서폿'?'badge-blue':'badge-green'}" style="font-size:11px;flex-shrink:0;">${a.role||''}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap;">
+            <span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:${st.bg};color:${st.color};">${a.status}</span>
+            ${a.status==='대기'?`
+              <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;"
+                onclick="(async()=>{await approveApp('${a.id}','${raidId}');rdRenderApplications('${raidId}');renderMyRaidsNav();})()">승인</button>
+              <button class="btn btn-danger" style="font-size:12px;padding:5px 12px;"
+                onclick="(async()=>{await rejectApp('${a.id}','${raidId}');rdRenderApplications('${raidId}');renderMyRaidsNav();})()">거절</button>
+            `:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  const pending=apps.filter(a=>a.status==='대기').length;
+  const b=document.getElementById('rdBadgeApps');
+  if(b) b.textContent=pending||'';
+}
+
+async function rdRenderSettlements(raidId){
+  const el=document.getElementById('rdPanel-settlements');
+  if(!el) return;
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);">불러오는 중...</div>';
+
+  const snap=await db.collection('settlements').orderBy('date','desc').get();
+  const allSt=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const noRaidId=allSt.filter(s=>!s.raidId).length;
+
+  const role=currentProfile?.role;
+  const uid=currentUser?.uid;
+  const raid=allRaids.find(r=>r.id===raidId);
+  const canCreate=['master','leader'].includes(role)||raid?.ownerUid===uid;
+
+  el.innerHTML=`
+    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;">
+      <span style="font-size:20px;flex-shrink:0;">🚧</span>
+      <div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px;">정산 공대별 분리 — 3단계에서 완성 예정</div>
+        <div style="font-size:13px;color:var(--text-sub);">현재 모든 정산 데이터는 공대 구분 없이 저장되어 있습니다.<br>
+        3단계 마이그레이션 대상: <strong>${noRaidId}건</strong> (raidId 미할당)</div>
+      </div>
+    </div>
+    ${canCreate?`<div style="margin-bottom:16px;">
+      <button class="btn btn-primary" disabled title="3단계에서 완성 예정" style="opacity:0.55;cursor:not-allowed;">+ 새 정산 (준비 중)</button>
+    </div>`:''}
+    <div class="panel" style="padding:0;overflow:auto;">
+      <table>
+        <thead><tr><th>날짜</th><th>보스</th><th>판매 아이템</th><th>총수익</th><th>참여인원</th><th>1인당</th><th>메모</th></tr></thead>
+        <tbody>${allSt.length?allSt.map(s=>{
+          const tM=Math.round((s.totalGold||0)/10000).toLocaleString();
+          const pM=Math.round((s.perGold||0)/10000).toLocaleString();
+          const names=(s.items||[]).map(it=>it.name).filter(Boolean).join(', ')||'-';
+          return `<tr>
+            <td>${s.date||''}</td><td><strong>${s.boss||''}</strong></td>
+            <td style="font-size:12px;color:var(--text-sub);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${names}">${names}</td>
+            <td><strong>${tM}만</strong></td><td>${s.count||0}명</td>
+            <td style="color:#BA7517;font-weight:700;">${pM}만</td>
+            <td style="color:var(--text-sub);font-size:13px;">${s.note||'-'}</td>
+          </tr>`;
+        }).join(''):'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>'}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function rdRenderSettings(raidId){
+  const el=document.getElementById('rdPanel-settings');
+  if(!el) return;
+  const raid=allRaids.find(r=>r.id===raidId);
+  if(!raid){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-sub);">공대를 찾을 수 없습니다.</div>';return;}
+
+  const role=currentProfile?.role;
+  const uid=currentUser?.uid;
+  const canEdit=role==='master'||raid.ownerUid===uid;
+  const bossList=['자쿰','혼테일','크우파','일반 보스','기타'];
+
+  el.innerHTML=`
+    <div class="panel" style="max-width:640px;">
+      <div style="font-size:15px;font-weight:700;margin-bottom:20px;">공대 설정</div>
+      <div class="form-row">
+        <div class="form-group"><label>공대명 *</label>
+          <input type="text" id="rdSName" value="${(raid.name||'').replace(/"/g,'&quot;')}" ${canEdit?'':'readonly'} style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;background:var(--surface);color:var(--text);">
+        </div>
+        <div class="form-group"><label>보스 *</label>
+          <select id="rdSBoss" ${canEdit?'':'disabled'} style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;background:var(--surface);color:var(--text);">
+            <option value="">보스 선택</option>
+            ${bossList.map(b=>`<option${raid.boss===b?' selected':''}>${b}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>최대 인원</label>
+          <input type="number" id="rdSMax" value="${raid.maxCount||6}" min="1" max="30" ${canEdit?'':'readonly'} style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;background:var(--surface);color:var(--text);">
+        </div>
+        <div class="form-group"><label>클리어 시간</label>
+          <input type="text" id="rdSTime" value="${(raid.clearTime||'').replace(/"/g,'&quot;')}" placeholder="예) 23:00~23:30" ${canEdit?'':'readonly'} style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;background:var(--surface);color:var(--text);">
+        </div>
+      </div>
+      <div class="form-group"><label>공대 설명</label>
+        <textarea id="rdSDesc" rows="3" ${canEdit?'':'readonly'} style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--surface);color:var(--text);resize:vertical;">${raid.desc||''}</textarea>
+      </div>
+      <div class="form-group"><label>모집 상태</label>
+        <select id="rdSStatus" ${canEdit?'':'disabled'} style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;background:var(--surface);color:var(--text);">
+          ${['모집중','진행중','완료','마감'].map(s=>`<option${raid.status===s?' selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      ${canEdit?`
+        <div style="display:flex;gap:8px;margin-top:20px;">
+          <button class="btn btn-primary" onclick="rdSaveSettings('${raidId}')">저장</button>
+          <button class="btn btn-danger" onclick="deleteRaid('${raidId}')" style="margin-left:auto;">공대 삭제</button>
+        </div>
+      `:'<div style="margin-top:16px;padding:10px 14px;background:var(--bg);border-radius:8px;font-size:13px;color:var(--text-sub);">읽기 전용 — 공대장만 수정 가능합니다.</div>'}
+      <div style="margin-top:24px;padding:14px;background:var(--bg);border-radius:8px;border:1px dashed var(--border);">
+        <div style="font-size:13px;font-weight:600;color:var(--text-sub);margin-bottom:4px;">🔧 TODO: 부공대장 지명</div>
+        <div style="font-size:12px;color:var(--text-sub);">공대별 부공대장 지명 기능은 향후 별도 작업에서 구현 예정입니다.</div>
+      </div>
+    </div>`;
+}
+
+async function rdSaveSettings(raidId){
+  const name=document.getElementById('rdSName')?.value.trim();
+  const boss=document.getElementById('rdSBoss')?.value;
+  if(!name||!boss){alert('공대명과 보스를 입력하세요.');return;}
+  await db.collection('raids').doc(raidId).update({
+    name, boss,
+    maxCount:parseInt(document.getElementById('rdSMax')?.value)||6,
+    clearTime:document.getElementById('rdSTime')?.value.trim()||'',
+    desc:document.getElementById('rdSDesc')?.value.trim()||'',
+    status:document.getElementById('rdSStatus')?.value||'모집중',
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  alert('저장됐습니다.');
+  renderRaidList();
+}
+
+// =============================================
+// 2단계: 사이드바 공대 트리
+// =============================================
+function renderMyRaidsNav(){
+  const el=document.getElementById('navMyRaidsTree');
+  if(!el) return;
+  const role=currentProfile?.role;
+  const uid=currentUser?.uid;
+
+  if(!uid||!role||['none','guest'].includes(role)){el.innerHTML='';return;}
+
+  let myRaids=[];
+  if(['master','vice'].includes(role)){
+    myRaids=[...allRaids];
+  } else if(role==='leader'){
+    myRaids=allRaids.filter(r=>r.ownerUid===uid);
+  } else {
+    const myIds=new Set(allMembers.filter(m=>(m.ownerUid===uid||m.uid===uid)&&m.raidId).map(m=>m.raidId));
+    myRaids=allRaids.filter(r=>myIds.has(r.id));
+  }
+
+  if(!myRaids.length){el.innerHTML='';return;}
+
+  const canCreate=['master','leader'].includes(role);
+  const isOpen=myRaidsNavOpen;
+  const pByRaid={};
+  allRaidApplications.filter(a=>a.status==='대기').forEach(a=>{
+    if(a.raidId) pByRaid[a.raidId]=(pByRaid[a.raidId]||0)+1;
+  });
+
+  const searchVal=document.getElementById('myRaidsSearchInput')?.value?.toLowerCase()||'';
+  const filtered=searchVal?myRaids.filter(r=>(r.name||r.boss||'').toLowerCase().includes(searchVal)):myRaids;
+
+  el.innerHTML=`
+    <div style="border-top:1px solid rgba(255,255,255,0.07);margin:6px 0 2px;"></div>
+    <div class="nav-tree-hd">
+      <span>내 공대</span>
+      <button class="nav-tree-hd-btn" onclick="toggleMyRaidsNav()" title="${isOpen?'접기':'펼치기'}">
+        <span class="material-icons" style="font-size:18px;transition:transform .2s;${isOpen?'':'transform:rotate(-90deg)'}">expand_more</span>
+      </button>
+    </div>
+    <div id="navMyRaidsBody" style="${isOpen?'':'display:none;'}">
+      <div class="nav-tree-search">
+        <span class="material-icons" style="font-size:14px;color:#4b5563;">search</span>
+        <input type="text" placeholder="공대 검색..." oninput="filterMyRaidsNav(this.value)" id="myRaidsSearchInput" value="${searchVal}">
+      </div>
+      ${filtered.map(r=>{
+        const isThisOpen=r.id===currentRaidId;
+        const p=pByRaid[r.id]||0;
+        const canManage=['master','leader','vice'].includes(role);
+        const isLeaderOfRaid=role==='master'||r.ownerUid===uid;
+        return `
+        <div class="nav-tree-raid${isThisOpen?' open':''}" id="navRaid-${r.id}" onclick="toggleRaidNav('${r.id}')">
+          <span class="material-icons" style="font-size:15px;color:#BA7517;flex-shrink:0;">shield</span>
+          <span class="nav-label" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.name||r.boss||'공대'}</span>
+          ${p>0?`<span class="nav-badge">${p}</span>`:''}
+          <span class="material-icons arr">chevron_right</span>
+        </div>
+        <div class="nav-tree-children${isThisOpen?' open':''}" id="navRaidChildren-${r.id}">
+          <div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='members'?' active':''}" data-raid="${r.id}" data-tab="members" onclick="openRaidDetail('${r.id}','members')">
+            <span class="material-icons" style="font-size:14px;">groups</span> 공대원
+          </div>
+          ${canManage?`<div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='applications'?' active':''}" data-raid="${r.id}" data-tab="applications" onclick="openRaidDetail('${r.id}','applications')">
+            <span class="material-icons" style="font-size:14px;">assignment</span> 신청자${p>0?`<span class="nav-badge">${p}</span>`:''}
+          </div>`:''}
+          <div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='settlements'?' active':''}" data-raid="${r.id}" data-tab="settlements" onclick="openRaidDetail('${r.id}','settlements')">
+            <span class="material-icons" style="font-size:14px;">payments</span> 정산
+          </div>
+          ${isLeaderOfRaid?`<div class="nav-tree-child${currentRaidId===r.id&&currentRaidTab==='settings'?' active':''}" data-raid="${r.id}" data-tab="settings" onclick="openRaidDetail('${r.id}','settings')">
+            <span class="material-icons" style="font-size:14px;">settings</span> 설정
+          </div>`:''}
+        </div>`;
+      }).join('')}
+      ${canCreate?`<button class="nav-tree-new" onclick="openRaidModal()">
+        <span class="material-icons" style="font-size:15px;">add</span>
+        <span class="nav-label">새 공대 만들기</span>
+      </button>`:''}
+    </div>`;
+}
+
+function toggleMyRaidsNav(){
+  myRaidsNavOpen=!myRaidsNavOpen;
+  localStorage.setItem('_myRaidsNavOpen', myRaidsNavOpen?'1':'0');
+  const body=document.getElementById('navMyRaidsBody');
+  if(body) body.style.display=myRaidsNavOpen?'':'none';
+  const icon=document.querySelector('#navMyRaidsTree .nav-tree-hd-btn .material-icons');
+  if(icon) icon.style.transform=myRaidsNavOpen?'':'rotate(-90deg)';
+}
+
+function toggleRaidNav(raidId){
+  const children=document.getElementById('navRaidChildren-'+raidId);
+  if(!children) return;
+  if(!children.classList.contains('open')||currentRaidId!==raidId){
+    openRaidDetail(raidId,'members');
+  } else {
+    document.getElementById('navRaid-'+raidId)?.classList.remove('open');
+    children.classList.remove('open');
+  }
+}
+
+function filterMyRaidsNav(val){renderMyRaidsNav();}
+
+function handleHashChange(){
+  const hash=window.location.hash.slice(1);
+  const m=hash.match(/^raids\/([^/]+)\/(.+)$/);
+  if(m){
+    const [,raidId,tab]=m;
+    currentRaidId=raidId; currentRaidTab=tab;
+    document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-raid-detail')?.classList.add('active');
+    rdShowTab(tab,raidId);
+    _rdSyncNavActive(raidId,tab);
+  }
+}
+window.addEventListener('hashchange',handleHashChange);
+document.addEventListener('DOMContentLoaded',()=>{
+  if(window.location.hash.startsWith('#raids/')) handleHashChange();
+});
 
 function toggleRaidForm(forceOpen){
   showPage('raids', document.getElementById('navRaidsLeader') || document.querySelector('.nav-item[title="공대 찾기"]'));
@@ -4820,6 +5262,7 @@ function subscribeRaidApplications(){
     const pending=allRaidApplications.filter(a=>a.status==='대기');
     const badge=document.getElementById('navBadgeApplicants');
     if(badge) badge.textContent=pending.length||'';
+    renderMyRaidsNav();
   });
 }
 

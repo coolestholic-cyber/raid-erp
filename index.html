@@ -973,6 +973,11 @@
   .rd-todo-badge-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
   .rd-todo-badge-text{font-size:12px;color:var(--text-sub);line-height:1.5;}
   @media(max-width:768px){.rd-form-grid,.rd-form-half{grid-template-columns:1fr;}}
+  /* 공대 탈퇴 버튼 */
+  .rd-leave-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-sub);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;flex-shrink:0;}
+  .rd-leave-btn:hover{border-color:#fca5a5;color:#dc2626;}
+  .rd-leave-btn .material-icons{font-size:17px;}
+  @media(max-width:600px){.rd-leave-text{display:none;}}
   /* ===== 사이드바 공대 트리 ===== */
   .nav-tree-hd{padding:14px 16px 6px;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;}
   .nav-tree-hd-btn{background:none;border:none;color:#6b7280;cursor:pointer;padding:0;display:flex;align-items:center;line-height:1;}
@@ -1923,6 +1928,10 @@
           <h1 class="page-title" id="rdRaidName">공대</h1>
           <p class="page-desc" id="rdRaidMeta" style="margin-top:2px;font-size:13px;color:var(--text-sub);"></p>
         </div>
+        <button class="rd-leave-btn" id="rdLeaveBtn" style="display:none;" onclick="openLeaveRaidModal()">
+          <span class="material-icons">logout</span>
+          <span class="rd-leave-text">공대 탈퇴</span>
+        </button>
       </div>
       <div class="rd-tabs" id="rdTabBar">
         <button class="rd-tab active" id="rdTab-members" onclick="rdShowTab('members')">공대원</button>
@@ -2271,6 +2280,32 @@
         <button class="btn btn-outline" onclick="closeLeaderAppModal()">취소</button>
         <button class="btn btn-primary" onclick="submitLeaderApplication()" id="laSubmitBtn">신청하기</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- 공대 탈퇴 확인 Modal -->
+<div class="modal-overlay" id="leaveRaidModal">
+  <div class="modal" style="max-width:400px;">
+    <h2 style="font-size:18px;margin-bottom:8px;">공대 탈퇴</h2>
+    <p style="font-size:14px;font-weight:600;margin-bottom:8px;">공대 <strong id="leaveRaidNameText"></strong>에서 탈퇴하시겠습니까?</p>
+    <p style="font-size:13px;color:var(--text-sub);line-height:1.7;margin-bottom:20px;">탈퇴 후 재가입은 다시 신청해야 합니다.<br>정산 내역은 유지됩니다.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeLeaveRaidModal()">취소</button>
+      <button class="btn btn-danger" onclick="executeLeaveRaid()">탈퇴</button>
+    </div>
+  </div>
+</div>
+
+<!-- 공대장 탈퇴 불가 Modal -->
+<div class="modal-overlay" id="leaderCantLeaveModal">
+  <div class="modal" style="max-width:400px;">
+    <h2 style="font-size:18px;margin-bottom:12px;">탈퇴 불가</h2>
+    <p style="font-size:14px;line-height:1.7;margin-bottom:12px;">공대장은 직접 탈퇴할 수 없습니다.<br>공대를 삭제하거나, 공대장을 다른 공대원에게 이양한 후 탈퇴해주세요.</p>
+    <div style="padding:10px 14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--text-sub);margin-bottom:20px;">🔧 공대장 이양 기능은 준비 중입니다.</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeLeaderCantLeaveModal()">닫기</button>
+      <button class="btn btn-primary" onclick="closeLeaderCantLeaveModal();rdShowTab('settings')">공대 설정으로 이동</button>
     </div>
   </div>
 </div>
@@ -4090,8 +4125,38 @@ function canKickMember(role){ return role==='master'; }
 function canDeleteSettlement(role, raid, uid){
   return role==='master'||(role==='leader'&&raid?.ownerUid===uid);
 }
+function openLeaveRaidModal(){
+  const raidId=currentRaidId;
+  const uid=currentUser?.uid;
+  const role=currentProfile?.role;
+  const raid=allRaids.find(r=>r.id===raidId);
+  // 공대장(owner)이면 탈퇴 불가 모달
+  if(raid?.ownerUid===uid && role==='leader'){
+    document.getElementById('leaderCantLeaveModal').classList.add('show');
+    return;
+  }
+  document.getElementById('leaveRaidNameText').textContent=raid?.name||'공대';
+  document.getElementById('leaveRaidModal').classList.add('show');
+}
+function closeLeaveRaidModal(){
+  document.getElementById('leaveRaidModal').classList.remove('show');
+}
+function closeLeaderCantLeaveModal(){
+  document.getElementById('leaderCantLeaveModal').classList.remove('show');
+}
+async function executeLeaveRaid(){
+  const raidId=currentRaidId;
+  const uid=currentUser?.uid;
+  const myMember=allMembers.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
+  closeLeaveRaidModal();
+  if(myMember){
+    await db.collection('members').doc(myMember.id).delete();
+  }
+  renderMyRaidsNav();
+  showPage('dashboard', document.querySelector('.nav-item[data-page="dashboard"]'));
+}
 async function leaveRaid(memberId, memberName, raidId){
-  if(!confirm(`"${memberName}" 공대에서 탈퇴하시겠습니까?`)) return;
+  if(!confirm(`"${memberName}" 강퇴하시겠습니까?`)) return;
   await db.collection('members').doc(memberId).delete();
   rdRenderMembers(raidId);
   renderMyRaidsNav();
@@ -4168,6 +4233,15 @@ function rdShowTab(tab, raidId){
   const mt=document.getElementById('mobilePageTitle');
   if(bc) bc.textContent=rName+' > '+tabLabel;
   if(mt) mt.textContent=rName;
+
+  // 공대 탈퇴 버튼 표시 여부
+  const rdLeaveBtn=document.getElementById('rdLeaveBtn');
+  if(rdLeaveBtn){
+    const myMember=allMembers.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
+    const isRaidOwner=raid?.ownerUid===uid;
+    const showLeave=(!!myMember||isRaidOwner)&&!['none','guest'].includes(role);
+    rdLeaveBtn.style.display=showLeave?'':'none';
+  }
 }
 
 function rdRenderMembers(raidId){
@@ -4176,10 +4250,11 @@ function rdRenderMembers(raidId){
   const role=currentProfile?.role||'none';
   const uid=currentUser?.uid;
   const raid=allRaids.find(r=>r.id===raidId);
-  const canEdit=canEditTab('members',role,raid,uid);
-  const canKick=canKickMember(role);
+  const canEditOthers=canEditTab('members',role,raid,uid);   // MLV: 다른 사람도 수정
+  const canKick=canKickMember(role);                         // master: 강퇴
+  const canSelfEdit=['master','leader','vice','member'].includes(role); // 본인 행 수정
   const members=allMembers.filter(m=>m.raidId===raidId);
-  const hasActions=canEdit||canKick||!!uid;
+  const hasActions=canEditOthers||canKick||canSelfEdit;
 
   if(!members.length){
     el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-sub);">공대원이 없습니다. 공대 찾기에서 신청을 승인해주세요.</div>';
@@ -4199,10 +4274,10 @@ function rdRenderMembers(raidId){
         <tbody>
           ${members.map((m,i)=>{
             const isMine=uid&&(m.ownerUid===uid||m.uid===uid);
+            const canEditThis=canEditOthers||(canSelfEdit&&isMine);
             const btns=[];
-            if(canEdit) btns.push(`<button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`);
-            if(canKick&&!isMine) btns.push(`<button class="btn btn-danger" style="font-size:11px;padding:3px 8px;" onclick="leaveRaid('${m.id}','${(m.name||'').replace(/'/g,"\\'")}','${raidId}')">강퇴</button>`);
-            if(isMine) btns.push(`<button class="btn btn-outline" style="font-size:11px;padding:3px 8px;color:#dc2626;border-color:#fca5a5;" onclick="leaveRaid('${m.id}','${(m.name||'').replace(/'/g,"\\'")}','${raidId}')">탈퇴</button>`);
+            if(canEditThis) btns.push(`<button class="btn btn-outline" style="font-size:11px;padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`);
+            if(canKick&&!isMine) btns.push(`<button class="btn btn-danger" style="font-size:11px;padding:3px 8px;" onclick="leaveRaid('${m.id}','${(m.name||'').replace(/'/g,"\'")}','${raidId}')">강퇴</button>`);
             return `<tr>
             <td style="color:var(--text-sub)">${i+1}</td>
             <td><strong>${m.name||'-'}</strong></td>

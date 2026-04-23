@@ -55,7 +55,7 @@ export default {
         return new Response(JSON.stringify({
           id: userData.id,
           username: userData.username,
-          global_name: userData.global_name || userData.username,
+          global_name: userData.global_name || userData.username || `Discord유저_${(userData.id||'').substring(0,4)}`,
           avatar: userData.avatar
             ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
             : `https://cdn.discordapp.com/embed/avatars/${parseInt(userData.discriminator || '0') % 5}.png`,

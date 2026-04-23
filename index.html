@@ -4884,7 +4884,7 @@ function _clearMoveMode(){
 
 async function _swapRaidOrder(idA,idB){
   const list=document.getElementById('myRaidsNavList');
-  const items=list?[...list.querySelectorAll('[data-raid-id]')]:[];
+  const items=list?[...list.querySelectorAll('.nav-tree-raid')]:[];
   const currentOrder=items.map(el=>el.dataset.raidId);
   if(!currentOrder.length) return;
 

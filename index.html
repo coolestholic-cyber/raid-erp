@@ -2186,6 +2186,9 @@
             </tbody>
           </table>
         </div>
+        <div id="loginLogLoadMore" style="display:none;padding:10px 0 2px;">
+          <button class="btn" style="width:100%;justify-content:center;border:1.5px dashed var(--border);color:var(--text-sub);font-size:var(--text-sm);padding:10px;" onclick="logLoadMore()">더 보기</button>
+        </div>
         <div id="loginLogPager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
       </div>
 
@@ -3589,40 +3592,61 @@ async function changeRole(uid, r, selectEl){
 // =============================================
 let allLoginLogs=[];
 let logPageNo=0;
+let logMobileShown=15;
+const LOG_DESKTOP_PAGE=25;
+const LOG_MOBILE_STEP=15;
+
 function logGoPage(p){logPageNo=p;renderLoginLogPage();}
+function logLoadMore(){logMobileShown+=LOG_MOBILE_STEP;renderLoginLogPage();}
+
+function _renderLogRow(l,idx){
+  const r=ROLES[l.role]||ROLES.none;
+  const dt=l.loginAt?new Date(l.loginAt.seconds*1000).toLocaleString('ko',{year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'-';
+  const linkedUser=allUsers.find(u=>u.id===l.uid);
+  const currentRole=linkedUser?.role||l.role||'none';
+  const isSelf=l.uid===currentUser?.uid;
+  const ctrl=isAdmin(currentProfile)&&l.uid?_amRoleSelect(l.uid,currentRole,isSelf):`<span class="badge ${r.badge}">${r.label}</span>`;
+  return `<tr>
+    <td style="color:var(--text-sub);font-size:var(--text-sm);">${idx}</td>
+    <td><img src="${l.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
+    <td style="font-weight:600;">${l.name||'이름없음'}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
+    <td><span class="badge ${r.badge}">${r.label}</span></td>
+    <td>${ctrl}</td>
+    <td style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${dt}</td>
+  </tr>`;
+}
+
 function renderLoginLogPage(){
   const tbody=document.getElementById('loginLogBody');
   const pager=document.getElementById('loginLogPager');
+  const loadMoreWrap=document.getElementById('loginLogLoadMore');
   if(!tbody) return;
-  const PAGE=20;
-  const totalPages=Math.ceil(allLoginLogs.length/PAGE)||1;
-  if(logPageNo>=totalPages) logPageNo=totalPages-1;
-  const page=allLoginLogs.slice(logPageNo*PAGE,(logPageNo+1)*PAGE);
-  if(!page.length){
+
+  if(!allLoginLogs.length){
     tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">접속 기록이 없습니다</td></tr>`;
     if(pager) pager.innerHTML='';
+    if(loadMoreWrap) loadMoreWrap.style.display='none';
     return;
   }
-  const admin=isAdmin(currentProfile);
-  tbody.innerHTML=page.map((l,i)=>{
-    const r=ROLES[l.role]||ROLES.none;
-    const dt=l.loginAt?new Date(l.loginAt.seconds*1000).toLocaleString('ko',{year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'-';
-    // 로그의 uid로 현재 사용자 doc 찾기 → 현재 권한 반영
-    const linkedUser=allUsers.find(u=>u.id===l.uid);
-    const currentRole=linkedUser?.role||l.role||'none';
-    const cr=ROLES[currentRole]||ROLES.none;
-    const isSelf=l.uid===currentUser?.uid;
-    const ctrl=admin&&l.uid?_amRoleSelect(l.uid,currentRole,isSelf):`<span class="badge ${r.badge}">${r.label}</span>`;
-    return `<tr>
-      <td style="color:var(--text-sub);font-size:var(--text-sm);">${logPageNo*PAGE+i+1}</td>
-      <td><img src="${l.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
-      <td style="font-weight:600;">${l.name||'이름없음'}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
-      <td><span class="badge ${r.badge}">${r.label}</span></td>
-      <td>${ctrl}</td>
-      <td style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${dt}</td>
-    </tr>`;
-  }).join('');
-  _amPager(totalPages,logPageNo,'logGoPage',pager);
+
+  const isMobile=window.innerWidth<=768;
+
+  if(isMobile){
+    // 모바일: 더 보기 방식
+    if(pager){ pager.style.display='none'; pager.innerHTML=''; }
+    const shown=Math.min(logMobileShown,allLoginLogs.length);
+    tbody.innerHTML=allLoginLogs.slice(0,shown).map((l,i)=>_renderLogRow(l,i+1)).join('');
+    if(loadMoreWrap) loadMoreWrap.style.display=shown<allLoginLogs.length?'':'none';
+  } else {
+    // 데스크탑: 페이지네이션
+    if(loadMoreWrap) loadMoreWrap.style.display='none';
+    if(pager) pager.style.display='flex';
+    const totalPages=Math.ceil(allLoginLogs.length/LOG_DESKTOP_PAGE)||1;
+    if(logPageNo>=totalPages) logPageNo=totalPages-1;
+    const page=allLoginLogs.slice(logPageNo*LOG_DESKTOP_PAGE,(logPageNo+1)*LOG_DESKTOP_PAGE);
+    tbody.innerHTML=page.map((l,i)=>_renderLogRow(l,logPageNo*LOG_DESKTOP_PAGE+i+1)).join('');
+    _amPager(totalPages,logPageNo,'logGoPage',pager);
+  }
 }
 async function loadLoginLogs(force){
   const panel=document.getElementById('loginLogPanel');
@@ -3637,6 +3661,7 @@ async function loadLoginLogs(force){
     const badge=document.getElementById('logCountBadge');
     if(badge) badge.textContent=`최근 ${allLoginLogs.length}건`;
     logPageNo=0;
+    logMobileShown=LOG_MOBILE_STEP;
     renderLoginLogPage();
   }catch(e){
     if(tbody) tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:30px;color:#dc2626;">오류: ${e.message}</td></tr>`;
@@ -4999,6 +5024,13 @@ function handleHashChange(){
   }
 }
 window.addEventListener('hashchange',handleHashChange);
+let _logResizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(_logResizeTimer);
+  _logResizeTimer=setTimeout(()=>{
+    if(allLoginLogs.length&&document.getElementById('page-users')?.classList.contains('active')) renderLoginLogPage();
+  },200);
+});
 document.addEventListener('DOMContentLoaded',()=>{
   if(window.location.hash.startsWith('#raids/')) handleHashChange();
 });

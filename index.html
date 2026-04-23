@@ -4478,34 +4478,53 @@ async function rdRenderSettlements(raidId){
             <input class="rd-form-input" type="text" id="rdStNote" placeholder="메모 (선택)">
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-          <div style="min-width:0;overflow-x:auto;">
+        <div style="display:grid;grid-template-columns:55fr 45fr;gap:16px;margin-bottom:16px;min-width:0;overflow-x:auto;">
+          <div style="min-width:0;">
             <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-sub);margin-bottom:8px;">판매 아이템 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStItemCnt">0개</span></div>
-            <table style="min-width:420px;">
+            <div style="overflow-x:auto;">
+            <table style="width:100%;table-layout:fixed;min-width:380px;">
+              <colgroup>
+                <col style="min-width:110px;">
+                <col style="width:58px;">
+                <col style="width:88px;">
+                <col style="width:46px;">
+                <col style="width:76px;">
+                <col style="width:28px;">
+              </colgroup>
               <thead><tr>
                 <th>아이템명</th>
-                <th>판매방식</th>
+                <th>방식</th>
                 <th style="text-align:right;">단가(메소)</th>
                 <th style="text-align:right;">수량</th>
                 <th style="text-align:right;">수익</th>
-                <th style="width:24px;"></th>
+                <th></th>
               </tr></thead>
               <tbody id="rdStItemsBody"></tbody>
             </table>
-            <button class="btn btn-sm" style="margin-top:8px;" onclick="rdStAddItem()">+ 아이템 추가</button>
+            </div>
+            <button class="btn" style="margin-top:10px;width:100%;justify-content:center;border:1.5px dashed var(--border);color:var(--text-sub);font-size:var(--text-sm);padding:8px;" onclick="rdStAddItem()">+ 아이템 추가</button>
           </div>
-          <div style="min-width:0;overflow-x:auto;">
+          <div style="min-width:0;">
             <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-sub);margin-bottom:8px;">참여 인원 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStMemCnt">0명</span></div>
-            <table style="min-width:300px;">
+            <div style="overflow-x:auto;">
+            <table style="width:100%;table-layout:fixed;min-width:260px;">
+              <colgroup>
+                <col style="min-width:80px;">
+                <col style="min-width:70px;">
+                <col style="width:62px;">
+                <col style="width:68px;">
+                <col style="width:28px;">
+              </colgroup>
               <thead><tr>
                 <th>이름</th>
                 <th>직업</th>
                 <th style="text-align:right;">배분(%)</th>
                 <th style="text-align:right;">금액</th>
-                <th style="width:24px;"></th>
+                <th></th>
               </tr></thead>
               <tbody id="rdStMemBody"></tbody>
             </table>
+            </div>
             <button class="btn btn-sm" style="margin-top:8px;" onclick="rdStAddMember()">+ 인원 추가</button>
           </div>
         </div>

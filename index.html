@@ -4510,30 +4510,30 @@ async function rdRenderSettlements(raidId){
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-          <div>
+          <div style="min-width:0;overflow-x:auto;">
             <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-sub);margin-bottom:8px;">판매 아이템 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStItemCnt">0개</span></div>
-            <table>
+            <table style="min-width:420px;">
               <thead><tr>
                 <th>아이템명</th>
                 <th>판매방식</th>
-                <th>단가(메소)</th>
-                <th>수량</th>
-                <th>수익</th>
-                <th></th>
+                <th style="text-align:right;">단가(메소)</th>
+                <th style="text-align:right;">수량</th>
+                <th style="text-align:right;">수익</th>
+                <th style="width:24px;"></th>
               </tr></thead>
               <tbody id="rdStItemsBody"></tbody>
             </table>
             <button class="btn btn-sm" style="margin-top:8px;" onclick="rdStAddItem()">+ 아이템 추가</button>
           </div>
-          <div>
+          <div style="min-width:0;overflow-x:auto;">
             <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-sub);margin-bottom:8px;">참여 인원 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStMemCnt">0명</span></div>
-            <table>
+            <table style="min-width:300px;">
               <thead><tr>
                 <th>이름</th>
                 <th>직업</th>
-                <th>배분(%)</th>
-                <th>금액</th>
-                <th></th>
+                <th style="text-align:right;">배분(%)</th>
+                <th style="text-align:right;">금액</th>
+                <th style="width:24px;"></th>
               </tr></thead>
               <tbody id="rdStMemBody"></tbody>
             </table>
@@ -4631,8 +4631,8 @@ function rdStRenderItems(){
     tr.innerHTML=`
       <td><input class="st-ti" type="text" value="${it.name||''}" placeholder="아이템명" onchange="_rdStItems[${i}].name=this.value"></td>
       <td><button class="st-mbtn ${it.method==='직접'?'m-direct':'m-exchange'}" onclick="_rdStItems[${i}].method=_rdStItems[${i}].method==='직접'?'교환':'직접';rdStRenderItems()">${it.method}</button></td>
-      <td><input class="st-ti num" type="number" value="${it.price||0}" onchange="_rdStItems[${i}].price=parseInt(this.value)||0;rdStRecalc()"></td>
-      <td><input class="st-ti num" type="number" value="${it.qty||1}" min="1" style="width:32px" onchange="_rdStItems[${i}].qty=parseInt(this.value)||1;rdStRecalc()"></td>
+      <td style="text-align:right;"><input class="st-ti num" type="number" value="${it.price||0}" onchange="_rdStItems[${i}].price=parseInt(this.value)||0;rdStRecalc()"></td>
+      <td style="text-align:right;"><input class="st-ti num" type="number" value="${it.qty||1}" min="1" style="width:44px" onchange="_rdStItems[${i}].qty=parseInt(this.value)||1;rdStRecalc()"></td>
       <td class="st-rev-val" id="rdr${i}">${stFmt(rdStRevenue(it))}</td>
       <td><button class="st-delbtn" onclick="_rdStItems.splice(${i},1);rdStRenderItems()">×</button></td>
     `;
@@ -4650,7 +4650,7 @@ function rdStRenderMembers(){
     tr.innerHTML=`
       <td><input class="st-ti" type="text" value="${m.name||''}" placeholder="이름" onchange="_rdStMembers[${i}].name=this.value"></td>
       <td><input class="st-ti" type="text" value="${m.cls||''}" placeholder="직업" onchange="_rdStMembers[${i}].cls=this.value"></td>
-      <td><input class="st-ti num" type="number" value="${m.alloc}" min="0" max="200" style="width:52px" onchange="_rdStMembers[${i}].alloc=parseInt(this.value)||0;rdStRecalc()"></td>
+      <td style="text-align:right;"><input class="st-ti num" type="number" value="${m.alloc}" min="0" max="200" style="width:52px" onchange="_rdStMembers[${i}].alloc=parseInt(this.value)||0;rdStRecalc()"></td>
       <td class="st-rev-val" id="rdd${i}">0</td>
       <td><button class="st-delbtn" onclick="_rdStMembers.splice(${i},1);rdStRenderMembers()">×</button></td>
     `;

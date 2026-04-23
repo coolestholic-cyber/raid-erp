@@ -770,6 +770,26 @@
   [data-theme="dark"] #settlementForm .st-ti:focus{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-addbtn:hover{background:var(--surface-alt)}
 
+  /* ===== 공대 상세 인라인 정산 폼 (#rdStFormWrap) ===== */
+  #rdStFormWrap table{width:100%;border-collapse:collapse;table-layout:auto;}
+  #rdStFormWrap th{font-size:var(--text-sm);color:var(--text-sub);font-weight:500;text-align:left;padding:0 8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  #rdStFormWrap td{padding:7px 6px;border-bottom:0.5px solid var(--border);vertical-align:middle;}
+  #rdStFormWrap tr:last-child td{border-bottom:none;}
+  #rdStFormWrap .st-ti{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:var(--text-sm);color:var(--text);outline:none;padding:5px 8px;font-family:inherit;transition:border-color .15s;box-sizing:border-box;}
+  #rdStFormWrap .st-ti:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(11,92,213,.1);}
+  #rdStFormWrap .st-ti.num{text-align:right;}
+  #rdStFormWrap .st-ti[type="number"]::-webkit-inner-spin-button,
+  #rdStFormWrap .st-ti[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0;}
+  #rdStFormWrap .st-ti[type="number"]{-moz-appearance:textfield;appearance:textfield;}
+  #rdStFormWrap .st-mbtn{font-size:var(--text-xs);padding:4px 10px;border-radius:10px;border:1px solid;cursor:pointer;background:transparent;white-space:nowrap;font-family:inherit;}
+  #rdStFormWrap .m-direct{border-color:#0F6E56;color:#0F6E56;}
+  #rdStFormWrap .m-exchange{border-color:#185FA5;color:#185FA5;}
+  #rdStFormWrap .st-delbtn{background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:var(--text-md);padding:2px 6px;line-height:1;}
+  #rdStFormWrap .st-delbtn:hover{color:#E24B4A;}
+  #rdStFormWrap .st-rev-val{font-size:var(--text-sm);color:#BA7517;font-weight:600;text-align:right;white-space:nowrap;}
+  [data-theme="dark"] #rdStFormWrap .st-ti{background:var(--surface-alt);}
+  [data-theme="dark"] #rdStFormWrap .st-ti:focus{background:var(--bg);}
+
   /* ===== 공대 찾기 (Raid Finder) ===== */
   #page-raids .rf-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;gap:8px;flex-wrap:wrap}
   #page-raids .rf-title{font-size:var(--text-xl);font-weight:700;color:var(--text);margin-bottom:3px}
@@ -4492,32 +4512,32 @@ async function rdRenderSettlements(raidId){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
           <div>
             <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-sub);margin-bottom:8px;">판매 아이템 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStItemCnt">0개</span></div>
-            <table style="width:100%;font-size:var(--text-xs);">
+            <table>
               <thead><tr>
-                <th style="text-align:left;padding:4px 6px;">아이템명</th>
-                <th style="padding:4px 6px;">판매방식</th>
-                <th style="padding:4px 6px;">단가(메소)</th>
-                <th style="padding:4px 6px;">수량</th>
-                <th style="padding:4px 6px;">수익</th>
+                <th>아이템명</th>
+                <th>판매방식</th>
+                <th>단가(메소)</th>
+                <th>수량</th>
+                <th>수익</th>
                 <th></th>
               </tr></thead>
               <tbody id="rdStItemsBody"></tbody>
             </table>
-            <button class="btn" style="margin-top:8px;font-size:var(--text-xs);" onclick="rdStAddItem()">+ 아이템 추가</button>
+            <button class="btn btn-sm" style="margin-top:8px;" onclick="rdStAddItem()">+ 아이템 추가</button>
           </div>
           <div>
             <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-sub);margin-bottom:8px;">참여 인원 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStMemCnt">0명</span></div>
-            <table style="width:100%;font-size:var(--text-xs);">
+            <table>
               <thead><tr>
-                <th style="text-align:left;padding:4px 6px;">이름</th>
-                <th style="padding:4px 6px;">직업</th>
-                <th style="padding:4px 6px;">배분(%)</th>
-                <th style="padding:4px 6px;">금액</th>
+                <th>이름</th>
+                <th>직업</th>
+                <th>배분(%)</th>
+                <th>금액</th>
                 <th></th>
               </tr></thead>
               <tbody id="rdStMemBody"></tbody>
             </table>
-            <button class="btn" style="margin-top:8px;font-size:var(--text-xs);" onclick="rdStAddMember()">+ 인원 추가</button>
+            <button class="btn btn-sm" style="margin-top:8px;" onclick="rdStAddMember()">+ 인원 추가</button>
           </div>
         </div>
         <div style="background:var(--surface-alt);border-radius:8px;padding:12px;display:flex;gap:24px;margin-bottom:16px;font-size:var(--text-sm);">

@@ -27,14 +27,14 @@
     --text: #212529; --text-sub: #6c757d; --border: #dee2e6;
     --card-bg: #fff; --surface: #fff; --surface-alt: #f9fafb; --row-line: #f3f4f6;
     /* ─ 텍스트 스케일 ─ */
-    --text-2xs:  clamp(10px, 0.6vw + 9px, 11px);
-    --text-xs:   clamp(11px, 0.65vw + 9.5px, 12px);
-    --text-sm:   clamp(12px, 0.75vw + 10px, 13px);
-    --text-base: clamp(14px, 0.9vw + 12px, 15px);
-    --text-md:   clamp(15px, 1vw + 12px, 16px);
-    --text-lg:   clamp(16px, 1.2vw + 13px, 18px);
-    --text-xl:   clamp(19px, 1.5vw + 14px, 22px);
-    --text-2xl:  clamp(22px, 2vw + 16px, 26px);
+    --text-2xs:  clamp(11px, 0.65vw + 10px, 12px);
+    --text-xs:   clamp(13px, 0.75vw + 11px, 14px);
+    --text-sm:   clamp(14px, 0.85vw + 12px, 15px);
+    --text-base: clamp(15px, 1vw + 13px, 16px);
+    --text-md:   clamp(16px, 1.1vw + 14px, 17px);
+    --text-lg:   clamp(18px, 1.3vw + 15px, 20px);
+    --text-xl:   clamp(21px, 1.6vw + 17px, 24px);
+    --text-2xl:  clamp(24px, 2.1vw + 18px, 28px);
     /* ─ 줄높이 ─ */
     --leading-tight: 1.25; --leading-normal: 1.5; --leading-relaxed: 1.75;
     /* ─ 아이콘 ─ */
@@ -1019,16 +1019,19 @@
   body.sidebar-collapsed .nav-tree-hd,body.sidebar-collapsed .nav-tree-children,body.sidebar-collapsed .nav-tree-new,body.sidebar-collapsed .nav-tree-search{display:none;}
   body.sidebar-collapsed .nav-tree-raid{justify-content:center;padding:11px 0;margin:2px 4px;}
   body.sidebar-collapsed .nav-tree-raid .arr,body.sidebar-collapsed .nav-tree-raid .nav-label{display:none;}
-  /* ── Sortable 드래그 ── */
-  .sortable-ghost{opacity:0.25;background:var(--sidebar-active);border-radius:8px;outline:1px dashed rgba(255,255,255,0.3);}
-  .sortable-chosen{opacity:0.9;transform:rotate(0.5deg);cursor:grabbing!important;}
-  .sortable-drag{opacity:0.9;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
-  #myRaidsNavList .nav-tree-raid{cursor:grab;}
-  #myRaidsNavList .nav-tree-raid:active{cursor:grabbing;}
-  .nav-tree-raid .drag-handle{display:flex;align-items:center;color:rgba(255,255,255,0.35);font-size:13px;flex-shrink:0;padding:0 4px;opacity:0;transition:opacity 0.15s;user-select:none;pointer-events:none;}
-  .nav-tree-raid:hover .drag-handle{opacity:0.5;}
-  .sortable-chosen .drag-handle{opacity:0.8;}
-  body.sidebar-collapsed .drag-handle{display:none!important;}
+  /* ── 순서 변경 버튼 ── */
+  .nav-tree-raid .btn-move{display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:rgba(255,255,255,0.3);font-size:13px;cursor:pointer;padding:3px 5px;border-radius:4px;opacity:0;transition:all 0.15s;flex-shrink:0;min-width:24px;min-height:24px;}
+  .nav-tree-raid:hover .btn-move{opacity:0.7;}
+  .btn-move:hover{background:rgba(245,158,11,0.2);color:#f59e0b;opacity:1!important;}
+  body.sidebar-collapsed .btn-move{display:none!important;}
+  /* 이동 모드: 선택된 공대 */
+  .nav-tree-raid.move-selected{background:rgba(245,158,11,0.15)!important;outline:2px solid #f59e0b;outline-offset:-2px;}
+  .nav-tree-raid.move-selected .btn-move{opacity:1;color:#f59e0b;background:rgba(245,158,11,0.2);}
+  /* 이동 모드: 타겟 후보 */
+  .nav-tree-raid.move-target{cursor:pointer;}
+  .nav-tree-raid.move-target:hover{background:rgba(59,130,246,0.15)!important;outline:2px dashed #3b82f6;outline-offset:-2px;}
+  /* 힌트 메시지 */
+  .move-hint{margin:4px 8px 2px;padding:5px 8px;background:rgba(59,130,246,0.1);border-left:3px solid #3b82f6;color:#93c5fd;font-size:11px;border-radius:0 4px 4px 0;}
 </style>
 </head>
 <body>
@@ -2493,7 +2496,7 @@
 
 <!-- 아이템 DB -->
 <script src="item_db.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 <script src="utils/forbiddenWordsLoader.js"></script>
 
 <!-- Firebase SDK -->
@@ -4249,7 +4252,7 @@ async function leaveRaid(memberId, memberName, raidId){
 let currentRaidId = null;
 let stRaidId = null; // 공대 컨텍스트에서 새 정산 생성 시 사용
 let _raidOrder = [];
-let _raidsSortable = null;
+let _selectedRaidForMove = null;
 let _rdStItems = [];
 let _rdStMembers = [];
 let _rdFormOpen = false;
@@ -4797,6 +4800,7 @@ function renderMyRaidsNav(){
     ...myRaids.filter(r=>!cleanOrder.includes(r.id))
   ];
 
+  const showMoveBtn = orderedRaids.length > 1;
   el.innerHTML=`
     <div style="border-top:1px solid rgba(255,255,255,0.07);margin:6px 0 2px;"></div>
     <div class="nav-tree-hd"><span>내 공대</span></div>
@@ -4805,11 +4809,11 @@ function renderMyRaidsNav(){
       <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" data-raid-id="${r.id}">
         <span class="nav-icon" onclick="openRaidDetail('${r.id}','settlements')" style="cursor:pointer;flex-shrink:0;"><span class="material-icons" style="font-size:18px;color:#BA7517;">shield</span></span>
         <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;max-width:140px;" title="${_n}" onclick="openRaidDetail('${r.id}','settlements')">${_d}</span>
-        <span class="drag-handle">⠿</span>
+        ${showMoveBtn?`<button class="btn-move" data-raid-id="${r.id}" title="순서 변경" aria-label="${_n} 순서 변경">⇅</button>`:''}
       </div>`;}).join('')}
     </div>`;
 
-  _initRaidsSortable(orderedRaids.length);
+  _bindRaidMoveEvents();
 }
 
 function toggleMyRaidsNav(){}
@@ -4818,31 +4822,120 @@ function toggleRaidNav(raidId){ openRaidDetail(raidId,'settlements'); }
 
 function filterMyRaidsNav(val){}
 
-function _initRaidsSortable(count){
-  if(typeof Sortable==='undefined') return;
+function _bindRaidMoveEvents(){
   const list=document.getElementById('myRaidsNavList');
   if(!list) return;
-  if(_raidsSortable){ _raidsSortable.destroy(); _raidsSortable=null; }
-  if(count<=1) return;
-  _raidsSortable=new Sortable(list,{
-    animation:150,
-    ghostClass:'sortable-ghost',
-    chosenClass:'sortable-chosen',
-    dragClass:'sortable-drag',
-    delay:120,
-    delayOnTouchOnly:false,
-    touchStartThreshold:4,
-    forceFallback:false,
-    filter:'.nav-icon,span[onclick]',
-    preventOnFilter:false,
-    onEnd:async(evt)=>{
-      if(evt.oldIndex===evt.newIndex) return;
-      const items=list.querySelectorAll('[data-raid-id]');
-      const newOrder=[...items].map(el=>el.dataset.raidId);
-      await saveRaidOrder(newOrder);
-    }
+
+  // btn-move 클릭
+  list.querySelectorAll('.btn-move').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      _handleMoveClick(btn.dataset.raidId);
+    });
+  });
+
+  // 공대 본체 클릭
+  list.querySelectorAll('.nav-tree-raid').forEach(item=>{
+    item.addEventListener('click',(e)=>{
+      if(e.target.closest('.btn-move')||e.target.closest('.nav-icon')||e.target.closest('span[onclick]')) return;
+      if(_selectedRaidForMove){
+        e.stopPropagation();
+        _handleMoveClick(item.dataset.raidId);
+      }
+    });
   });
 }
+
+function _handleMoveClick(raidId){
+  if(_selectedRaidForMove===raidId){
+    _selectedRaidForMove=null;
+    _clearMoveMode();
+  } else if(_selectedRaidForMove===null){
+    _selectedRaidForMove=raidId;
+    _activateMoveMode(raidId);
+    if(navigator.vibrate) navigator.vibrate(10);
+  } else {
+    _swapRaidOrder(_selectedRaidForMove,raidId);
+    _selectedRaidForMove=null;
+    _clearMoveMode();
+  }
+}
+
+function _activateMoveMode(raidId){
+  document.querySelectorAll('#myRaidsNavList .nav-tree-raid').forEach(item=>{
+    if(item.dataset.raidId===raidId){
+      item.classList.add('move-selected');
+      const btn=item.querySelector('.btn-move');
+      if(btn) btn.title='선택 취소';
+    } else {
+      item.classList.add('move-target');
+    }
+  });
+  // 힌트 표시
+  let hint=document.getElementById('raid-move-hint');
+  if(!hint){
+    hint=document.createElement('div');
+    hint.id='raid-move-hint';
+    hint.className='move-hint';
+    const navList=document.getElementById('myRaidsNavList');
+    navList.parentNode.insertBefore(hint,navList.nextSibling);
+  }
+  hint.textContent='이동할 위치의 공대를 클릭하세요  (ESC로 취소)';
+  hint.style.display='block';
+}
+
+function _clearMoveMode(){
+  document.querySelectorAll('#myRaidsNavList .nav-tree-raid').forEach(item=>{
+    item.classList.remove('move-selected','move-target');
+    const btn=item.querySelector('.btn-move');
+    if(btn) btn.title='순서 변경';
+  });
+  const hint=document.getElementById('raid-move-hint');
+  if(hint) hint.style.display='none';
+}
+
+async function _swapRaidOrder(idA,idB){
+  const list=document.getElementById('myRaidsNavList');
+  const items=list?[...list.querySelectorAll('[data-raid-id]')]:[];
+  const currentOrder=items.map(el=>el.dataset.raidId);
+  if(!currentOrder.length) return;
+
+  const idxA=currentOrder.indexOf(idA);
+  const idxB=currentOrder.indexOf(idB);
+  if(idxA===-1||idxB===-1) return;
+
+  const newOrder=[...currentOrder];
+  [newOrder[idxA],newOrder[idxB]]=[newOrder[idxB],newOrder[idxA]];
+
+  _raidOrder=newOrder;
+  renderMyRaidsNav();
+
+  try{
+    await db.collection('users').doc(currentUser.uid).update({raidOrder:newOrder});
+    showToast('순서가 변경되었습니다','success');
+  } catch(e){
+    console.error('[순서변경]',e);
+    _raidOrder=currentOrder;
+    renderMyRaidsNav();
+    showToast('순서 저장 실패','error');
+  }
+}
+
+// ESC / 바깥 클릭으로 이동 모드 취소 (한 번만 등록)
+(function _initMoveGlobalEvents(){
+  document.addEventListener('keydown',(e)=>{
+    if(e.key==='Escape'&&_selectedRaidForMove){
+      _selectedRaidForMove=null;
+      _clearMoveMode();
+    }
+  });
+  document.addEventListener('click',(e)=>{
+    if(_selectedRaidForMove&&!e.target.closest('#myRaidsNavList')){
+      _selectedRaidForMove=null;
+      _clearMoveMode();
+    }
+  });
+})();
 
 async function loadRaidOrder(){
   if(!currentUser){_raidOrder=[];return;}

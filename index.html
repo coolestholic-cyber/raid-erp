@@ -2236,10 +2236,10 @@
               <th style="width:40px;"></th>
               <th>이름</th>
               <th>현재 권한</th>
-              <th>권한 부여</th>
               <th>가입일</th>
               <th>최종 접속</th>
-              <th style="width:110px;">액션</th>
+              <th style="min-width:120px;">권한 부여</th>
+              <th style="width:120px;">액션</th>
             </tr></thead>
             <tbody id="userTableBody">
               <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
@@ -3696,9 +3696,9 @@ function renderUserTable(){
       <td data-label=""><img src="${u.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
       <td data-label="이름" style="font-weight:${isSelf?700:400};">${displayName}${statusBadge}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
       <td data-label="현재 권한"><span class="badge ${r.badge}">${r.label}</span></td>
-      <td data-label="권한 부여">${ctrl}</td>
       <td data-label="가입일" style="font-size:var(--text-sm);color:var(--text-sub);">${cr}</td>
       <td data-label="최종 접속" style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${la}</td>
+      <td data-label="권한 부여" style="padding-right:16px;">${ctrl}</td>
       <td data-label="액션">${actionCell}</td>
     </tr>`;
   }).join('');

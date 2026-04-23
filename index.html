@@ -3677,12 +3677,23 @@ async function migrateLoginLogs(){
     const uniqueUids=Object.keys(latestByUid);
     _migrateLog(`unique uid: ${uniqueUids.length}명`);
 
-    // Step 4: users 문서 업데이트
+    // Step 3-b: users 문서 존재 여부 분류
+    const existingUidSet=new Set(allUsers.map(u=>u.id));
+    const existingUids=uniqueUids.filter(uid=>existingUidSet.has(uid));
+    const orphanUids=uniqueUids.filter(uid=>!existingUidSet.has(uid));
+    _migrateLog(`users에 존재: ${existingUids.length}명 (이관 대상)`);
+    _migrateLog(`users에 없는 uid: ${orphanUids.length}명 (건너뜀)`);
+    const sumOk=existingUids.length+orphanUids.length===uniqueUids.length;
+    _migrateLog(`합계 검증: ${existingUids.length} + ${orphanUids.length} = ${existingUids.length+orphanUids.length} ${sumOk?'✓ 일치':'✗ 불일치'}`, sumOk?'ok':'err');
+    // orphanUids 나중에 deleteLoginLogs()에서 사용
+    window._migrateOrphanUids=orphanUids;
+
+    // Step 4: users 문서 업데이트 (존재하는 uid만)
     let updated=0;
     const failedUids=[];
     if(!dryRun){
       _migrateLog('users 문서에 lastLoginAt 기록 중...');
-      for(const uid of uniqueUids){
+      for(const uid of existingUids){
         try{
           await db.collection('users').doc(uid).update({lastLoginAt:latestByUid[uid]});
           updated++;
@@ -3693,19 +3704,18 @@ async function migrateLoginLogs(){
       }
       _migrateLog(`users 업데이트 완료: ${updated}건`, 'ok');
     } else {
-      updated=uniqueUids.length;
+      updated=existingUids.length;
       _migrateLog(`[드라이런] users 업데이트 예정: ${updated}건`);
     }
 
-    // Step 5: 검증
-    const mismatch=uniqueUids.length-updated-failedUids.length;
-    if(uniqueUids.length!==updated+failedUids.length||mismatch!==0){
-      _migrateLog(`검증 실패: unique uid ${uniqueUids.length} ≠ 업데이트 ${updated} + 실패 ${failedUids.length}`, 'err');
+    // Step 5: 검증 (existingUids 기준)
+    if(existingUids.length!==updated+failedUids.length){
+      _migrateLog(`검증 실패: 이관 대상 ${existingUids.length} ≠ 업데이트 ${updated} + 실패 ${failedUids.length}`, 'err');
       if(failedUids.length) _migrateLog('실패 uid 목록: '+failedUids.join(', '),'err');
       _migrateLog('삭제를 중단합니다. 실패 uid를 확인하세요.', 'err');
     } else {
       if(dryRun){
-        _migrateLog(`[드라이런 완료] 실제 쓰기 없음. unique ${uniqueUids.length}명 / 건너뜀 ${noUid.length}건`, 'ok');
+        _migrateLog(`[드라이런 완료] 실제 쓰기 없음. 이관 대상 ${existingUids.length}명 / 건너뜀 ${orphanUids.length}명 / 총 로그 ${total}건`, 'ok');
         _migrateLog('드라이런 체크 해제 후 다시 실행하면 실제 이관됩니다.');
       } else {
         _migrateLog(`검증 통과: ${updated}건 일치`, 'ok');
@@ -3725,7 +3735,13 @@ async function deleteLoginLogs(){
   if(!_migrateVerified){showToast('이관 검증을 먼저 완료하세요','error');return;}
   if(!_migrateDocs.length){showToast('이관 데이터 없음','error');return;}
   const total=_migrateDocs.length;
-  if(!confirm(`loginLogs ${total}건을 영구 삭제합니다.\n이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?`)) return;
+  const orphanUids=window._migrateOrphanUids||[];
+  let confirmMsg=`loginLogs ${total}건을 영구 삭제합니다.\n이 작업은 되돌릴 수 없습니다.`;
+  if(orphanUids.length>0){
+    confirmMsg+=`\n\n⚠️ users 문서 없는 orphan uid ${orphanUids.length}명의 로그도 포함되어 있습니다.\n해당 로그도 함께 삭제됩니다.`;
+  }
+  confirmMsg+='\n\n계속하시겠습니까?';
+  if(!confirm(confirmMsg)) return;
 
   const delBtn=document.getElementById('btnMigrateDelete');
   if(delBtn) delBtn.disabled=true;

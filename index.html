@@ -2725,6 +2725,7 @@ auth.onAuthStateChanged(async(user)=>{
   }
   updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
   await loadRaidOrder();
+  renderMyRaidsNav();
   await loadBossTimers();
   await loadCustomBosses();
   renderBossList();

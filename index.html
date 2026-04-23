@@ -2575,6 +2575,7 @@ async function handleDiscordCallback(code){
     const res=await fetch(DISCORD_WORKER_URL+'/exchange',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
     const discord=await res.json();
     if(discord.error){alert('Discord 로그인 실패: '+discord.error);location.href=DISCORD_REDIRECT_URI;return;}
+    console.log('[Discord OAuth]', {id:discord.id, username:discord.username, global_name:discord.global_name, discriminator:discord.discriminator});
     _pendingDiscord=discord;await auth.signInAnonymously();
   }catch(e){alert('Discord 로그인 실패: '+e.message);location.href=DISCORD_REDIRECT_URI;}
 }
@@ -2674,7 +2675,8 @@ auth.onAuthStateChanged(async(user)=>{
         // 이전 중복 문서들 삭제
         for(const dd of dupSnap.docs){await db.collection('users').doc(dd.id).delete();}
       }
-      const newData={name:d.global_name||d.username||`Discord유저_${(d.id||'').substring(0,4)}`,email:d.email||'',photo:d.avatar||'',role,discordId:d.id,discordUsername:d.username,isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+      const _resolvedName=d.global_name||d.username||`Discord유저_${(d.id||'').substring(0,4)}`;
+      const newData={name:_resolvedName,email:d.email||'',photo:d.avatar||'',role,discordId:d.id,discordUsername:d.username||'',isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
       if(existingMyChars)newData.myChars=existingMyChars;
       if(existingBossTimers)newData.bossTimers=existingBossTimers;
       await userRef.set(newData);
@@ -2703,6 +2705,7 @@ auth.onAuthStateChanged(async(user)=>{
   if(_pendingDiscord && profileData.discordId === _pendingDiscord.id){
     const d=_pendingDiscord;_pendingDiscord=null;
     const freshName=d.global_name||d.username||`Discord유저_${(d.id||'').substring(0,4)}`;
+    if(d.username && profileData.discordUsername!==d.username) await userRef.update({discordUsername:d.username}).catch(()=>{});
     if(freshName && freshName !== profileData.name){
       await userRef.update({name:freshName,photo:d.avatar||profileData.photo||''});
       profileData.name=freshName;profileData.photo=d.avatar||profileData.photo||'';
@@ -2715,8 +2718,8 @@ auth.onAuthStateChanged(async(user)=>{
   if(profileData.loginType==='discord'||profileData.isAnonymous){
     db.collection('loginLogs').add({
       uid:doc.id,name:profileData.name||'',photo:profileData.photo||'',
-      discordId:profileData.discordId||'',role:profileData.role||'none',
-      loginAt:firebase.firestore.FieldValue.serverTimestamp()
+      discordId:profileData.discordId||'',discordUsername:profileData.discordUsername||'',
+      role:profileData.role||'none',loginAt:firebase.firestore.FieldValue.serverTimestamp()
     }).catch(()=>{});
     // 고유 방문자 집계 (uid arrayUnion)
     db.collection('stats').doc('visitors').set({
@@ -3563,7 +3566,7 @@ function renderUserTable(){
     return `<tr>
       <td style="color:var(--text-sub);font-size:var(--text-sm);">${userPageNo*PAGE+i+1}</td>
       <td><img src="${u.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
-      <td style="font-weight:${isSelf?700:400};">${_resolveDisplayName(u.name,u.discordId,u.id)}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
+      <td style="font-weight:${isSelf?700:400};">${_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername)}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
       <td style="font-size:var(--text-sm);color:var(--text-sub);">${u.email||'-'}</td>
       <td><span class="badge ${r.badge}">${r.label}</span></td>
       <td>${ctrl}</td>
@@ -3591,9 +3594,10 @@ async function changeRole(uid, r, selectEl){
 // Login Logs
 // =============================================
 
-// 이름 표시용 헬퍼: 빈값·"이름없음" 기존 레코드를 ID 기반으로 보정
-function _resolveDisplayName(name, discordId, uid){
-  if(name && name !== '이름없음') return name;
+// 이름 표시 우선순위: name → discordUsername → Discord유저_{id앞4자리}
+function _resolveDisplayName(name, discordId, uid, discordUsername){
+  if(name && name !== '이름없음' && !name.startsWith('Discord유저_')) return name;
+  if(discordUsername) return discordUsername;
   const sid=(discordId||uid||'').substring(0,4);
   return sid ? `Discord유저_${sid}` : '(이름없음)';
 }
@@ -3617,7 +3621,7 @@ function _renderLogRow(l,idx){
   return `<tr>
     <td style="color:var(--text-sub);font-size:var(--text-sm);">${idx}</td>
     <td><img src="${l.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
-    <td style="font-weight:600;">${_resolveDisplayName(l.name,l.discordId,l.uid)}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
+    <td style="font-weight:600;">${_resolveDisplayName(l.name,l.discordId,l.uid,l.discordUsername||linkedUser?.discordUsername)}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
     <td><span class="badge ${r.badge}">${r.label}</span></td>
     <td>${ctrl}</td>
     <td style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${dt}</td>

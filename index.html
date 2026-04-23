@@ -40,6 +40,21 @@
     /* ─ 아이콘 ─ */
     --icon-sm: 16px; --icon-md: 20px; --icon-lg: 24px;
   }
+  /* ── 모바일 폰트 축소 ── */
+  @media (max-width: 768px) {
+    :root {
+      --text-2xs: 10px; --text-xs: 12px; --text-sm: 13px;
+      --text-base: 14px; --text-md: 15px;
+      --text-lg: 16px; --text-xl: 19px; --text-2xl: 22px;
+    }
+  }
+  @media (max-width: 480px) {
+    :root {
+      --text-2xs: 10px; --text-xs: 11px; --text-sm: 12px;
+      --text-base: 13px; --text-md: 14px;
+      --text-lg: 15px; --text-xl: 17px; --text-2xl: 20px;
+    }
+  }
   [data-theme="dark"] { --bg: #0f1117; --card-bg: #1a1d23; --sidebar-bg: #111318; --sidebar-hover: #1e2128; --sidebar-active: #252830; --surface: #1e2128; --surface-alt: #161920; --row-line: #252830; --text: #e5e7eb; --text-sub: #9ca3af; --border: #2d3139; --accent-light: #1a3256; }
   [data-theme="dark"] .sidebar { border-right: 1px solid var(--border); }
   [data-theme="dark"] body { background: var(--bg); color: var(--text); }

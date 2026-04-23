@@ -50,13 +50,32 @@ service cloud.firestore {
     // ─────────────────────────────────────────
     match /users/{uid} {
       allow read: if request.auth != null;
-      // 본인 프로필 수정 허용 (role 변경은 마스터만)
+      // 본인 프로필 수정 허용, 단 권한/제재 관련 필드는 마스터만
       allow update: if request.auth != null && (
-        request.auth.uid == uid && !('role' in request.resource.data.diff(resource.data).affectedKeys())
-        || isMaster()
+        (
+          request.auth.uid == uid
+          && !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['role','status','suspendedUntil','suspendReason','suspendedBy','suspendedAt'])
+        )
+        || (
+          isMaster()
+          // 마스터가 다른 마스터의 제재 필드는 쓸 수 없음
+          && !(resource.data.role == 'master' && uid != request.auth.uid
+               && request.resource.data.diff(resource.data).affectedKeys()
+                  .hasAny(['status','suspendedUntil','suspendReason','suspendedBy','suspendedAt']))
+        )
       );
       allow create: if request.auth != null && request.auth.uid == uid;
       allow delete: if isMaster();
+    }
+
+    // ─────────────────────────────────────────
+    // activityLogs (감사 로그 — 수정/삭제 불가)
+    // ─────────────────────────────────────────
+    match /activityLogs/{logId} {
+      allow read: if isMaster();
+      allow create: if isMaster();
+      // update, delete 는 누구도 불가 (영구 증거)
     }
 
     // ─────────────────────────────────────────

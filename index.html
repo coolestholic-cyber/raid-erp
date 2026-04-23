@@ -562,6 +562,33 @@
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
+  /* 제재 배지 */
+  .badge-suspended { background:#fff7ed; color:#ea580c; border:1px solid #fed7aa; padding:2px 8px; border-radius:10px; font-size:var(--text-xs); font-weight:600; white-space:nowrap; }
+  .badge-banned    { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; padding:2px 8px; border-radius:10px; font-size:var(--text-xs); font-weight:600; white-space:nowrap; }
+
+  /* 활동 이력 필터 버튼 active */
+  .act-filter-btn.active { background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
+
+  /* 활동 이력 row */
+  .act-row { display:flex; align-items:flex-start; gap:12px; padding:10px 14px; border-radius:8px; margin-bottom:4px; border-left:3px solid transparent; }
+  .act-row-roleChange { background:var(--surface-alt); border-left-color:#9ca3af; }
+  .act-row-suspend    { background:#fff7ed; border-left-color:#f97316; }
+  .act-row-ban        { background:#fef2f2; border-left-color:#ef4444; }
+  .act-row-unsuspend,
+  .act-row-unban      { background:#f0fdf4; border-left-color:#22c55e; }
+
+  /* 유저 테이블 모바일 카드 뷰 */
+  @media (max-width:768px) {
+    .user-table-wrap table, .user-table-wrap thead,
+    .user-table-wrap tbody, .user-table-wrap th,
+    .user-table-wrap td, .user-table-wrap tr { display:block; }
+    .user-table-wrap thead { display:none; }
+    .user-table-wrap tbody tr { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+    .user-table-wrap td { padding:3px 0; border:none; display:flex; align-items:center; gap:8px; font-size:var(--text-sm); }
+    .user-table-wrap td[data-label]::before { content:attr(data-label); font-size:var(--text-xs); color:var(--text-sub); min-width:56px; flex-shrink:0; }
+    .user-table-wrap td:first-child { display:none; }
+  }
+
   .empty-state { text-align: center; padding: 60px 20px; color: var(--text-sub); }
 
   /* Boss 추가 모달 리셋 타입 버튼 */
@@ -2202,17 +2229,17 @@
             </select>
           </div>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap user-table-wrap">
           <table>
             <thead><tr>
               <th style="width:36px;">#</th>
               <th style="width:40px;"></th>
               <th>이름</th>
-              <th>이메일</th>
               <th>현재 권한</th>
               <th>권한 부여</th>
               <th>가입일</th>
               <th>최종 접속</th>
+              <th style="width:110px;">액션</th>
             </tr></thead>
             <tbody id="userTableBody">
               <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
@@ -2221,6 +2248,29 @@
         </div>
         <div id="userTablePager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
       </div>
+
+      <!-- 활동 이력 (사이트마스터 전용) -->
+      <div class="panel" id="activityLogPanel" style="margin-top:20px;display:none;">
+        <div class="panel-header" style="margin-bottom:14px;">
+          <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
+            <span class="material-icons" style="font-size:18px;color:var(--accent);">history</span>
+            활동 이력
+            <span id="actLogCountBadge" style="font-size:var(--text-xs);color:var(--text-sub);font-weight:400;"></span>
+          </h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input type="text" class="search-input" placeholder="이름 검색..." id="actSearch" style="width:140px;" oninput="actSearch=this.value;actPageNo=0;renderActivityLogs()">
+            <div style="display:flex;gap:4px;">
+              <button onclick="actFilter='';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn active" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">전체</button>
+              <button onclick="actFilter='권한변경';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">권한변경</button>
+              <button onclick="actFilter='제재';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">제재</button>
+              <button onclick="actFilter='해제';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">해제</button>
+            </div>
+          </div>
+        </div>
+        <div id="activityLogList" style="min-height:60px;"></div>
+        <div id="actLogPager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
+      </div>
+
     </div>
 
   </div><!-- .main -->
@@ -2493,6 +2543,48 @@
   </div>
 </div>
 
+<!-- 제재 모달 -->
+<div class="modal-overlay" id="suspendModal">
+  <div class="modal" style="max-width:440px;">
+    <h2 style="display:flex;align-items:center;gap:10px;color:#dc2626;">
+      <span style="font-size:22px;">🚫</span> 제재 설정
+    </h2>
+    <p id="suspendTargetName" style="font-size:var(--text-sm);color:var(--text-sub);margin:-12px 0 18px;"></p>
+    <div class="form-group">
+      <label>사유 <span style="color:#dc2626;">*</span></label>
+      <input type="text" id="suspendReason" placeholder="제재 사유를 입력하세요">
+    </div>
+    <div class="form-group">
+      <label>제재 유형</label>
+      <select id="suspendType" onchange="document.getElementById('suspendUntilRow').style.display=this.value==='suspended'?'':'none'">
+        <option value="suspended">기간제 정지</option>
+        <option value="banned">영구 차단</option>
+      </select>
+    </div>
+    <div class="form-group" id="suspendUntilRow">
+      <label>해제일자</label>
+      <input type="date" id="suspendUntil">
+    </div>
+    <div id="suspendErrMsg" style="color:#dc2626;font-size:var(--text-xs);min-height:18px;margin-bottom:4px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeSuspendModal()">취소</button>
+      <button class="btn btn-primary" id="btnSaveSuspend" onclick="saveSuspend()" style="background:#dc2626;border-color:#dc2626;">제재 적용</button>
+    </div>
+  </div>
+</div>
+
+<!-- 제재/차단 화면 오버레이 -->
+<div id="suspendedScreen" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:40px 48px;max-width:420px;width:90%;text-align:center;">
+    <div style="font-size:52px;margin-bottom:16px;" id="suspendedIcon">🚫</div>
+    <h2 id="suspendedTitle" style="font-size:var(--text-xl);font-weight:700;color:#dc2626;margin-bottom:14px;">이용 정지</h2>
+    <p style="font-size:var(--text-base);color:#374151;margin-bottom:8px;"><strong>사유:</strong> <span id="suspendedReason" style="font-weight:400;">-</span></p>
+    <p style="font-size:var(--text-sm);color:#6b7280;" id="suspendedUntilWrap"><span id="suspendedUntil">-</span></p>
+    <p style="font-size:var(--text-xs);color:#9ca3af;margin-top:20px;">문의사항은 사이트 관리자에게 연락하세요.</p>
+  </div>
+</div>
+
+
 <!-- 아이템 DB -->
 <script src="item_db.js"></script>
 
@@ -2691,6 +2783,28 @@ auth.onAuthStateChanged(async(user)=>{
     await userRef.update({role:'master'});
     profileData.role='master';
   }
+  // ── 제재 상태 체크 (슈퍼어드민 제외) ──────────────────
+  if(!isSuperAdmin(profileData.discordId||'', profileData.email||'')){
+    const effectiveStatus=profileData.status||'active';
+    if(effectiveStatus==='banned'){
+      await auth.signOut();
+      _showSuspendedScreen(profileData,'banned');
+      return;
+    }
+    if(effectiveStatus==='suspended'){
+      const until=profileData.suspendedUntil;
+      if(until&&until.seconds*1000>Date.now()){
+        await auth.signOut();
+        _showSuspendedScreen(profileData,'suspended');
+        return;
+      }
+      // 기간 만료 → 자동 복구
+      await userRef.update({status:'active',suspendedUntil:null}).catch(()=>{});
+      logActivity('unsuspend',doc.id,{reason:'기간 만료 자동 복구',performedBy:'system'}).catch(()=>{});
+      profileData.status='active';
+    }
+  }
+  // ──────────────────────────────────────────────────────
   // Discord 재로그인 시 이름/사진 최신화
   if(_pendingDiscord && profileData.discordId === _pendingDiscord.id){
     const d=_pendingDiscord;_pendingDiscord=null;
@@ -3491,13 +3605,28 @@ function subscribeUsers(){
   _usersUnsub = db.collection('users').onSnapshot(s=>{
     allUsers=s.docs.map(d=>({id:d.id,...d.data()}))
       .sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
+    // 현재 로그인 유저의 제재 상태 실시간 감지
+    if(currentUser && currentProfile){
+      const me=allUsers.find(u=>u.id===currentUser.uid);
+      if(me && !isSuperAdmin(me.discordId||'',me.email||'')){
+        const st=me.status||'active';
+        if(st==='banned'||(st==='suspended'&&me.suspendedUntil&&me.suspendedUntil.seconds*1000>Date.now())){
+          const wasActive=!currentProfile.status||currentProfile.status==='active';
+          if(wasActive){
+            auth.signOut().then(()=>_showSuspendedScreen(me,st));
+            return;
+          }
+        }
+      }
+      if(me) currentProfile={...currentProfile,status:me.status,suspendedUntil:me.suspendedUntil,suspendReason:me.suspendReason};
+    }
     // 권한관리 페이지가 활성 상태일 때만 렌더링
     if(document.getElementById('page-users')?.classList.contains('active')){
       renderUserTable();
     }
   }, e=>{
     const tb=document.getElementById('userTableBody');
-    if(tb)tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:#dc2626;">사용자 목록을 불러올 수 없습니다.<br><small style="color:var(--text-sub);">${e.code||''}: ${e.message}</small></td></tr>`;
+    if(tb)tb.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#dc2626;">사용자 목록을 불러올 수 없습니다.<br><small style="color:var(--text-sub);">${e.code||''}: ${e.message}</small></td></tr>`;
   });
 }
 const _AM_ROLE_OPTS=[
@@ -3556,27 +3685,46 @@ function renderUserTable(){
     const cr=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko'):'-';
     const la=_fmtRelativeTime(u.lastLoginAt);
     const isSelf=u.id===currentUser?.uid;
+    const isMasterTarget=u.role==='master';
     const ctrl=admin?_amRoleSelect(u.id,u.role||'none',isSelf):`<span class="badge ${r.badge}">${r.label}</span>`;
-    return `<tr>
+    const actionCell=_amActionBtn(u,isSelf,isMasterTarget);
+    const displayName=_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername);
+    const status=u.status||'active';
+    const statusBadge=status==='banned'?'&nbsp;<span class="badge-banned">차단</span>':status==='suspended'?'&nbsp;<span class="badge-suspended">정지</span>':'';
+    return `<tr${status!=='active'?' style="opacity:.75;"':''}>
       <td style="color:var(--text-sub);font-size:var(--text-sm);">${userPageNo*PAGE+i+1}</td>
-      <td><img src="${u.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
-      <td style="font-weight:${isSelf?700:400};">${_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername)}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
-      <td style="font-size:var(--text-sm);color:var(--text-sub);">${u.email||'-'}</td>
-      <td><span class="badge ${r.badge}">${r.label}</span></td>
-      <td>${ctrl}</td>
-      <td style="font-size:var(--text-sm);color:var(--text-sub);">${cr}</td>
-      <td style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${la}</td>
+      <td data-label=""><img src="${u.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
+      <td data-label="이름" style="font-weight:${isSelf?700:400};">${displayName}${statusBadge}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
+      <td data-label="현재 권한"><span class="badge ${r.badge}">${r.label}</span></td>
+      <td data-label="권한 부여">${ctrl}</td>
+      <td data-label="가입일" style="font-size:var(--text-sm);color:var(--text-sub);">${cr}</td>
+      <td data-label="최종 접속" style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${la}</td>
+      <td data-label="액션">${actionCell}</td>
     </tr>`;
   }).join('');
   _amPager(totalPages,userPageNo,'userGoPage',document.getElementById('userTablePager'));
+}
+function _amActionBtn(u, isSelf, isMasterTarget){
+  if(!isAdmin(currentProfile)) return '';
+  if(isSelf||isMasterTarget) return '<span style="color:var(--text-sub);font-size:var(--text-xs);">-</span>';
+  const status=u.status||'active';
+  if(status==='active'){
+    return `<button onclick="openSuspendModal('${u.id}')" style="font-size:var(--text-xs);padding:4px 10px;background:#fff7ed;color:#ea580c;border:1px solid #fed7aa;border-radius:6px;cursor:pointer;">제재</button>`;
+  }
+  const untilTip=u.suspendedUntil?`해제: ${new Date(u.suspendedUntil.seconds*1000).toLocaleDateString('ko')}`:'영구';
+  const reasonTip=u.suspendReason||'';
+  return `<span class="${status==='banned'?'badge-banned':'badge-suspended'}" title="${reasonTip}\n${untilTip}" style="cursor:help;">${status==='banned'?'⛔ 영구':'🔒 정지'}</span>&nbsp;<button onclick="unsuspendUser('${u.id}')" style="font-size:var(--text-xs);padding:4px 8px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;cursor:pointer;">해제</button>`;
 }
 async function changeRole(uid, r, selectEl){
   if(!isAdmin(currentProfile)) return;
   if(uid===currentUser?.uid){ showToast('자신의 권한은 변경할 수 없습니다.','error'); if(selectEl)selectEl.value=currentProfile.role; return; }
   if(selectEl) selectEl.disabled=true;
+  const prevUser=allUsers.find(u=>u.id===uid);
+  const beforeRole=prevUser?.role||'none';
   try{
     await db.collection('users').doc(uid).update({role:r});
     showToast(`"${ROLES[r]?.label||r}" 권한으로 변경되었습니다.`,'success');
+    logActivity('roleChange',uid,{beforeRole,afterRole:r}).catch(()=>{});
   }catch(e){
     showToast('권한 변경 실패: '+e.message,'error');
     if(selectEl){ const u=allUsers.find(u=>u.id===uid); if(u)selectEl.value=u.role||'none'; }
@@ -3618,6 +3766,186 @@ function _fmtRelativeTime(ts){
   if(ms>=yesterday.getTime()) return `어제 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   if(day<7) return `${day}일 전`;
   return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}`;
+}
+
+// =============================================
+// 감사 로그 (activityLogs)
+// =============================================
+async function logActivity(action, targetUid, extra={}){
+  const data={action,targetUid,
+    performedBy:extra.performedBy||currentUser?.uid||'system',
+    performedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(extra.reason) data.reason=extra.reason;
+  if(action==='roleChange'){data.beforeRole=extra.beforeRole;data.afterRole=extra.afterRole;}
+  if(action==='suspend') data.suspendedUntil=extra.suspendedUntil||null;
+  return db.collection('activityLogs').add(data);
+}
+
+// =============================================
+// 제재 시스템
+// =============================================
+let _suspendTargetUid=null;
+function openSuspendModal(uid){
+  if(!isAdmin(currentProfile)){showToast('권한 없음','error');return;}
+  _suspendTargetUid=uid;
+  const u=allUsers.find(u=>u.id===uid);
+  const nm=u?_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername):'';
+  const nameEl=document.getElementById('suspendTargetName');
+  if(nameEl) nameEl.textContent=nm?`대상: ${nm}`:'';
+  document.getElementById('suspendReason').value='';
+  document.getElementById('suspendType').value='suspended';
+  document.getElementById('suspendUntilRow').style.display='';
+  const tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  const tStr=tomorrow.toISOString().split('T')[0];
+  const inp=document.getElementById('suspendUntil');
+  inp.value=tStr; inp.min=tStr;
+  document.getElementById('suspendErrMsg').textContent='';
+  document.getElementById('suspendModal').classList.add('show');
+}
+function closeSuspendModal(){
+  document.getElementById('suspendModal').classList.remove('show');
+  _suspendTargetUid=null;
+}
+async function saveSuspend(){
+  const uid=_suspendTargetUid; if(!uid) return;
+  const reason=document.getElementById('suspendReason').value.trim();
+  const type=document.getElementById('suspendType').value;
+  const errEl=document.getElementById('suspendErrMsg');
+  if(!reason){errEl.textContent='사유를 입력하세요.';return;}
+  let suspendedUntil=null;
+  if(type==='suspended'){
+    const dateVal=document.getElementById('suspendUntil').value;
+    if(!dateVal){errEl.textContent='해제일자를 선택하세요.';return;}
+    const d=new Date(dateVal+'T23:59:59');
+    if(d<=new Date()){errEl.textContent='해제일자는 내일 이후여야 합니다.';return;}
+    suspendedUntil=firebase.firestore.Timestamp.fromDate(d);
+  }
+  errEl.textContent='';
+  const btn=document.getElementById('btnSaveSuspend');
+  if(btn) btn.disabled=true;
+  try{
+    await db.collection('users').doc(uid).update({
+      status:type, suspendReason:reason,
+      suspendedBy:currentUser.uid,
+      suspendedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      suspendedUntil
+    });
+    await logActivity(type==='banned'?'ban':'suspend',uid,{reason,suspendedUntil}).catch(()=>{});
+    showToast('제재가 완료되었습니다.','success');
+    closeSuspendModal();
+  }catch(e){
+    errEl.textContent='오류: '+e.message;
+  }finally{
+    if(btn) btn.disabled=false;
+  }
+}
+async function unsuspendUser(uid){
+  if(!isAdmin(currentProfile)){showToast('권한 없음','error');return;}
+  const u=allUsers.find(u=>u.id===uid); if(!u) return;
+  const wasBanned=u.status==='banned';
+  const nm=_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername);
+  if(!confirm(`${nm}의 제재를 해제하시겠습니까?`)) return;
+  try{
+    await db.collection('users').doc(uid).update({
+      status:'active',suspendedUntil:null,suspendReason:null,
+      suspendedBy:null,suspendedAt:null
+    });
+    await logActivity(wasBanned?'unban':'unsuspend',uid,{reason:'관리자 수동 해제'}).catch(()=>{});
+    showToast('제재가 해제되었습니다.','success');
+  }catch(e){
+    showToast('해제 실패: '+e.message,'error');
+  }
+}
+function _showSuspendedScreen(profile,type){
+  const until=profile.suspendedUntil;
+  let untilStr='영구 차단';
+  if(type==='suspended'&&until){
+    const d=new Date(until.seconds*1000);
+    const pad=n=>String(n).padStart(2,'0');
+    untilStr=`해제일: ${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  const icon=document.getElementById('suspendedIcon');
+  const title=document.getElementById('suspendedTitle');
+  const reason=document.getElementById('suspendedReason');
+  const untilEl=document.getElementById('suspendedUntil');
+  if(icon) icon.textContent=type==='banned'?'⛔':'🔒';
+  if(title){title.textContent=type==='banned'?'영구 차단':'이용 정지';}
+  if(reason) reason.textContent=profile.suspendReason||'사유 없음';
+  if(untilEl) untilEl.textContent=untilStr;
+  const el=document.getElementById('suspendedScreen');
+  if(el) el.style.display='flex';
+}
+
+// =============================================
+// 활동 이력 구독/렌더링
+// =============================================
+let allActivityLogs=[], actLogsUnsub=null, actPageNo=0, actFilter='', actSearch='';
+function subscribeActivityLogs(){
+  if(actLogsUnsub){actLogsUnsub();actLogsUnsub=null;}
+  if(!isAdmin(currentProfile)) return;
+  const panel=document.getElementById('activityLogPanel');
+  if(panel) panel.style.display='';
+  actLogsUnsub=db.collection('activityLogs').orderBy('performedAt','desc').limit(200)
+    .onSnapshot(s=>{
+      allActivityLogs=s.docs.map(d=>({id:d.id,...d.data()}));
+      renderActivityLogs();
+    },()=>{});
+}
+function actGoPage(p){actPageNo=p;renderActivityLogs();}
+const _ACT_META={
+  roleChange:{icon:'🔧',label:'권한변경',cls:'roleChange'},
+  suspend:{icon:'🚫',label:'정지',cls:'suspend'},
+  ban:{icon:'⛔',label:'영구차단',cls:'ban'},
+  unsuspend:{icon:'✅',label:'정지해제',cls:'unsuspend'},
+  unban:{icon:'✅',label:'차단해제',cls:'unban'},
+};
+function renderActivityLogs(){
+  const el=document.getElementById('activityLogList'); if(!el) return;
+  let logs=allActivityLogs;
+  if(actFilter==='권한변경') logs=logs.filter(l=>l.action==='roleChange');
+  else if(actFilter==='제재') logs=logs.filter(l=>['suspend','ban'].includes(l.action));
+  else if(actFilter==='해제') logs=logs.filter(l=>['unsuspend','unban'].includes(l.action));
+  const srch=(document.getElementById('actSearch')?.value||'').toLowerCase();
+  if(srch){
+    logs=logs.filter(l=>{
+      const u=allUsers.find(u=>u.id===l.targetUid);
+      return u&&_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername).toLowerCase().includes(srch);
+    });
+  }
+  const badgeEl=document.getElementById('actLogCountBadge');
+  if(badgeEl) badgeEl.textContent=`총 ${logs.length}건`;
+  if(!logs.length){
+    el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--text-sub);font-size:var(--text-sm);">기록이 없습니다.</div>`;
+    document.getElementById('actLogPager').innerHTML='';
+    return;
+  }
+  const PAGE=20, totalPages=Math.ceil(logs.length/PAGE)||1;
+  if(actPageNo>=totalPages) actPageNo=totalPages-1;
+  const page=logs.slice(actPageNo*PAGE,(actPageNo+1)*PAGE);
+  const uidToName=uid=>{
+    if(uid==='system') return '<span style="color:var(--text-sub);">system</span>';
+    const u=allUsers.find(u=>u.id===uid);
+    return u?`<strong>${_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername)}</strong>`
+           :`<span style="color:var(--text-sub);">(${(uid||'').substring(0,6)}…)</span>`;
+  };
+  el.innerHTML=page.map(l=>{
+    const meta=_ACT_META[l.action]||{icon:'❓',label:l.action,cls:'roleChange'};
+    const ts=l.performedAt?_fmtRelativeTime(l.performedAt):'-';
+    let detail='';
+    if(l.action==='roleChange') detail=`${ROLES[l.beforeRole]?.label||l.beforeRole||'?'} → ${ROLES[l.afterRole]?.label||l.afterRole||'?'}`;
+    else if(l.action==='suspend'&&l.suspendedUntil) detail=`해제: ${new Date(l.suspendedUntil.seconds*1000).toLocaleDateString('ko')}`;
+    else if(l.action==='ban') detail='영구 차단';
+    if(l.reason) detail=(detail?detail+' · ':'')+l.reason;
+    return `<div class="act-row act-row-${meta.cls}">
+      <span style="font-size:16px;flex-shrink:0;">${meta.icon}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:var(--text-sm);">${uidToName(l.targetUid)}&nbsp;<span style="color:var(--text-sub);font-weight:400;">${meta.label}</span></div>
+        ${detail?`<div style="font-size:var(--text-xs);color:var(--text-sub);margin-top:2px;">${detail}</div>`:''}
+        <div style="font-size:var(--text-xs);color:var(--text-sub);margin-top:2px;">by ${uidToName(l.performedBy)} · ${ts}</div>
+      </div>
+    </div>`;
+  }).join('');
+  _amPager(totalPages,actPageNo,'actGoPage',document.getElementById('actLogPager'));
 }
 
 // =============================================
@@ -3860,9 +4188,12 @@ function showPage(id,el){
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){
     renderUserTable();
-    // 이관 도구 패널: 사이트마스터만 표시
+    const isMst=currentProfile?.role==='master';
     const mp=document.getElementById('migrateLogPanel');
-    if(mp) mp.style.display=currentProfile?.role==='master'?'':'none';
+    if(mp) mp.style.display=isMst?'':'none';
+    if(isMst && !actLogsUnsub) subscribeActivityLogs();
+    const ap=document.getElementById('activityLogPanel');
+    if(ap) ap.style.display=isMst?'':'none';
   }
   if(id==='mysettlement'){loadMySettlements();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기

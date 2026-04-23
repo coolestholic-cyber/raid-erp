@@ -2686,6 +2686,8 @@ function canManageUsers(){return currentProfile&&['master','leader','vice'].incl
 function canManageMembers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
 function canEditSelf(){return currentProfile&&currentProfile.role==='member';}
 function isAdmin(user){return user?.role==='master';}
+function canEditRaid(){const r=currentProfile?.role;return r==='master'||r==='leader'||r==='vice';}
+function canDestroyRaid(){const r=currentProfile?.role;return r==='master'||r==='leader';}
 
 // =============================================
 // Auth
@@ -2716,10 +2718,10 @@ function updateLoginUI(){
   document.getElementById('loginArea').style.display=ok?'none':'';
   document.getElementById('userArea').style.display=ok?'':'none';
   const ba=document.getElementById('btnAddMember'),bg=document.getElementById('btnCreateGuild');
-  if(ba)ba.style.display=(currentProfile?.role==='master')?'flex':'none';
-  // 안내 배너: 마스터 외에게만 표시
+  if(ba)ba.style.display=canEditRaid()?'flex':'none';
+  // 안내 배너: 편집 권한 없는 사용자에게만 표시
   const gb=document.getElementById('memberGuideBanner');
-  if(gb)gb.style.display=(currentProfile&&currentProfile.role!=='master')?'':'none';
+  if(gb)gb.style.display=(currentProfile&&!canEditRaid())?'':'none';
   if(bg)bg.style.display=ok?'':'none';
   if(ok){
     const photoSrc=currentProfile.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
@@ -3201,7 +3203,7 @@ function renderDashMember(){
     const weekStr = weekStart.toISOString().split('T')[0].slice(0,7);
     const weekItems = allMySettlements.filter(s=>(s.date||'').slice(0,7)===weekStr);
     weekItems.forEach(s=>{
-      const me=(s.participants||[]).find(p=>p.id===uid);
+      const me=(s.participants||[]).find(p=>p.id===uid||p.uid===uid);
       heroGold+=(me?.perGold||0);
     });
     const latest = allMySettlements[0];
@@ -3217,7 +3219,7 @@ function renderDashMember(){
   const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   let monthGold=0;
   if(uid) allMySettlements.filter(s=>(s.date||'').startsWith(ym)).forEach(s=>{
-    const me=(s.participants||[]).find(p=>p.id===uid);
+    const me=(s.participants||[]).find(p=>p.id===uid||p.uid===uid);
     monthGold+=(me?.perGold||0);
   });
   const fmtG = g => g>=10000 ? Math.round(g/10000).toLocaleString()+'만' : g.toLocaleString();
@@ -3241,7 +3243,7 @@ function renderDashMember(){
       dvmS.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);font-size:var(--text-sm);">정산 내역이 없습니다</div>';
     } else {
       dvmS.innerHTML=recent.map(s=>{
-        const me=(s.participants||[]).find(p=>p.id===uid);
+        const me=(s.participants||[]).find(p=>p.id===uid||p.uid===uid);
         const g=me?.perGold||0;
         const cnt=s.count||0;
         return `<div class="dv-settle-row">
@@ -4201,7 +4203,6 @@ function showPage(id,el){
   document.getElementById('breadcrumb').textContent=breadcrumbMap[id]||'';
   const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent=mobileTitleMap[id]||'';
   // 내 공대 관리 탭바
-  const isMasterUser=currentProfile&&currentProfile.role==='master';
   const mgmtPages=['members','settlement','guestlist'];
   const tabBar=document.getElementById('myRaidTabBar');
   if(tabBar){
@@ -4218,9 +4219,9 @@ function showPage(id,el){
         }
       }
     }
-    // 손님 신청목록 탭 마스터만 표시
+    // 손님 신청목록 탭: 편집 권한 이상만 표시
     const glTab=document.getElementById('tabGuestList');
-    if(glTab)glTab.style.display=isMasterUser?'':'none';
+    if(glTab)glTab.style.display=canEditRaid()?'':'none';
   }
   updateTabBar(id);
   if(id==='dashboard')renderDashboard();
@@ -4663,9 +4664,9 @@ function updateMyRaidNavVisibility(){
   const canCreate = ['leader','master'].includes(role);
   const btnCreate = document.getElementById('btnCreateRaid');
   if(btnCreate) btnCreate.style.display = canCreate ? '' : 'none';
-  // 손님 신청목록 탭: 마스터만
+  // 손님 신청목록 탭: 편집 권한 이상만
   const glTab=document.getElementById('tabGuestList');
-  if(glTab)glTab.style.display=role==='master'?'':'none';
+  if(glTab)glTab.style.display=canEditRaid()?'':'none';
 }
 
 function subscribeRaids(){
@@ -4697,14 +4698,14 @@ function canEditTab(tab, role, raid, uid){
     case 'members':      return ['master','leader','vice'].includes(role);
     case 'applications': return ['master','leader','vice'].includes(role);
     case 'settlements':  return ['master','leader','vice'].includes(role);
-    case 'settings':     return role==='master'||(role==='leader'&&raid?.ownerUid===uid);
+    case 'settings':     return ['master','leader','vice'].includes(role)||(raid?.ownerUid===uid);
     default: return false;
   }
 }
 
-function canKickMember(role){ return role==='master'; }
+function canKickMember(role){ return canDestroyRaid(); }
 function canDeleteSettlement(role, raid, uid){
-  return role==='master'||(role==='leader'&&raid?.ownerUid===uid);
+  return canDestroyRaid();
 }
 function openLeaveRaidModal(){
   const raidId=currentRaidId;
@@ -4745,6 +4746,7 @@ async function leaveRaid(memberId, memberName, raidId){
 
 let currentRaidId = null;
 let stRaidId = null; // 공대 컨텍스트에서 새 정산 생성 시 사용
+let stEditId = null; // 수정 모드일 때 대상 문서 ID
 let _raidOrder = [];
 let _selectedRaidForMove = null;
 let _rdStItems = [];
@@ -5113,10 +5115,11 @@ function rdStRevenue(it){return stCalcItem(it).netProfit;}
 function rdStRecalc(){
   let tNet=0;
   _rdStItems.forEach(it=>{tNet+=stCalcItem(it).netProfit;});
-  const insen=_rdStMembers.reduce((s,m)=>s+(m.incentive||0),0);
-  const penalty=_rdStMembers.reduce((s,m)=>s+(m.penalty||0),0);
+  const rdNamed=_rdStMembers.filter(m=>(m.name||'').trim());
+  const insen=rdNamed.reduce((s,m)=>s+(m.incentive||0),0);
+  const penalty=rdNamed.reduce((s,m)=>s+(m.penalty||0),0);
   const pool=tNet-insen+penalty;
-  const distrib=_rdStMembers.filter(m=>!(m.penalty>0));
+  const distrib=rdNamed.filter(m=>!(m.penalty>0));
   const tAlloc=distrib.reduce((s,m)=>s+(m.alloc||100),0);
   const perUnit=tAlloc>0?pool/tAlloc:0;
   const e=id=>document.getElementById(id);
@@ -5125,7 +5128,7 @@ function rdStRecalc(){
   if(e('rdStMemTotal')) e('rdStMemTotal').textContent=distrib.length+'명';
   if(e('rdStPerPerson')) e('rdStPerPerson').textContent=stFmt(perUnit*100)+' 메소';
   if(e('rdStItemCnt')) e('rdStItemCnt').textContent=_rdStItems.length+'개';
-  if(e('rdStMemCnt')) e('rdStMemCnt').textContent=_rdStMembers.length+'명';
+  if(e('rdStMemCnt')) e('rdStMemCnt').textContent=rdNamed.length+'명';
   _rdStItems.forEach((it,i)=>{
     const calc=stCalcItem(it);
     const es=document.getElementById('rdrSales'+i),en=document.getElementById('rdrNet'+i);
@@ -5133,11 +5136,12 @@ function rdStRecalc(){
     if(en)en.textContent=stFmt(calc.netProfit);
   });
   _rdStMembers.forEach((m,i)=>{
+    const hasName=(m.name||'').trim();
     const hp=m.penalty>0,hi=m.incentive>0;
     const base=perUnit*(m.alloc||100);
-    const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
+    const dist=!hasName?0:hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
     const el=document.getElementById('rdd'+i);
-    if(el)el.textContent=stFmt(dist);
+    if(el)el.textContent=hasName?stFmt(dist):'-';
   });
 }
 
@@ -5214,18 +5218,20 @@ async function rdSaveSettlementForm(raidId){
   let tNet=0;
   const itemsData=_rdStItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {category:it.category||'',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
 
-  const insen=_rdStMembers.reduce((s,m)=>s+(m.incentive||0),0);
-  const penalty=_rdStMembers.reduce((s,m)=>s+(m.penalty||0),0);
+  const rdNamedMembers=_rdStMembers.filter(m=>(m.name||'').trim());
+  const insen=rdNamedMembers.reduce((s,m)=>s+(m.incentive||0),0);
+  const penalty=rdNamedMembers.reduce((s,m)=>s+(m.penalty||0),0);
   const pool=tNet-insen+penalty;
-  const distrib=_rdStMembers.filter(m=>!(m.penalty>0));
+  const distrib=rdNamedMembers.filter(m=>!(m.penalty>0));
   const tAlloc=distrib.reduce((s,m)=>s+(m.alloc||100),0);
   const perUnit=tAlloc>0?pool/tAlloc:0;
 
-  const participants=_rdStMembers.map(m=>{
+  const participants=rdNamedMembers.map(m=>{
     const hp=m.penalty>0,hi=m.incentive>0;
     const base=perUnit*(m.alloc||100);
     const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
-    return {id:m.id,uid:m.uid||null,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,perGold:Math.round(dist),isLinked:m.isLinked||false};
+    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
+    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,perGold:Math.round(dist),isLinked:m.isLinked||false};
   });
 
   const btn=document.getElementById('rdStSaveBtn');
@@ -5261,6 +5267,7 @@ function rdRenderSettings(raidId){
   const role=currentProfile?.role;
   const uid=currentUser?.uid;
   const canEdit=canEditTab('settings',role,raid,uid);
+  const canDestroy=canDestroyRaid();
   const dis=canEdit?'':'disabled';
   const ro=canEdit?'':'readonly';
   const bossList=['자쿰','혼테일','크우파','일반 보스','기타'];
@@ -5319,7 +5326,7 @@ function rdRenderSettings(raidId){
         </div>
       </div>
 
-      ${canEdit?`
+      ${canDestroy?`
       <div class="rd-danger-zone">
         <div class="rd-danger-title">⚠️ 위험 구역</div>
         <div class="rd-danger-desc">공대를 삭제하면 공대 정보가 영구 삭제됩니다.<br>삭제 전 공대원 목록과 정산 내역을 반드시 확인하세요.</div>
@@ -5781,7 +5788,7 @@ async function renderGuestList(){
     return;
   }
   const statusStyle={대기:{bg:'#fffbeb',color:'#d97706'},승인:{bg:'#ecfdf5',color:'#059669'},거절:{bg:'#fef2f2',color:'#dc2626'}};
-  const isMasterUser=currentProfile?.role==='master';
+  const isMasterUser=canEditRaid();
   el.innerHTML=snap.docs.map(d=>{
     const a={id:d.id,...d.data()};
     const ss=statusStyle[a.status]||statusStyle['대기'];
@@ -5884,7 +5891,7 @@ async function renderRaidList(){
   allMembers.filter(m=>m.raidId&&m.status==='참여')
     .forEach(m=>{approvedCount[m.raidId]=(approvedCount[m.raidId]||0)+1;});
 
-  const isMaster=currentProfile&&currentProfile.role==='master';
+  const isMaster=canEditRaid();
   const visible=raids.slice(0,rfShowCount);
 
   grid.innerHTML=visible.map(r=>{
@@ -6146,10 +6153,11 @@ function stRecalc(){
   let tSales=0,tFee=0,tNet=0;
   stItems.forEach(it=>{const c=stCalcItem(it);tSales+=c.sales;tFee+=c.fee;tNet+=c.netProfit;});
 
-  const insen=stMembers.reduce((s,m)=>s+(m.incentive||0),0);
-  const penalty=stMembers.reduce((s,m)=>s+(m.penalty||0),0);
+  const named=stMembers.filter(m=>(m.name||'').trim());
+  const insen=named.reduce((s,m)=>s+(m.incentive||0),0);
+  const penalty=named.reduce((s,m)=>s+(m.penalty||0),0);
   const pool=tNet-insen+penalty;
-  const distrib=stMembers.filter(m=>!(m.penalty>0));
+  const distrib=named.filter(m=>!(m.penalty>0));
   const tAlloc=distrib.reduce((s,m)=>s+(m.alloc||100),0);
   const perUnit=tAlloc>0?pool/tAlloc:0;
 
@@ -6157,15 +6165,15 @@ function stRecalc(){
   if(e('stTotalRev'))e('stTotalRev').textContent=stFmt(tNet)+' 메소';
   if(e('stPerPerson'))e('stPerPerson').textContent=stFmt(perUnit*100)+' 메소';
   if(e('stItemCnt'))e('stItemCnt').textContent=stItems.length+'개';
-  if(e('stMemCnt'))e('stMemCnt').textContent=stMembers.length+'명';
+  if(e('stMemCnt'))e('stMemCnt').textContent=named.length+'명';
   if(e('stSumSales'))e('stSumSales').textContent=stFmtM(tSales);
   if(e('stSumFee'))e('stSumFee').textContent=stFmtM(tFee);
   if(e('stSumNet'))e('stSumNet').textContent=stFmtM(tNet);
   if(e('stSumInsen'))e('stSumInsen').textContent=stFmtM(insen);
   if(e('stSumPenalty'))e('stSumPenalty').textContent=stFmtM(penalty);
   if(e('stSumPool'))e('stSumPool').textContent=stFmtM(pool);
-  if(e('stSumTotal'))e('stSumTotal').textContent=stMembers.length+'명';
-  if(e('stSumPenCount'))e('stSumPenCount').textContent=(stMembers.length-distrib.length)+'명';
+  if(e('stSumTotal'))e('stSumTotal').textContent=named.length+'명';
+  if(e('stSumPenCount'))e('stSumPenCount').textContent=(named.length-distrib.length)+'명';
   if(e('stSumDistrib'))e('stSumDistrib').textContent=distrib.length+'명';
   if(e('stSumAvg'))e('stSumAvg').textContent=stFmtM(perUnit*100);
 
@@ -6176,11 +6184,12 @@ function stRecalc(){
     if(en)en.textContent=stFmt(calc.netProfit);
   });
   stMembers.forEach((m,i)=>{
+    const hasName=(m.name||'').trim();
     const hp=m.penalty>0,hi=m.incentive>0;
     const base=perUnit*(m.alloc||100);
-    const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
+    const dist=!hasName?0:hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
     const el=document.getElementById('stDist'+i);
-    if(el)el.textContent=stFmt(dist);
+    if(el)el.textContent=hasName?stFmt(dist):'-';
   });
 }
 
@@ -6249,6 +6258,7 @@ function stAddItem(){stItems.push({category:'',name:'',price:0,supplyCount:1,rem
 function stAddMember(){stMembers.push({id:'manual_'+Date.now(),name:'',party:'1',incentive:0,penalty:0,alloc:100,conf:false});stRenderMembers();}
 
 function openSettlementForm(){
+  stEditId = null;
   document.getElementById('settlementForm').style.display='';
   const today=new Date().toISOString().split('T')[0];
   document.getElementById('stDate').value=today;
@@ -6277,6 +6287,34 @@ function rdOpenSettlementForm(raidId){
 function closeSettlementForm(){
   document.getElementById('settlementForm').style.display='none';
   stRaidId = null;
+  stEditId = null;
+}
+
+async function openEditSettlementForm(id){
+  const doc=await db.collection('settlements').doc(id).get();
+  if(!doc.exists){alert('정산 내역을 찾을 수 없습니다.');return;}
+  const s={id:doc.id,...doc.data()};
+  stEditId=id;
+  stRaidId=s.raidId||null;
+  document.getElementById('settlementForm').style.display='';
+  document.getElementById('stDate').value=s.date||'';
+  document.getElementById('stBoss').value=s.boss||'';
+  document.getElementById('stNote').value=s.note||'';
+  stItems=(s.items||[]).map(it=>({
+    category:it.category||'',name:it.name||'',price:it.price||0,
+    supplyCount:it.supplyCount||1,remainder:it.remainder||0,
+    sellMethod:it.sellMethod||'교환',note:it.note||''
+  }));
+  stMembers=(s.participants||[]).map(p=>({
+    id:p.id||p.memberId||'manual_'+Date.now(),
+    memberId:p.memberId||null,uid:p.uid||null,
+    name:p.name||'',party:p.party||'1',
+    incentive:p.incentive||0,penalty:p.penalty||0,
+    alloc:p.alloc||100,conf:false,isLinked:p.isLinked||false
+  }));
+  stRenderItems();
+  stRenderMembers();
+  document.getElementById('settlementForm').scrollIntoView({behavior:'smooth'});
 }
 
 async function saveSettlement(){
@@ -6288,21 +6326,23 @@ async function saveSettlement(){
   let tNet=0;
   const itemsData=stItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {category:it.category||'',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
 
-  const insen=stMembers.reduce((s,m)=>s+(m.incentive||0),0);
-  const penalty=stMembers.reduce((s,m)=>s+(m.penalty||0),0);
+  const namedMembers=stMembers.filter(m=>(m.name||'').trim());
+  const insen=namedMembers.reduce((s,m)=>s+(m.incentive||0),0);
+  const penalty=namedMembers.reduce((s,m)=>s+(m.penalty||0),0);
   const pool=tNet-insen+penalty;
-  const distrib=stMembers.filter(m=>!(m.penalty>0));
+  const distrib=namedMembers.filter(m=>!(m.penalty>0));
   const tAlloc=distrib.reduce((s,m)=>s+(m.alloc||100),0);
   const perUnit=tAlloc>0?pool/tAlloc:0;
 
-  const participants=stMembers.map(m=>{
+  const participants=namedMembers.map(m=>{
     const hp=m.penalty>0,hi=m.incentive>0;
     const base=perUnit*(m.alloc||100);
     const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
-    return {id:m.id,uid:m.uid||null,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,perGold:Math.round(dist),isLinked:m.isLinked||false};
+    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
+    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,perGold:Math.round(dist),isLinked:m.isLinked||false};
   });
 
-  await db.collection('settlements').add({
+  const payload={
     date,boss,
     raidId:stRaidId||null,
     items:itemsData,
@@ -6312,8 +6352,12 @@ async function saveSettlement(){
     note:document.getElementById('stNote').value.trim(),
     ownerUid:currentUser?.uid,ownerName:currentProfile?.name||'',
     schemaVersion:2,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
+  };
+  if(stEditId){
+    await db.collection('settlements').doc(stEditId).update({...payload,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  } else {
+    await db.collection('settlements').add({...payload,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  }
   closeSettlementForm();
   renderSettlementHistory();
 }
@@ -6325,7 +6369,9 @@ async function renderSettlementHistory(){
   if(snap.empty){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-sub);">정산 내역이 없습니다</td></tr>`;return;}
   tbody.innerHTML=snap.docs.map(d=>{
     const s={id:d.id,...d.data()};
-    const canDel=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||s.ownerUid===currentUser?.uid);
+    const isOwner=s.ownerUid===currentUser?.uid;
+    const canEdit=currentProfile&&(['master','leader','vice'].includes(currentProfile.role)||isOwner);
+    const canDel=canEdit;
     const totalM=Math.round((s.totalGold||0)/10000).toLocaleString();
     const perM=Math.round((s.perGold||0)/10000).toLocaleString();
     const itemNames=(s.items||[]).map(it=>it.name).filter(Boolean).join(', ')||'-';
@@ -6337,7 +6383,10 @@ async function renderSettlementHistory(){
       <td>${s.count||0}명</td>
       <td style="color:#BA7517;font-weight:700;">${perM}만</td>
       <td style="color:var(--text-sub);font-size:var(--text-sm);">${s.note||'-'}</td>
-      <td>${canDel?`<button class="btn btn-danger" style="font-size:var(--text-xs);padding:4px 10px;" onclick="deleteSettlement('${s.id}')">삭제</button>`:''}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;">
+        ${canEdit?`<button class="btn btn-secondary" style="font-size:var(--text-xs);padding:4px 10px;" onclick="openEditSettlementForm('${s.id}')">수정</button>`:''}
+        ${canDel?`<button class="btn btn-danger" style="font-size:var(--text-xs);padding:4px 10px;" onclick="deleteSettlement('${s.id}')">삭제</button>`:''}
+      </td>
     </tr>`;
   }).join('');
 }
@@ -6384,7 +6433,7 @@ function renderMySettlements(){
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   let totalGold=0, monthGold=0, monthCount=0;
   allMySettlements.forEach(s=>{
-    const me = (s.participants||[]).find(p=>p.id===uid);
+    const me = (s.participants||[]).find(p=>p.id===uid||p.uid===uid);
     const gold = me?.perGold || 0;
     totalGold += gold;
     if((s.date||'').startsWith(thisMonth)){ monthGold+=gold; monthCount++; }
@@ -6421,7 +6470,7 @@ function renderMySettlements(){
   tbody.innerHTML = Object.entries(groups).map(([ym, rows])=>{
     const monthLabel = `<tr><td colspan="7" class="ms-month-label">${ym.replace('-','년 ')}월</td></tr>`;
     const dataRows = rows.map((s,idx)=>{
-      const me = (s.participants||[]).find(p=>p.id===uid);
+      const me = (s.participants||[]).find(p=>p.id===uid||p.uid===uid);
       const myGold = me?.perGold || 0;
       const myAlloc = me?.alloc ?? '-';
       const totalM = Math.round((s.totalGold||0)/10000);

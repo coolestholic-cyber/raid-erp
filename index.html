@@ -2161,35 +2161,24 @@
         </div>
       </div>
 
-      <!-- Discord 접속 로그 (사이트마스터 전용) -->
-      <div class="panel" id="loginLogPanel" style="margin-bottom:20px;">
+      <!-- loginLogs 이관 도구 (사이트마스터 전용) -->
+      <div class="panel" id="migrateLogPanel" style="margin-bottom:20px;display:none;">
         <div class="panel-header" style="margin-bottom:14px;">
           <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
-            <span class="material-icons" style="font-size:18px;color:#7c3aed;">login</span>
-            Discord 접속 로그
-            <span id="logCountBadge" style="font-size:var(--text-xs);color:var(--text-sub);font-weight:400;"></span>
+            <span class="material-icons" style="font-size:18px;color:#7c3aed;">build</span>
+            loginLogs 이관 도구
+            <span style="font-size:var(--text-xs);color:#dc2626;font-weight:400;">사이트마스터 전용</span>
           </h2>
-          <button class="btn btn-outline" style="font-size:var(--text-xs);padding:5px 12px;" onclick="loadLoginLogs(true)">↺ 새로고침</button>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th style="width:36px;">#</th>
-              <th style="width:40px;"></th>
-              <th>이름</th>
-              <th>접속 시 권한</th>
-              <th>권한 부여</th>
-              <th>접속 시각</th>
-            </tr></thead>
-            <tbody id="loginLogBody">
-              <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-sub);">로딩 중...</td></tr>
-            </tbody>
-          </table>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:var(--text-sm);cursor:pointer;user-select:none;">
+            <input type="checkbox" id="migrateDryRun" checked style="width:16px;height:16px;cursor:pointer;">
+            드라이런 모드 <span style="color:var(--text-sub);font-size:var(--text-xs);">(실제 쓰기 없음)</span>
+          </label>
+          <button class="btn btn-primary" id="btnMigrateRun" style="font-size:var(--text-sm);" onclick="migrateLoginLogs()">이관 실행</button>
+          <button class="btn" id="btnMigrateDelete" style="font-size:var(--text-sm);background:#fee2e2;color:#dc2626;border-color:#fca5a5;display:none;" onclick="deleteLoginLogs()">loginLogs 삭제 실행</button>
         </div>
-        <div id="loginLogLoadMore" style="display:none;padding:10px 0 2px;">
-          <button class="btn" style="width:100%;justify-content:center;border:1.5px dashed var(--border);color:var(--text-sub);font-size:var(--text-sm);padding:10px;" onclick="logLoadMore()">더 보기</button>
-        </div>
-        <div id="loginLogPager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
+        <div id="migrateLog" style="background:var(--surface-alt);border-radius:8px;padding:14px;font-size:var(--text-sm);font-family:monospace;line-height:1.8;min-height:80px;max-height:320px;overflow-y:auto;white-space:pre-wrap;color:var(--text);">이관 실행 버튼을 눌러 시작하세요.</div>
       </div>
 
       <!-- 전체 사용자 목록 -->
@@ -2223,9 +2212,10 @@
               <th>현재 권한</th>
               <th>권한 부여</th>
               <th>가입일</th>
+              <th>최종 접속</th>
             </tr></thead>
             <tbody id="userTableBody">
-              <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
             </tbody>
           </table>
         </div>
@@ -2714,13 +2704,11 @@ auth.onAuthStateChanged(async(user)=>{
   currentProfile={id:doc.id,...profileData};
   // 프로필 캐시 저장 (빠른 UI 복원용)
   try{localStorage.setItem('_profileCache',JSON.stringify({name:currentProfile.name,photo:currentProfile.photo,role:currentProfile.role}));}catch(e){}
-  // 디스코드 로그인 접속 로그 기록 + 방문자 카운터 업데이트
+  // 접속 시각 갱신 + 방문자 카운터 업데이트
   if(profileData.loginType==='discord'||profileData.isAnonymous){
-    db.collection('loginLogs').add({
-      uid:doc.id,name:profileData.name||'',photo:profileData.photo||'',
-      discordId:profileData.discordId||'',discordUsername:profileData.discordUsername||'',
-      role:profileData.role||'none',loginAt:firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(()=>{});
+    db.collection('users').doc(doc.id)
+      .update({lastLoginAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .catch(()=>{});
     // 고유 방문자 집계 (uid arrayUnion)
     db.collection('stats').doc('visitors').set({
       uids:firebase.firestore.FieldValue.arrayUnion(doc.id)
@@ -3546,11 +3534,16 @@ function renderUserTable(){
     if(s&&!(u.name||'').toLowerCase().includes(s)&&!(u.email||'').toLowerCase().includes(s)) return false;
     if(rF&&u.role!==rF) return false;
     return true;
+  }).sort((a,b)=>{
+    // lastLoginAt 내림차순, 없는 사람은 하단
+    const at=a.lastLoginAt?.seconds||0;
+    const bt=b.lastLoginAt?.seconds||0;
+    return bt-at;
   });
   const ucBadge=document.getElementById('userCountBadge');
   if(ucBadge) ucBadge.textContent=`총 ${f.length}명`;
   if(!f.length){
-    tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:48px;color:var(--text-sub);">${allUsers.length===0?'사용자 데이터를 불러오는 중입니다…':'검색 결과가 없습니다.'}</td></tr>`;
+    tb.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--text-sub);">${allUsers.length===0?'사용자 데이터를 불러오는 중입니다…':'검색 결과가 없습니다.'}</td></tr>`;
     document.getElementById('userTablePager').innerHTML='';
     return;
   }
@@ -3561,6 +3554,7 @@ function renderUserTable(){
   tb.innerHTML=page.map((u,i)=>{
     const r=ROLES[u.role]||ROLES.none;
     const cr=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko'):'-';
+    const la=_fmtRelativeTime(u.lastLoginAt);
     const isSelf=u.id===currentUser?.uid;
     const ctrl=admin?_amRoleSelect(u.id,u.role||'none',isSelf):`<span class="badge ${r.badge}">${r.label}</span>`;
     return `<tr>
@@ -3571,6 +3565,7 @@ function renderUserTable(){
       <td><span class="badge ${r.badge}">${r.label}</span></td>
       <td>${ctrl}</td>
       <td style="font-size:var(--text-sm);color:var(--text-sub);">${cr}</td>
+      <td style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${la}</td>
     </tr>`;
   }).join('');
   _amPager(totalPages,userPageNo,'userGoPage',document.getElementById('userTablePager'));
@@ -3602,81 +3597,159 @@ function _resolveDisplayName(name, discordId, uid, discordUsername){
   return sid ? `Discord유저_${sid}` : '(이름없음)';
 }
 
-let allLoginLogs=[];
-let logPageNo=0;
-let logMobileShown=15;
-const LOG_DESKTOP_PAGE=25;
-const LOG_MOBILE_STEP=15;
-
-function logGoPage(p){logPageNo=p;renderLoginLogPage();}
-function logLoadMore(){logMobileShown+=LOG_MOBILE_STEP;renderLoginLogPage();}
-
-function _renderLogRow(l,idx){
-  const r=ROLES[l.role]||ROLES.none;
-  const dt=l.loginAt?new Date(l.loginAt.seconds*1000).toLocaleString('ko',{year:'2-digit',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'-';
-  const linkedUser=allUsers.find(u=>u.id===l.uid);
-  const currentRole=linkedUser?.role||l.role||'none';
-  const isSelf=l.uid===currentUser?.uid;
-  const ctrl=isAdmin(currentProfile)&&l.uid?_amRoleSelect(l.uid,currentRole,isSelf):`<span class="badge ${r.badge}">${r.label}</span>`;
-  return `<tr>
-    <td style="color:var(--text-sub);font-size:var(--text-sm);">${idx}</td>
-    <td><img src="${l.photo||'https://cdn.discordapp.com/embed/avatars/0.png'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"></td>
-    <td style="font-weight:600;">${_resolveDisplayName(l.name,l.discordId,l.uid,l.discordUsername||linkedUser?.discordUsername)}${isSelf?'&nbsp;<span style="font-size:var(--text-2xs);padding:1px 6px;background:#eff6ff;color:var(--accent);border-radius:10px;font-weight:600;">나</span>':''}</td>
-    <td><span class="badge ${r.badge}">${r.label}</span></td>
-    <td>${ctrl}</td>
-    <td style="font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap;">${dt}</td>
-  </tr>`;
+// =============================================
+// 접속 시간 포맷
+// =============================================
+function _fmtRelativeTime(ts){
+  if(!ts||!ts.seconds) return '-';
+  const ms=ts.seconds*1000;
+  const now=Date.now();
+  const diff=now-ms;
+  const min=Math.floor(diff/60000);
+  const hr=Math.floor(diff/3600000);
+  const day=Math.floor(diff/86400000);
+  const d=new Date(ms);
+  const pad=n=>String(n).padStart(2,'0');
+  if(diff<60000) return '방금 전';
+  if(diff<3600000) return `${min}분 전`;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const yesterday=new Date(today); yesterday.setDate(today.getDate()-1);
+  if(ms>=today.getTime()) return `오늘 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if(ms>=yesterday.getTime()) return `어제 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if(day<7) return `${day}일 전`;
+  return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}`;
 }
 
-function renderLoginLogPage(){
-  const tbody=document.getElementById('loginLogBody');
-  const pager=document.getElementById('loginLogPager');
-  const loadMoreWrap=document.getElementById('loginLogLoadMore');
-  if(!tbody) return;
+// =============================================
+// loginLogs 이관 도구
+// =============================================
+let _migrateDocs=[];   // 이관 대상 스냅샷 캐시
+let _migrateVerified=false;  // 검증 통과 여부
 
-  if(!allLoginLogs.length){
-    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-sub);">접속 기록이 없습니다</td></tr>`;
-    if(pager) pager.innerHTML='';
-    if(loadMoreWrap) loadMoreWrap.style.display='none';
-    return;
-  }
-
-  const isMobile=window.innerWidth<=768;
-
-  if(isMobile){
-    // 모바일: 더 보기 방식
-    if(pager){ pager.style.display='none'; pager.innerHTML=''; }
-    const shown=Math.min(logMobileShown,allLoginLogs.length);
-    tbody.innerHTML=allLoginLogs.slice(0,shown).map((l,i)=>_renderLogRow(l,i+1)).join('');
-    if(loadMoreWrap) loadMoreWrap.style.display=shown<allLoginLogs.length?'':'none';
-  } else {
-    // 데스크탑: 페이지네이션
-    if(loadMoreWrap) loadMoreWrap.style.display='none';
-    if(pager) pager.style.display='flex';
-    const totalPages=Math.ceil(allLoginLogs.length/LOG_DESKTOP_PAGE)||1;
-    if(logPageNo>=totalPages) logPageNo=totalPages-1;
-    const page=allLoginLogs.slice(logPageNo*LOG_DESKTOP_PAGE,(logPageNo+1)*LOG_DESKTOP_PAGE);
-    tbody.innerHTML=page.map((l,i)=>_renderLogRow(l,logPageNo*LOG_DESKTOP_PAGE+i+1)).join('');
-    _amPager(totalPages,logPageNo,'logGoPage',pager);
-  }
+function _migrateLog(msg, type='info'){
+  const el=document.getElementById('migrateLog');
+  if(!el) return;
+  const prefix=type==='ok'?'✅ ':type==='warn'?'⚠️ ':type==='err'?'❌ ':'▶ ';
+  el.textContent+=prefix+msg+'\n';
+  el.scrollTop=el.scrollHeight;
 }
-async function loadLoginLogs(force){
-  const panel=document.getElementById('loginLogPanel');
-  if(!panel) return;
-  if(!isAdmin(currentProfile)){ panel.style.display='none'; return; }
-  panel.style.display='';
-  const tbody=document.getElementById('loginLogBody');
-  if(tbody) tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-sub);">불러오는 중...</td></tr>`;
+
+async function migrateLoginLogs(){
+  const dryRun=document.getElementById('migrateDryRun')?.checked!==false;
+  const runBtn=document.getElementById('btnMigrateRun');
+  const delBtn=document.getElementById('btnMigrateDelete');
+  const logEl=document.getElementById('migrateLog');
+  if(!isAdmin(currentProfile)){showToast('권한 없음','error');return;}
+  if(runBtn) runBtn.disabled=true;
+  if(delBtn) delBtn.style.display='none';
+  if(logEl) logEl.textContent='';
+  _migrateDocs=[];
+  _migrateVerified=false;
+
+  _migrateLog(`모드: ${dryRun?'드라이런 (실제 쓰기 없음)':'실제 실행'}`);
+  _migrateLog('loginLogs 전체 스캔 중...');
+
   try{
-    const snap=await db.collection('loginLogs').orderBy('loginAt','desc').limit(300).get();
-    allLoginLogs=snap.docs.map(d=>({id:d.id,...d.data()}));
-    const badge=document.getElementById('logCountBadge');
-    if(badge) badge.textContent=`최근 ${allLoginLogs.length}건`;
-    logPageNo=0;
-    logMobileShown=LOG_MOBILE_STEP;
-    renderLoginLogPage();
+    // Step 1: 전체 조회
+    const snap=await db.collection('loginLogs').orderBy('loginAt','desc').get();
+    _migrateDocs=snap.docs;
+    const total=_migrateDocs.length;
+    _migrateLog(`loginLogs 총 ${total}건 조회 완료`);
+
+    // Step 2: uid 없는 레코드 스캔
+    const noUid=_migrateDocs.filter(d=>!d.data().uid);
+    if(noUid.length>0){
+      _migrateLog(`uid 없는 레코드 ${noUid.length}건 발견 → 이관 스킵(건너뜀)`, 'warn');
+      noUid.forEach(d=>_migrateLog(`  doc ID: ${d.id}`, 'warn'));
+    } else {
+      _migrateLog('uid 없는 레코드: 0건', 'ok');
+    }
+
+    // Step 3: uid별 최신 loginAt 집계
+    const latestByUid={};
+    for(const d of _migrateDocs){
+      const {uid,loginAt}=d.data();
+      if(!uid||!loginAt) continue;
+      if(!latestByUid[uid]||loginAt.seconds>latestByUid[uid].seconds){
+        latestByUid[uid]=loginAt;
+      }
+    }
+    const uniqueUids=Object.keys(latestByUid);
+    _migrateLog(`unique uid: ${uniqueUids.length}명`);
+
+    // Step 4: users 문서 업데이트
+    let updated=0;
+    const failedUids=[];
+    if(!dryRun){
+      _migrateLog('users 문서에 lastLoginAt 기록 중...');
+      for(const uid of uniqueUids){
+        try{
+          await db.collection('users').doc(uid).update({lastLoginAt:latestByUid[uid]});
+          updated++;
+        }catch(e){
+          failedUids.push(uid);
+          _migrateLog(`  update 실패 uid=${uid}: ${e.message}`, 'warn');
+        }
+      }
+      _migrateLog(`users 업데이트 완료: ${updated}건`, 'ok');
+    } else {
+      updated=uniqueUids.length;
+      _migrateLog(`[드라이런] users 업데이트 예정: ${updated}건`);
+    }
+
+    // Step 5: 검증
+    const mismatch=uniqueUids.length-updated-failedUids.length;
+    if(uniqueUids.length!==updated+failedUids.length||mismatch!==0){
+      _migrateLog(`검증 실패: unique uid ${uniqueUids.length} ≠ 업데이트 ${updated} + 실패 ${failedUids.length}`, 'err');
+      if(failedUids.length) _migrateLog('실패 uid 목록: '+failedUids.join(', '),'err');
+      _migrateLog('삭제를 중단합니다. 실패 uid를 확인하세요.', 'err');
+    } else {
+      if(dryRun){
+        _migrateLog(`[드라이런 완료] 실제 쓰기 없음. unique ${uniqueUids.length}명 / 건너뜀 ${noUid.length}건`, 'ok');
+        _migrateLog('드라이런 체크 해제 후 다시 실행하면 실제 이관됩니다.');
+      } else {
+        _migrateLog(`검증 통과: ${updated}건 일치`, 'ok');
+        _migrateVerified=true;
+        if(delBtn){ delBtn.style.display=''; }
+        _migrateLog(`loginLogs ${total}건 삭제 준비 완료. 삭제 버튼을 눌러 진행하세요.`);
+      }
+    }
   }catch(e){
-    if(tbody) tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:30px;color:#dc2626;">오류: ${e.message}</td></tr>`;
+    _migrateLog('오류 발생: '+e.message, 'err');
+  }finally{
+    if(runBtn) runBtn.disabled=false;
+  }
+}
+
+async function deleteLoginLogs(){
+  if(!_migrateVerified){showToast('이관 검증을 먼저 완료하세요','error');return;}
+  if(!_migrateDocs.length){showToast('이관 데이터 없음','error');return;}
+  const total=_migrateDocs.length;
+  if(!confirm(`loginLogs ${total}건을 영구 삭제합니다.\n이 작업은 되돌릴 수 없습니다.\n계속하시겠습니까?`)) return;
+
+  const delBtn=document.getElementById('btnMigrateDelete');
+  if(delBtn) delBtn.disabled=true;
+  _migrateLog(`삭제 시작: ${total}건...`);
+
+  try{
+    // Firestore batch 500건 제한 처리
+    const BATCH_SIZE=400;
+    let deleted=0;
+    for(let i=0;i<_migrateDocs.length;i+=BATCH_SIZE){
+      const batch=db.batch();
+      const chunk=_migrateDocs.slice(i,i+BATCH_SIZE);
+      chunk.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+      deleted+=chunk.length;
+      _migrateLog(`삭제 중... ${deleted}/${total}건`);
+    }
+    _migrateLog(`loginLogs 삭제 완료: ${deleted}건`, 'ok');
+    _migrateDocs=[];
+    _migrateVerified=false;
+    if(delBtn) delBtn.style.display='none';
+  }catch(e){
+    _migrateLog('삭제 오류: '+e.message, 'err');
+    if(delBtn) delBtn.disabled=false;
   }
 }
 
@@ -3771,7 +3844,9 @@ function showPage(id,el){
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){
     renderUserTable();
-    loadLoginLogs();
+    // 이관 도구 패널: 사이트마스터만 표시
+    const mp=document.getElementById('migrateLogPanel');
+    if(mp) mp.style.display=currentProfile?.role==='master'?'':'none';
   }
   if(id==='mysettlement'){loadMySettlements();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
@@ -5036,13 +5111,6 @@ function handleHashChange(){
   }
 }
 window.addEventListener('hashchange',handleHashChange);
-let _logResizeTimer;
-window.addEventListener('resize',()=>{
-  clearTimeout(_logResizeTimer);
-  _logResizeTimer=setTimeout(()=>{
-    if(allLoginLogs.length&&document.getElementById('page-users')?.classList.contains('active')) renderLoginLogPage();
-  },200);
-});
 document.addEventListener('DOMContentLoaded',()=>{
   if(window.location.hash.startsWith('#raids/')) handleHashChange();
 });

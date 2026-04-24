@@ -881,7 +881,25 @@
   #settlementForm .st-rev-val{font-size:var(--text-sm);color:var(--text-sub);text-align:right}
   #settlementForm .st-fee-note{font-size:var(--text-sm);color:var(--text-sub);white-space:nowrap}
   #settlementForm .st-party-sel{font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:none;cursor:pointer;outline:none;font-family:inherit}
-  #settlementForm .st-method-sel{font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:1px solid var(--border);cursor:pointer;outline:none;background:var(--card-bg);color:var(--text);font-family:inherit}
+  /* 정산 폼 공용 드롭다운 (분류·판매방식 통일) */
+  #settlementForm .settlement-select,
+  #rdStFormWrap .settlement-select,
+  #settlementForm .st-kind-sel,
+  #rdStFormWrap .st-kind-sel,
+  #settlementForm .st-method-sel,
+  #rdStFormWrap .st-method-sel{
+    font-size:var(--text-xs);
+    padding:3px 22px 3px 6px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    background:var(--card-bg);
+    color:var(--text);
+    cursor:pointer;
+    outline:none;
+    width:100%;
+    box-sizing:border-box;
+    font-family:inherit;
+  }
   #settlementForm .st-table-items{min-width:780px}
   /* 참여 인원 테이블: 고정 너비 강제 제거 — 콘텐츠 기반 auto 레이아웃 */
   #settlementForm .st-table-members,
@@ -899,9 +917,7 @@
     .st-penal-item{gap:4px}
     .st-penal-item input{width:100%}
   }
-  /* 분류 드롭다운 + 금액 셀 공통 (양쪽 폼) */
-  #settlementForm .st-kind-sel,
-  #rdStFormWrap .st-kind-sel{font-size:var(--text-xs);padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;outline:none;width:100%;box-sizing:border-box}
+  /* 금액 셀 공통 (양쪽 폼) */
   #settlementForm td.c-price, #settlementForm td.c-left,
   #settlementForm td.c-sales, #settlementForm td.c-profit,
   #rdStFormWrap td.c-price, #rdStFormWrap td.c-left,
@@ -5546,7 +5562,7 @@ function rdStRenderItems(){
     const tr=document.createElement('tr');
     if(isExpense) tr.classList.add('st-row-expense');
     tr.innerHTML=`
-      <td class="c-kind" data-label="분류"><select class="st-ti st-kind-sel" onchange="_rdStItems[${i}].kind=this.value;rdStRenderItems()">
+      <td class="c-kind" data-label="분류"><select class="st-ti settlement-select" onchange="_rdStItems[${i}].kind=this.value;rdStRenderItems()">
         <option value="item"${kind==='item'?' selected':''}>아이템</option>
         <option value="expense"${kind==='expense'?' selected':''}>기타 지출</option>
       </select></td>
@@ -5554,7 +5570,7 @@ function rdStRenderItems(){
       <td class="c-price st-nr" data-label="판매가"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.price||0)}" oninput="_rdStItems[${i}].price=_fmtNumInput(this);rdStRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
       <td class="c-craft st-nr" data-label="수작횟수" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.supplyCount||1)}" ${(isExpense||!isExch)?'disabled':''} oninput="_rdStItems[${i}].supplyCount=Math.max(1,_fmtNumInput(this)||1);rdStRecalc()" onblur="if(!this.value.trim()||this.value==='0'){this.value='1';_rdStItems[${i}].supplyCount=1;rdStRecalc();}" onkeydown="_stNext(this,event)"></td>
       <td class="c-left st-nr" data-label="수작잔여금" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.remainder||0)}" ${(isExpense||!isExch)?'disabled':''} oninput="_rdStItems[${i}].remainder=_fmtNumInput(this);rdStRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
-      <td class="c-method" data-label="판매방식"><select class="st-ti" ${isExpense?'disabled':''} style="font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);outline:none;" onchange="_rdStItems[${i}].sellMethod=this.value;rdStRenderItems()">
+      <td class="c-method" data-label="판매방식"><select class="st-ti settlement-select" ${isExpense?'disabled':''} onchange="_rdStItems[${i}].sellMethod=this.value;rdStRenderItems()">
         <option value="교환"${(it.sellMethod||'교환')==='교환'?' selected':''}>교환</option>
         <option value="택배"${it.sellMethod==='택배'?' selected':''}>택배</option>
         <option value="상점판매"${it.sellMethod==='상점판매'?' selected':''}>상점판매</option>
@@ -6786,7 +6802,7 @@ function stRenderItems(){
     const tr=document.createElement('tr');
     if(isExpense) tr.classList.add('st-row-expense');
     tr.innerHTML=`
-      <td class="c-kind" data-label="분류"><select class="st-ti st-kind-sel" onchange="stItems[${i}].kind=this.value;stRenderItems()">
+      <td class="c-kind" data-label="분류"><select class="st-ti settlement-select" onchange="stItems[${i}].kind=this.value;stRenderItems()">
         <option value="item"${kind==='item'?' selected':''}>아이템</option>
         <option value="expense"${kind==='expense'?' selected':''}>기타 지출</option>
       </select></td>
@@ -6794,7 +6810,7 @@ function stRenderItems(){
       <td class="c-price st-nr" data-label="판매가"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.price||0)}" oninput="stItems[${i}].price=_fmtNumInput(this);stRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
       <td class="c-craft st-nr" data-label="수작횟수" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.supplyCount||1)}" ${(isExpense||!isExch)?'disabled':''} oninput="stItems[${i}].supplyCount=Math.max(1,_fmtNumInput(this)||1);stRecalc()" onblur="if(!this.value.trim()||this.value==='0'){this.value='1';stItems[${i}].supplyCount=1;stRecalc();}" onkeydown="_stNext(this,event)"></td>
       <td class="c-left st-nr" data-label="수작잔여금" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.remainder||0)}" ${(isExpense||!isExch)?'disabled':''} oninput="stItems[${i}].remainder=_fmtNumInput(this);stRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
-      <td class="c-method" data-label="판매방식"><select class="st-ti st-method-sel" ${isExpense?'disabled':''} onchange="stItems[${i}].sellMethod=this.value;stRenderItems()">
+      <td class="c-method" data-label="판매방식"><select class="st-ti settlement-select" ${isExpense?'disabled':''} onchange="stItems[${i}].sellMethod=this.value;stRenderItems()">
         <option value="교환"${(it.sellMethod||'교환')==='교환'?' selected':''}>교환</option>
         <option value="택배"${it.sellMethod==='택배'?' selected':''}>택배</option>
         <option value="상점판매"${it.sellMethod==='상점판매'?' selected':''}>상점판매</option>

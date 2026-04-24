@@ -3885,6 +3885,11 @@ async function saveMember(){
   // 편집 모드면 기존 문서의 raidId 재사용, 신규면 현재 공대 컨텍스트
   const existing = id ? allMembers.find(x=>x.id===id) : null;
   const raidId = existing?.raidId || currentRaidId || null;
+  // 신규 등록인데 공대 컨텍스트 없으면 차단 (어떤 공대에 속할지 모름)
+  if(!id && !raidId){
+    alert('공대 상세 페이지의 "공대원" 탭에서 등록해주세요.\n어떤 공대에 등록할지 지정되지 않았습니다.');
+    return;
+  }
   // 같은 공대 내 중복 검증 (편집 모드는 본인 제외)
   if(raidId){
     const sameDid = allMembers.find(m=>m.raidId===raidId && m.id!==id && (m.discordId||'')===discordId);
@@ -5308,11 +5313,24 @@ function rdRenderMembers(raidId){
   const canEditOthers=canEditTab('members',role,raid,uid);   // MLV: 다른 사람도 수정
   const canKick=canKickMember(role);                         // master: 강퇴
   const canSelfEdit=['master','leader','vice','member'].includes(role); // 본인 행 수정
+  // 공대원 등록 권한: 사이트마스터 OR 해당 공대의 공대장(leader+오너)
+  const isSiteMaster = role === 'master';
+  const isRaidOwner = !!(raid && raid.ownerUid === uid && role === 'leader');
+  const canAddMember = isSiteMaster || isRaidOwner;
   const members=allMembers.filter(m=>m.raidId===raidId);
   const hasActions=canEditOthers||canKick||canSelfEdit;
 
+  const addBtnHtml = canAddMember
+    ? `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+         <button class="btn btn-primary" onclick="openMemberModal()" style="display:flex;align-items:center;gap:6px;font-size:var(--text-sm);padding:8px 14px;">
+           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
+           공대원 등록
+         </button>
+       </div>`
+    : '';
+
   if(!members.length){
-    el.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-sub);">공대원이 없습니다. 공대 찾기에서 신청을 승인해주세요.</div>';
+    el.innerHTML=`${addBtnHtml}<div style="padding:40px;text-align:center;color:var(--text-sub);">공대원이 없습니다. ${canAddMember?'상단 버튼으로 직접 등록하거나 ':''}공대 찾기에서 신청을 승인해주세요.</div>`;
     return;
   }
 
@@ -5320,6 +5338,7 @@ function rdRenderMembers(raidId){
   const rb={딜러:'badge-green',서폿:'badge-blue'};
 
   el.innerHTML=`
+    ${addBtnHtml}
     <div class="panel" style="padding:0;overflow:auto;">
       <table>
         <thead><tr>

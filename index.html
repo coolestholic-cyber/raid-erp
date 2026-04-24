@@ -883,18 +883,21 @@
   #settlementForm .st-party-sel{font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:none;cursor:pointer;outline:none;font-family:inherit}
   #settlementForm .st-method-sel{font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:1px solid var(--border);cursor:pointer;outline:none;background:var(--card-bg);color:var(--text);font-family:inherit}
   #settlementForm .st-table-items{min-width:780px}
-  #settlementForm .st-table-members{min-width:900px}
-  /* 참여 인원 테이블 th 강제 좌측 정렬 */
+  /* 참여 인원 테이블: 고정 너비 강제 제거 — 콘텐츠 기반 auto 레이아웃 */
+  #settlementForm .st-table-members,
+  #rdStFormWrap .st-table-members{table-layout:auto;width:100%;min-width:0}
+  /* 헤더 좌측 정렬 유지 */
   #settlementForm .st-table-members th,
   #rdStFormWrap .st-table-members th{text-align:left}
-  /* 인센+/별금- 컨테이너: 데스크톱 flex, 모바일 2열 그리드 */
-  .st-penal-wrap{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+  /* 인센+/별금- 컨테이너: 데스크톱은 flex gap, 모바일은 2열 그리드 */
+  .st-penal-wrap{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0}
   .st-penal-item{display:flex;align-items:center;gap:4px;flex:1;min-width:0}
-  .st-penal-item input{min-width:150px;flex:1;width:100%}
+  .st-penal-item > span{white-space:nowrap;flex-shrink:0}
+  .st-penal-item input{flex:1;min-width:0;width:auto;padding:6px 8px;height:32px}
   @media(max-width:768px){
     .st-penal-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .st-penal-item{gap:4px}
-    .st-penal-item input{min-width:0;width:100%}
+    .st-penal-item input{width:100%}
   }
   /* 분류 드롭다운 + 금액 셀 공통 (양쪽 폼) */
   #settlementForm .st-kind-sel,
@@ -2235,7 +2238,6 @@
             </div>
             <div class="st-table-wrap">
             <table class="st-table-members">
-              <colgroup><col style="width:32px"><col style="min-width:100px"><col style="min-width:150px"><col style="min-width:330px"><col style="min-width:100px"><col><col style="min-width:100px"><col style="width:32px"></colgroup>
               <thead><tr>
                 <th>No.</th><th>파티</th><th>이름</th><th>별금/인센(±)</th><th>할당량(%)</th><th>비고</th><th>인당 분배금</th><th></th>
               </tr></thead>
@@ -5349,17 +5351,7 @@ async function rdRenderSettlements(raidId){
           <div style="min-width:0;">
             <div style="font-size:var(--text-base);font-weight:600;color:var(--text-sub);margin-bottom:8px;">참여 인원 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStMemCnt">0명</span></div>
             <div style="overflow-x:auto;">
-            <table class="st-table-members" style="width:100%;table-layout:fixed;min-width:900px;">
-              <colgroup>
-                <col style="width:32px;">
-                <col style="min-width:100px;">
-                <col style="min-width:150px;">
-                <col style="min-width:330px;">
-                <col style="min-width:100px;">
-                <col>
-                <col style="min-width:100px;">
-                <col style="width:30px;">
-              </colgroup>
+            <table class="st-table-members">
               <thead><tr>
                 <th>No.</th><th>파티</th><th>이름</th>
                 <th>별금/인센(±)</th>

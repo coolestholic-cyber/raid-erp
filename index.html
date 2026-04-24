@@ -5190,9 +5190,10 @@ function rdRenderMembers(raidId){
           ${members.map((m,i)=>{
             const isMine=uid&&(m.ownerUid===uid||m.uid===uid);
             const canEditThis=canEditOthers||(canSelfEdit&&isMine);
-            const btns=[];
-            if(canEditThis) btns.push(`<button class="btn btn-outline" style="font-size:var(--text-2xs);padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`);
-            if(canKick&&!isMine) btns.push(`<button class="btn btn-danger" style="font-size:var(--text-2xs);padding:3px 8px;" onclick="leaveRaid('${m.id}','${(m.name||'').replace(/'/g,"\'")}','${raidId}')">강퇴</button>`);
+            const showTrash=canKick&&!isMine;
+            const safeName=(m.name||'').replace(/'/g,"\\'");
+            const editBtn=canEditThis?`<button class="btn btn-outline" style="font-size:var(--text-2xs);padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`:'';
+            const trashBtn=showTrash?`<button class="st-trash-btn" style="margin-left:auto;" title="강퇴" aria-label="공대원 강퇴" onclick="leaveRaid('${m.id}','${safeName}','${raidId}')">${ST_TRASH_SVG}</button>`:'';
             return `<tr>
             <td style="color:var(--text-sub)">${i+1}</td>
             <td><strong>${m.name||'-'}</strong></td>
@@ -5201,7 +5202,7 @@ function rdRenderMembers(raidId){
             <td>${m.level||0}</td>
             <td>${(m.skillAtk||0).toLocaleString()}</td>
             <td><span class="badge ${sb[m.status]||'badge-yellow'}">${m.status||'-'}</span></td>
-            ${hasActions?`<td style="display:flex;gap:4px;flex-wrap:wrap;">${btns.join('')}</td>`:''}
+            ${hasActions?`<td><div style="display:flex;align-items:center;gap:8px;">${editBtn}${trashBtn}</div></td>`:''}
           </tr>`;
           }).join('')}
         </tbody>

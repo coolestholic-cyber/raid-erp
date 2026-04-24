@@ -2150,7 +2150,7 @@
             </div>
             <div class="st-table-wrap">
             <table class="st-table-items">
-              <colgroup><col style="width:14%"><col><col style="width:13%"><col style="width:5%"><col style="width:10%"><col style="width:11%"><col style="width:13%"><col style="width:13%"><col style="width:36px"><col style="width:28px"></colgroup>
+              <colgroup><col style="width:14%"><col><col style="width:13%"><col style="width:5%"><col style="width:10%"><col style="width:11%"><col style="width:13%"><col style="width:13%"><col style="width:60px"><col style="width:28px"></colgroup>
               <thead><tr>
                 <th>분류</th><th>품목명</th><th class="st-nr">판매가</th><th class="st-nr">수작횟수</th><th class="st-nr">수작잔여금</th><th>판매방식</th><th class="st-nr">매출</th><th class="st-nr">순수익</th><th>비고</th><th></th>
               </tr></thead>
@@ -2172,7 +2172,7 @@
             </div>
             <div class="st-table-wrap">
             <table class="st-table-members">
-              <colgroup><col style="width:32px"><col style="min-width:68px"><col style="min-width:100px"><col style="min-width:160px"><col style="min-width:64px"><col style="min-width:100px"><col style="width:32px"></colgroup>
+              <colgroup><col style="width:32px"><col style="min-width:90px"><col style="min-width:100px"><col style="min-width:180px"><col style="min-width:64px"><col style="min-width:100px"><col style="width:32px"></colgroup>
               <thead><tr>
                 <th>No.</th><th>파티</th><th>이름</th><th class="st-nr">별금/인센(±)</th><th class="st-nr">할당량(%)</th><th class="st-nr">인당 분배금</th><th></th>
               </tr></thead>
@@ -5262,7 +5262,7 @@ async function rdRenderSettlements(raidId){
                 <col style="width:11%;">
                 <col style="width:13%;">
                 <col style="width:13%;">
-                <col style="width:36px;">
+                <col style="width:60px;">
                 <col style="width:28px;">
               </colgroup>
               <thead><tr>
@@ -5287,9 +5287,9 @@ async function rdRenderSettlements(raidId){
             <table style="width:100%;table-layout:fixed;min-width:520px;">
               <colgroup>
                 <col style="width:32px;">
-                <col style="width:68px;">
+                <col style="min-width:90px;">
                 <col style="min-width:100px;">
-                <col style="min-width:160px;">
+                <col style="min-width:180px;">
                 <col style="width:64px;">
                 <col style="min-width:100px;">
                 <col style="width:30px;">
@@ -5531,11 +5531,11 @@ function rdStRenderMembers(){
         <option value="기타"${m.party==='기타'?' selected':''}>기타</option>
       </select></td>
       <td><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="_rdStMembers[${i}].name=this.value"></td>
-      <td><div style="display:flex;align-items:center;gap:3px;">
+      <td><div style="display:flex;align-items:center;gap:4px;">
         <span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" style="width:60px;" onchange="_rdStMembers[${i}].incentive=parseInt(this.value)||0;rdStRecalc()">
+        <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" style="min-width:70px;width:70px;" onchange="_rdStMembers[${i}].incentive=parseInt(this.value)||0;rdStRecalc()">
         <span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" style="width:60px;" onchange="_rdStMembers[${i}].penalty=parseInt(this.value)||0;rdStRecalc()">
+        <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" style="min-width:70px;width:70px;" onchange="_rdStMembers[${i}].penalty=parseInt(this.value)||0;rdStRecalc()">
       </div></td>
       <td style="text-align:right;"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" style="width:52px" onchange="_rdStMembers[${i}].alloc=parseInt(this.value)||0;rdStRecalc()"></td>
       <td style="text-align:right;color:var(--text-sub);font-size:var(--text-sm);" id="rdd${i}">-</td>
@@ -6751,11 +6751,11 @@ function stRenderMembers(){
         <option value="기타"${m.party==='기타'?' selected':''}>기타</option>
       </select></td>
       <td data-label="이름"><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="stMembers[${i}].name=this.value"></td>
-      <td data-label="별금/인센"><div style="display:flex;align-items:center;gap:3px;">
+      <td data-label="별금/인센"><div style="display:flex;align-items:center;gap:4px;">
         <span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" style="width:60px;" onchange="stMembers[${i}].incentive=parseInt(this.value)||0;stRecalc()">
+        <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" style="min-width:70px;width:70px;" onchange="stMembers[${i}].incentive=parseInt(this.value)||0;stRecalc()">
         <span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" style="width:60px;" onchange="stMembers[${i}].penalty=parseInt(this.value)||0;stRecalc()">
+        <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" style="min-width:70px;width:70px;" onchange="stMembers[${i}].penalty=parseInt(this.value)||0;stRecalc()">
       </div></td>
       <td data-label="할당량(%)"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" style="width:52px" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
       <td class="st-ro" id="stDist${i}" data-label="인당 분배금">-</td>

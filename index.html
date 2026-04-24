@@ -883,7 +883,19 @@
   #settlementForm .st-party-sel{font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:none;cursor:pointer;outline:none;font-family:inherit}
   #settlementForm .st-method-sel{font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:1px solid var(--border);cursor:pointer;outline:none;background:var(--card-bg);color:var(--text);font-family:inherit}
   #settlementForm .st-table-items{min-width:780px}
-  #settlementForm .st-table-members{min-width:520px}
+  #settlementForm .st-table-members{min-width:900px}
+  /* 참여 인원 테이블 th 강제 좌측 정렬 */
+  #settlementForm .st-table-members th,
+  #rdStFormWrap .st-table-members th{text-align:left}
+  /* 인센+/별금- 컨테이너: 데스크톱 flex, 모바일 2열 그리드 */
+  .st-penal-wrap{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+  .st-penal-item{display:flex;align-items:center;gap:4px;flex:1;min-width:0}
+  .st-penal-item input{min-width:150px;flex:1;width:100%}
+  @media(max-width:768px){
+    .st-penal-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .st-penal-item{gap:4px}
+    .st-penal-item input{min-width:0;width:100%}
+  }
   /* 분류 드롭다운 + 금액 셀 공통 (양쪽 폼) */
   #settlementForm .st-kind-sel,
   #rdStFormWrap .st-kind-sel{font-size:var(--text-xs);padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;outline:none;width:100%;box-sizing:border-box}
@@ -938,11 +950,11 @@
         "left method method"
         "sales sales profit"
         "note note note";
-      gap:8px 10px;
-      border:1px solid var(--border);
-      border-radius:10px;
-      margin-bottom:10px;
-      padding:12px;
+      gap:12px;
+      border:0.5px solid var(--border);
+      border-radius:12px;
+      margin-bottom:12px;
+      padding:16px;
       background:var(--surface);
     }
     #settlementForm .st-table-items tbody tr.st-row-expense,
@@ -975,12 +987,63 @@
     #rdStFormWrap .st-table-items tr.st-row-expense td.c-profit{color:#dc2626}
     #settlementForm .st-table-items tr.st-row-expense .st-expense-badge,
     #rdStFormWrap .st-table-items tr.st-row-expense .st-expense-badge{display:inline-block}
-    #settlementForm .st-table-members{min-width:unset!important}
-    #settlementForm .st-table-members thead{display:none}
-    #settlementForm .st-table-members tbody tr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;padding:8px}
-    #settlementForm .st-table-members td{display:flex;flex-direction:column;gap:2px;padding:4px 6px;border-bottom:none}
-    #settlementForm .st-table-members td::before{content:attr(data-label);font-size:10px;color:var(--text-sub);font-weight:600}
-    #settlementForm .st-table-members td:last-child{justify-self:end;align-self:start}
+    #settlementForm .st-table-members,
+    #rdStFormWrap .st-table-members{min-width:unset!important;display:block}
+    #settlementForm .st-table-members thead,
+    #rdStFormWrap .st-table-members thead{display:none}
+    #settlementForm .st-table-members tbody,
+    #rdStFormWrap .st-table-members tbody{display:block}
+    #settlementForm .st-table-members tbody tr,
+    #rdStFormWrap .st-table-members tbody tr{
+      display:grid;
+      grid-template-columns:1fr auto;
+      grid-template-areas:
+        "party del"
+        "name name"
+        "penal penal"
+        "alloc dist"
+        "note note";
+      gap:12px;
+      border:0.5px solid var(--border);
+      border-radius:12px;
+      margin-bottom:12px;
+      padding:16px;
+      background:var(--surface);
+    }
+    #settlementForm .st-table-members td,
+    #rdStFormWrap .st-table-members td{display:block;padding:0;border:none}
+    #settlementForm .st-table-members td::before,
+    #rdStFormWrap .st-table-members td::before{
+      content:attr(data-label);
+      display:block;
+      font-size:13px;
+      color:var(--text-sub);
+      font-weight:500;
+      margin-bottom:4px;
+    }
+    #settlementForm .st-table-members td.c-mem-no,
+    #rdStFormWrap .st-table-members td.c-mem-no{display:none}
+    #settlementForm .st-table-members td.c-mem-party,
+    #rdStFormWrap .st-table-members td.c-mem-party{grid-area:party}
+    #settlementForm .st-table-members td.c-mem-party::before,
+    #rdStFormWrap .st-table-members td.c-mem-party::before{display:none}
+    #settlementForm .st-table-members td.c-mem-name,
+    #rdStFormWrap .st-table-members td.c-mem-name{grid-area:name}
+    #settlementForm .st-table-members td.c-mem-penal,
+    #rdStFormWrap .st-table-members td.c-mem-penal{grid-area:penal}
+    #settlementForm .st-table-members td.c-mem-alloc,
+    #rdStFormWrap .st-table-members td.c-mem-alloc{grid-area:alloc}
+    #settlementForm .st-table-members td.c-mem-dist,
+    #rdStFormWrap .st-table-members td.c-mem-dist{grid-area:dist}
+    #settlementForm .st-table-members td.c-mem-note,
+    #rdStFormWrap .st-table-members td.c-mem-note{grid-area:note}
+    #settlementForm .st-table-members td.c-mem-del,
+    #rdStFormWrap .st-table-members td.c-mem-del{grid-area:del;justify-self:end;align-self:start}
+    #settlementForm .st-table-members td.c-mem-del::before,
+    #rdStFormWrap .st-table-members td.c-mem-del::before{display:none}
+    /* 모바일 input 높이 터치 타겟 40px */
+    #settlementForm .st-table-members td input,
+    #rdStFormWrap .st-table-members td input{min-height:40px}
     #settlementForm .st-sumbar{flex-direction:column;gap:10px}
     #settlementForm .st-sdivider{width:100%;height:0.5px;margin:4px 0}
     #settlementForm .st-sgroup{padding:0;width:100%}
@@ -2172,9 +2235,9 @@
             </div>
             <div class="st-table-wrap">
             <table class="st-table-members">
-              <colgroup><col style="width:32px"><col style="min-width:90px"><col style="min-width:100px"><col style="min-width:180px"><col style="min-width:64px"><col style="min-width:100px"><col style="width:32px"></colgroup>
+              <colgroup><col style="width:32px"><col style="min-width:100px"><col style="min-width:150px"><col style="min-width:330px"><col style="min-width:100px"><col><col style="min-width:100px"><col style="width:32px"></colgroup>
               <thead><tr>
-                <th>No.</th><th>파티</th><th>이름</th><th class="st-nr">별금/인센(±)</th><th class="st-nr">할당량(%)</th><th class="st-nr">인당 분배금</th><th></th>
+                <th>No.</th><th>파티</th><th>이름</th><th>별금/인센(±)</th><th>할당량(%)</th><th>비고</th><th>인당 분배금</th><th></th>
               </tr></thead>
               <tbody id="stMemBody"></tbody>
             </table>
@@ -5284,21 +5347,23 @@ async function rdRenderSettlements(raidId){
           <div style="min-width:0;">
             <div style="font-size:var(--text-base);font-weight:600;color:var(--text-sub);margin-bottom:8px;">참여 인원 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStMemCnt">0명</span></div>
             <div style="overflow-x:auto;">
-            <table style="width:100%;table-layout:fixed;min-width:520px;">
+            <table class="st-table-members" style="width:100%;table-layout:fixed;min-width:900px;">
               <colgroup>
                 <col style="width:32px;">
-                <col style="min-width:90px;">
                 <col style="min-width:100px;">
-                <col style="min-width:180px;">
-                <col style="width:64px;">
+                <col style="min-width:150px;">
+                <col style="min-width:330px;">
+                <col style="min-width:100px;">
+                <col>
                 <col style="min-width:100px;">
                 <col style="width:30px;">
               </colgroup>
               <thead><tr>
                 <th>No.</th><th>파티</th><th>이름</th>
-                <th style="text-align:right;">별금/인센(±)</th>
-                <th style="text-align:right;">할당량(%)</th>
-                <th style="text-align:right;">인당 분배금</th>
+                <th>별금/인센(±)</th>
+                <th>할당량(%)</th>
+                <th>비고</th>
+                <th>인당 분배금</th>
                 <th></th>
               </tr></thead>
               <tbody id="rdStMemBody"></tbody>
@@ -5399,7 +5464,7 @@ async function rdOpenEditFromList(raidId, id){
       memberId:p.memberId||null,uid:p.uid||null,
       name:p.name||'',party:p.party||'1',
       incentive:p.incentive||0,penalty:p.penalty||0,
-      alloc:p.alloc||100,conf:false,isLinked:p.isLinked||false
+      alloc:p.alloc||100,note:p.note||'',conf:false,isLinked:p.isLinked||false
     }));
     await rdRenderSettlements(raidId);
     // 편집 시 저장된 값을 폼 필드에 채움
@@ -5424,7 +5489,7 @@ function rdToggleSettlementForm(raidId){
     return;
   }
   _rdFormOpen=true; _rdFormRaidId=raidId; _rdFormMode='create'; _rdEditId=null; _rdStItems=[];
-  const toM=m=>({id:m.uid||m.id,memberId:m.id,uid:m.uid||null,name:m.name||'',party:'1',incentive:0,penalty:0,alloc:100,conf:false,isLinked:!!m.uid});
+  const toM=m=>({id:m.uid||m.id,memberId:m.id,uid:m.uid||null,name:m.name||'',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false,isLinked:!!m.uid});
   const pool=allMembers.filter(m=>m.raidId===raidId);
   _rdStMembers=pool.filter(m=>m.status==='참여').map(toM);
   if(!_rdStMembers.length) _rdStMembers=pool.map(toM);
@@ -5521,8 +5586,8 @@ function rdStRenderMembers(){
     const bg=stPartyBg(m.party||'1'),fg=stPartyFg(m.party||'1');
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td style="text-align:center;color:var(--text-sub);font-size:var(--text-sm);">${i+1}</td>
-      <td><select class="st-ti" style="font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:none;cursor:pointer;outline:none;background:${bg};color:${fg};" onchange="_rdStMembers[${i}].party=this.value;this.style.background=stPartyBg(this.value);this.style.color=stPartyFg(this.value)">
+      <td class="c-mem-no" data-label="No." style="text-align:center;color:var(--text-sub);font-size:var(--text-sm);">${i+1}</td>
+      <td class="c-mem-party" data-label="파티"><select class="st-ti" style="font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:none;cursor:pointer;outline:none;background:${bg};color:${fg};" onchange="_rdStMembers[${i}].party=this.value;this.style.background=stPartyBg(this.value);this.style.color=stPartyFg(this.value)">
         <option value="1"${(m.party||'1')==='1'?' selected':''}>1파티</option>
         <option value="2"${m.party==='2'?' selected':''}>2파티</option>
         <option value="3"${m.party==='3'?' selected':''}>3파티</option>
@@ -5530,16 +5595,17 @@ function rdStRenderMembers(){
         <option value="5"${m.party==='5'?' selected':''}>5파티</option>
         <option value="기타"${m.party==='기타'?' selected':''}>기타</option>
       </select></td>
-      <td><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="_rdStMembers[${i}].name=this.value"></td>
-      <td><div style="display:flex;align-items:center;gap:4px;">
-        <span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" style="min-width:70px;width:70px;" onchange="_rdStMembers[${i}].incentive=parseInt(this.value)||0;rdStRecalc()">
-        <span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" style="min-width:70px;width:70px;" onchange="_rdStMembers[${i}].penalty=parseInt(this.value)||0;rdStRecalc()">
+      <td class="c-mem-name" data-label="이름"><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="_rdStMembers[${i}].name=this.value"></td>
+      <td class="c-mem-penal" data-label="별금/인센"><div class="st-penal-wrap">
+        <div class="st-penal-item"><span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
+          <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" onchange="_rdStMembers[${i}].incentive=parseInt(this.value)||0;rdStRecalc()"></div>
+        <div class="st-penal-item"><span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
+          <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" onchange="_rdStMembers[${i}].penalty=parseInt(this.value)||0;rdStRecalc()"></div>
       </div></td>
-      <td style="text-align:right;"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" style="width:52px" onchange="_rdStMembers[${i}].alloc=parseInt(this.value)||0;rdStRecalc()"></td>
-      <td style="text-align:right;color:var(--text-sub);font-size:var(--text-sm);" id="rdd${i}">-</td>
-      <td><button class="st-delbtn" onclick="_rdStMembers.splice(${i},1);rdStRenderMembers()">×</button></td>
+      <td class="c-mem-alloc" data-label="할당량(%)" style="text-align:right;"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" onchange="_rdStMembers[${i}].alloc=parseInt(this.value)||0;rdStRecalc()"></td>
+      <td class="c-mem-note" data-label="비고"><input class="st-ti" type="text" value="${(m.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="_rdStMembers[${i}].note=this.value"></td>
+      <td class="c-mem-dist" style="text-align:right;color:var(--text-sub);font-size:var(--text-sm);" id="rdd${i}" data-label="인당 분배금">-</td>
+      <td class="c-mem-del"><button class="st-delbtn" onclick="_rdStMembers.splice(${i},1);rdStRenderMembers()">×</button></td>
     `;
     tb.appendChild(tr);
   });
@@ -5547,7 +5613,7 @@ function rdStRenderMembers(){
 }
 
 function rdStAddItem(){_rdStItems.push({kind:'item',name:'',price:0,supplyCount:1,remainder:0,sellMethod:'교환',note:''});rdStRenderItems();}
-function rdStAddMember(){_rdStMembers.push({id:'manual_'+Date.now(),name:'',party:'1',incentive:0,penalty:0,alloc:100,conf:false});rdStRenderMembers();}
+function rdStAddMember(){_rdStMembers.push({id:'manual_'+Date.now(),name:'',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false});rdStRenderMembers();}
 
 async function rdSaveSettlementForm(raidId){
   const date=document.getElementById('rdStDate')?.value;
@@ -5571,7 +5637,7 @@ async function rdSaveSettlementForm(raidId){
     const base=perUnit*(m.alloc||100);
     const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
     const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
-    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,perGold:Math.round(dist),isLinked:m.isLinked||false};
+    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,note:m.note||'',perGold:Math.round(dist),isLinked:m.isLinked||false};
   });
 
   const btn=document.getElementById('rdStSaveBtn');
@@ -6741,8 +6807,8 @@ function stRenderMembers(){
     const bg=stPartyBg(m.party||'1'),fg=stPartyFg(m.party||'1');
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td data-label="No." style="text-align:center;color:var(--text-sub);font-size:var(--text-sm);">${i+1}</td>
-      <td data-label="파티"><select class="st-ti st-party-sel" style="background:${bg};color:${fg};" onchange="stMembers[${i}].party=this.value;this.style.background=stPartyBg(this.value);this.style.color=stPartyFg(this.value)">
+      <td class="c-mem-no" data-label="No." style="text-align:center;color:var(--text-sub);font-size:var(--text-sm);">${i+1}</td>
+      <td class="c-mem-party" data-label="파티"><select class="st-ti st-party-sel" style="background:${bg};color:${fg};" onchange="stMembers[${i}].party=this.value;this.style.background=stPartyBg(this.value);this.style.color=stPartyFg(this.value)">
         <option value="1"${(m.party||'1')==='1'?' selected':''}>1파티</option>
         <option value="2"${m.party==='2'?' selected':''}>2파티</option>
         <option value="3"${m.party==='3'?' selected':''}>3파티</option>
@@ -6750,16 +6816,17 @@ function stRenderMembers(){
         <option value="5"${m.party==='5'?' selected':''}>5파티</option>
         <option value="기타"${m.party==='기타'?' selected':''}>기타</option>
       </select></td>
-      <td data-label="이름"><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="stMembers[${i}].name=this.value"></td>
-      <td data-label="별금/인센"><div style="display:flex;align-items:center;gap:4px;">
-        <span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" style="min-width:70px;width:70px;" onchange="stMembers[${i}].incentive=parseInt(this.value)||0;stRecalc()">
-        <span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
-        <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" style="min-width:70px;width:70px;" onchange="stMembers[${i}].penalty=parseInt(this.value)||0;stRecalc()">
+      <td class="c-mem-name" data-label="이름"><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="stMembers[${i}].name=this.value"></td>
+      <td class="c-mem-penal" data-label="별금/인센"><div class="st-penal-wrap">
+        <div class="st-penal-item"><span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
+          <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" onchange="stMembers[${i}].incentive=parseInt(this.value)||0;stRecalc()"></div>
+        <div class="st-penal-item"><span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
+          <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" onchange="stMembers[${i}].penalty=parseInt(this.value)||0;stRecalc()"></div>
       </div></td>
-      <td data-label="할당량(%)"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" style="width:52px" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
-      <td class="st-ro" id="stDist${i}" data-label="인당 분배금">-</td>
-      <td><button class="st-delbtn" onclick="stMembers.splice(${i},1);stRenderMembers()">×</button></td>
+      <td class="c-mem-alloc" data-label="할당량(%)"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
+      <td class="c-mem-note" data-label="비고"><input class="st-ti" type="text" value="${(m.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="stMembers[${i}].note=this.value"></td>
+      <td class="c-mem-dist st-ro" id="stDist${i}" data-label="인당 분배금">-</td>
+      <td class="c-mem-del"><button class="st-delbtn" onclick="stMembers.splice(${i},1);stRenderMembers()">×</button></td>
     `;
     tb.appendChild(tr);
   });
@@ -6767,7 +6834,7 @@ function stRenderMembers(){
 }
 
 function stAddItem(){stItems.push({kind:'item',name:'',price:0,supplyCount:1,remainder:0,sellMethod:'교환',note:''});stRenderItems();}
-function stAddMember(){stMembers.push({id:'manual_'+Date.now(),name:'',party:'1',incentive:0,penalty:0,alloc:100,conf:false});stRenderMembers();}
+function stAddMember(){stMembers.push({id:'manual_'+Date.now(),name:'',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false});stRenderMembers();}
 
 function _stApplyMode(){
   const form=document.getElementById('settlementForm');
@@ -6801,7 +6868,7 @@ function openSettlementForm(){
     uid: m.uid || null,
     name: m.name||'',
     party: '1', incentive: 0, penalty: 0,
-    alloc: 100, conf: false, isLinked: !!m.uid
+    alloc: 100, note: '', conf: false, isLinked: !!m.uid
   });
   // 공대 컨텍스트면 해당 공대원만, 아니면 전체 참여 공대원
   const pool = stRaidId ? allMembers.filter(m=>m.raidId===stRaidId) : allMembers;
@@ -6845,7 +6912,7 @@ async function openEditSettlementForm(id, mode='edit'){
     memberId:p.memberId||null,uid:p.uid||null,
     name:p.name||'',party:p.party||'1',
     incentive:p.incentive||0,penalty:p.penalty||0,
-    alloc:p.alloc||100,conf:false,isLinked:p.isLinked||false
+    alloc:p.alloc||100,note:p.note||'',conf:false,isLinked:p.isLinked||false
   }));
   stRenderItems();
   stRenderMembers();
@@ -6875,7 +6942,7 @@ async function saveSettlement(){
     const base=perUnit*(m.alloc||100);
     const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
     const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
-    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,perGold:Math.round(dist),isLinked:m.isLinked||false};
+    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,note:m.note||'',perGold:Math.round(dist),isLinked:m.isLinked||false};
   });
 
   const payload={

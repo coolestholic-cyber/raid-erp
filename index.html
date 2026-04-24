@@ -896,6 +896,22 @@
   #settlementForm tr.st-row-expense,
   #rdStFormWrap tr.st-row-expense{background:rgba(220,38,38,0.03)}
   .st-expense-badge{display:none;font-size:10px;font-weight:700;color:#dc2626;background:rgba(220,38,38,0.1);padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+  /* select 화살표와 텍스트 겹침 방지 */
+  #settlementForm select.st-ti,
+  #rdStFormWrap select.st-ti{padding-right:22px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+  /* 매출·순수익 readout: 큰 값일 때 말줄임 */
+  #settlementForm td.c-sales, #settlementForm td.c-profit,
+  #rdStFormWrap td.c-sales, #rdStFormWrap td.c-profit{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* 비고 아이콘 (데스크톱) + 숨은 input (모바일용) */
+  .st-note-icon{background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;color:var(--text-sub);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;transition:all .15s}
+  .st-note-icon:hover{background:var(--surface-alt);color:var(--text)}
+  .st-note-icon.has-note{color:var(--accent)}
+  .st-note-icon .material-icons{font-size:18px}
+  .st-note-input{display:none}
+  @media(max-width:768px){
+    .st-note-icon{display:none}
+    .st-note-input{display:block;width:100%}
+  }
   [data-theme="dark"] #settlementForm .st-ti:focus{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-addbtn:hover{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-ro{background:var(--surface-alt)}
@@ -2123,7 +2139,7 @@
             </div>
             <div class="st-table-wrap">
             <table class="st-table-items">
-              <colgroup><col style="width:82px"><col><col style="width:120px"><col style="width:58px"><col style="width:110px"><col style="width:68px"><col style="width:130px"><col style="width:130px"><col><col style="width:24px"></colgroup>
+              <colgroup><col style="width:14%"><col><col style="width:13%"><col style="width:5%"><col style="width:10%"><col style="width:11%"><col style="width:13%"><col style="width:13%"><col style="width:36px"><col style="width:28px"></colgroup>
               <thead><tr>
                 <th>분류</th><th>품목명</th><th class="st-nr">판매가</th><th class="st-nr">수작횟수</th><th class="st-nr">수작잔여금</th><th>판매방식</th><th class="st-nr">매출</th><th class="st-nr">순수익</th><th>비고</th><th></th>
               </tr></thead>
@@ -5227,16 +5243,16 @@ async function rdRenderSettlements(raidId){
             <div style="overflow-x:auto;">
             <table class="st-table-items" style="width:100%;table-layout:fixed;min-width:700px;">
               <colgroup>
-                <col style="width:82px;">
+                <col style="width:14%;">
                 <col>
-                <col style="width:120px;">
-                <col style="width:58px;">
-                <col style="width:110px;">
-                <col style="width:68px;">
-                <col style="width:130px;">
-                <col style="width:130px;">
-                <col>
-                <col style="width:24px;">
+                <col style="width:13%;">
+                <col style="width:5%;">
+                <col style="width:10%;">
+                <col style="width:11%;">
+                <col style="width:13%;">
+                <col style="width:13%;">
+                <col style="width:36px;">
+                <col style="width:28px;">
               </colgroup>
               <thead><tr>
                 <th>분류</th><th>품목명</th>
@@ -5475,7 +5491,10 @@ function rdStRenderItems(){
       </select></td>
       <td class="c-sales st-nr" style="color:var(--text-sub);font-size:var(--text-sm);" id="rdrSales${i}" data-label="매출">${stFmt(calc.sales)}</td>
       <td class="c-profit st-nr" style="color:var(--text-sub);font-size:var(--text-sm);" id="rdrNet${i}" data-label="순수익">${stFmt(calc.netProfit)}</td>
-      <td class="c-note" data-label="비고"><input class="st-ti" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="_rdStItems[${i}].note=this.value" onkeydown="_stNext(this,event)"></td>
+      <td class="c-note" data-label="비고">
+        <button class="st-note-icon${it.note?' has-note':''}" title="${(it.note||'메모 없음').replace(/"/g,'&quot;')}" onclick="_stEditNote(${i},'rd')" aria-label="비고 편집"><span class="material-icons">${it.note?'sticky_note_2':'note_add'}</span></button>
+        <input class="st-ti st-note-input" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="_rdStItems[${i}].note=this.value" onkeydown="_stNext(this,event)">
+      </td>
       <td class="c-del"><button class="st-delbtn" onclick="_rdStItems.splice(${i},1);rdStRenderItems()">×</button></td>
     `;
     tb.appendChild(tr);
@@ -6480,6 +6499,17 @@ function _fmtNumInput(el){
 }
 function _blurNumInput(el){ if(!el.value.trim()) el.value = '0'; }
 function _stNumFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
+// 비고 아이콘 클릭 → prompt 편집 (desktop 전용)
+function _stEditNote(i, which){
+  const arr = which==='rd' ? _rdStItems : stItems;
+  const render = which==='rd' ? rdStRenderItems : stRenderItems;
+  if(!arr[i]) return;
+  const cur = arr[i].note || '';
+  const next = prompt('비고 입력', cur);
+  if(next===null) return;
+  arr[i].note = next.trim();
+  render();
+}
 // Enter 키: 같은 tr 내 다음 입력 → 다음 행 첫 입력 순으로 포커스 이동
 function _stNext(el, e){
   if(!e||e.key!=='Enter') return;
@@ -6569,7 +6599,10 @@ function stRenderItems(){
       </select></td>
       <td class="c-sales st-ro st-nr" id="stSales${i}" data-label="매출">${stFmt(calc.sales)}</td>
       <td class="c-profit st-ro st-nr" id="stNet${i}" data-label="순수익">${stFmt(calc.netProfit)}</td>
-      <td class="c-note" data-label="비고"><input class="st-ti" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="stItems[${i}].note=this.value" onkeydown="_stNext(this,event)"></td>
+      <td class="c-note" data-label="비고">
+        <button class="st-note-icon${it.note?' has-note':''}" title="${(it.note||'메모 없음').replace(/"/g,'&quot;')}" onclick="_stEditNote(${i},'main')" aria-label="비고 편집"><span class="material-icons">${it.note?'sticky_note_2':'note_add'}</span></button>
+        <input class="st-ti st-note-input" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="stItems[${i}].note=this.value" onkeydown="_stNext(this,event)">
+      </td>
       <td class="c-del"><button class="st-delbtn" onclick="stItems.splice(${i},1);stRenderItems()">×</button></td>
     `;
     tb.appendChild(tr);

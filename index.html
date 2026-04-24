@@ -1131,6 +1131,12 @@
   .nav-tree-raid.move-target:hover{background:rgba(59,130,246,0.15)!important;outline:2px dashed #3b82f6;outline-offset:-2px;}
   /* 힌트 메시지 */
   .move-hint{margin:4px 8px 2px;padding:5px 8px;background:rgba(59,130,246,0.1);border-left:3px solid #3b82f6;color:#93c5fd;font-size:11px;border-radius:0 4px 4px 0;}
+  /* 모바일: 공대 이동 버튼 우측 끝 + 항상 표시 (hover 없음) */
+  @media(max-width:768px){
+    .nav-tree-raid .nav-label{max-width:none!important;}
+    .nav-tree-raid .btn-move{opacity:1;margin-left:auto;color:rgba(255,255,255,0.55);}
+    .nav-tree-raid:hover .btn-move{opacity:1;}
+  }
 </style>
 </head>
 <body>

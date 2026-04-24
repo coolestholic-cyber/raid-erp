@@ -194,6 +194,8 @@
 
   /* ===== Nav Divider ===== */
   .nav-divider { height: 1px; background: #2d3139; margin: 6px 16px; }
+  .nav-divider-soft { height: 1px; background-color: rgba(255, 255, 255, 0.05); border: none; margin: 6px 12px; }
+  body.sidebar-collapsed .nav-divider-soft { margin: 6px 8px; }
 
   /* ===== Nav Badge ===== */
   .nav-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; background: #ef4444; color: #fff; font-size: var(--text-2xs); font-weight: 700; border-radius: 9px; display: flex; align-items: center; justify-content: center; line-height: 1; }
@@ -1347,9 +1349,9 @@
 
     <div class="nav-section">메뉴</div>
 
-    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)" title="홈">
+    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)" title="메인화면">
       <span class="nav-icon"><span class="material-icons">home</span></span>
-      <span class="nav-label">홈</span>
+      <span class="nav-label">메인화면</span>
     </div>
 
     <div class="nav-item" data-page="mychar" onclick="showPage('mychar',this)" title="내 캐릭터">
@@ -1357,21 +1359,30 @@
       <span class="nav-label">내 캐릭터</span>
     </div>
 
+    <!-- 내 공대 섹션 -->
+    <div class="nav-section" style="margin-top:4px;">내 공대</div>
+
     <div class="nav-item" data-page="raids" onclick="showPage('raids',this)" title="공대 찾기">
       <span class="nav-icon"><span class="material-icons">search</span></span>
       <span class="nav-label">공대 찾기</span>
     </div>
 
+    <!-- 구분선: 가입 공대가 1개 이상일 때만 표시 -->
+    <div class="nav-divider-soft" id="navDividerTop" style="display:none;"></div>
+
     <!-- 내 공대 트리 (renderMyRaidsNav()가 동적으로 채움) -->
     <div id="navMyRaidsTree"></div>
 
-    <div class="nav-item" data-page="mysettlement" onclick="showPage('mysettlement',this)" title="내 정산">
+    <!-- 구분선: 가입 공대가 있고 게스트가 아닐 때만 표시 -->
+    <div class="nav-divider-soft" id="navDividerBottom" style="display:none;"></div>
+
+    <div class="nav-item" data-page="mysettlement" id="navMySettlement" onclick="showPage('mysettlement',this)" title="내 정산 내역">
       <span class="nav-icon"><span class="material-icons">receipt_long</span></span>
-      <span class="nav-label">내 정산</span>
+      <span class="nav-label">내 정산 내역</span>
       <span class="nav-badge" id="navBadgeMySettlement"></span>
     </div>
 
-    <div class="nav-item" data-page="todayboss" onclick="showPage('todayboss',this)" title="오늘의 보스">
+    <div class="nav-item" data-page="todayboss" id="navTodayBoss" onclick="showPage('todayboss',this)" title="오늘의 보스">
       <span class="nav-icon"><span class="material-icons">today</span></span>
       <span class="nav-label">오늘의 보스</span>
     </div>
@@ -5694,8 +5705,21 @@ function renderMyRaidsNav(){
   if(!el) return;
   const role=currentProfile?.role;
   const uid=currentUser?.uid;
+  const divTop=document.getElementById('navDividerTop');
+  const divBot=document.getElementById('navDividerBottom');
+  const navMS=document.getElementById('navMySettlement');
+  const navTB=document.getElementById('navTodayBoss');
+  // 게스트/비로그인: 내 공대 목록 없음, 내 정산·오늘의 보스 숨김
+  const isGuest = !uid || !role || ['none','guest'].includes(role);
+  if(navMS) navMS.style.display = isGuest ? 'none' : '';
+  if(navTB) navTB.style.display = isGuest ? 'none' : '';
 
-  if(!uid||!role||['none','guest'].includes(role)){el.innerHTML='';return;}
+  if(isGuest){
+    el.innerHTML='';
+    if(divTop) divTop.style.display='none';
+    if(divBot) divBot.style.display='none';
+    return;
+  }
 
   let myRaids=[];
   if(['master','vice'].includes(role)){
@@ -5707,7 +5731,13 @@ function renderMyRaidsNav(){
     myRaids=allRaids.filter(r=>myIds.has(r.id));
   }
 
-  if(!myRaids.length){el.innerHTML='';return;}
+  if(!myRaids.length){
+    el.innerHTML='';
+    if(divTop) divTop.style.display='none';
+    // 가입 공대 없으면 하단 구분선도 숨김 → 공대 찾기 → 내 정산 → 오늘의 보스가 자연스럽게 이어짐
+    if(divBot) divBot.style.display='none';
+    return;
+  }
 
   // _raidOrder 기준으로 정렬, 새 공대는 뒤에 추가
   const knownIds=new Set(myRaids.map(r=>r.id));
@@ -5719,8 +5749,6 @@ function renderMyRaidsNav(){
 
   const showMoveBtn = orderedRaids.length > 1;
   el.innerHTML=`
-    <div style="border-top:1px solid rgba(255,255,255,0.07);margin:6px 0 2px;"></div>
-    <div class="nav-tree-hd"><span>내 공대</span></div>
     <div id="myRaidsNavList">
     ${orderedRaids.map(r=>{const _n=r.name||r.boss||'공대';const _d=_n.length>8?_n.slice(0,8)+'…':_n;return`
       <div class="nav-tree-raid${currentRaidId===r.id?' active':''}" id="navRaid-${r.id}" data-raid-id="${r.id}">
@@ -5729,6 +5757,10 @@ function renderMyRaidsNav(){
         ${showMoveBtn?`<button class="btn-move" data-raid-id="${r.id}" title="순서 변경" aria-label="${_n} 순서 변경">⇅</button>`:''}
       </div>`;}).join('')}
     </div>`;
+
+  // 가입 공대가 있을 때만 구분선 노출
+  if(divTop) divTop.style.display='';
+  if(divBot) divBot.style.display='';
 
   _bindRaidMoveEvents();
 }

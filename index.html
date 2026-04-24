@@ -824,18 +824,81 @@
   #settlementForm .st-method-sel{font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:1px solid var(--border);cursor:pointer;outline:none;background:var(--card-bg);color:var(--text);font-family:inherit}
   #settlementForm .st-table-items{min-width:780px}
   #settlementForm .st-table-members{min-width:520px}
+  /* 분류 드롭다운 + 금액 셀 공통 (양쪽 폼) */
+  #settlementForm .st-kind-sel,
+  #rdStFormWrap .st-kind-sel{font-size:var(--text-xs);padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;outline:none;width:100%;box-sizing:border-box}
+  #settlementForm td.c-price, #settlementForm td.c-left,
+  #settlementForm td.c-sales, #settlementForm td.c-profit,
+  #rdStFormWrap td.c-price, #rdStFormWrap td.c-left,
+  #rdStFormWrap td.c-sales, #rdStFormWrap td.c-profit{text-align:right;font-variant-numeric:tabular-nums}
+  #settlementForm tr.st-row-expense td.c-sales,
+  #settlementForm tr.st-row-expense td.c-profit,
+  #rdStFormWrap tr.st-row-expense td.c-sales,
+  #rdStFormWrap tr.st-row-expense td.c-profit{color:#dc2626}
+  #settlementForm tr.st-row-expense,
+  #rdStFormWrap tr.st-row-expense{background:rgba(220,38,38,0.03)}
+  .st-expense-badge{display:none;font-size:10px;font-weight:700;color:#dc2626;background:rgba(220,38,38,0.1);padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
   [data-theme="dark"] #settlementForm .st-ti:focus{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-addbtn:hover{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-ro{background:var(--surface-alt)}
   [data-theme="dark"] #settlementForm .st-party-sel{background:var(--surface-alt);color:var(--text)}
   [data-theme="dark"] #settlementForm .st-method-sel{background:var(--surface-alt)}
   @media(max-width:768px){
-    #settlementForm .st-table-items{min-width:unset!important}
-    #settlementForm .st-table-items thead{display:none}
-    #settlementForm .st-table-items tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:2px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;padding:8px}
-    #settlementForm .st-table-items td{display:flex;flex-direction:column;gap:2px;padding:4px 6px;border-bottom:none}
-    #settlementForm .st-table-items td::before{content:attr(data-label);font-size:10px;color:var(--text-sub);font-weight:600}
-    #settlementForm .st-table-items td:last-child{grid-column:2;justify-self:end;align-self:start}
+    #settlementForm .st-table-items,
+    #rdStFormWrap .st-table-items{min-width:unset!important}
+    #settlementForm .st-table-items thead,
+    #rdStFormWrap .st-table-items thead{display:none}
+    #settlementForm .st-table-items,
+    #rdStFormWrap .st-table-items,
+    #settlementForm .st-table-items tbody,
+    #rdStFormWrap .st-table-items tbody{display:block}
+    #settlementForm .st-table-items tbody tr,
+    #rdStFormWrap .st-table-items tbody tr{
+      display:grid;
+      grid-template-columns:96px 1fr auto;
+      grid-template-areas:
+        "kind name del"
+        "price craft craft"
+        "left method method"
+        "sales sales profit"
+        "note note note";
+      gap:8px 10px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      margin-bottom:10px;
+      padding:12px;
+      background:var(--surface);
+    }
+    #settlementForm .st-table-items tbody tr.st-row-expense,
+    #rdStFormWrap .st-table-items tbody tr.st-row-expense{
+      border-color:#dc2626;
+      background:rgba(220,38,38,0.05);
+    }
+    #settlementForm .st-table-items td,
+    #rdStFormWrap .st-table-items td{display:block;padding:0;border:none}
+    #settlementForm .st-table-items td::before,
+    #rdStFormWrap .st-table-items td::before{content:attr(data-label);display:block;font-size:10px;color:var(--text-sub);font-weight:600;margin-bottom:3px;letter-spacing:.02em}
+    #settlementForm .st-table-items td.c-kind,#rdStFormWrap .st-table-items td.c-kind{grid-area:kind}
+    #settlementForm .st-table-items td.c-name,#rdStFormWrap .st-table-items td.c-name{grid-area:name}
+    #settlementForm .st-table-items td.c-price,#rdStFormWrap .st-table-items td.c-price{grid-area:price}
+    #settlementForm .st-table-items td.c-craft,#rdStFormWrap .st-table-items td.c-craft{grid-area:craft}
+    #settlementForm .st-table-items td.c-left,#rdStFormWrap .st-table-items td.c-left{grid-area:left}
+    #settlementForm .st-table-items td.c-method,#rdStFormWrap .st-table-items td.c-method{grid-area:method}
+    #settlementForm .st-table-items td.c-sales,#rdStFormWrap .st-table-items td.c-sales{grid-area:sales}
+    #settlementForm .st-table-items td.c-profit,#rdStFormWrap .st-table-items td.c-profit{grid-area:profit}
+    #settlementForm .st-table-items td.c-note,#rdStFormWrap .st-table-items td.c-note{grid-area:note}
+    #settlementForm .st-table-items td.c-del,#rdStFormWrap .st-table-items td.c-del{grid-area:del;justify-self:end;align-self:start}
+    #settlementForm .st-table-items td.c-del::before,#rdStFormWrap .st-table-items td.c-del::before{content:"";display:none}
+    #settlementForm .st-table-items td.c-sales,
+    #settlementForm .st-table-items td.c-profit,
+    #rdStFormWrap .st-table-items td.c-sales,
+    #rdStFormWrap .st-table-items td.c-profit{font-variant-numeric:tabular-nums;font-weight:700;text-align:left;padding:6px 8px;border-radius:6px;background:var(--bg)}
+    #settlementForm .st-table-items tr.st-row-expense td.c-sales,
+    #settlementForm .st-table-items tr.st-row-expense td.c-profit,
+    #rdStFormWrap .st-table-items tr.st-row-expense td.c-sales,
+    #rdStFormWrap .st-table-items tr.st-row-expense td.c-profit{color:#dc2626}
+    #settlementForm .st-table-items tr.st-row-expense .st-expense-badge,
+    #rdStFormWrap .st-table-items tr.st-row-expense .st-expense-badge{display:inline-block}
     #settlementForm .st-table-members{min-width:unset!important}
     #settlementForm .st-table-members thead{display:none}
     #settlementForm .st-table-members tbody tr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;padding:8px}
@@ -2006,7 +2069,7 @@
             </div>
             <div class="st-table-wrap">
             <table class="st-table-items">
-              <colgroup><col style="min-width:70px"><col style="min-width:110px"><col style="min-width:95px"><col style="min-width:68px"><col style="min-width:88px"><col style="min-width:82px"><col style="min-width:78px"><col style="min-width:78px"><col style="min-width:78px"><col style="width:32px"></colgroup>
+              <colgroup><col style="width:82px"><col><col style="width:120px"><col style="width:58px"><col style="width:110px"><col style="width:68px"><col style="width:130px"><col style="width:130px"><col><col style="width:24px"></colgroup>
               <thead><tr>
                 <th>분류</th><th>품목명</th><th class="st-nr">판매가</th><th class="st-nr">수작횟수</th><th class="st-nr">수작잔여금</th><th>판매방식</th><th class="st-nr">매출</th><th class="st-nr">순수익</th><th>비고</th><th></th>
               </tr></thead>
@@ -5037,27 +5100,27 @@ async function rdRenderSettlements(raidId){
           <div style="min-width:0;">
             <div style="font-size:var(--text-base);font-weight:600;color:var(--text-sub);margin-bottom:8px;">판매 아이템 <span style="font-size:var(--text-xs);font-weight:400;" id="rdStItemCnt">0개</span></div>
             <div style="overflow-x:auto;">
-            <table style="width:100%;table-layout:fixed;min-width:700px;">
+            <table class="st-table-items" style="width:100%;table-layout:fixed;min-width:700px;">
               <colgroup>
-                <col style="min-width:70px;">
-                <col style="min-width:100px;">
-                <col style="width:90px;">
+                <col style="width:82px;">
+                <col>
+                <col style="width:120px;">
+                <col style="width:58px;">
+                <col style="width:110px;">
                 <col style="width:68px;">
-                <col style="width:88px;">
-                <col style="width:80px;">
-                <col style="width:78px;">
-                <col style="width:78px;">
-                <col style="min-width:70px;">
-                <col style="width:30px;">
+                <col style="width:130px;">
+                <col style="width:130px;">
+                <col>
+                <col style="width:24px;">
               </colgroup>
               <thead><tr>
                 <th>분류</th><th>품목명</th>
-                <th style="text-align:right;">판매가</th>
-                <th style="text-align:right;">수작횟수</th>
-                <th style="text-align:right;">수작잔여금</th>
+                <th class="st-nr">판매가</th>
+                <th class="st-nr">수작횟수</th>
+                <th class="st-nr">수작잔여금</th>
                 <th>판매방식</th>
-                <th style="text-align:right;">매출</th>
-                <th style="text-align:right;">순수익</th>
+                <th class="st-nr">매출</th>
+                <th class="st-nr">순수익</th>
                 <th>비고</th>
                 <th></th>
               </tr></thead>
@@ -5175,7 +5238,7 @@ async function rdOpenEditFromList(raidId, id){
     const s={id:doc.id,...doc.data()};
     _rdFormOpen=true; _rdFormRaidId=raidId; _rdFormMode=mode; _rdEditId=(mode==='edit')?id:null;
     _rdStItems=(s.items||[]).map(it=>({
-      category:it.category||'',name:it.name||'',price:it.price||0,
+      kind:it.kind||'item',name:it.name||'',price:it.price||0,
       supplyCount:it.supplyCount||1,remainder:it.remainder||0,
       sellMethod:it.sellMethod||'교환',note:it.note||''
     }));
@@ -5264,24 +5327,31 @@ function rdStRenderItems(){
   tb.innerHTML='';
   _rdStItems.forEach((it,i)=>{
     const calc=stCalcItem(it);
-    const isExch=(it.sellMethod||'교환')==='교환';
-    const disStyle=isExch?'':'opacity:0.35;pointer-events:none;';
+    const kind=it.kind||'item';
+    const isExpense=kind==='expense';
+    const isExch=!isExpense && (it.sellMethod||'교환')==='교환';
+    const nonExchDim = (!isExpense && !isExch) ? 'opacity:0.35;pointer-events:none;' : '';
+    const expenseDim = isExpense ? 'opacity:0.35;pointer-events:none;' : '';
     const tr=document.createElement('tr');
+    if(isExpense) tr.classList.add('st-row-expense');
     tr.innerHTML=`
-      <td><input class="st-ti" type="text" value="${(it.category||'').replace(/"/g,'&quot;')}" placeholder="분류" onchange="_rdStItems[${i}].category=this.value"></td>
-      <td><input class="st-ti" type="text" value="${(it.name||'').replace(/"/g,'&quot;')}" placeholder="품목명" onchange="_rdStItems[${i}].name=this.value"></td>
-      <td><input class="st-ti num" type="number" inputmode="numeric" value="${it.price||0}" onchange="_rdStItems[${i}].price=parseInt(this.value)||0;rdStRecalc()"></td>
-      <td style="${disStyle}"><input class="st-ti num" type="number" inputmode="numeric" value="${it.supplyCount||1}" min="1" style="width:48px" ${isExch?'':'disabled'} onchange="_rdStItems[${i}].supplyCount=parseInt(this.value)||1;rdStRecalc()"></td>
-      <td style="${disStyle}"><input class="st-ti num" type="number" inputmode="numeric" value="${it.remainder||0}" min="0" ${isExch?'':'disabled'} onchange="_rdStItems[${i}].remainder=parseInt(this.value)||0;rdStRecalc()"></td>
-      <td><select class="st-ti" style="font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);outline:none;" onchange="_rdStItems[${i}].sellMethod=this.value;rdStRenderItems()">
+      <td class="c-kind" data-label="분류"><select class="st-ti st-kind-sel" onchange="_rdStItems[${i}].kind=this.value;rdStRenderItems()">
+        <option value="item"${kind==='item'?' selected':''}>아이템</option>
+        <option value="expense"${kind==='expense'?' selected':''}>기타 지출</option>
+      </select></td>
+      <td class="c-name" data-label="품목명"><input class="st-ti" type="text" value="${(it.name||'').replace(/"/g,'&quot;')}" placeholder="${isExpense?'지출 내역':'품목명'}" onchange="_rdStItems[${i}].name=this.value" onkeydown="_stNext(this,event)"><span class="st-expense-badge">자동 음수</span></td>
+      <td class="c-price st-nr" data-label="판매가"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.price||0)}" oninput="_rdStItems[${i}].price=_fmtNumInput(this);rdStRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
+      <td class="c-craft st-nr" data-label="수작횟수" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.supplyCount||1)}" ${(isExpense||!isExch)?'disabled':''} oninput="_rdStItems[${i}].supplyCount=Math.max(1,_fmtNumInput(this)||1);rdStRecalc()" onblur="if(!this.value.trim()||this.value==='0'){this.value='1';_rdStItems[${i}].supplyCount=1;rdStRecalc();}" onkeydown="_stNext(this,event)"></td>
+      <td class="c-left st-nr" data-label="수작잔여금" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.remainder||0)}" ${(isExpense||!isExch)?'disabled':''} oninput="_rdStItems[${i}].remainder=_fmtNumInput(this);rdStRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
+      <td class="c-method" data-label="판매방식"><select class="st-ti" ${isExpense?'disabled':''} style="font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);outline:none;" onchange="_rdStItems[${i}].sellMethod=this.value;rdStRenderItems()">
         <option value="교환"${(it.sellMethod||'교환')==='교환'?' selected':''}>교환</option>
         <option value="택배"${it.sellMethod==='택배'?' selected':''}>택배</option>
         <option value="상점판매"${it.sellMethod==='상점판매'?' selected':''}>상점판매</option>
       </select></td>
-      <td style="text-align:right;color:var(--text-sub);font-size:var(--text-sm);" id="rdrSales${i}">${stFmt(calc.sales)}</td>
-      <td style="text-align:right;color:var(--text-sub);font-size:var(--text-sm);" id="rdrNet${i}">${stFmt(calc.netProfit)}</td>
-      <td><input class="st-ti" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="_rdStItems[${i}].note=this.value"></td>
-      <td><button class="st-delbtn" onclick="_rdStItems.splice(${i},1);rdStRenderItems()">×</button></td>
+      <td class="c-sales st-nr" style="color:var(--text-sub);font-size:var(--text-sm);" id="rdrSales${i}" data-label="매출">${stFmt(calc.sales)}</td>
+      <td class="c-profit st-nr" style="color:var(--text-sub);font-size:var(--text-sm);" id="rdrNet${i}" data-label="순수익">${stFmt(calc.netProfit)}</td>
+      <td class="c-note" data-label="비고"><input class="st-ti" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="_rdStItems[${i}].note=this.value" onkeydown="_stNext(this,event)"></td>
+      <td class="c-del"><button class="st-delbtn" onclick="_rdStItems.splice(${i},1);rdStRenderItems()">×</button></td>
     `;
     tb.appendChild(tr);
   });
@@ -5321,7 +5391,7 @@ function rdStRenderMembers(){
   rdStRecalc();
 }
 
-function rdStAddItem(){_rdStItems.push({category:'',name:'',price:0,supplyCount:1,remainder:0,sellMethod:'교환',note:''});rdStRenderItems();}
+function rdStAddItem(){_rdStItems.push({kind:'item',name:'',price:0,supplyCount:1,remainder:0,sellMethod:'교환',note:''});rdStRenderItems();}
 function rdStAddMember(){_rdStMembers.push({id:'manual_'+Date.now(),name:'',party:'1',incentive:0,penalty:0,alloc:100,conf:false});rdStRenderMembers();}
 
 async function rdSaveSettlementForm(raidId){
@@ -5331,7 +5401,7 @@ async function rdSaveSettlementForm(raidId){
   if(!_rdStMembers.length){showToast('참여 인원을 1명 이상 추가하세요.','error');return;}
 
   let tNet=0;
-  const itemsData=_rdStItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {category:it.category||'',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
+  const itemsData=_rdStItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {kind:it.kind||'item',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
 
   const rdNamedMembers=_rdStMembers.filter(m=>(m.name||'').trim());
   const insen=rdNamedMembers.reduce((s,m)=>s+(m.incentive||0),0);
@@ -6258,7 +6328,10 @@ function stFeeDelivery(p){return p>=100000000?.07:p>=25000000?.06:p>=10000000?.0
 
 // 아이템 1개의 {sales, fee, netProfit} 계산
 function stCalcItem(it){
+  const kind=it.kind||'item';
   const m=it.sellMethod||'교환', p=it.price||0, c=Math.max(it.supplyCount||1,1), r=it.remainder||0;
+  // 기타 지출: 양수 입력 → 내부 매출·순수익 음수, 수수료 없음
+  if(kind==='expense'){ const raw=p*c-r; return {sales:-raw,fee:0,netProfit:-raw}; }
   if(m==='상점판매') return {sales:p,fee:0,netProfit:p};
   if(m==='택배'){const f=Math.floor(p*stFeeDelivery(p));return {sales:p,fee:f,netProfit:p-f};}
   // 교환: 거래당금액 기준 구간 판정, 수수료 = 판매가 × 구간율
@@ -6269,6 +6342,34 @@ function stCalcItem(it){
 
 function stPartyBg(v){return v==='1'?'#fce4ec':v==='2'?'#fff3e0':v==='3'?'#e8f5e9':v==='4'?'#e3f2fd':v==='5'?'#f3e5f5':'#f5f5f5';}
 function stPartyFg(v){return v==='1'?'#c62828':v==='2'?'#e65100':v==='3'?'#2e7d32':v==='4'?'#1565c0':v==='5'?'#6a1b9a':'#616161';}
+// 숫자 입력 콤마 포매팅: oninput에서 호출하고 숫자 값을 반환
+function _fmtNumInput(el){
+  const prev = el.value;
+  const raw = prev.replace(/[^\d]/g,'');
+  const n = raw === '' ? 0 : parseInt(raw,10);
+  const fromEnd = prev.length - (el.selectionEnd ?? prev.length);
+  const out = raw === '' ? '' : n.toLocaleString('en-US');
+  el.value = out;
+  try{ const pos = Math.max(0, out.length - fromEnd); el.setSelectionRange(pos,pos); }catch(_){}
+  return n;
+}
+function _blurNumInput(el){ if(!el.value.trim()) el.value = '0'; }
+function _stNumFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
+// Enter 키: 같은 tr 내 다음 입력 → 다음 행 첫 입력 순으로 포커스 이동
+function _stNext(el, e){
+  if(!e||e.key!=='Enter') return;
+  e.preventDefault();
+  const row = el.closest('tr');
+  if(!row) return;
+  const inputs = [...row.querySelectorAll('input:not([type=hidden]),select')];
+  const idx = inputs.indexOf(el);
+  if(idx>-1 && idx<inputs.length-1){ inputs[idx+1].focus(); return; }
+  const next = row.nextElementSibling;
+  if(next){
+    const tgt = next.querySelector('input:not([type=hidden]),select');
+    if(tgt){ tgt.focus(); try{tgt.select&&tgt.select();}catch(_){} }
+  }
+}
 
 function stRecalc(){
   let tSales=0,tFee=0,tNet=0;
@@ -6320,24 +6421,31 @@ function stRenderItems(){
   tb.innerHTML='';
   stItems.forEach((it,i)=>{
     const calc=stCalcItem(it);
-    const isExch=(it.sellMethod||'교환')==='교환';
-    const disStyle=isExch?'':'opacity:0.35;pointer-events:none;';
+    const kind=it.kind||'item';
+    const isExpense=kind==='expense';
+    const isExch=!isExpense && (it.sellMethod||'교환')==='교환';
+    const nonExchDim = (!isExpense && !isExch) ? 'opacity:0.35;pointer-events:none;' : '';
+    const expenseDim = isExpense ? 'opacity:0.35;pointer-events:none;' : '';
     const tr=document.createElement('tr');
+    if(isExpense) tr.classList.add('st-row-expense');
     tr.innerHTML=`
-      <td data-label="분류"><input class="st-ti" type="text" value="${(it.category||'').replace(/"/g,'&quot;')}" placeholder="분류" onchange="stItems[${i}].category=this.value"></td>
-      <td data-label="품목명"><input class="st-ti" type="text" value="${(it.name||'').replace(/"/g,'&quot;')}" placeholder="품목명" onchange="stItems[${i}].name=this.value"></td>
-      <td data-label="판매가"><input class="st-ti num" type="number" inputmode="numeric" value="${it.price||0}" onchange="stItems[${i}].price=parseInt(this.value)||0;stRecalc()"></td>
-      <td data-label="수작횟수" style="${disStyle}"><input class="st-ti num" type="number" inputmode="numeric" value="${it.supplyCount||1}" min="1" style="width:48px" ${isExch?'':'disabled'} onchange="stItems[${i}].supplyCount=parseInt(this.value)||1;stRecalc()"></td>
-      <td data-label="수작잔여금" style="${disStyle}"><input class="st-ti num" type="number" inputmode="numeric" value="${it.remainder||0}" min="0" ${isExch?'':'disabled'} onchange="stItems[${i}].remainder=parseInt(this.value)||0;stRecalc()"></td>
-      <td data-label="판매방식"><select class="st-ti st-method-sel" onchange="stItems[${i}].sellMethod=this.value;stRenderItems()">
+      <td class="c-kind" data-label="분류"><select class="st-ti st-kind-sel" onchange="stItems[${i}].kind=this.value;stRenderItems()">
+        <option value="item"${kind==='item'?' selected':''}>아이템</option>
+        <option value="expense"${kind==='expense'?' selected':''}>기타 지출</option>
+      </select></td>
+      <td class="c-name" data-label="품목명"><input class="st-ti" type="text" value="${(it.name||'').replace(/"/g,'&quot;')}" placeholder="${isExpense?'지출 내역':'품목명'}" onchange="stItems[${i}].name=this.value" onkeydown="_stNext(this,event)"><span class="st-expense-badge">자동 음수</span></td>
+      <td class="c-price st-nr" data-label="판매가"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.price||0)}" oninput="stItems[${i}].price=_fmtNumInput(this);stRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
+      <td class="c-craft st-nr" data-label="수작횟수" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.supplyCount||1)}" ${(isExpense||!isExch)?'disabled':''} oninput="stItems[${i}].supplyCount=Math.max(1,_fmtNumInput(this)||1);stRecalc()" onblur="if(!this.value.trim()||this.value==='0'){this.value='1';stItems[${i}].supplyCount=1;stRecalc();}" onkeydown="_stNext(this,event)"></td>
+      <td class="c-left st-nr" data-label="수작잔여금" style="${expenseDim||nonExchDim}"><input class="st-ti num" type="text" inputmode="numeric" value="${_stNumFmt(it.remainder||0)}" ${(isExpense||!isExch)?'disabled':''} oninput="stItems[${i}].remainder=_fmtNumInput(this);stRecalc()" onblur="_blurNumInput(this)" onkeydown="_stNext(this,event)"></td>
+      <td class="c-method" data-label="판매방식"><select class="st-ti st-method-sel" ${isExpense?'disabled':''} onchange="stItems[${i}].sellMethod=this.value;stRenderItems()">
         <option value="교환"${(it.sellMethod||'교환')==='교환'?' selected':''}>교환</option>
         <option value="택배"${it.sellMethod==='택배'?' selected':''}>택배</option>
         <option value="상점판매"${it.sellMethod==='상점판매'?' selected':''}>상점판매</option>
       </select></td>
-      <td class="st-ro" id="stSales${i}" data-label="매출">${stFmt(calc.sales)}</td>
-      <td class="st-ro" id="stNet${i}" data-label="순수익">${stFmt(calc.netProfit)}</td>
-      <td data-label="비고"><input class="st-ti" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="stItems[${i}].note=this.value"></td>
-      <td><button class="st-delbtn" onclick="stItems.splice(${i},1);stRenderItems()">×</button></td>
+      <td class="c-sales st-ro st-nr" id="stSales${i}" data-label="매출">${stFmt(calc.sales)}</td>
+      <td class="c-profit st-ro st-nr" id="stNet${i}" data-label="순수익">${stFmt(calc.netProfit)}</td>
+      <td class="c-note" data-label="비고"><input class="st-ti" type="text" value="${(it.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="stItems[${i}].note=this.value" onkeydown="_stNext(this,event)"></td>
+      <td class="c-del"><button class="st-delbtn" onclick="stItems.splice(${i},1);stRenderItems()">×</button></td>
     `;
     tb.appendChild(tr);
   });
@@ -6377,7 +6485,7 @@ function stRenderMembers(){
   stRecalc();
 }
 
-function stAddItem(){stItems.push({category:'',name:'',price:0,supplyCount:1,remainder:0,sellMethod:'교환',note:''});stRenderItems();}
+function stAddItem(){stItems.push({kind:'item',name:'',price:0,supplyCount:1,remainder:0,sellMethod:'교환',note:''});stRenderItems();}
 function stAddMember(){stMembers.push({id:'manual_'+Date.now(),name:'',party:'1',incentive:0,penalty:0,alloc:100,conf:false});stRenderMembers();}
 
 function _stApplyMode(){
@@ -6445,9 +6553,9 @@ async function openEditSettlementForm(id, mode='edit'){
   document.getElementById('stDate').value=s.date||'';
   document.getElementById('stBoss').value=s.boss||'';
   document.getElementById('stNote').value=s.note||'';
-  // v1 호환: 필드 누락 시 기본값 채움
+  // v1 호환: 필드 누락 시 기본값 채움. kind는 신규 필드 → 레거시는 item
   stItems=(s.items||[]).map(it=>({
-    category:it.category||'',name:it.name||'',price:it.price||0,
+    kind:it.kind||'item',name:it.name||'',price:it.price||0,
     supplyCount:it.supplyCount||1,remainder:it.remainder||0,
     sellMethod:it.sellMethod||'교환',note:it.note||''
   }));
@@ -6471,7 +6579,7 @@ async function saveSettlement(){
   if(!stMembers.length){alert('참여 인원을 1명 이상 추가하세요.');return;}
 
   let tNet=0;
-  const itemsData=stItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {category:it.category||'',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
+  const itemsData=stItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {kind:it.kind||'item',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
 
   const namedMembers=stMembers.filter(m=>(m.name||'').trim());
   const insen=namedMembers.reduce((s,m)=>s+(m.incentive||0),0);

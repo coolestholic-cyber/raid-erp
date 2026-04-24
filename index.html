@@ -190,6 +190,7 @@
   .nav-accordion.open .arr { transform: rotate(90deg); }
   .acc-body { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
   .acc-body.open { max-height: 200px; }
+  #accSysAdmin.open { max-height: 300px; }
   .acc-body .nav-item { padding-left: 48px; font-size: var(--text-md); }
 
   /* ===== Nav Divider ===== */
@@ -932,7 +933,7 @@
   /* 계정 미연결 멤버: 회색 처리 + 뱃지 */
   tr.st-mem-unlinked{background:var(--surface-alt);opacity:.6}
   tr.st-mem-unlinked input,
-  tr.st-mem-unlinked select{pointer-events:none;opacity:.7}
+  tr.st-mem-unlinked select{opacity:.7}
   .st-unlinked-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;white-space:nowrap;transition:all .15s}
   .st-unlinked-badge.clickable{cursor:pointer}
   .st-unlinked-badge.clickable:hover{background:#fde68a;color:#92400e;transform:translateY(-1px);box-shadow:0 2px 4px rgba(217,119,6,0.2)}
@@ -1390,6 +1391,98 @@
   #rdStFormWrap.st-readonly .st-delbtn,
   #rdStFormWrap.st-readonly #rdStSaveBtn,
   #rdStFormWrap.st-readonly .rd-st-addbtn{display:none!important;}
+
+  /* =============================================
+     시스템 관리 (sysadmin) 페이지
+     ============================================= */
+  .sa-tabs{display:flex;gap:4px;background:var(--surface-alt);border-radius:10px;padding:4px;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .sa-tabs::-webkit-scrollbar{display:none}
+  .sa-tab{flex:0 0 auto;padding:8px 18px;border:none;background:transparent;border-radius:8px;font-size:var(--text-sm);font-weight:500;color:var(--text-sub);cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
+  .sa-tab.active{background:var(--card-bg);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+  .sa-tab:hover:not(.active){background:rgba(0,0,0,.04);color:var(--text)}
+  [data-theme="dark"] .sa-tab.active{box-shadow:0 1px 4px rgba(0,0,0,.35)}
+  [data-theme="dark"] .sa-tab:hover:not(.active){background:rgba(255,255,255,.06)}
+  .sa-panel{display:none}
+  .sa-panel.active{display:block}
+  /* 권한 매트릭스 */
+  .perm-table{width:100%;border-collapse:collapse;font-size:var(--text-sm)}
+  .perm-table th,.perm-table td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+  .perm-table th:first-child,.perm-table td:first-child{text-align:left;min-width:150px}
+  .perm-table th{background:var(--surface-alt);font-weight:600;font-size:var(--text-xs);color:var(--text-sub);white-space:nowrap}
+  .perm-table tbody tr:hover td{background:rgba(0,0,0,.018)}
+  [data-theme="dark"] .perm-table tbody tr:hover td{background:rgba(255,255,255,.04)}
+  .perm-table td:first-child{font-weight:500;color:var(--text)}
+  .perm-table input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--accent)}
+  .perm-table .perm-locked{pointer-events:none;opacity:.5}
+  .perm-cell-changed{background:#fffbeb!important}
+  [data-theme="dark"] .perm-cell-changed{background:rgba(245,158,11,.13)!important}
+  .perm-action-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface-alt);border-radius:8px;margin-top:16px;flex-wrap:wrap;gap:8px}
+  .perm-change-count{font-size:var(--text-sm);color:var(--text-sub)}
+  .perm-change-count strong{color:var(--accent);font-weight:700}
+  /* 권한 매트릭스 반응형 */
+  .perm-role-select-wrap,.perm-accordion-wrap{display:none}
+  @media(max-width:1023px){.perm-matrix-table{display:none!important}.perm-role-select-wrap{display:block!important}}
+  @media(max-width:767px){.perm-role-select-wrap{display:none!important}.perm-accordion-wrap{display:block!important}}
+  /* 권한 역할 아코디언 (모바일) */
+  .perm-role-acc{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+  .perm-role-acc-head{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;background:var(--card-bg);transition:background .15s;user-select:none}
+  .perm-role-acc-head:hover{background:var(--surface-alt)}
+  .perm-role-acc-arr{margin-left:auto;font-size:var(--text-2xs);transition:transform .2s;color:var(--text-sub)}
+  .perm-role-acc-head.open .perm-role-acc-arr{transform:rotate(90deg)}
+  .perm-role-acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .perm-role-acc-body.open{max-height:700px}
+  .perm-perm-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--border)}
+  .perm-perm-item label{flex:1;font-size:var(--text-sm);cursor:pointer;color:var(--text)}
+  .perm-perm-item input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+  /* 공대 카드 그리드 */
+  .sa-raid-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:1279px){.sa-raid-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:1023px){.sa-raid-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:767px){.sa-raid-grid{grid-template-columns:1fr}}
+  .sa-raid-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .15s}
+  .sa-raid-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.09)}
+  .sa-raid-card-head{padding:14px 16px 10px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border);gap:8px}
+  .sa-raid-card-title{font-weight:700;font-size:var(--text-md);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sa-raid-card-body{padding:12px 16px}
+  .sa-raid-card-meta{display:flex;align-items:center;gap:5px;font-size:var(--text-xs);color:var(--text-sub);margin-bottom:5px}
+  .sa-raid-card-foot{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+  .sa-raid-owner{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .sa-raid-owner img{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0}
+  .sa-raid-owner-name{font-size:var(--text-sm);font-weight:500;color:var(--text)}
+  /* 스켈레톤 */
+  .skeleton{background:linear-gradient(90deg,var(--surface-alt) 25%,var(--border) 50%,var(--surface-alt) 75%);background-size:200% 100%;animation:skeleton-anim 1.4s ease-in-out infinite;border-radius:6px;display:block}
+  @keyframes skeleton-anim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  /* 빈 상태 */
+  .sa-empty{text-align:center;padding:60px 20px;color:var(--text-sub)}
+  .sa-empty-icon{font-size:48px;margin-bottom:12px}
+  .sa-empty h3{font-size:var(--text-lg);font-weight:600;margin-bottom:8px;color:var(--text)}
+  .sa-empty p{font-size:var(--text-sm);line-height:1.6}
+  /* 유저 관리 모바일 카드 */
+  .sa-user-cards{display:none}
+  @media(max-width:767px){.user-table-wrap{display:none}.sa-user-cards{display:block}}
+  .sa-user-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+  .sa-user-card-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .sa-user-card-info{flex:1;min-width:0}
+  .sa-user-card-name{font-weight:600;font-size:var(--text-base);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .sa-user-card-meta{font-size:var(--text-xs);color:var(--text-sub);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+  .sa-user-card-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding-top:8px;border-top:1px solid var(--border);margin-top:8px}
+  /* 공대 관리 툴바 */
+  .sa-guild-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  @media(max-width:767px){.sa-guild-toolbar{flex-direction:column;align-items:stretch}}
+  .sa-guild-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  /* 준비 중 플레이스홀더 */
+  .sa-coming-soon{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:64px 20px;text-align:center}
+  .sa-coming-soon .icon{font-size:56px;margin-bottom:16px}
+  .sa-coming-soon h3{font-size:var(--text-xl);font-weight:700;margin-bottom:8px;color:var(--text)}
+  .sa-coming-soon .sub{font-size:var(--text-sm);color:var(--text-sub);margin-bottom:20px}
+  .sa-coming-soon .feature-list{list-style:none;padding:0;text-align:left;max-width:280px;margin:0 auto}
+  .sa-coming-soon .feature-list li{font-size:var(--text-sm);color:var(--text-sub);padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+  .sa-coming-soon .feature-list li:last-child{border-bottom:none}
+  .sa-coming-soon .feature-list li::before{content:"•";color:var(--accent)}
+  /* 소유자 검색 드롭다운 */
+  .sa-owner-search{position:relative}
+  .sa-owner-results{position:absolute;top:100%;left:0;right:0;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;margin-top:4px;max-height:220px;overflow-y:auto}
+  [data-theme="dark"] .sa-owner-results{box-shadow:0 4px 12px rgba(0,0,0,.4)}
 </style>
 </head>
 <body>
@@ -1495,10 +1588,33 @@
     <!-- 관리 섹션: 마스터만 표시 -->
     <div id="navAdminSection" style="display:none;">
       <div class="nav-section" style="margin-top:4px;">관리</div>
-      <a class="nav-item" data-page="users" onclick="showPage('users',this)" id="navUsers" title="권한 관리">
-        <span class="nav-icon"><span class="material-icons">admin_panel_settings</span></span>
-        <span class="nav-label">권한 관리</span>
-      </a>
+      <div class="nav-accordion" id="navSysAdmin" onclick="_saNavToggle(this)" title="시스템 관리">
+        <span class="nav-icon"><span class="material-icons">settings</span></span>
+        <span class="nav-label">시스템 관리</span>
+        <span class="arr">▶</span>
+      </div>
+      <div class="acc-body" id="accSysAdmin">
+        <a class="nav-item" data-page="sysadmin" data-tab="permissions" onclick="showSysAdminTab('permissions',this)" id="navSAPermissions" title="권한 관리">
+          <span class="nav-icon" style="font-size:16px;">🔐</span>
+          <span class="nav-label">권한 관리</span>
+        </a>
+        <a class="nav-item" data-page="sysadmin" data-tab="users" onclick="showSysAdminTab('users',this)" id="navSAUsers" title="유저 관리">
+          <span class="nav-icon" style="font-size:16px;">👥</span>
+          <span class="nav-label">유저 관리</span>
+        </a>
+        <a class="nav-item" data-page="sysadmin" data-tab="guilds" onclick="showSysAdminTab('guilds',this)" id="navSAGuilds" title="공대 관리">
+          <span class="nav-icon" style="font-size:16px;">🏰</span>
+          <span class="nav-label">공대 관리</span>
+        </a>
+        <a class="nav-item" data-page="sysadmin" data-tab="logs" onclick="showSysAdminTab('logs',this)" id="navSALogs" title="시스템 로그">
+          <span class="nav-icon" style="font-size:16px;">📜</span>
+          <span class="nav-label">시스템 로그</span>
+        </a>
+        <a class="nav-item" data-page="sysadmin" data-tab="notices" onclick="showSysAdminTab('notices',this)" id="navSANotices" title="공지사항">
+          <span class="nav-icon" style="font-size:16px;">📢</span>
+          <span class="nav-label">공지사항</span>
+        </a>
+      </div>
     </div>
 
     <!-- 호환성: 다른 JS에서 참조하는 숨겨진 ID -->
@@ -1506,7 +1622,7 @@
     <span style="display:none" id="navBadgeApplicants"></span>
     <span style="display:none" id="navUsersMember"></span>
 
-    <!-- 공대장 신청 버튼: member/guest만 JS로 표시 -->
+    <!-- 공대장 신청 버튼: 비로그인·사이트마스터·공대 소유자 제외 JS로 표시 -->
     <div id="navApplyLeaderWrap" class="nav-item-apply" style="display:none;">
       <button class="btn-apply-leader" onclick="openLeaderAppModal()">
         <span class="material-icons" style="font-size:var(--icon-sm);">military_tech</span>
@@ -2488,96 +2604,226 @@
       </div>
     </div>
 
-    <!-- 권한 관리 -->
-    <div id="page-users" class="page-section">
+    <!-- 권한 관리 (시스템 관리로 통합 - 빈 쉘 유지) -->
+    <div id="page-users" class="page-section"></div>
+
+    <!-- 시스템 관리 -->
+    <div id="page-sysadmin" class="page-section">
       <div class="top-bar">
         <div>
-          <h1 class="page-title">권한 관리</h1>
-          <p class="page-desc">접속 로그 확인 및 사용자 권한을 부여합니다</p>
+          <h1 class="page-title">시스템 관리</h1>
+          <p class="page-desc">사이트마스터 전용 시스템 관리 패널</p>
         </div>
       </div>
 
-      <!-- loginLogs 이관 도구 (사이트마스터 전용) -->
-      <div class="panel" id="migrateLogPanel" style="margin-bottom:20px;display:none;">
-        <div class="panel-header" style="margin-bottom:14px;">
-          <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
-            <span class="material-icons" style="font-size:18px;color:#7c3aed;">build</span>
-            loginLogs 이관 도구
-            <span style="font-size:var(--text-xs);color:#dc2626;font-weight:400;">사이트마스터 전용</span>
-          </h2>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
-          <label style="display:flex;align-items:center;gap:6px;font-size:var(--text-sm);cursor:pointer;user-select:none;">
-            <input type="checkbox" id="migrateDryRun" checked style="width:16px;height:16px;cursor:pointer;">
-            드라이런 모드 <span style="color:var(--text-sub);font-size:var(--text-xs);">(실제 쓰기 없음)</span>
-          </label>
-          <button class="btn btn-primary" id="btnMigrateRun" style="font-size:var(--text-sm);" onclick="migrateLoginLogs()">이관 실행</button>
-          <button class="btn" id="btnMigrateDelete" style="font-size:var(--text-sm);background:#fee2e2;color:#dc2626;border-color:#fca5a5;display:none;" onclick="deleteLoginLogs()">loginLogs 삭제 실행</button>
-        </div>
-        <div id="migrateLog" style="background:var(--surface-alt);border-radius:8px;padding:14px;font-size:var(--text-sm);font-family:monospace;line-height:1.8;min-height:80px;max-height:320px;overflow-y:auto;white-space:pre-wrap;color:var(--text);">이관 실행 버튼을 눌러 시작하세요.</div>
+      <!-- SA 탭 네비게이션 -->
+      <div class="sa-tabs" id="saTabNav">
+        <button class="sa-tab active" data-tab="permissions" onclick="showSysAdminTab('permissions',this)">🔐 권한 관리</button>
+        <button class="sa-tab" data-tab="users" onclick="showSysAdminTab('users',this)">👥 유저 관리</button>
+        <button class="sa-tab" data-tab="guilds" onclick="showSysAdminTab('guilds',this)">🏰 공대 관리</button>
+        <button class="sa-tab" data-tab="logs" onclick="showSysAdminTab('logs',this)">📜 시스템 로그</button>
+        <button class="sa-tab" data-tab="notices" onclick="showSysAdminTab('notices',this)">📢 공지사항</button>
       </div>
 
-      <!-- 전체 사용자 목록 -->
-      <div class="panel">
-        <div class="panel-header" style="margin-bottom:14px;">
-          <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
-            <span class="material-icons" style="font-size:18px;color:var(--accent);">people</span>
-            전체 사용자
-            <span id="userCountBadge" style="font-size:var(--text-xs);color:var(--text-sub);font-weight:400;"></span>
-          </h2>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input type="text" class="search-input" placeholder="이름 검색..." id="userSearch" style="width:160px;" oninput="userPageNo=0;renderUserTable()">
-            <select class="filter-select" id="userRoleFilter2" onchange="userPageNo=0;renderUserTable()">
-              <option value="">전체 권한</option>
-              <option value="master">사이트마스터</option>
-              <option value="leader">공대장</option>
-              <option value="vice">부공대장</option>
-              <option value="member">공대원</option>
-              <option value="guest">손님</option>
-              <option value="none">권한없음</option>
-            </select>
-          </div>
+      <!-- Panel: 권한 관리 -->
+      <div class="sa-panel active" id="sa-panel-permissions">
+        <!-- 로딩 스켈레톤 -->
+        <div id="saPermSkeleton">
+          <div class="skeleton" style="height:40px;margin-bottom:8px;border-radius:6px;"></div>
+          <div class="skeleton" style="height:240px;border-radius:6px;"></div>
         </div>
-        <div class="table-wrap user-table-wrap">
-          <table>
-            <thead><tr>
-              <th style="width:36px;">#</th>
-              <th style="width:40px;"></th>
-              <th>이름</th>
-              <th>현재 권한</th>
-              <th>가입일</th>
-              <th>최종 접속</th>
-              <th style="min-width:120px;">권한 부여</th>
-              <th style="width:120px;">액션</th>
-            </tr></thead>
-            <tbody id="userTableBody">
-              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div id="userTablePager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
-      </div>
 
-      <!-- 활동 이력 (사이트마스터 전용) -->
-      <div class="panel" id="activityLogPanel" style="margin-top:20px;display:none;">
-        <div class="panel-header" style="margin-bottom:14px;">
-          <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
-            <span class="material-icons" style="font-size:18px;color:var(--accent);">history</span>
-            활동 이력
-            <span id="actLogCountBadge" style="font-size:var(--text-xs);color:var(--text-sub);font-weight:400;"></span>
-          </h2>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <input type="text" class="search-input" placeholder="이름 검색..." id="actSearch" style="width:140px;" oninput="actSearch=this.value;actPageNo=0;renderActivityLogs()">
-            <div style="display:flex;gap:4px;">
-              <button onclick="actFilter='';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn active" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">전체</button>
-              <button onclick="actFilter='권한변경';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">권한변경</button>
-              <button onclick="actFilter='제재';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">제재</button>
-              <button onclick="actFilter='해제';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">해제</button>
+        <!-- 데스크탑: 권한 매트릭스 테이블 -->
+        <div class="perm-matrix-table" id="saPermMatrix" style="display:none;">
+          <div class="panel">
+            <div class="panel-header" style="margin-bottom:14px;">
+              <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
+                <span class="material-icons" style="font-size:18px;color:var(--accent);">security</span>
+                권한 매트릭스
+              </h2>
+            </div>
+            <div class="table-wrap">
+              <table class="perm-table">
+                <thead id="permMatrixHead"></thead>
+                <tbody id="permMatrixBody"></tbody>
+              </table>
             </div>
           </div>
         </div>
-        <div id="activityLogList" style="min-height:60px;"></div>
-        <div id="actLogPager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
+
+        <!-- 태블릿: 역할 선택 + 권한 목록 -->
+        <div class="perm-role-select-wrap" id="saPermTablet" style="display:none;">
+          <div class="panel">
+            <div class="panel-header" style="margin-bottom:14px;">
+              <h2 style="font-size:var(--text-md);">역할별 권한</h2>
+              <select class="filter-select" id="permRoleSelect" onchange="_saPermRenderTablet()">
+                <option value="master">사이트마스터</option>
+                <option value="leader">공대장</option>
+                <option value="vice">부공대장</option>
+                <option value="member">공대원</option>
+                <option value="guest">손님</option>
+              </select>
+            </div>
+            <div id="permTabletList"></div>
+          </div>
+        </div>
+
+        <!-- 모바일: 역할 아코디언 -->
+        <div class="perm-accordion-wrap" id="saPermMobile" style="display:none;">
+          <div id="permMobileAccordions"></div>
+        </div>
+
+        <!-- 변경사항 액션바 -->
+        <div class="perm-action-bar" id="permActionBar" style="display:none;">
+          <span class="perm-change-count" id="permChangeCount">0개 변경</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" onclick="_saPermRestore()" style="font-size:var(--text-sm);">기본값 복원</button>
+            <button class="btn" onclick="_saPermReset()" style="font-size:var(--text-sm);">취소</button>
+            <button class="btn btn-primary" onclick="_saPermSave()" style="font-size:var(--text-sm);">저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: 유저 관리 -->
+      <div class="sa-panel" id="sa-panel-users">
+        <!-- loginLogs 이관 도구 (사이트마스터 전용) -->
+        <div class="panel" id="migrateLogPanel" style="margin-bottom:20px;display:none;">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
+              <span class="material-icons" style="font-size:18px;color:#7c3aed;">build</span>
+              loginLogs 이관 도구
+              <span style="font-size:var(--text-xs);color:#dc2626;font-weight:400;">사이트마스터 전용</span>
+            </h2>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:var(--text-sm);cursor:pointer;user-select:none;">
+              <input type="checkbox" id="migrateDryRun" checked style="width:16px;height:16px;cursor:pointer;">
+              드라이런 모드 <span style="color:var(--text-sub);font-size:var(--text-xs);">(실제 쓰기 없음)</span>
+            </label>
+            <button class="btn btn-primary" id="btnMigrateRun" style="font-size:var(--text-sm);" onclick="migrateLoginLogs()">이관 실행</button>
+            <button class="btn" id="btnMigrateDelete" style="font-size:var(--text-sm);background:#fee2e2;color:#dc2626;border-color:#fca5a5;display:none;" onclick="deleteLoginLogs()">loginLogs 삭제 실행</button>
+          </div>
+          <div id="migrateLog" style="background:var(--surface-alt);border-radius:8px;padding:14px;font-size:var(--text-sm);font-family:monospace;line-height:1.8;min-height:80px;max-height:320px;overflow-y:auto;white-space:pre-wrap;color:var(--text);">이관 실행 버튼을 눌러 시작하세요.</div>
+        </div>
+
+        <!-- 전체 사용자 목록 -->
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
+              <span class="material-icons" style="font-size:18px;color:var(--accent);">people</span>
+              전체 사용자
+              <span id="userCountBadge" style="font-size:var(--text-xs);color:var(--text-sub);font-weight:400;"></span>
+            </h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" class="search-input" placeholder="이름 검색..." id="userSearch" style="width:160px;" oninput="userPageNo=0;renderUserTable()">
+              <select class="filter-select" id="userRoleFilter2" onchange="userPageNo=0;renderUserTable()">
+                <option value="">전체 권한</option>
+                <option value="master">사이트마스터</option>
+                <option value="leader">공대장</option>
+                <option value="vice">부공대장</option>
+                <option value="member">공대원</option>
+                <option value="guest">손님</option>
+                <option value="none">권한없음</option>
+              </select>
+            </div>
+          </div>
+          <!-- 데스크탑/태블릿 테이블 -->
+          <div class="table-wrap user-table-wrap">
+            <table>
+              <thead><tr>
+                <th style="width:36px;">#</th>
+                <th style="width:40px;"></th>
+                <th>이름</th>
+                <th>현재 권한</th>
+                <th>가입일</th>
+                <th>최종 접속</th>
+                <th style="min-width:120px;">권한 부여</th>
+                <th style="width:120px;">액션</th>
+              </tr></thead>
+              <tbody id="userTableBody">
+                <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-sub);">로딩 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- 모바일 카드 뷰 -->
+          <div class="sa-user-cards" id="saUserCards"></div>
+          <div id="userTablePager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
+        </div>
+
+        <!-- 활동 이력 (사이트마스터 전용) -->
+        <div class="panel" id="activityLogPanel" style="margin-top:20px;display:none;">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
+              <span class="material-icons" style="font-size:18px;color:var(--accent);">history</span>
+              활동 이력
+              <span id="actLogCountBadge" style="font-size:var(--text-xs);color:var(--text-sub);font-weight:400;"></span>
+            </h2>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input type="text" class="search-input" placeholder="이름 검색..." id="actSearch" style="width:140px;" oninput="actSearch=this.value;actPageNo=0;renderActivityLogs()">
+              <div style="display:flex;gap:4px;">
+                <button onclick="actFilter='';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn active" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">전체</button>
+                <button onclick="actFilter='권한변경';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">권한변경</button>
+                <button onclick="actFilter='제재';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">제재</button>
+                <button onclick="actFilter='해제';actPageNo=0;renderActivityLogs();document.querySelectorAll('.act-filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" class="act-filter-btn" style="font-size:var(--text-xs);padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;">해제</button>
+              </div>
+            </div>
+          </div>
+          <div id="activityLogList" style="min-height:60px;"></div>
+          <div id="actLogPager" style="display:flex;gap:6px;justify-content:center;padding:12px 0 4px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+
+      <!-- Panel: 공대 관리 -->
+      <div class="sa-panel" id="sa-panel-guilds">
+        <div class="sa-guild-toolbar">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span id="saGuildCount" style="font-size:var(--text-sm);color:var(--text-sub);">공대 0개</span>
+            <input type="text" class="search-input" placeholder="공대명 검색..." id="saGuildSearch" style="width:180px;" oninput="_saGuildFilter()">
+            <select class="filter-select" id="saGuildStatusFilter" onchange="_saGuildFilter()">
+              <option value="">전체 상태</option>
+              <option value="모집중">모집중</option>
+              <option value="마감">마감</option>
+              <option value="종료">종료</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="_saOpenCreateRaid()" style="font-size:var(--text-sm);">
+            <span class="material-icons" style="font-size:16px;vertical-align:middle;">add</span>
+            공대 생성
+          </button>
+        </div>
+        <div class="sa-raid-grid" id="saRaidGrid">
+          <div class="skeleton" style="height:180px;border-radius:12px;"></div>
+          <div class="skeleton" style="height:180px;border-radius:12px;"></div>
+          <div class="skeleton" style="height:180px;border-radius:12px;"></div>
+        </div>
+      </div>
+
+      <!-- Panel: 시스템 로그 (준비 중) -->
+      <div class="sa-panel" id="sa-panel-logs">
+        <div class="sa-coming-soon">
+          <span class="material-icons" style="font-size:48px;color:var(--accent);opacity:.5;">analytics</span>
+          <h3 style="font-size:var(--text-lg);margin:0;">시스템 로그 (준비 중)</h3>
+          <p style="color:var(--text-sub);margin:0;text-align:center;">
+            예정 기능:<br>
+            • 전체 Firestore 쓰기/삭제 이벤트 감사 로그<br>
+            • 필터 및 CSV 내보내기<br>
+            • 보존 기간 설정
+          </p>
+        </div>
+      </div>
+
+      <!-- Panel: 공지사항 (준비 중) -->
+      <div class="sa-panel" id="sa-panel-notices">
+        <div class="sa-coming-soon">
+          <span class="material-icons" style="font-size:48px;color:var(--accent);opacity:.5;">campaign</span>
+          <h3 style="font-size:var(--text-lg);margin:0;">공지사항 (준비 중)</h3>
+          <p style="color:var(--text-sub);margin:0;text-align:center;">
+            예정 기능:<br>
+            • 공지사항 작성/수정/삭제<br>
+            • 팝업 공지 지원<br>
+            • 공지 이력 관리
+          </p>
+        </div>
       </div>
 
     </div>
@@ -2989,14 +3235,10 @@ function getEffectiveRole(){
   if(Array.isArray(allMembers) && allMembers.some(m=>(m.uid===uid||m.ownerUid===uid) && m.raidId)) return 'member';
   return 'guest';
 }
-// 우측 상단 뱃지 전용: 사이트마스터/공대장만 표시. 공대원·손님·부공대장은 null (뱃지 없음)
-// 사이트마스터 + 공대장 동시 충족 시 master 우선 (더 상위 권한)
+// 우측 상단 뱃지 전용: 사이트마스터만 표시
 function getUserBadgeType(){
   if(!currentProfile || !currentUser) return null;
-  if(currentProfile.role === 'master') return 'master';
-  const uid = currentUser.uid;
-  if(Array.isArray(allRaids) && allRaids.some(r=>r.ownerUid===uid)) return 'leader';
-  return null;
+  return currentProfile.role === 'master' ? 'master' : null;
 }
 // 공대장 신청 가능 여부: 사이트마스터·공대장 둘 다 아닐 때만
 function canApplyForLeader(){
@@ -3049,17 +3291,17 @@ function updateLoginUI(){
     const photoSrc=currentProfile.photo||'https://cdn.discordapp.com/embed/avatars/0.png';
     document.getElementById('userName').textContent=currentProfile.name;
     document.getElementById('userPhoto').src=photoSrc;
-    // 역할 뱃지: 실질 소속 기반 (getEffectiveRole) — members 컬렉션과 일치
-    const effRole = getEffectiveRole();
-    const r=ROLES[effRole]||ROLES.none;
-    document.getElementById('userRoleBadge').textContent=r.label;
+    // 역할 뱃지: 사이트마스터만 표시
+    const isMaster = currentProfile?.role === 'master';
+    const badge = document.getElementById('userRoleBadge');
+    if(badge){ badge.textContent = isMaster ? '사이트마스터' : ''; badge.style.display = isMaster ? '' : 'none'; }
     // 드롭다운 헤더 동기화
     const ddPhoto=document.getElementById('ddUserPhoto');
     const ddName=document.getElementById('ddUserName');
     const ddRole=document.getElementById('ddUserRole');
     if(ddPhoto)ddPhoto.src=photoSrc;
     if(ddName)ddName.textContent=currentProfile.name;
-    if(ddRole){ddRole.textContent=r.label;}
+    if(ddRole){ ddRole.textContent = isMaster ? '사이트마스터' : ''; ddRole.style.display = isMaster ? '' : 'none'; }
     updateSidebarProfileArea();
     updateSidebarMenuSet();
     updateMyRaidNavVisibility();
@@ -3721,10 +3963,9 @@ function _refreshRoleBadge(){
   const badge = document.getElementById('userRoleBadge');
   const ddRole = document.getElementById('ddUserRole');
   if(!badge && !ddRole) return;
-  const eff = getEffectiveRole();
-  const r = ROLES[eff] || ROLES.none;
-  if(badge) badge.textContent = r.label;
-  if(ddRole) ddRole.textContent = r.label;
+  const isMaster = currentProfile?.role === 'master';
+  if(badge){ badge.textContent = isMaster ? '사이트마스터' : ''; badge.style.display = isMaster ? '' : 'none'; }
+  if(ddRole){ ddRole.textContent = isMaster ? '사이트마스터' : ''; ddRole.style.display = isMaster ? '' : 'none'; }
   updateApplyLeaderButton();
 }
 
@@ -4556,8 +4797,8 @@ async function saveGuildPromo(){
 // =============================================
 // Navigation
 // =============================================
-const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestlist:'공대관리 / 내 공대 관리 / 손님 신청목록',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 권한 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
-const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestlist:'손님 신청목록',purchase:'판매내역',gold:'분배내역',users:'권한 관리',todayboss:'오늘의 보스','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
+const breadcrumbMap={dashboard:'대시보드',mychar:'내 캐릭터 / 캐릭터 정보',myraids:'내 캐릭터 / 내 공대 현황',equip:'내 캐릭터 / 내 장비관리',mysettlement:'내 캐릭터 / 내 정산내역','guild-promo':'길드관리',raids:'공대관리 / 공대 목록',members:'공대관리 / 내 공대 관리 / 공대원',settlement:'공대관리 / 내 공대 관리 / 보스 정산',guestlist:'공대관리 / 내 공대 관리 / 손님 신청목록',purchase:'공대관리 / 판매내역',gold:'공대관리 / 분배내역',users:'시스템 / 시스템 관리',sysadmin:'시스템 / 시스템 관리','horntail-timer':'혼테일 / 타이머',items:'아이템 정보'};
+const mobileTitleMap={dashboard:'대시보드',mychar:'캐릭터 정보',myraids:'내 공대 현황',equip:'내 장비관리',mysettlement:'내 정산내역','guild-promo':'길드관리',raids:'공대 목록',members:'내 공대 관리',settlement:'내 공대 관리',guestlist:'손님 신청목록',purchase:'판매내역',gold:'분배내역',users:'시스템 관리',sysadmin:'시스템 관리',todayboss:'오늘의 보스','horntail-timer':'혼테일 타이머',items:'아이템 정보'};
 
 // 탭바 페이지 매핑
 // 공대원 탭바 매핑: pageId → tab id suffix
@@ -4623,13 +4864,12 @@ function showPage(id,el){
   if(id==='horntail-timer'){htRender();}
   if(id==='items'){loadItemDB().then(()=>renderItemPage());}
   if(id==='users'){
-    renderUserTable();
-    const isMst=currentProfile?.role==='master';
-    const mp=document.getElementById('migrateLogPanel');
-    if(mp) mp.style.display=isMst?'':'none';
-    if(isMst && !actLogsUnsub) subscribeActivityLogs();
-    const ap=document.getElementById('activityLogPanel');
-    if(ap) ap.style.display=isMst?'':'none';
+    // users 페이지는 sysadmin으로 통합 — 유저 관리 탭으로 리다이렉트
+    showSysAdminTab('users', null);
+    return;
+  }
+  if(id==='sysadmin'){
+    _saOnPageShow();
   }
   if(id==='mysettlement'){loadMySettlements();}
   // 모바일에서 메뉴 클릭 시 사이드바 닫기
@@ -5731,6 +5971,10 @@ function rdToggleSettlementForm(raidId){
   const pool=allMembers.filter(m=>m.raidId===raidId);
   _rdStMembers=pool.filter(m=>m.status==='참여').map(toM);
   if(!_rdStMembers.length) _rdStMembers=pool.map(toM);
+  // 공대장 자동 포함: allMembers에 등록되지 않은 경우 본인을 목록에 추가
+  if(currentUser && currentProfile && !_rdStMembers.some(m=>m.uid===currentUser.uid)){
+    _rdStMembers.push({id:currentUser.uid,memberId:null,uid:currentUser.uid,name:currentProfile.name||'공대장',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false,isLinked:true});
+  }
   rdRenderSettlements(raidId);
 }
 
@@ -7162,6 +7406,10 @@ function openSettlementForm(){
   const pool = stRaidId ? allMembers.filter(m=>m.raidId===stRaidId) : allMembers;
   stMembers = pool.filter(m=>m.status==='참여').map(toStMember);
   if(!stMembers.length){ stMembers = pool.map(toStMember); }
+  // 공대장 자동 포함: allMembers에 등록되지 않은 경우 본인을 목록에 추가
+  if(currentUser && currentProfile && !stMembers.some(m=>m.uid===currentUser.uid)){
+    stMembers.push({id:currentUser.uid,memberId:null,uid:currentUser.uid,name:currentProfile.name||'공대장',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false,isLinked:true});
+  }
   stRenderItems();
   stRenderMembers();
   document.getElementById('settlementForm').scrollIntoView({behavior:'smooth'});
@@ -8041,13 +8289,11 @@ function updateLeaderAppBadge(){
   updateApplyLeaderButton();
 }
 
-// 공대장 신청 버튼: 손님(guest) 전용. 단 leader 권한자는 공대 미생성 상태여도 중복 신청 차단
+// 공대장 신청 버튼: 비로그인·사이트마스터·공대 소유자는 숨김
 function updateApplyLeaderButton(){
   const wrap = document.getElementById('navApplyLeaderWrap');
   const inPage = document.getElementById('btnApplyLeaderInRaids');
-  const role = currentProfile?.role;
-  const isPrivileged = ['master','leader','vice'].includes(role);
-  const canApply = !isPrivileged && getEffectiveRole() === 'guest';
+  const canApply = canApplyForLeader();
   if(wrap) wrap.style.display = canApply ? '' : 'none';
   if(inPage) inPage.style.display = canApply ? '' : 'none';
 }
@@ -8312,6 +8558,677 @@ async function migrateMembersToUid(){
     log.innerHTML='<div style="color:#dc2626;">오류: '+e.message+'</div>';
   }
 }
+
+// =============================================
+// 시스템 관리 (SysAdmin)
+// =============================================
+
+// ── 권한 정의 ──
+const SA_ROLE_DEFS = [
+  {id:'master', label:'사이트마스터', color:'#7c3aed'},
+  {id:'leader', label:'공대장', color:'#0b5cd5'},
+  {id:'vice',   label:'부공대장', color:'#0891b2'},
+  {id:'member', label:'공대원', color:'#16a34a'},
+  {id:'guest',  label:'손님', color:'#92400e'},
+];
+
+const SA_PERM_DEFS = [
+  {id:'view_dashboard',    label:'대시보드 조회'},
+  {id:'view_raids',        label:'공대 목록 조회'},
+  {id:'apply_raid',        label:'공대 신청'},
+  {id:'view_settlement',   label:'정산 조회'},
+  {id:'edit_settlement',   label:'정산 수정'},
+  {id:'view_members',      label:'공대원 목록 조회'},
+  {id:'manage_members',    label:'공대원 관리'},
+  {id:'create_raid',       label:'공대 생성'},
+  {id:'delete_raid',       label:'공대 삭제'},
+  {id:'view_users',        label:'유저 목록 조회'},
+  {id:'manage_roles',      label:'권한 부여/변경'},
+  {id:'manage_system',     label:'시스템 설정 변경'},
+];
+
+const SA_DEFAULT_PERMS = {
+  master: {view_dashboard:true,view_raids:true,apply_raid:false,view_settlement:true,edit_settlement:true,view_members:true,manage_members:true,create_raid:true,delete_raid:true,view_users:true,manage_roles:true,manage_system:true},
+  leader: {view_dashboard:true,view_raids:true,apply_raid:false,view_settlement:true,edit_settlement:true,view_members:true,manage_members:true,create_raid:true,delete_raid:false,view_users:false,manage_roles:false,manage_system:false},
+  vice:   {view_dashboard:true,view_raids:true,apply_raid:false,view_settlement:true,edit_settlement:true,view_members:true,manage_members:true,create_raid:false,delete_raid:false,view_users:false,manage_roles:false,manage_system:false},
+  member: {view_dashboard:true,view_raids:true,apply_raid:true, view_settlement:true,edit_settlement:false,view_members:true,manage_members:false,create_raid:false,delete_raid:false,view_users:false,manage_roles:false,manage_system:false},
+  guest:  {view_dashboard:true,view_raids:true,apply_raid:true, view_settlement:false,edit_settlement:false,view_members:false,manage_members:false,create_raid:false,delete_raid:false,view_users:false,manage_roles:false,manage_system:false},
+};
+
+// ── 상태 ──
+let _saCurrentTab = 'permissions';
+let _saPermsData = null;     // {role: {permId: bool}}
+let _saPermsOriginal = null; // 저장 전 원본 (취소용)
+let _saPermsModified = {};   // {role_permId: bool}
+let _saGuildsData = [];
+let _saGuildsFiltered = [];
+let _saPermCache = {};       // hasPermission 캐시
+let _saGuildsLoaded = false;
+
+// ── 네비게이션 ──
+function _saNavToggle(el){
+  el.classList.toggle('open');
+  const body=document.getElementById('accSysAdmin');
+  if(body){body.classList.toggle('open');}
+}
+
+function showSysAdminTab(tab, triggerEl){
+  _saCurrentTab = tab;
+  // 페이지 전환
+  document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-sysadmin');
+  if(pg) pg.classList.add('active');
+  // 브레드크럼
+  document.getElementById('breadcrumb').textContent=breadcrumbMap['sysadmin']||'';
+  const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent='시스템 관리';
+  // 사이드바 active
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
+  const navId={'permissions':'navSAPermissions','users':'navSAUsers','guilds':'navSAGuilds','logs':'navSALogs','notices':'navSANotices'}[tab];
+  const navEl=navId?document.getElementById(navId):null;
+  if(navEl) navEl.classList.add('active');
+  // 아코디언 열기
+  const accBody=document.getElementById('accSysAdmin');
+  const accHead=document.getElementById('navSysAdmin');
+  if(accBody&&!accBody.classList.contains('open')){accBody.classList.add('open');if(accHead)accHead.classList.add('open');}
+  // 탭 UI 갱신
+  document.querySelectorAll('#saTabNav .sa-tab').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===tab);
+  });
+  // 패널 갱신
+  document.querySelectorAll('.sa-panel').forEach(p=>p.classList.remove('active'));
+  const panel=document.getElementById('sa-panel-'+tab);
+  if(panel) panel.classList.add('active');
+  // 탭별 초기화
+  if(tab==='permissions') _saPermInit();
+  if(tab==='users') _saUsersInit();
+  if(tab==='guilds') _saGuildsInit();
+  // URL 해시
+  history.replaceState(null,'','#sysadmin-'+tab);
+  // 모바일 사이드바 닫기
+  if(window.innerWidth<=768){document.querySelector('.sidebar').classList.remove('open');document.getElementById('mobileOverlay').classList.remove('show');}
+}
+
+function _saOnPageShow(){
+  showSysAdminTab(_saCurrentTab||'permissions', null);
+}
+
+// 페이지 로드 시 해시 복원
+(function(){
+  const h=location.hash;
+  if(h&&h.startsWith('#sysadmin-')){
+    const tab=h.replace('#sysadmin-','');
+    if(['permissions','users','guilds','logs','notices'].includes(tab)){
+      _saCurrentTab=tab;
+    }
+  }
+})();
+
+// ── 권한 관리 ──
+async function _saPermInit(){
+  const skel=document.getElementById('saPermSkeleton');
+  const matrix=document.getElementById('saPermMatrix');
+  const tablet=document.getElementById('saPermTablet');
+  const mobile=document.getElementById('saPermMobile');
+  if(skel) skel.style.display='';
+  if(matrix) matrix.style.display='none';
+  if(tablet) tablet.style.display='none';
+  if(mobile) mobile.style.display='none';
+
+  // Firestore에서 roles 컬렉션 로드 (없으면 기본값 사용)
+  let loaded = {};
+  try{
+    const snap = await db.collection('roles').get();
+    if(!snap.empty){
+      snap.forEach(d=>{ loaded[d.id]=d.data(); });
+    }
+  }catch(e){}
+
+  // 기본값으로 채우기
+  _saPermsData = {};
+  SA_ROLE_DEFS.forEach(r=>{
+    _saPermsData[r.id] = Object.assign({}, SA_DEFAULT_PERMS[r.id]||{}, loaded[r.id]||{});
+  });
+  _saPermsOriginal = JSON.parse(JSON.stringify(_saPermsData));
+  _saPermsModified = {};
+
+  if(skel) skel.style.display='none';
+  _saPermRender();
+}
+
+function _saPermRender(){
+  const w=window.innerWidth;
+  const matrix=document.getElementById('saPermMatrix');
+  const tablet=document.getElementById('saPermTablet');
+  const mobile=document.getElementById('saPermMobile');
+  if(w>=1024){
+    if(matrix){matrix.style.display='';} if(tablet){tablet.style.display='none';} if(mobile){mobile.style.display='none';}
+    _saPermRenderMatrix();
+  } else if(w>=768){
+    if(matrix){matrix.style.display='none';} if(tablet){tablet.style.display='';} if(mobile){mobile.style.display='none';}
+    _saPermRenderTablet();
+  } else {
+    if(matrix){matrix.style.display='none';} if(tablet){tablet.style.display='none';} if(mobile){mobile.style.display='';}
+    _saPermRenderMobile();
+  }
+}
+window.addEventListener('resize', function(){
+  if(_saCurrentTab==='permissions'&&_saPermsData) _saPermRender();
+});
+
+function _saPermRenderMatrix(){
+  if(!_saPermsData) return;
+  const head=document.getElementById('permMatrixHead');
+  const body=document.getElementById('permMatrixBody');
+  if(!head||!body) return;
+  head.innerHTML='<tr><th>권한 항목</th>'+SA_ROLE_DEFS.map(r=>`<th style="color:${r.color}">${r.label}</th>`).join('')+'</tr>';
+  body.innerHTML=SA_PERM_DEFS.map(p=>{
+    const cells=SA_ROLE_DEFS.map(r=>{
+      const key=r.id+'_'+p.id;
+      const val=_saPermsData[r.id]?.[p.id]??false;
+      const changed=key in _saPermsModified;
+      const locked=r.id==='master';
+      return `<td class="perm-cell${changed?' perm-cell-changed':''}" style="text-align:center;">
+        <input type="checkbox" ${val?'checked':''} ${locked?'disabled':''} onchange="_saPermToggle('${r.id}','${p.id}',this.checked)" style="width:16px;height:16px;cursor:${locked?'not-allowed':'pointer'};">
+      </td>`;
+    }).join('');
+    return `<tr><td style="font-size:var(--text-sm);">${p.label}</td>${cells}</tr>`;
+  }).join('');
+}
+
+function _saPermRenderTablet(){
+  if(!_saPermsData) return;
+  const sel=document.getElementById('permRoleSelect');
+  const list=document.getElementById('permTabletList');
+  if(!sel||!list) return;
+  const role=sel.value||'leader';
+  const locked=role==='master';
+  list.innerHTML=SA_PERM_DEFS.map(p=>{
+    const key=role+'_'+p.id;
+    const val=_saPermsData[role]?.[p.id]??false;
+    const changed=key in _saPermsModified;
+    return `<div class="perm-perm-item${changed?' perm-cell-changed':''}">
+      <span style="font-size:var(--text-sm);">${p.label}</span>
+      <input type="checkbox" ${val?'checked':''} ${locked?'disabled':''} onchange="_saPermToggle('${role}','${p.id}',this.checked)" style="width:18px;height:18px;cursor:${locked?'not-allowed':'pointer'};">
+    </div>`;
+  }).join('');
+}
+
+function _saPermRenderMobile(){
+  if(!_saPermsData) return;
+  const wrap=document.getElementById('permMobileAccordions');
+  if(!wrap) return;
+  wrap.innerHTML=SA_ROLE_DEFS.map(r=>`
+    <div class="perm-role-acc">
+      <div class="perm-role-acc-head" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');" style="color:${r.color};">
+        ${r.label} <span class="arr" style="margin-left:auto;">▶</span>
+      </div>
+      <div class="perm-role-acc-body">
+        ${SA_PERM_DEFS.map(p=>{
+          const key=r.id+'_'+p.id;
+          const val=_saPermsData[r.id]?.[p.id]??false;
+          const changed=key in _saPermsModified;
+          const locked=r.id==='master';
+          return `<div class="perm-perm-item${changed?' perm-cell-changed':''}">
+            <span style="font-size:var(--text-sm);">${p.label}</span>
+            <input type="checkbox" ${val?'checked':''} ${locked?'disabled':''} onchange="_saPermToggle('${r.id}','${p.id}',this.checked)" style="width:18px;height:18px;cursor:${locked?'not-allowed':'pointer'};">
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function _saPermToggle(role, permId, val){
+  if(role==='master') return;
+  if(!_saPermsData[role]) _saPermsData[role]={};
+  _saPermsData[role][permId]=val;
+  const key=role+'_'+permId;
+  const orig=_saPermsOriginal?.[role]?.[permId]??false;
+  if(val===orig){ delete _saPermsModified[key]; } else { _saPermsModified[key]=val; }
+  _saPermUpdateActionBar();
+}
+
+function _saPermUpdateActionBar(){
+  const bar=document.getElementById('permActionBar');
+  const cnt=document.getElementById('permChangeCount');
+  const n=Object.keys(_saPermsModified).length;
+  if(bar) bar.style.display=n>0?'':'none';
+  if(cnt) cnt.textContent=n+'개 변경';
+}
+
+async function _saPermSave(){
+  if(!currentProfile||currentProfile.role!=='master'){alert('권한 없음');return;}
+  const batch=db.batch();
+  SA_ROLE_DEFS.forEach(r=>{
+    if(r.id==='master') return;
+    const ref=db.collection('roles').doc(r.id);
+    batch.set(ref, _saPermsData[r.id]||{}, {merge:true});
+  });
+  try{
+    await batch.commit();
+    _saPermsOriginal=JSON.parse(JSON.stringify(_saPermsData));
+    _saPermsModified={};
+    _saPermCache={};
+    _saPermUpdateActionBar();
+    _saPermRender();
+    showToast('권한 설정이 저장되었습니다.');
+  }catch(e){alert('저장 실패: '+e.message);}
+}
+
+function _saPermReset(){
+  _saPermsData=JSON.parse(JSON.stringify(_saPermsOriginal));
+  _saPermsModified={};
+  _saPermUpdateActionBar();
+  _saPermRender();
+}
+
+function _saPermRestore(){
+  document.getElementById('saRestorePermModal').style.display='';
+}
+
+async function _saPermRestoreConfirm(){
+  if(!currentProfile||currentProfile.role!=='master'){alert('권한 없음');return;}
+  document.getElementById('saRestorePermModal').style.display='none';
+  const batch=db.batch();
+  SA_ROLE_DEFS.forEach(r=>{
+    if(r.id==='master') return;
+    const ref=db.collection('roles').doc(r.id);
+    batch.set(ref, SA_DEFAULT_PERMS[r.id]||{});
+  });
+  try{
+    await batch.commit();
+    _saPermsData=JSON.parse(JSON.stringify(SA_DEFAULT_PERMS));
+    _saPermsOriginal=JSON.parse(JSON.stringify(SA_DEFAULT_PERMS));
+    _saPermsModified={};
+    _saPermCache={};
+    _saPermUpdateActionBar();
+    _saPermRender();
+    showToast('권한이 기본값으로 복원되었습니다.');
+  }catch(e){alert('복원 실패: '+e.message);}
+}
+
+// hasPermission 유틸리티
+async function hasPermission(role, permId){
+  if(role==='master') return true;
+  const cacheKey=role+'_'+permId;
+  if(cacheKey in _saPermCache) return _saPermCache[cacheKey];
+  try{
+    const doc=await db.collection('roles').doc(role).get();
+    const data=doc.exists?doc.data():{};
+    SA_PERM_DEFS.forEach(p=>{ _saPermCache[role+'_'+p.id]=data[p.id]??(SA_DEFAULT_PERMS[role]?.[p.id]??false); });
+    return _saPermCache[cacheKey]??(SA_DEFAULT_PERMS[role]?.[permId]??false);
+  }catch(e){
+    return SA_DEFAULT_PERMS[role]?.[permId]??false;
+  }
+}
+
+// ── 유저 관리 ──
+function _saUsersInit(){
+  renderUserTable();
+  const isMst=currentProfile?.role==='master';
+  const mp=document.getElementById('migrateLogPanel');
+  if(mp) mp.style.display=isMst?'':'none';
+  if(isMst && typeof actLogsUnsub!=='undefined' && !actLogsUnsub) subscribeActivityLogs();
+  const ap=document.getElementById('activityLogPanel');
+  if(ap) ap.style.display=isMst?'':'none';
+}
+
+// ── 공대 관리 ──
+async function _saGuildsInit(){
+  if(_saGuildsLoaded) { _saGuildRender(); return; }
+  const grid=document.getElementById('saRaidGrid');
+  if(grid) grid.innerHTML='<div class="skeleton" style="height:180px;border-radius:12px;"></div>'.repeat(3);
+  try{
+    const snap=await db.collection('raids').orderBy('createdAt','desc').get();
+    _saGuildsData=snap.docs.map(d=>({id:d.id,...d.data()}));
+    _saGuildsFiltered=[..._saGuildsData];
+    _saGuildsLoaded=true;
+    _saGuildRender();
+    _saUpdateGuildCount();
+  }catch(e){
+    if(grid) grid.innerHTML='<div class="sa-empty"><span class="material-icons">error_outline</span><p>로드 실패: '+e.message+'</p></div>';
+  }
+}
+
+function _saGuildFilter(){
+  const q=(document.getElementById('saGuildSearch')?.value||'').trim().toLowerCase();
+  const st=document.getElementById('saGuildStatusFilter')?.value||'';
+  _saGuildsFiltered=_saGuildsData.filter(r=>{
+    const nameMatch=!q||((r.name||'').toLowerCase().includes(q));
+    const stMatch=!st||(r.status||'')=== st;
+    return nameMatch&&stMatch;
+  });
+  _saGuildRender();
+  _saUpdateGuildCount();
+}
+
+function _saUpdateGuildCount(){
+  const el=document.getElementById('saGuildCount');
+  if(el) el.textContent=`공대 ${_saGuildsFiltered.length}개`;
+}
+
+function _saGuildRender(){
+  const grid=document.getElementById('saRaidGrid');
+  if(!grid) return;
+  if(!_saGuildsFiltered.length){
+    grid.innerHTML='<div class="sa-empty" style="grid-column:1/-1;"><span class="material-icons">group_off</span><p>공대가 없습니다</p></div>';
+    return;
+  }
+  grid.innerHTML=_saGuildsFiltered.map(r=>{
+    const statusColor={모집중:'#16a34a',마감:'#dc2626',종료:'#6b7280'}[r.status||'모집중']||'#6b7280';
+    const memberCnt=typeof r.memberCount==='number'?r.memberCount:0;
+    const maxCnt=r.maxMembers||r.maxCount||30;
+    return `<div class="sa-raid-card">
+      <div class="sa-raid-card-head">
+        <div>
+          <div class="sa-raid-card-name">${_esc(r.name||'(이름없음)')}</div>
+          <div class="sa-raid-card-meta">${_esc(r.boss||'')} ${r.boss&&r.status?'·':''} <span style="color:${statusColor};">${_esc(r.status||'모집중')}</span></div>
+        </div>
+      </div>
+      <div class="sa-raid-card-body">
+        <div class="sa-raid-card-meta">
+          <span class="material-icons" style="font-size:14px;">person</span> ${memberCnt} / ${maxCnt}명
+        </div>
+        ${r.ownerUid?`<div class="sa-raid-owner" id="saRaidOwner_${r.id}">공대장: 로딩 중...</div>`:'<div class="sa-raid-owner" style="color:var(--text-sub);">공대장 미지정</div>'}
+        ${r.description?`<div class="sa-raid-card-meta" style="margin-top:6px;">${_esc(r.description)}</div>`:''}
+      </div>
+      <div class="sa-raid-card-foot">
+        <button class="btn" style="font-size:var(--text-xs);padding:4px 10px;" onclick="_saOpenEditRaid('${r.id}')">수정</button>
+        <button class="btn" style="font-size:var(--text-xs);padding:4px 10px;color:#dc2626;border-color:#fca5a5;" onclick="_saOpenDeleteRaid('${r.id}')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+  // 공대장 이름 비동기 로드
+  _saGuildsFiltered.forEach(r=>{
+    if(r.ownerUid){
+      db.collection('users').doc(r.ownerUid).get().then(d=>{
+        const el=document.getElementById('saRaidOwner_'+r.id);
+        if(el) el.textContent='공대장: '+(d.exists?d.data().name:'알 수 없음');
+      }).catch(()=>{});
+    }
+  });
+}
+
+function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// 공대장 검색 (공통)
+function _saOwnerSearch(inputEl, resultsId, hiddenIdId, hiddenNameId){
+  const q=(inputEl.value||'').trim().toLowerCase();
+  const res=document.getElementById(resultsId);
+  if(!res) return;
+  if(q.length<1){res.style.display='none';return;}
+  const matches=(allUsers||[]).filter(u=>(u.name||'').toLowerCase().includes(q)).slice(0,8);
+  if(!matches.length){res.innerHTML='<div style="padding:8px;font-size:var(--text-sm);color:var(--text-sub);">결과 없음</div>';res.style.display='';return;}
+  res.innerHTML=matches.map(u=>`<div class="sa-owner-result-item" onclick="_saOwnerSelect('${u.uid||u.id}','${_esc(u.name||'')}','${inputEl.id}','${resultsId}','${hiddenIdId}','${hiddenNameId}')" style="padding:8px 12px;cursor:pointer;font-size:var(--text-sm);hover:background:var(--surface-alt);">${_esc(u.name||'')} <span style="color:var(--text-sub);font-size:var(--text-xs);">${u.role||''}</span></div>`).join('');
+  res.style.display='';
+}
+
+function _saOwnerSelect(uid, name, inputId, resultsId, hiddenIdId, hiddenNameId){
+  const inp=document.getElementById(inputId);
+  const res=document.getElementById(resultsId);
+  const hId=document.getElementById(hiddenIdId);
+  const hName=document.getElementById(hiddenNameId);
+  if(inp) inp.value=name;
+  if(res) res.style.display='none';
+  if(hId) hId.value=uid;
+  if(hName) hName.value=name;
+  // 선택 표시
+  const selId=hiddenIdId.replace('Id','Selected');
+  const sel=document.getElementById(selId);
+  if(sel){sel.textContent='선택됨: '+name;sel.style.display='';}
+}
+
+function _saOpenCreateRaid(){
+  ['saCreateRaidName','saCreateRaidBoss','saCreateRaidDesc','saCreateOwnerSearch'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const max=document.getElementById('saCreateRaidMax');if(max)max.value=30;
+  ['saCreateOwnerId','saCreateOwnerName'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const sel=document.getElementById('saCreateOwnerSelected');if(sel){sel.textContent='';sel.style.display='none';}
+  const res=document.getElementById('saCreateOwnerResults');if(res)res.style.display='none';
+  document.getElementById('saCreateRaidModal').style.display='';
+}
+
+async function _saCreateRaidConfirm(){
+  const name=(document.getElementById('saCreateRaidName')?.value||'').trim();
+  const boss=(document.getElementById('saCreateRaidBoss')?.value||'').trim();
+  const desc=(document.getElementById('saCreateRaidDesc')?.value||'').trim();
+  const max=parseInt(document.getElementById('saCreateRaidMax')?.value)||30;
+  const ownerUid=document.getElementById('saCreateOwnerId')?.value||'';
+  const ownerName=document.getElementById('saCreateOwnerName')?.value||'';
+  if(!name){alert('공대명을 입력하세요.');return;}
+  if(!ownerUid){alert('공대장을 선택하세요.');return;}
+  try{
+    const ref=await db.collection('raids').add({
+      name, boss, description:desc, maxMembers:max, ownerUid, ownerName,
+      status:'모집중', memberCount:0, createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('saCreateRaidModal').style.display='none';
+    _saGuildsLoaded=false;
+    await _saGuildsInit();
+    showToast('공대가 생성되었습니다.');
+  }catch(e){alert('생성 실패: '+e.message);}
+}
+
+function _saOpenEditRaid(id){
+  const r=_saGuildsData.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('saEditRaidId').value=id;
+  document.getElementById('saEditRaidName').value=r.name||'';
+  document.getElementById('saEditRaidBoss').value=r.boss||'';
+  document.getElementById('saEditRaidDesc').value=r.description||'';
+  document.getElementById('saEditRaidMax').value=r.maxMembers||30;
+  const stSel=document.getElementById('saEditRaidStatus');if(stSel)stSel.value=r.status||'모집중';
+  const ownerEl=document.getElementById('saEditOwnerSearch');if(ownerEl)ownerEl.value=r.ownerName||'';
+  document.getElementById('saEditOwnerId').value=r.ownerUid||'';
+  document.getElementById('saEditOwnerName').value=r.ownerName||'';
+  const sel=document.getElementById('saEditOwnerSelected');
+  if(sel){sel.textContent=r.ownerName?'현재: '+r.ownerName:'';sel.style.display=r.ownerName?'':'';}
+  const res=document.getElementById('saEditOwnerResults');if(res)res.style.display='none';
+  document.getElementById('saEditRaidModal').style.display='';
+}
+
+async function _saEditRaidConfirm(){
+  const id=document.getElementById('saEditRaidId')?.value;
+  const name=(document.getElementById('saEditRaidName')?.value||'').trim();
+  const boss=(document.getElementById('saEditRaidBoss')?.value||'').trim();
+  const desc=(document.getElementById('saEditRaidDesc')?.value||'').trim();
+  const max=parseInt(document.getElementById('saEditRaidMax')?.value)||30;
+  const status=document.getElementById('saEditRaidStatus')?.value||'모집중';
+  const ownerUid=document.getElementById('saEditOwnerId')?.value||'';
+  const ownerName=document.getElementById('saEditOwnerName')?.value||'';
+  if(!id||!name){alert('공대명을 입력하세요.');return;}
+  try{
+    const update={name,boss,description:desc,maxMembers:max,status};
+    if(ownerUid){update.ownerUid=ownerUid;update.ownerName=ownerName;}
+    await db.collection('raids').doc(id).update(update);
+    document.getElementById('saEditRaidModal').style.display='none';
+    const idx=_saGuildsData.findIndex(x=>x.id===id);
+    if(idx>=0) _saGuildsData[idx]=Object.assign(_saGuildsData[idx],update);
+    _saGuildFilter();
+    showToast('공대가 수정되었습니다.');
+  }catch(e){alert('수정 실패: '+e.message);}
+}
+
+function _saOpenDeleteRaid(id){
+  const r=_saGuildsData.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('saDeleteRaidId').value=id;
+  const nameEl=document.getElementById('saDeleteRaidNameDisplay');if(nameEl)nameEl.textContent=r.name||'';
+  const itemsEl=document.getElementById('saDeleteRaidItems');
+  if(itemsEl){
+    const lines=[];
+    if(r.boss) lines.push('보스: '+r.boss);
+    if(typeof r.memberCount==='number') lines.push('공대원: '+r.memberCount+'명');
+    if(r.ownerName) lines.push('공대장: '+r.ownerName);
+    itemsEl.innerHTML=lines.map(l=>`<div>• ${_esc(l)}</div>`).join('')||'<div style="color:var(--text-sub);">정보 없음</div>';
+  }
+  const reason=document.getElementById('saDeleteRaidReason');if(reason)reason.value='';
+  document.getElementById('saDeleteRaidModal').style.display='';
+}
+
+async function _saDeleteRaidConfirm(){
+  const id=document.getElementById('saDeleteRaidId')?.value;
+  if(!id) return;
+  try{
+    await db.collection('raids').doc(id).delete();
+    document.getElementById('saDeleteRaidModal').style.display='none';
+    _saGuildsData=_saGuildsData.filter(x=>x.id!==id);
+    _saGuildFilter();
+    showToast('공대가 삭제되었습니다.');
+  }catch(e){alert('삭제 실패: '+e.message);}
+}
+
+// showToast 가드 (중복 정의 방지)
+if(typeof showToast==='undefined'){
+  function showToast(msg,duration=2500){
+    let t=document.getElementById('_globalToast');
+    if(!t){
+      t=document.createElement('div');t.id='_globalToast';
+      t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:9999;pointer-events:none;transition:opacity .3s;opacity:0;';
+      document.body.appendChild(t);
+    }
+    t.textContent=msg;t.style.opacity='1';
+    clearTimeout(t._tid);t._tid=setTimeout(()=>{t.style.opacity='0';},duration);
+  }
+}
 </script>
+
+<!-- ===== 시스템 관리: 공대 생성 모달 ===== -->
+<div id="saCreateRaidModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <h3 class="modal-title">공대 생성</h3>
+      <button class="modal-close" onclick="document.getElementById('saCreateRaidModal').style.display='none'">×</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">공대명 <span style="color:#dc2626;">*</span></label>
+        <input type="text" id="saCreateRaidName" class="search-input" style="width:100%;" placeholder="예: 카링 레이드 A팀">
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">보스</label>
+        <input type="text" id="saCreateRaidBoss" class="search-input" style="width:100%;" placeholder="예: 카링">
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">설명</label>
+        <textarea id="saCreateRaidDesc" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:var(--text-sm);background:var(--surface);color:var(--text);resize:vertical;min-height:60px;" placeholder="공대 소개 (선택)"></textarea>
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">최대 인원</label>
+        <input type="number" id="saCreateRaidMax" class="search-input" style="width:120px;" value="30" min="1" max="999">
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">공대장 <span style="color:#dc2626;">*</span></label>
+        <div class="sa-owner-search">
+          <input type="text" id="saCreateOwnerSearch" class="search-input" style="width:100%;" placeholder="이름으로 검색..." oninput="_saOwnerSearch(this,'saCreateOwnerResults','saCreateOwnerId','saCreateOwnerName')">
+          <input type="hidden" id="saCreateOwnerId">
+          <input type="hidden" id="saCreateOwnerName">
+          <div class="sa-owner-results" id="saCreateOwnerResults" style="display:none;"></div>
+        </div>
+        <div id="saCreateOwnerSelected" style="font-size:var(--text-sm);color:var(--accent);margin-top:4px;display:none;"></div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn" onclick="document.getElementById('saCreateRaidModal').style.display='none'">취소</button>
+      <button class="btn btn-primary" onclick="_saCreateRaidConfirm()">생성</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 시스템 관리: 공대 수정 모달 ===== -->
+<div id="saEditRaidModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <h3 class="modal-title">공대 수정</h3>
+      <button class="modal-close" onclick="document.getElementById('saEditRaidModal').style.display='none'">×</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+      <input type="hidden" id="saEditRaidId">
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">공대명 <span style="color:#dc2626;">*</span></label>
+        <input type="text" id="saEditRaidName" class="search-input" style="width:100%;">
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">보스</label>
+        <input type="text" id="saEditRaidBoss" class="search-input" style="width:100%;">
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">설명</label>
+        <textarea id="saEditRaidDesc" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:var(--text-sm);background:var(--surface);color:var(--text);resize:vertical;min-height:60px;"></textarea>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div>
+          <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">최대 인원</label>
+          <input type="number" id="saEditRaidMax" class="search-input" style="width:120px;" min="1" max="999">
+        </div>
+        <div>
+          <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">상태</label>
+          <select class="filter-select" id="saEditRaidStatus">
+            <option value="모집중">모집중</option>
+            <option value="마감">마감</option>
+            <option value="종료">종료</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">공대장</label>
+        <div class="sa-owner-search">
+          <input type="text" id="saEditOwnerSearch" class="search-input" style="width:100%;" placeholder="이름으로 검색..." oninput="_saOwnerSearch(this,'saEditOwnerResults','saEditOwnerId','saEditOwnerName')">
+          <input type="hidden" id="saEditOwnerId">
+          <input type="hidden" id="saEditOwnerName">
+          <div class="sa-owner-results" id="saEditOwnerResults" style="display:none;"></div>
+        </div>
+        <div id="saEditOwnerSelected" style="font-size:var(--text-sm);color:var(--accent);margin-top:4px;display:none;"></div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn" onclick="document.getElementById('saEditRaidModal').style.display='none'">취소</button>
+      <button class="btn btn-primary" onclick="_saEditRaidConfirm()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 시스템 관리: 공대 삭제 모달 ===== -->
+<div id="saDeleteRaidModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 class="modal-title" style="color:#dc2626;">공대 삭제</h3>
+      <button class="modal-close" onclick="document.getElementById('saDeleteRaidModal').style.display='none'">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="saDeleteRaidId">
+      <p style="margin:0 0 12px;font-size:var(--text-sm);">
+        <strong id="saDeleteRaidNameDisplay"></strong> 공대를 삭제합니다.<br>
+        <span style="color:#dc2626;">이 작업은 되돌릴 수 없습니다.</span>
+      </p>
+      <div id="saDeleteRaidItems" style="font-size:var(--text-xs);color:var(--text-sub);background:var(--surface-alt);border-radius:8px;padding:10px 12px;margin-bottom:14px;max-height:160px;overflow-y:auto;"></div>
+      <div>
+        <label style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:4px;">삭제 사유 (선택)</label>
+        <input type="text" id="saDeleteRaidReason" class="search-input" style="width:100%;" placeholder="예: 공대 해산">
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn" onclick="document.getElementById('saDeleteRaidModal').style.display='none'">취소</button>
+      <button class="btn" style="background:#dc2626;color:#fff;border-color:#dc2626;" onclick="_saDeleteRaidConfirm()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 시스템 관리: 권한 기본값 복원 확인 모달 ===== -->
+<div id="saRestorePermModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-header">
+      <h3 class="modal-title">기본값 복원</h3>
+      <button class="modal-close" onclick="document.getElementById('saRestorePermModal').style.display='none'">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0;font-size:var(--text-sm);">모든 권한 설정을 기본값으로 복원합니다.<br>현재 저장된 커스텀 설정이 초기화됩니다.</p>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn" onclick="document.getElementById('saRestorePermModal').style.display='none'">취소</button>
+      <button class="btn btn-primary" onclick="_saPermRestoreConfirm()">복원</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

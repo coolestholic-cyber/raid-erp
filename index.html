@@ -1588,33 +1588,10 @@
     <!-- 관리 섹션: 마스터만 표시 -->
     <div id="navAdminSection" style="display:none;">
       <div class="nav-section" style="margin-top:4px;">관리</div>
-      <div class="nav-accordion" id="navSysAdmin" onclick="_saNavToggle(this)" title="시스템 관리">
+      <a class="nav-item" id="navSysAdmin" data-page="sysadmin" onclick="showSysAdminTab(_saCurrentTab||'permissions',this)" title="시스템 관리">
         <span class="nav-icon"><span class="material-icons">settings</span></span>
         <span class="nav-label">시스템 관리</span>
-        <span class="arr">▶</span>
-      </div>
-      <div class="acc-body" id="accSysAdmin">
-        <a class="nav-item" data-page="sysadmin" data-tab="permissions" onclick="showSysAdminTab('permissions',this)" id="navSAPermissions" title="권한 관리">
-          <span class="nav-icon" style="font-size:16px;">🔐</span>
-          <span class="nav-label">권한 관리</span>
-        </a>
-        <a class="nav-item" data-page="sysadmin" data-tab="users" onclick="showSysAdminTab('users',this)" id="navSAUsers" title="유저 관리">
-          <span class="nav-icon" style="font-size:16px;">👥</span>
-          <span class="nav-label">유저 관리</span>
-        </a>
-        <a class="nav-item" data-page="sysadmin" data-tab="guilds" onclick="showSysAdminTab('guilds',this)" id="navSAGuilds" title="공대 관리">
-          <span class="nav-icon" style="font-size:16px;">🏰</span>
-          <span class="nav-label">공대 관리</span>
-        </a>
-        <a class="nav-item" data-page="sysadmin" data-tab="logs" onclick="showSysAdminTab('logs',this)" id="navSALogs" title="시스템 로그">
-          <span class="nav-icon" style="font-size:16px;">📜</span>
-          <span class="nav-label">시스템 로그</span>
-        </a>
-        <a class="nav-item" data-page="sysadmin" data-tab="notices" onclick="showSysAdminTab('notices',this)" id="navSANotices" title="공지사항">
-          <span class="nav-icon" style="font-size:16px;">📢</span>
-          <span class="nav-label">공지사항</span>
-        </a>
-      </div>
+      </a>
     </div>
 
     <!-- 호환성: 다른 JS에서 참조하는 숨겨진 ID -->
@@ -8623,13 +8600,8 @@ function showSysAdminTab(tab, triggerEl){
   const mt=document.getElementById('mobilePageTitle');if(mt)mt.textContent='시스템 관리';
   // 사이드바 active
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(a=>a.classList.remove('active'));
-  const navId={'permissions':'navSAPermissions','users':'navSAUsers','guilds':'navSAGuilds','logs':'navSALogs','notices':'navSANotices'}[tab];
-  const navEl=navId?document.getElementById(navId):null;
+  const navEl=document.getElementById('navSysAdmin');
   if(navEl) navEl.classList.add('active');
-  // 아코디언 열기
-  const accBody=document.getElementById('accSysAdmin');
-  const accHead=document.getElementById('navSysAdmin');
-  if(accBody&&!accBody.classList.contains('open')){accBody.classList.add('open');if(accHead)accHead.classList.add('open');}
   // 탭 UI 갱신
   document.querySelectorAll('#saTabNav .sa-tab').forEach(b=>{
     b.classList.toggle('active', b.dataset.tab===tab);

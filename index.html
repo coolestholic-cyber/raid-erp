@@ -5597,7 +5597,10 @@ function rdStRenderMembers(){
           <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" onchange="_rdStMembers[${i}].penalty=parseInt(this.value)||0;rdStRecalc()"></div>
       </div></td>
       <td class="c-mem-alloc" data-label="할당량(%)" style="text-align:right;"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" onchange="_rdStMembers[${i}].alloc=parseInt(this.value)||0;rdStRecalc()"></td>
-      <td class="c-mem-note" data-label="비고"><input class="st-ti" type="text" value="${(m.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="_rdStMembers[${i}].note=this.value"></td>
+      <td class="c-mem-note" data-label="비고">
+        <button class="st-note-icon${m.note?' has-note':''}" title="${(m.note||'메모 없음').replace(/"/g,'&quot;')}" onclick="_stEditNote(${i},'rdmem')" aria-label="비고 편집"><span class="material-icons">${m.note?'sticky_note_2':'note_add'}</span></button>
+        <input class="st-ti st-note-input" type="text" value="${(m.note||'').replace(/"/g,'&quot;')}" placeholder="비고 (선택)" onchange="_rdStMembers[${i}].note=this.value">
+      </td>
       <td class="c-mem-dist" style="text-align:right;color:var(--text-sub);font-size:var(--text-sm);" id="rdd${i}" data-label="인당 분배금">-</td>
       <td class="c-mem-del"><button class="st-delbtn" onclick="_rdStMembers.splice(${i},1);rdStRenderMembers()">×</button></td>
     `;
@@ -6695,14 +6698,19 @@ function _blurNumInput(el){ if(!el.value.trim()) el.value = '0'; }
 function _stNumFmt(n){ return (Number(n)||0).toLocaleString('en-US'); }
 // 비고 아이콘 클릭 → prompt 편집 (desktop 전용)
 function _stEditNote(i, which){
-  const arr = which==='rd' ? _rdStItems : stItems;
-  const render = which==='rd' ? rdStRenderItems : stRenderItems;
-  if(!arr[i]) return;
-  const cur = arr[i].note || '';
-  const next = prompt('비고 입력', cur);
+  const targets = {
+    'main':  () => ({arr: stItems,      render: stRenderItems}),
+    'rd':    () => ({arr: _rdStItems,   render: rdStRenderItems}),
+    'mem':   () => ({arr: stMembers,    render: stRenderMembers}),
+    'rdmem': () => ({arr: _rdStMembers, render: rdStRenderMembers}),
+  };
+  const t = (targets[which]||targets['main'])();
+  if(!t.arr[i]) return;
+  const cur = t.arr[i].note || '';
+  const next = prompt('비고 입력 (선택)', cur);
   if(next===null) return;
-  arr[i].note = next.trim();
-  render();
+  t.arr[i].note = next.trim();
+  t.render();
 }
 // Enter 키: 같은 tr 내 다음 입력 → 다음 행 첫 입력 순으로 포커스 이동
 function _stNext(el, e){
@@ -6829,7 +6837,10 @@ function stRenderMembers(){
           <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" onchange="stMembers[${i}].penalty=parseInt(this.value)||0;stRecalc()"></div>
       </div></td>
       <td class="c-mem-alloc" data-label="할당량(%)"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
-      <td class="c-mem-note" data-label="비고"><input class="st-ti" type="text" value="${(m.note||'').replace(/"/g,'&quot;')}" placeholder="비고" onchange="stMembers[${i}].note=this.value"></td>
+      <td class="c-mem-note" data-label="비고">
+        <button class="st-note-icon${m.note?' has-note':''}" title="${(m.note||'메모 없음').replace(/"/g,'&quot;')}" onclick="_stEditNote(${i},'mem')" aria-label="비고 편집"><span class="material-icons">${m.note?'sticky_note_2':'note_add'}</span></button>
+        <input class="st-ti st-note-input" type="text" value="${(m.note||'').replace(/"/g,'&quot;')}" placeholder="비고 (선택)" onchange="stMembers[${i}].note=this.value">
+      </td>
       <td class="c-mem-dist st-ro" id="stDist${i}" data-label="인당 분배금">-</td>
       <td class="c-mem-del"><button class="st-delbtn" onclick="stMembers.splice(${i},1);stRenderMembers()">×</button></td>
     `;

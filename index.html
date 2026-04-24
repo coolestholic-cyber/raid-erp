@@ -929,6 +929,12 @@
   #settlementForm tr.st-row-expense,
   #rdStFormWrap tr.st-row-expense{background:rgba(220,38,38,0.03)}
   .st-expense-badge{display:none;font-size:10px;font-weight:700;color:#dc2626;background:rgba(220,38,38,0.1);padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+  /* 계정 미연결 멤버: 회색 처리 + 뱃지 */
+  tr.st-mem-unlinked{background:var(--surface-alt);opacity:.6}
+  tr.st-mem-unlinked input,
+  tr.st-mem-unlinked select{pointer-events:none;opacity:.7}
+  .st-unlinked-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+  [data-theme="dark"] .st-unlinked-badge{background:rgba(217,119,6,0.15);color:#fbbf24}
   /* select 화살표와 텍스트 겹침 방지 */
   #settlementForm select.st-ti,
   #rdStFormWrap select.st-ti{padding-right:22px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
@@ -1196,35 +1202,36 @@
   [data-theme="dark"] .dv-settle-boss{background:#2d1800;color:#fbbf24}
   [data-theme="dark"] .dv-settle-badge{background:#052e1c;color:#34d399}
 
-  /* ===== 내 정산 (My Settlement) ===== */
+  /* ===== 내 정산 (My Settlement) — 공대 정산 탭 폰트 기준 통일 ===== */
   #page-mysettlement .ms-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
   @media(max-width:600px){#page-mysettlement .ms-summary{grid-template-columns:1fr 1fr}}
   #page-mysettlement .ms-stat{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px}
-  #page-mysettlement .ms-stat-lbl{font-size:var(--text-2xs);color:var(--text-sub);margin-bottom:6px}
+  #page-mysettlement .ms-stat-lbl{font-size:var(--text-sm);color:var(--text-sub);font-weight:500;margin-bottom:6px}
   #page-mysettlement .ms-stat-val{font-size:var(--text-xl);font-weight:700;color:var(--text)}
-  #page-mysettlement .ms-stat-sub{font-size:var(--text-2xs);color:var(--text-sub);margin-top:2px}
+  #page-mysettlement .ms-stat-sub{font-size:var(--text-xs);color:var(--text-sub);margin-top:2px}
   #page-mysettlement .ms-stat.gold .ms-stat-val{color:#BA7517}
   #page-mysettlement .ms-filter-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-  #page-mysettlement .ms-chip{font-size:var(--text-2xs);padding:5px 12px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;transition:all .12s}
-  #page-mysettlement .ms-chip.on{background:#FAEEDA;color:#854F0B;border-color:#BA7517;font-weight:500}
+  #page-mysettlement .ms-filter-row > span{font-size:var(--text-sm)!important;color:var(--text-sub)}
+  #page-mysettlement .ms-chip{font-size:var(--text-sm);padding:6px 14px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text-sub);cursor:pointer;transition:all .12s}
+  #page-mysettlement .ms-chip.on{background:#FAEEDA;color:#854F0B;border-color:#BA7517;font-weight:600}
   #page-mysettlement .ms-chip:hover{background:var(--bg)}
   [data-theme="dark"] #page-mysettlement .ms-chip.on{background:#3d2800;color:#fbbf24;border-color:#78350f}
   #page-mysettlement .ms-table-wrap{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
   #page-mysettlement .ms-table{width:100%;border-collapse:collapse;table-layout:auto}
-  #page-mysettlement .ms-table th{font-size:var(--text-2xs);color:var(--text-sub);font-weight:400;padding:10px 12px;border-bottom:0.5px solid var(--border);background:var(--surface-alt);white-space:nowrap;text-align:left}
-  #page-mysettlement .ms-table td{padding:10px 12px;font-size:var(--text-sm);border-bottom:0.5px solid var(--row-line);vertical-align:middle}
+  #page-mysettlement .ms-table th{font-size:var(--text-sm);color:var(--text-sub);font-weight:600;padding:10px 12px;border-bottom:0.5px solid var(--border);background:var(--surface-alt);white-space:nowrap;text-align:left}
+  #page-mysettlement .ms-table td{padding:10px 12px;font-size:var(--text-base);border-bottom:0.5px solid var(--row-line);vertical-align:middle}
   #page-mysettlement .ms-table tr:last-child td{border-bottom:none}
   #page-mysettlement .ms-table tbody tr:hover{background:var(--surface-alt)}
   #page-mysettlement .ms-gold{color:#BA7517;font-weight:700}
-  #page-mysettlement .ms-boss-badge{display:inline-block;font-size:var(--text-2xs);padding:2px 7px;border-radius:6px;background:#FAEEDA;color:#854F0B;font-weight:500}
-  #page-mysettlement .ms-expand-btn{background:none;border:none;cursor:pointer;color:var(--text-sub);font-size:var(--text-sm);padding:2px 6px;border-radius:4px;transition:background .12s}
+  #page-mysettlement .ms-boss-badge{display:inline-block;font-size:var(--text-xs);padding:3px 8px;border-radius:6px;background:#FAEEDA;color:#854F0B;font-weight:600}
+  #page-mysettlement .ms-expand-btn{background:none;border:none;cursor:pointer;color:var(--text-sub);font-size:var(--text-base);padding:2px 6px;border-radius:4px;transition:background .12s}
   #page-mysettlement .ms-expand-btn:hover{background:var(--bg)}
   #page-mysettlement .ms-detail-row{background:var(--surface-alt)}
-  #page-mysettlement .ms-detail-inner{padding:10px 14px;font-size:var(--text-xs);color:var(--text-sub)}
+  #page-mysettlement .ms-detail-inner{padding:12px 14px;font-size:var(--text-sm);color:var(--text-sub)}
   #page-mysettlement .ms-item-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-  #page-mysettlement .ms-item-chip{background:var(--bg);border:0.5px solid var(--border);border-radius:5px;padding:2px 8px;font-size:var(--text-2xs);color:var(--text)}
-  #page-mysettlement .ms-empty{padding:48px;text-align:center;color:var(--text-sub);font-size:var(--text-sm)}
-  #page-mysettlement .ms-month-label{font-size:var(--text-xs);font-weight:600;color:var(--text-sub);padding:8px 12px;background:var(--surface-alt);border-bottom:0.5px solid var(--row-line)}
+  #page-mysettlement .ms-item-chip{background:var(--bg);border:0.5px solid var(--border);border-radius:5px;padding:3px 9px;font-size:var(--text-xs);color:var(--text)}
+  #page-mysettlement .ms-empty{padding:48px;text-align:center;color:var(--text-sub);font-size:var(--text-base)}
+  #page-mysettlement .ms-month-label{font-size:var(--text-sm);font-weight:600;color:var(--text-sub);padding:10px 12px;background:var(--surface-alt);border-bottom:0.5px solid var(--row-line)}
   /* 대시보드 내 정산 위젯 */
   .dash-ms-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--row-line)}
   .dash-ms-row:last-child{border-bottom:none}
@@ -1874,7 +1881,7 @@
 
       <!-- 필터 칩 (보스별) -->
       <div class="ms-filter-row">
-        <span style="font-size:var(--text-2xs);color:var(--text-sub);">보스</span>
+        <span style="font-size:var(--text-sm);color:var(--text-sub);">보스</span>
         <button class="ms-chip on" data-ms="all" onclick="msFilter('all',this)">전체</button>
         <button class="ms-chip" data-ms="자쿰" onclick="msFilter('자쿰',this)">자쿰</button>
         <button class="ms-chip" data-ms="혼테일" onclick="msFilter('혼테일',this)">혼테일</button>
@@ -3472,7 +3479,7 @@ function renderDashMember(){
     const weekStr = weekStart.toISOString().split('T')[0].slice(0,7);
     const weekItems = allMySettlements.filter(s=>(s.date||'').slice(0,7)===weekStr);
     weekItems.forEach(s=>{
-      const me=(s.participants||[]).find(p=>p.id===uid||p.uid===uid);
+      const me=(s.participants||[]).find(p=>_matchesMe(p, uid, currentProfile?.discordId));
       heroGold+=(me?.perGold||0);
     });
     const latest = allMySettlements[0];
@@ -3488,7 +3495,7 @@ function renderDashMember(){
   const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   let monthGold=0;
   if(uid) allMySettlements.filter(s=>(s.date||'').startsWith(ym)).forEach(s=>{
-    const me=(s.participants||[]).find(p=>p.id===uid||p.uid===uid);
+    const me=(s.participants||[]).find(p=>_matchesMe(p, uid, currentProfile?.discordId));
     monthGold+=(me?.perGold||0);
   });
   const fmtG = g => g>=10000 ? Math.round(g/10000).toLocaleString()+'만' : g.toLocaleString();
@@ -3512,7 +3519,7 @@ function renderDashMember(){
       dvmS.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-sub);font-size:var(--text-sm);">정산 내역이 없습니다</div>';
     } else {
       dvmS.innerHTML=recent.map(s=>{
-        const me=(s.participants||[]).find(p=>p.id===uid||p.uid===uid);
+        const me=(s.participants||[]).find(p=>_matchesMe(p, uid, currentProfile?.discordId));
         const g=me?.perGold||0;
         const cnt=s.count||0;
         return `<div class="dv-settle-row">
@@ -5212,9 +5219,10 @@ function rdRenderMembers(raidId){
             const safeName=(m.name||'').replace(/'/g,"\\'");
             const editBtn=canEditThis?`<button class="btn btn-outline" style="font-size:var(--text-2xs);padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`:'';
             const trashBtn=showTrash?`<button class="st-trash-btn" style="margin-left:auto;" title="강퇴" aria-label="공대원 강퇴" onclick="leaveRaid('${m.id}','${safeName}','${raidId}')">${ST_TRASH_SVG}</button>`:'';
+            const unlinkedBadge = !m.uid ? '<span class="st-unlinked-badge" title="디스코드 계정과 연결되지 않은 멤버입니다. 정산 참여가 불가합니다.">⚠ 미연결</span>' : '';
             return `<tr>
             <td style="color:var(--text-sub)">${i+1}</td>
-            <td><strong>${m.name||'-'}</strong></td>
+            <td><strong>${m.name||'-'}</strong>${unlinkedBadge}</td>
             <td>${m.cls||'-'}</td>
             <td><span class="badge ${rb[m.role]||'badge-green'}">${m.role||'-'}</span></td>
             <td>${m.level||0}</td>
@@ -5594,7 +5602,11 @@ function rdStRenderMembers(){
   tb.innerHTML='';
   _rdStMembers.forEach((m,i)=>{
     const bg=stPartyBg(m.party||'1'),fg=stPartyFg(m.party||'1');
+    const hasName=(m.name||'').trim();
+    const resolvedUid=m.uid||(hasName?allMembers.find(am=>am.name===m.name&&am.uid)?.uid:null)||null;
+    const isUnlinked=hasName && !resolvedUid;
     const tr=document.createElement('tr');
+    if(isUnlinked) tr.classList.add('st-mem-unlinked');
     tr.innerHTML=`
       <td class="c-mem-no" data-label="No." style="text-align:center;color:var(--text-sub);font-size:var(--text-sm);">${i+1}</td>
       <td class="c-mem-party" data-label="파티"><select class="st-ti" style="font-size:var(--text-xs);padding:3px 4px;border-radius:8px;border:none;cursor:pointer;outline:none;background:${bg};color:${fg};" onchange="_rdStMembers[${i}].party=this.value;this.style.background=stPartyBg(this.value);this.style.color=stPartyFg(this.value)">
@@ -5605,7 +5617,10 @@ function rdStRenderMembers(){
         <option value="5"${m.party==='5'?' selected':''}>5파티</option>
         <option value="기타"${m.party==='기타'?' selected':''}>기타</option>
       </select></td>
-      <td class="c-mem-name" data-label="이름"><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="_rdStMembers[${i}].name=this.value"></td>
+      <td class="c-mem-name" data-label="이름">
+        <input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="_rdStMembers[${i}].name=this.value">
+        ${isUnlinked?'<span class="st-unlinked-badge" title="디스코드 계정과 연결되지 않은 캐릭터입니다. 정산에 포함될 수 없습니다.">⚠ 계정 미연결</span>':''}
+      </td>
       <td class="c-mem-penal" data-label="별금/인센"><div class="st-penal-wrap">
         <div class="st-penal-item"><span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
           <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" onchange="_rdStMembers[${i}].incentive=parseInt(this.value)||0;rdStRecalc()"></div>
@@ -5638,19 +5653,33 @@ async function rdSaveSettlementForm(raidId){
   const itemsData=_rdStItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {kind:it.kind||'item',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
 
   const rdNamedMembers=_rdStMembers.filter(m=>(m.name||'').trim());
-  const insen=rdNamedMembers.reduce((s,m)=>s+(m.incentive||0),0);
-  const penalty=rdNamedMembers.reduce((s,m)=>s+(m.penalty||0),0);
+  const rdResolved=rdNamedMembers.map(m=>{
+    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
+    return {...m, resolvedUid};
+  });
+  // uid 누락 참여자 차단
+  const rdMissing=rdResolved.filter(m=>!m.resolvedUid);
+  if(rdMissing.length){
+    const names=rdMissing.map(m=>m.name).join(', ');
+    showToast('계정 미연결 캐릭터 포함됨: '+names,'error');
+    alert(`다음 캐릭터는 계정 연결이 안 돼 있어 정산에 포함할 수 없습니다:\n${names}\n\n해당 캐릭터를 실제 유저 계정과 연결한 뒤 다시 시도해 주세요.`);
+    return;
+  }
+  const rdDiscMap=await _rdResolveDiscordMap(rdResolved.map(m=>m.resolvedUid));
+
+  const insen=rdResolved.reduce((s,m)=>s+(m.incentive||0),0);
+  const penalty=rdResolved.reduce((s,m)=>s+(m.penalty||0),0);
   const pool=tNet-insen+penalty;
-  const distrib=rdNamedMembers.filter(m=>!(m.penalty>0));
+  const distrib=rdResolved.filter(m=>!(m.penalty>0));
   const tAlloc=distrib.reduce((s,m)=>s+(m.alloc||100),0);
   const perUnit=tAlloc>0?pool/tAlloc:0;
 
-  const participants=rdNamedMembers.map(m=>{
+  const participants=rdResolved.map(m=>{
     const hp=m.penalty>0,hi=m.incentive>0;
     const base=perUnit*(m.alloc||100);
     const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
-    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
-    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,note:m.note||'',perGold:Math.round(dist),isLinked:m.isLinked||false};
+    const discordId=rdDiscMap[m.resolvedUid]||null;
+    return {id:m.id,uid:m.resolvedUid,memberId:m.memberId||null,discordId,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,note:m.note||'',perGold:Math.round(dist),isLinked:true};
   });
 
   const btn=document.getElementById('rdStSaveBtn');
@@ -6834,7 +6863,11 @@ function stRenderMembers(){
   tb.innerHTML='';
   stMembers.forEach((m,i)=>{
     const bg=stPartyBg(m.party||'1'),fg=stPartyFg(m.party||'1');
+    const hasName=(m.name||'').trim();
+    const resolvedUid=m.uid||(hasName?allMembers.find(am=>am.name===m.name&&am.uid)?.uid:null)||null;
+    const isUnlinked=hasName && !resolvedUid;
     const tr=document.createElement('tr');
+    if(isUnlinked) tr.classList.add('st-mem-unlinked');
     tr.innerHTML=`
       <td class="c-mem-no" data-label="No." style="text-align:center;color:var(--text-sub);font-size:var(--text-sm);">${i+1}</td>
       <td class="c-mem-party" data-label="파티"><select class="st-ti st-party-sel" style="background:${bg};color:${fg};" onchange="stMembers[${i}].party=this.value;this.style.background=stPartyBg(this.value);this.style.color=stPartyFg(this.value)">
@@ -6845,7 +6878,10 @@ function stRenderMembers(){
         <option value="5"${m.party==='5'?' selected':''}>5파티</option>
         <option value="기타"${m.party==='기타'?' selected':''}>기타</option>
       </select></td>
-      <td class="c-mem-name" data-label="이름"><input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="stMembers[${i}].name=this.value"></td>
+      <td class="c-mem-name" data-label="이름">
+        <input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="stMembers[${i}].name=this.value">
+        ${isUnlinked?'<span class="st-unlinked-badge" title="디스코드 계정과 연결되지 않은 캐릭터입니다. 정산에 포함될 수 없습니다.">⚠ 계정 미연결</span>':''}
+      </td>
       <td class="c-mem-penal" data-label="별금/인센"><div class="st-penal-wrap">
         <div class="st-penal-item"><span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
           <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" onchange="stMembers[${i}].incentive=parseInt(this.value)||0;stRecalc()"></div>
@@ -6962,19 +6998,34 @@ async function saveSettlement(){
   const itemsData=stItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {kind:it.kind||'item',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
 
   const namedMembers=stMembers.filter(m=>(m.name||'').trim());
-  const insen=namedMembers.reduce((s,m)=>s+(m.incentive||0),0);
-  const penalty=namedMembers.reduce((s,m)=>s+(m.penalty||0),0);
+  // uid 해결: m.uid 우선, 없으면 allMembers name 역조회
+  const resolvedMembers=namedMembers.map(m=>{
+    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
+    return {...m, resolvedUid};
+  });
+  // uid 누락 참여자 차단
+  const missing=resolvedMembers.filter(m=>!m.resolvedUid);
+  if(missing.length){
+    const names=missing.map(m=>m.name).join(', ');
+    alert(`다음 캐릭터는 계정 연결이 안 돼 있어 정산에 포함할 수 없습니다:\n${names}\n\n해당 캐릭터를 실제 유저 계정과 연결한 뒤 다시 시도해 주세요.`);
+    return;
+  }
+  // uid → discordId 맵 (users 컬렉션 배치 조회)
+  const discMap=await _rdResolveDiscordMap(resolvedMembers.map(m=>m.resolvedUid));
+
+  const insen=resolvedMembers.reduce((s,m)=>s+(m.incentive||0),0);
+  const penalty=resolvedMembers.reduce((s,m)=>s+(m.penalty||0),0);
   const pool=tNet-insen+penalty;
-  const distrib=namedMembers.filter(m=>!(m.penalty>0));
+  const distrib=resolvedMembers.filter(m=>!(m.penalty>0));
   const tAlloc=distrib.reduce((s,m)=>s+(m.alloc||100),0);
   const perUnit=tAlloc>0?pool/tAlloc:0;
 
-  const participants=namedMembers.map(m=>{
+  const participants=resolvedMembers.map(m=>{
     const hp=m.penalty>0,hi=m.incentive>0;
     const base=perUnit*(m.alloc||100);
     const dist=hp&&!hi?0:hp&&hi?m.incentive:!hp&&hi?base+m.incentive:base;
-    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
-    return {id:m.id,uid:resolvedUid,memberId:m.memberId||null,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,note:m.note||'',perGold:Math.round(dist),isLinked:m.isLinked||false};
+    const discordId=discMap[m.resolvedUid]||null;
+    return {id:m.id,uid:m.resolvedUid,memberId:m.memberId||null,discordId,name:m.name,party:m.party||'1',incentive:m.incentive||0,penalty:m.penalty||0,alloc:m.alloc||100,note:m.note||'',perGold:Math.round(dist),isLinked:true};
   });
 
   const payload={
@@ -7086,14 +7137,26 @@ function deleteSettlement(id){ openDeleteSettleModal(id); }
 let allMySettlements = [];
 let msFilterBoss = 'all';
 
+// 내 정산 매칭: 1차 uid, 2차 discordId fallback (legacy uid null 문서 호환)
+// name 기반 매칭은 동명이인 위험으로 의도적 제외
+function _matchesMe(p, uid, discordId){
+  if(!p) return false;
+  if(uid && (p.uid===uid || p.id===uid)) return true;
+  if(discordId && p.discordId===discordId) return true;
+  return false;
+}
+async function getMyRecentSettlements(uid, discordId){
+  if(!uid && !discordId) return [];
+  const snap = await db.collection('settlements').orderBy('date','desc').get();
+  return snap.docs
+    .map(d=>({id:d.id,...d.data()}))
+    .filter(s=>(s.participants||[]).some(p => _matchesMe(p, uid, discordId)));
+}
 async function loadMySettlements(){
   if(!currentUser) return;
   const uid = currentUser.uid;
-  const snap = await db.collection('settlements').orderBy('date','desc').get();
-  // participants에 내 uid가 있는 정산만 필터
-  allMySettlements = snap.docs
-    .map(d=>({id:d.id,...d.data()}))
-    .filter(s=>(s.participants||[]).some(p => p.id===uid || p.uid===uid));
+  const discordId = currentProfile?.discordId || null;
+  allMySettlements = await getMyRecentSettlements(uid, discordId);
   renderMySettlements();
   renderDashMySettlement();
 }
@@ -7116,7 +7179,7 @@ function renderMySettlements(){
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   let totalGold=0, monthGold=0, monthCount=0;
   allMySettlements.forEach(s=>{
-    const me = (s.participants||[]).find(p=>p.id===uid||p.uid===uid);
+    const me = (s.participants||[]).find(p=>_matchesMe(p, uid, currentProfile?.discordId));
     const gold = me?.perGold || 0;
     totalGold += gold;
     if((s.date||'').startsWith(thisMonth)){ monthGold+=gold; monthCount++; }
@@ -7153,7 +7216,7 @@ function renderMySettlements(){
   tbody.innerHTML = Object.entries(groups).map(([ym, rows])=>{
     const monthLabel = `<tr><td colspan="7" class="ms-month-label">${ym.replace('-','년 ')}월</td></tr>`;
     const dataRows = rows.map((s,idx)=>{
-      const me = (s.participants||[]).find(p=>p.id===uid||p.uid===uid);
+      const me = (s.participants||[]).find(p=>_matchesMe(p, uid, currentProfile?.discordId));
       const myGold = me?.perGold || 0;
       const myAlloc = me?.alloc ?? '-';
       const totalM = Math.round((s.totalGold||0)/10000);

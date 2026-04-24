@@ -933,8 +933,11 @@
   tr.st-mem-unlinked{background:var(--surface-alt);opacity:.6}
   tr.st-mem-unlinked input,
   tr.st-mem-unlinked select{pointer-events:none;opacity:.7}
-  .st-unlinked-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+  .st-unlinked-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;white-space:nowrap;transition:all .15s}
+  .st-unlinked-badge.clickable{cursor:pointer}
+  .st-unlinked-badge.clickable:hover{background:#fde68a;color:#92400e;transform:translateY(-1px);box-shadow:0 2px 4px rgba(217,119,6,0.2)}
   [data-theme="dark"] .st-unlinked-badge{background:rgba(217,119,6,0.15);color:#fbbf24}
+  [data-theme="dark"] .st-unlinked-badge.clickable:hover{background:rgba(217,119,6,0.3);color:#fde68a}
   /* select 화살표와 텍스트 겹침 방지 */
   #settlementForm select.st-ti,
   #rdStFormWrap select.st-ti{padding-right:22px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
@@ -2757,8 +2760,15 @@
       공대원 등록
     </h2>
 
-    <!-- 직업 선택 (탭 + 콤보) -->
+    <!-- 디스코드 ID (필수) - 유저 연동용 -->
     <div class="form-group">
+      <label>디스코드 ID *</label>
+      <input type="text" id="fDiscordId" placeholder="예: 355991127377313792" autocomplete="off">
+      <div style="font-size:var(--text-xs);color:var(--text-sub);margin-top:4px;">유저가 나중에 디스코드로 로그인하면 자동으로 연결됩니다.</div>
+    </div>
+
+    <!-- 직업 선택 (탭 + 콤보) -->
+    <div class="form-group" style="margin-top:14px;">
       <label>직업 선택 *</label>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;">
         <button type="button" id="tab-전사"   class="class-tab" onclick="selectClassTab('전사')">⚔️ 전사</button>
@@ -2993,7 +3003,9 @@ function updateLoginUI(){
   document.getElementById('loginArea').style.display=ok?'none':'';
   document.getElementById('userArea').style.display=ok?'':'none';
   const ba=document.getElementById('btnAddMember'),bg=document.getElementById('btnCreateGuild');
-  if(ba)ba.style.display=canEditRaid()?'flex':'none';
+  // 공대원 등록: 공대장(leader) + 사이트마스터만. 부공대장(vice) 제외
+  const canAddMember = ['master','leader'].includes(currentProfile?.role);
+  if(ba)ba.style.display=canAddMember?'flex':'none';
   // 안내 배너: 편집 권한 없는 사용자에게만 표시
   const gb=document.getElementById('memberGuideBanner');
   if(gb)gb.style.display=(currentProfile&&!canEditRaid())?'':'none';
@@ -3155,6 +3167,8 @@ auth.onAuthStateChanged(async(user)=>{
   await loadRaidOrder();
   updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
   renderMyRaidsNav();
+  // 내 디스코드 ID로 등록된 미연결 공대원 자동 연결
+  _autoLinkMyMembers().then(n=>{ if(n>0) showToast(`${n}개 공대에 자동 연결되었습니다.`, 'success'); });
   await loadBossTimers();
   await loadCustomBosses();
   renderBossList();
@@ -3845,13 +3859,15 @@ function openMemberModal(id){
   titleEl.innerHTML=id?'<span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:var(--text-lg);">✏️</span> 공대원 수정':'<span style="width:36px;height:36px;background:var(--accent-light);color:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:var(--text-lg);">👥</span> 공대원 등록';
   if(id){
     const m=allMembers.find(x=>x.id===id);
-    if(m){document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';
+    if(m){
+      document.getElementById('fDiscordId').value=m.discordId||'';
+      document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';
       renderClassGrid(m.cls);selectRole(m.role||'딜러');
       // 상태 버튼 복원
       document.querySelectorAll('.status-btn').forEach(b=>{if(b.textContent===m.status){selectStatus(m.status,b);}});
     }
   }else{
-    ['fName','fLevel','fNote'].forEach(x=>document.getElementById(x).value='');
+    ['fDiscordId','fName','fLevel','fNote'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('fClass').value='';document.getElementById('fRole').value='딜러';document.getElementById('fStatus').value='참여';
     renderClassGrid('');selectRole('딜러');
   }
@@ -3861,9 +3877,48 @@ function closeMemberModal(){document.getElementById('memberModal').classList.rem
 function editMember(id){openMemberModal(id);}
 async function saveMember(){
   const id=document.getElementById('fEditId').value;
-  const d={name:document.getElementById('fName').value.trim(),cls:document.getElementById('fClass').value,role:document.getElementById('fRole').value,level:parseInt(document.getElementById('fLevel').value)||0,status:document.getElementById('fStatus').value,note:document.getElementById('fNote').value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  if(!d.name||!d.cls){alert('캐릭터명과 직업을 입력하세요.');return;}
-  if(id){await db.collection('members').doc(id).update(d);}else{d.rate=100;d.ownerUid=currentUser?currentUser.uid:'anon';d.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('members').add(d);}
+  const discordId=document.getElementById('fDiscordId').value.trim();
+  const name=document.getElementById('fName').value.trim();
+  const cls=document.getElementById('fClass').value;
+  if(!discordId){alert('디스코드 ID를 입력하세요. (유저 연동에 필수)');return;}
+  if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
+  // 편집 모드면 기존 문서의 raidId 재사용, 신규면 현재 공대 컨텍스트
+  const existing = id ? allMembers.find(x=>x.id===id) : null;
+  const raidId = existing?.raidId || currentRaidId || null;
+  // 같은 공대 내 중복 검증 (편집 모드는 본인 제외)
+  if(raidId){
+    const sameDid = allMembers.find(m=>m.raidId===raidId && m.id!==id && (m.discordId||'')===discordId);
+    if(sameDid){
+      alert(`이 디스코드 ID는 이미 "${sameDid.name}"으로 등록되어 있습니다.`);
+      return;
+    }
+    const sameName = allMembers.find(m=>m.raidId===raidId && m.id!==id && (m.name||'')===name);
+    if(sameName){
+      alert(`이 공대에 이미 "${name}" 캐릭터가 등록되어 있습니다.`);
+      return;
+    }
+  }
+  const d={
+    discordId,
+    name, cls,
+    role:document.getElementById('fRole').value,
+    level:parseInt(document.getElementById('fLevel').value)||0,
+    status:document.getElementById('fStatus').value,
+    note:document.getElementById('fNote').value.trim(),
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if(id){
+    await db.collection('members').doc(id).update(d);
+  }else{
+    d.raidId = raidId;
+    d.rate = 100;
+    d.uid = null;                // 유저 연동 전까지 null
+    d.ownerUid = currentUser?.uid || 'anon';
+    d.isManualEntry = true;      // 공대장 수동 입력 레코드
+    d.createdBy = currentUser?.uid || null;
+    d.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    await db.collection('members').add(d);
+  }
   closeMemberModal();
 }
 async function deleteMember(id,name){if(confirm(`"${name}" 삭제?`))await db.collection('members').doc(id).delete();}
@@ -5084,6 +5139,66 @@ async function executeLeaveRaid(){
   renderMyRaidsNav();
   showPage('dashboard', document.querySelector('.nav-item[data-page="dashboard"]'));
 }
+// 미연결 멤버 클릭 → 본인 계정과 연동 (discordId 매칭 필수)
+async function tryLinkMember(memberId){
+  if(!currentUser || !currentProfile){
+    alert('로그인 후 이용해주세요.');
+    return;
+  }
+  const myDid = currentProfile.discordId;
+  if(!myDid){
+    alert('본인 디스코드 ID 정보가 없어 연결할 수 없습니다.');
+    return;
+  }
+  const m = allMembers.find(x=>x.id===memberId);
+  if(!m){ showToast('멤버 정보를 찾을 수 없습니다.','error'); return; }
+  if(m.uid){ showToast('이미 연결된 멤버입니다.','error'); return; }
+  if(!m.discordId){
+    alert('이 캐릭터는 디스코드 ID가 등록돼 있지 않아 연결할 수 없습니다.\n공대장에게 디스코드 ID 추가를 요청하세요.');
+    return;
+  }
+  if(m.discordId !== myDid){
+    alert('이 캐릭터는 본인 계정이 아닙니다.\n공대장에게 디스코드 ID 확인을 요청하세요.');
+    return;
+  }
+  if(!confirm(`"${m.name}"을(를) 본인 계정과 연결하시겠습니까?`)) return;
+  try{
+    await db.collection('members').doc(memberId).update({
+      uid: currentUser.uid,
+      linkedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast(`"${m.name}" 연결 완료`,'success');
+    if(m.raidId) rdRenderMembers(m.raidId);
+  }catch(e){
+    console.error('[tryLinkMember]',e);
+    showToast('연결 실패: '+(e?.message||''),'error');
+  }
+}
+
+// 로그인 시 자동 연동 — discordId 일치하고 uid null 인 멤버를 일괄 연결
+async function _autoLinkMyMembers(){
+  if(!currentUser || !currentProfile?.discordId) return 0;
+  const myDid = currentProfile.discordId;
+  try{
+    const snap = await db.collection('members')
+      .where('discordId','==', myDid)
+      .get();
+    const targets = snap.docs.filter(d => !d.data().uid);
+    if(!targets.length) return 0;
+    const batch = db.batch();
+    targets.forEach(d => batch.update(d.ref, {
+      uid: currentUser.uid,
+      linkedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }));
+    await batch.commit();
+    console.log('[autoLink]', targets.length, '개 멤버 자동 연결');
+    return targets.length;
+  }catch(e){
+    console.error('[_autoLinkMyMembers]',e);
+    return 0;
+  }
+}
+
 async function leaveRaid(memberId, memberName, raidId){
   if(!confirm(`"${memberName}" 강퇴하시겠습니까?`)) return;
   await db.collection('members').doc(memberId).delete();
@@ -5219,7 +5334,7 @@ function rdRenderMembers(raidId){
             const safeName=(m.name||'').replace(/'/g,"\\'");
             const editBtn=canEditThis?`<button class="btn btn-outline" style="font-size:var(--text-2xs);padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`:'';
             const trashBtn=showTrash?`<button class="st-trash-btn" style="margin-left:auto;" title="강퇴" aria-label="공대원 강퇴" onclick="leaveRaid('${m.id}','${safeName}','${raidId}')">${ST_TRASH_SVG}</button>`:'';
-            const unlinkedBadge = !m.uid ? '<span class="st-unlinked-badge" title="디스코드 계정과 연결되지 않은 멤버입니다. 정산 참여가 불가합니다.">⚠ 미연결</span>' : '';
+            const unlinkedBadge = !m.uid ? `<span class="st-unlinked-badge clickable" onclick="tryLinkMember('${m.id}')" title="클릭하여 본인 계정과 연결">⚠ 미연결</span>` : '';
             return `<tr>
             <td style="color:var(--text-sub)">${i+1}</td>
             <td><strong>${m.name||'-'}</strong>${unlinkedBadge}</td>

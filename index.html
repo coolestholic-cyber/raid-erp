@@ -3198,12 +3198,28 @@ function isSuperAdmin(discordId, email){
   return SUPER_ADMINS.discordIds.includes(discordId) || SUPER_ADMINS.googleEmails.includes(email);
 }
 
+// ============================================
+// LEGACY COMPATIBILITY (REMOVE AFTER D+14)
+// ============================================
+const LEGACY_DUAL_WRITE = true;  // members + characters 동시 쓰기
+const LEGACY_FALLBACK   = true;  // collectionGroup 실패 시 members 폴백
+// D+3:  두 플래그 모두 false로 변경
+// D+14: 이 블록 통째로 제거
+// ============================================
+
 // =============================================
 // State
 // =============================================
 let currentUser = null, currentProfile = null;
 let allMembers = [], allUsers = [], allPurchases = [], allGuildPromos = [];
 let allRaidApplications = [];
+let allCharacters = [];  // Step 3에서 allMembers 대체 예정 (지금은 미사용)
+
+// 권한 캐시 (Step 2 신규)
+const _raidRoleCache = {};       // { "uid_raidId": { role, ts } }
+let   _globalRoleCache = null;   // { uid, role, ts }
+const ROLE_CACHE_TTL = 5 * 60 * 1000;  // 5분
+
 const ROLES = {
   master:{label:'사이트마스터',badge:'badge-red',level:4},
   leader:{label:'공대장',badge:'badge-purple',level:3},
@@ -3245,6 +3261,106 @@ function canApplyForLeader(){
 }
 function canEditRaid(){const r=currentProfile?.role;return r==='master'||r==='leader'||r==='vice';}
 function canDestroyRaid(){const r=currentProfile?.role;return r==='master'||r==='leader';}
+
+// =============================================
+// Step 2: 권한 캐시 시스템 (REMOVE AFTER D+14)
+// =============================================
+
+// 작업 3: 캐시 로딩
+async function loadGlobalRoleForCurrentUser(){
+  if(!currentUser) return;
+  const doc = await db.collection('users').doc(currentUser.uid).get();
+  const role = doc.exists ? (doc.data().role || 'user') : 'user';
+  _globalRoleCache = { uid: currentUser.uid, role, ts: Date.now() };
+}
+
+async function loadRaidRoleForCurrentUser(raidId){
+  if(!currentUser) return;
+  const key = `${currentUser.uid}_${raidId}`;
+  const doc = await db.collection('raids').doc(raidId)
+                      .collection('members').doc(currentUser.uid).get();
+  const role = doc.exists ? doc.data().roleInRaid : null;
+  _raidRoleCache[key] = { role, ts: Date.now() };
+}
+
+// 작업 4: 캐시 무효화
+function invalidateRoleCache(userId, raidId){
+  if(raidId){
+    delete _raidRoleCache[`${userId}_${raidId}`];
+  } else {
+    Object.keys(_raidRoleCache)
+      .filter(k => k.startsWith(userId + '_'))
+      .forEach(k => delete _raidRoleCache[k]);
+  }
+}
+
+function invalidateGlobalCache(){
+  _globalRoleCache = null;
+}
+
+// 작업 5: LEGACY 병행 체크용 헬퍼 (D+14에 한 곳만 수정하면 되도록 분리)
+function isSiteMaster(role){
+  return role === 'master' || role === 'site_master';
+}
+
+// 작업 6: 캐시 기반 권한 판단 (신규 ById 계열 — 기존 canEditRaid 건드리지 않음)
+function canApproveLinkInRaidById(userId, raidId){
+  // 글로벌 역할: 캐시 우선, 미로드 시 currentProfile 동기 폴백
+  const globalRole = _globalRoleCache?.role ?? currentProfile?.role;
+  if(isSiteMaster(globalRole)) return true;
+
+  // 공대 내 역할: 캐시 확인
+  const key = `${userId}_${raidId}`;
+  const entry = _raidRoleCache[key];
+  if(!entry) return false;
+
+  // TTL 만료여도 스테일 캐시 허용 (갱신은 loadRaidRoleForCurrentUser 호출 시점)
+  if(Date.now() - entry.ts > ROLE_CACHE_TTL){
+    console.warn('[canApproveLinkInRaidById] stale cache:', key);
+  }
+  return ['guild_master', 'vice_guild_master'].includes(entry.role);
+}
+
+function canEditRaidById(userId, raidId){
+  return canApproveLinkInRaidById(userId, raidId);  // 동일 권한
+}
+
+// 작업 7: characters 구독 (collectionGroup + LEGACY 폴백)
+// 호출은 Step 3에서 — 지금은 정의만
+function subscribeCharacters(){
+  db.collectionGroup('characters').orderBy('name').onSnapshot(
+    snap => {
+      allCharacters = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      _onCharactersUpdated();
+    },
+    err => {
+      if(err.code === 'failed-precondition'){
+        console.warn('[subscribeCharacters] collectionGroup 인덱스 미생성, members 폴백');
+        if(LEGACY_FALLBACK) _subscribeCharactersFallback();
+      } else {
+        console.error('[subscribeCharacters] error:', err);
+      }
+    }
+  );
+}
+
+function _subscribeCharactersFallback(){
+  db.collection('members').orderBy('name').onSnapshot(snap => {
+    allCharacters = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _onCharactersUpdated();
+  });
+}
+
+function _onCharactersUpdated(){
+  // Step 3에서 allMembers → allCharacters 전환 후 실제 렌더 담당
+  // subscribeMembers() 콜백과 동일 패턴
+  renderMemberTable();
+  renderGoldTable();
+  renderStats();
+  renderDashboard();
+  renderMyRaidsNav();
+  _refreshRoleBadge();
+}
 
 // =============================================
 // Auth

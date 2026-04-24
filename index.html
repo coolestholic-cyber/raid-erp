@@ -6034,9 +6034,32 @@ async function confirmApply(){
   const memo=document.getElementById('applyMemo').value.trim();
   if(!currentUser){discordLogin();return;}
   const mc=window._myCharsData&&window._myCharsData[0];
-  const existing=await db.collection('raidApplications').where('raidId','==',raidId).where('uid','==',currentUser.uid).get();
-  if(!existing.empty){alert('이미 신청한 공대입니다.');closeApplyModal();return;}
-  await db.collection('raidApplications').add({raidId,uid:currentUser.uid,name:mc.name,cls:mc.cls,role:mc.role,level:mc.level,skillAtk:mc.skillAtk,memo,status:'대기',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  if(!mc||!mc.name){alert('먼저 내 캐릭터 정보를 등록해주세요.');return;}
+  // 1. 공대 정원 초과 체크
+  const raid=allRaids.find(r=>r.id===raidId);
+  const maxCount=(raid&&raid.maxCount)||6;
+  const memSnap=await db.collection('members').where('raidId','==',raidId).where('status','==','참여').get();
+  if(memSnap.size>=maxCount){alert(`공대 정원(${maxCount}/${maxCount})이 가득 찼습니다.`);closeApplyModal();return;}
+  // 2. 완전 동일 pending (같은 uid + 같은 name + 대기) 차단
+  const dupSnap=await db.collection('raidApplications')
+    .where('raidId','==',raidId).where('uid','==',currentUser.uid).get();
+  const existingSameName=dupSnap.docs.find(d=>{
+    const v=d.data();
+    return v.status==='대기' && (v.name||'')===(mc.name||'');
+  });
+  if(existingSameName){alert('이미 같은 캐릭터로 신청 중입니다.');closeApplyModal();return;}
+  // 3. discordId 포함해 저장 (현재 사용자 프로필에서 조회)
+  let discordId=null;
+  try{
+    const uDoc=await db.collection('users').doc(currentUser.uid).get();
+    if(uDoc.exists) discordId=uDoc.data().discordId||null;
+  }catch(_){}
+  await db.collection('raidApplications').add({
+    raidId, uid:currentUser.uid, discordId,
+    name:mc.name, cls:mc.cls, role:mc.role, level:mc.level, skillAtk:mc.skillAtk,
+    memo, status:'대기',
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
   closeApplyModal();
   alert('가입 신청이 완료됐습니다!');
   renderRaidList();
@@ -6353,13 +6376,55 @@ async function openApplicantsModal(raidId, raidName){
   await renderApplicants(raidId);
 }
 
+// 중복 신청 탐지: uid 배열 → {uid: discordId} 맵 (병렬 조회)
+async function _rdResolveDiscordMap(uids){
+  const unique=[...new Set((uids||[]).filter(Boolean))];
+  if(!unique.length) return {};
+  const docs=await Promise.all(unique.map(uid=>db.collection('users').doc(uid).get().catch(()=>null)));
+  const map={};
+  docs.forEach(d=>{ if(d&&d.exists) map[d.id]=d.data().discordId||null; });
+  return map;
+}
+// pending 신청 각각에 {type, linkedCharacterName?, linkedAppIds?, linkedNames?} 부여
+function _rdDupeCheckApps(apps, members, discMap){
+  const result={};
+  const pending=apps.filter(a=>a.status==='대기');
+  const getDisc=doc=>doc.discordId||discMap[doc.uid]||null;
+  pending.forEach(a=>{
+    const myDisc=getDisc(a);
+    if(!myDisc){ result[a.id]={type:'NONE'}; return; }
+    // MEMBER 우선: 같은 공대 members에 같은 discordId 존재?
+    const memberHit=members.find(m=>m.status==='참여' && getDisc(m)===myDisc);
+    if(memberHit){
+      result[a.id]={type:'MEMBER', linkedCharacterName: memberHit.name||'-'};
+      return;
+    }
+    // APPLICANT: 같은 공대의 다른 pending 중 같은 discordId
+    const others=pending.filter(x=>x.id!==a.id && getDisc(x)===myDisc);
+    if(others.length){
+      result[a.id]={
+        type:'APPLICANT',
+        linkedAppIds: others.map(x=>x.id),
+        linkedNames: others.map(x=>x.name||'-')
+      };
+      return;
+    }
+    result[a.id]={type:'NONE'};
+  });
+  return result;
+}
+
 async function renderApplicants(raidId){
   const el=document.getElementById('raidApplicantsList');
   if(!el)return;
-  let apps;
+  let apps, membersOfRaid;
   try{
-    const snap=await db.collection('raidApplications').where('raidId','==',raidId).get();
-    apps=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    const [appSnap, memSnap]=await Promise.all([
+      db.collection('raidApplications').where('raidId','==',raidId).get(),
+      db.collection('members').where('raidId','==',raidId).get(),
+    ]);
+    apps=appSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    membersOfRaid=memSnap.docs.map(d=>({id:d.id,...d.data()}));
   }catch(e){
     console.error('[renderApplicants]',e);
     el.innerHTML='<div style="padding:30px;text-align:center;color:#dc2626;">신청 목록을 불러올 수 없습니다.</div>';
@@ -6369,17 +6434,34 @@ async function renderApplicants(raidId){
     el.innerHTML='<div class="empty-state" style="padding:30px;"><div class="icon">📭</div><h3>신청자가 없습니다</h3></div>';
     return;
   }
+  // discordId 매핑 (신청자·기존 공대원 모두 대상)
+  const uids=[...apps.map(a=>a.uid), ...membersOfRaid.map(m=>m.uid)];
+  const discMap=await _rdResolveDiscordMap(uids);
+  const dupeMap=_rdDupeCheckApps(apps, membersOfRaid, discMap);
   const statusStyle={대기:{bg:'#fffbeb',color:'#d97706'},승인:{bg:'#ecfdf5',color:'#059669'},거절:{bg:'#fef2f2',color:'#dc2626'}};
   el.innerHTML=`
     <div style="display:flex;flex-direction:column;gap:10px;">
       ${apps.map(a=>{
         const ss=statusStyle[a.status]||statusStyle['대기'];
-        return `<div style="border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;">
+        const dupe=dupeMap[a.id]||{type:'NONE'};
+        let cardStyle='border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;';
+        let dupeBadge='', dupeLine='';
+        if(dupe.type==='MEMBER'){
+          cardStyle='border:1.5px solid var(--border);border-left:3px solid #EF9F27;border-radius:10px;padding:14px 16px;background:#FAEEDA33;';
+          dupeBadge=`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:var(--text-2xs);font-weight:700;background:#FCE8C6;color:#B45309;margin-left:6px;">⚠️ 이미 공대원</span>`;
+          dupeLine=`<div style="font-size:var(--text-2xs);color:#B45309;margin-top:4px;">기존 공대원: <strong>${dupe.linkedCharacterName}</strong></div>`;
+        } else if(dupe.type==='APPLICANT'){
+          cardStyle='border:1.5px solid var(--border);border-left:3px solid #7F77DD;border-radius:10px;padding:14px 16px;background:#EEEDFE55;';
+          dupeBadge=`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:var(--text-2xs);font-weight:700;background:#E0DEFB;color:#5A52C7;margin-left:6px;">🔁 중복 신청</span>`;
+          dupeLine=`<div style="font-size:var(--text-2xs);color:#5A52C7;margin-top:4px;">같은 디코 신청: <strong>${(dupe.linkedNames||[]).join(', ')}</strong></div>`;
+        }
+        return `<div style="${cardStyle}">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
             <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
               <div>
-                <div style="font-weight:700;font-size:var(--text-md);">${a.name||''}</div>
+                <div style="font-weight:700;font-size:var(--text-md);display:flex;align-items:center;flex-wrap:wrap;">${a.name||''}${dupeBadge}</div>
                 <div style="font-size:var(--text-xs);color:var(--text-sub);margin-top:2px;">${a.cls||''} · Lv.${a.level||0} · 스킬공격력 ${(a.skillAtk||0).toLocaleString()}</div>
+                ${dupeLine}
               </div>
               <span class="badge ${a.role==='서폿'?'badge-blue':'badge-green'}" style="font-size:var(--text-2xs);">${a.role||''}</span>
             </div>
@@ -6416,8 +6498,17 @@ async function approveApp(appId, raidId){
     .where('raidId','==',raidId)
     .get();
   if(existingSnap.empty){
+    // discordId 보강: 신청 문서에 이미 있으면 재사용, 없으면 users에서 조회
+    let discordId=appData.discordId||null;
+    if(!discordId && appData.uid){
+      try{
+        const uDoc=await db.collection('users').doc(appData.uid).get();
+        if(uDoc.exists) discordId=uDoc.data().discordId||null;
+      }catch(_){}
+    }
     await db.collection('members').add({
       uid: appData.uid,
+      discordId,
       raidId: raidId,
       name: appData.name,
       cls: appData.cls,

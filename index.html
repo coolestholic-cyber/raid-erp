@@ -2983,17 +2983,6 @@
       공대원 등록
     </h2>
 
-    <!-- 디스코드 ID (필수) - 유저 연동용, Snowflake User ID 표준 -->
-    <div class="form-group">
-      <label>디스코드 ID (User ID) *</label>
-      <input type="text" id="fDiscordId" placeholder="예: 355991127377313792 (17~19자리 숫자)" autocomplete="off" inputmode="numeric" pattern="\d{15,20}">
-      <div style="font-size:var(--text-xs);color:var(--text-sub);margin-top:4px;line-height:1.5;">
-        💡 <strong>숫자 형식 User ID만 허용</strong> (username/닉네임 불가)<br>
-        디스코드 앱: <strong>설정 → 고급 → 개발자 모드 ON</strong> → 유저 프로필 우클릭 → <strong>ID 복사</strong><br>
-        유저가 디스코드로 로그인하면 자동으로 연결됩니다.
-      </div>
-    </div>
-
     <!-- 직업 선택 (탭 + 콤보) -->
     <div class="form-group" style="margin-top:14px;">
       <label>직업 선택 *</label>
@@ -4127,14 +4116,13 @@ function openMemberModal(id){
   if(id){
     const m=allMembers.find(x=>x.id===id);
     if(m){
-      document.getElementById('fDiscordId').value=m.discordId||'';
       document.getElementById('fName').value=m.name||'';document.getElementById('fClass').value=m.cls||'';document.getElementById('fRole').value=m.role||'딜러';document.getElementById('fLevel').value=m.level||'';document.getElementById('fStatus').value=m.status||'참여';document.getElementById('fNote').value=m.note||'';
       renderClassGrid(m.cls);selectRole(m.role||'딜러');
       // 상태 버튼 복원
       document.querySelectorAll('.status-btn').forEach(b=>{if(b.textContent===m.status){selectStatus(m.status,b);}});
     }
   }else{
-    ['fDiscordId','fName','fLevel','fNote'].forEach(x=>document.getElementById(x).value='');
+    ['fName','fLevel','fNote'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('fClass').value='';document.getElementById('fRole').value='딜러';document.getElementById('fStatus').value='참여';
     renderClassGrid('');selectRole('딜러');
   }
@@ -4144,30 +4132,16 @@ function closeMemberModal(){document.getElementById('memberModal').classList.rem
 function editMember(id){openMemberModal(id);}
 async function saveMember(){
   const id=document.getElementById('fEditId').value;
-  const discordId=document.getElementById('fDiscordId').value.trim();
   const name=document.getElementById('fName').value.trim();
   const cls=document.getElementById('fClass').value;
-  if(!discordId){alert('디스코드 ID를 입력하세요. (유저 연동에 필수)');return;}
-  if(!/^\d{15,20}$/.test(discordId)){
-    alert('디스코드 ID는 숫자 15~20자리(User ID / Snowflake) 형식이어야 합니다.\nusername 이나 닉네임은 사용할 수 없습니다.\n\n디스코드 앱: 설정 → 고급 → 개발자 모드 ON → 유저 우클릭 → ID 복사');
-    return;
-  }
   if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
-  // 편집 모드면 기존 문서의 raidId 재사용, 신규면 현재 공대 컨텍스트
   const existing = id ? allMembers.find(x=>x.id===id) : null;
   const raidId = existing?.raidId || currentRaidId || null;
-  // 신규 등록인데 공대 컨텍스트 없으면 차단 (어떤 공대에 속할지 모름)
   if(!id && !raidId){
     alert('공대 상세 페이지의 "공대원" 탭에서 등록해주세요.\n어떤 공대에 등록할지 지정되지 않았습니다.');
     return;
   }
-  // 같은 공대 내 중복 검증 (편집 모드는 본인 제외)
   if(raidId){
-    const sameDid = allMembers.find(m=>m.raidId===raidId && m.id!==id && (m.discordId||'')===discordId);
-    if(sameDid){
-      alert(`이 디스코드 ID는 이미 "${sameDid.name}"으로 등록되어 있습니다.`);
-      return;
-    }
     const sameName = allMembers.find(m=>m.raidId===raidId && m.id!==id && (m.name||'')===name);
     if(sameName){
       alert(`이 공대에 이미 "${name}" 캐릭터가 등록되어 있습니다.`);
@@ -4175,7 +4149,6 @@ async function saveMember(){
     }
   }
   const d={
-    discordId,
     name, cls,
     role:document.getElementById('fRole').value,
     level:parseInt(document.getElementById('fLevel').value)||0,

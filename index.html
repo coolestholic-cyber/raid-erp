@@ -356,6 +356,61 @@
   .page-section { display: none; }
   .page-section.active { display: block; flex: 1; }
   #page-mychar.active { display: flex; flex-direction: column; flex: 1; }
+  /* ===== /my-characters 페이지 (상태 A/B/C) ===== */
+  #myCharsGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 1024px) { #myCharsGrid { grid-template-columns: repeat(2, 1fr); } }
+  #myCharsGrid .mc-card { min-height: 220px; display: flex; flex-direction: column; position: relative; }
+  /* 카운트 뱃지 */
+  .mc-count-badge { display: inline-block; margin-left: 10px; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; color: var(--text-sub); background: var(--surface-alt); border: 1px solid var(--border); letter-spacing: .02em; vertical-align: middle; }
+  /* 카드 헤더 + kebab */
+  .mc-card-hd { display: flex; align-items: center; gap: 8px; padding: 14px 16px 0; }
+  .mc-card-hd .mc-small-icon { width: 22px; height: 22px; border-radius: 6px; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .mc-card-hd .mc-small-icon .material-icons { font-size: 15px; }
+  .mc-slot-label { font-size: 12px; color: var(--text-sub); font-weight: 500; }
+  .mc-kebab { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--text-sub); padding: 4px 8px; border-radius: 6px; font-size: 18px; line-height: 1; }
+  .mc-kebab:hover { background: var(--surface-alt); color: var(--text); }
+  .mc-kebab-menu { position: absolute; top: 38px; right: 12px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.08); padding: 4px; min-width: 130px; z-index: 10; display: none; }
+  .mc-kebab-menu.open { display: block; }
+  .mc-kebab-menu button { width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 13px; color: var(--text); cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px; }
+  .mc-kebab-menu button:hover { background: var(--surface-alt); }
+  .mc-kebab-menu button.danger { color: #dc2626; }
+  .mc-kebab-menu button:disabled { opacity: .4; cursor: not-allowed; }
+  .mc-kebab-menu hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+  .mc-kebab-menu .material-icons { font-size: 16px; }
+  /* 카드 본문 */
+  .mc-card-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+  .mc-job-badge { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .mc-char-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .mc-char-meta { font-size: 11px; color: var(--text-sub); }
+  .mc-role-badge { display: inline-block; margin-top: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+  /* 직업군 컬러 ramp */
+  .mc-jg-전사   { background: #fef2f2; color: #dc2626; }
+  .mc-jg-마법사 { background: #f3e5f5; color: #9333ea; }
+  .mc-jg-궁수   { background: #ecfdf5; color: #16a34a; }
+  .mc-jg-도적   { background: #fffbeb; color: #d97706; }
+  .mc-jg-해적   { background: #eff6ff; color: #2563eb; }
+  .mc-jg-제로   { background: #f0fdfa; color: #0d9488; }
+  [data-theme="dark"] .mc-jg-전사   { background: rgba(220,38,38,0.15); color: #f87171; }
+  [data-theme="dark"] .mc-jg-마법사 { background: rgba(147,51,234,0.15); color: #c084fc; }
+  [data-theme="dark"] .mc-jg-궁수   { background: rgba(22,163,74,0.15); color: #4ade80; }
+  [data-theme="dark"] .mc-jg-도적   { background: rgba(217,119,6,0.15); color: #fbbf24; }
+  [data-theme="dark"] .mc-jg-해적   { background: rgba(37,99,235,0.15); color: #60a5fa; }
+  [data-theme="dark"] .mc-jg-제로   { background: rgba(13,148,136,0.15); color: #5eead4; }
+  /* 추가 슬롯 */
+  .mc-addslot { min-height: 220px; border: 1.5px dashed var(--border); border-radius: var(--radius); background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; color: var(--text-sub); transition: all .15s; }
+  .mc-addslot:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .mc-addslot .mc-addslot-plus { font-size: 28px; font-weight: 300; line-height: 1; }
+  .mc-addslot .mc-addslot-label { font-size: 13px; font-weight: 500; }
+  .mc-addslot .mc-addslot-hint { font-size: 11px; color: var(--text-sub); }
+  /* Empty hero (상태 A) */
+  .mc-empty-hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 80px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); }
+  .mc-empty-hero .mc-empty-icon { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .mc-empty-hero .mc-empty-icon .material-icons { font-size: 40px; }
+  .mc-empty-hero .mc-empty-title { font-size: 16px; font-weight: 500; color: var(--text); margin-top: 4px; }
+  .mc-empty-hero .mc-empty-desc { font-size: 13px; color: var(--text-sub); line-height: 1.6; max-width: 380px; }
+  .mc-empty-hero .mc-empty-cta { margin-top: 8px; padding: 10px 22px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .mc-empty-hero .mc-empty-cta:hover { opacity: .92; }
+  .mc-empty-hero .mc-empty-foot { font-size: 11px; color: var(--text-sub); margin-top: 6px; opacity: .8; }
 
   .page-title { font-size: var(--text-2xl); font-weight: 700; margin-bottom: 4px; }
   .page-desc { font-size: var(--text-md); color: var(--text-sub); margin-bottom: 20px; }
@@ -754,8 +809,11 @@
     #page-items .filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
     #page-items .filter-bar::-webkit-scrollbar { display: none; }
 
-    /* 캐릭터 3카드 → 1단 */
+    /* 캐릭터 1열 + 추가 버튼 풀폭 */
     #myCharsGrid { grid-template-columns: 1fr !important; }
+    .mc-addslot { grid-column: 1 / -1 !important; min-height: 64px !important; }
+    .mc-empty-hero { padding: 40px 20px !important; }
+    .mc-empty-hero .mc-empty-icon { width: 56px !important; height: 56px !important; font-size: 32px !important; }
   }
 
   @media (max-width: 480px) {
@@ -1545,17 +1603,13 @@
     <!-- 캐릭터 정보 -->
     <div id="page-mychar" class="page-section">
       <div class="top-bar">
-        <div><h1 class="page-title">캐릭터 정보</h1><p class="page-desc">내 캐릭터 기본 정보를 관리합니다</p></div>
+        <div>
+          <h1 class="page-title">캐릭터 정보</h1>
+          <p class="page-desc">내 캐릭터 기본 정보를 관리합니다 <span id="mcCountBadge" class="mc-count-badge" style="display:none;">0 / 6</span></p>
+        </div>
       </div>
-      <!-- 6카드 그리드 (3열 2행) -->
-      <div id="myCharsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:16px;flex:1;min-height:0;">
-        <div class="panel" id="myCharCard0" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard1" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard2" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard3" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard4" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
-        <div class="panel" id="myCharCard5" style="display:flex;flex-direction:column;margin-bottom:0;"></div>
-      </div>
+      <!-- 동적 렌더 컨테이너 (상태 A: hero / 상태 B,C: 카드 그리드) -->
+      <div id="myCharsRoot"></div>
     </div>
 
     <!-- 내 캐릭터 등록 모달 -->
@@ -2853,7 +2907,7 @@ function updateLoginUI(){
     renderMyRaidsNav();
     const btnCreate=document.getElementById('btnCreateRaid');if(btnCreate)btnCreate.style.display='none';
     // 로그아웃 상태면 캐릭터 카드 초기화
-    window._myCharsData=[null,null,null,null,null,null];
+    window._myCharsData=[];
     mcRenderAllCards();
     updateApplyLeaderButton();
   }
@@ -2881,7 +2935,7 @@ document.addEventListener('click',function(e){
 });
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharsData=[null,null,null,null,null,null];mcRenderAllCards();return;}
+  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharsData=[];mcRenderAllCards();return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -4504,14 +4558,16 @@ async function autoBackupAndMigrate(){
 // =============================================
 // 내 캐릭터 정보
 // =============================================
-window._myCharsData=[null,null,null,null,null,null];
+window._myCharsData=[];
 
 function openMyCharModal(slot){
-  const s=slot||0;
-  document.getElementById('mcSlot').value=s;
+  const arr = (window._myCharsData||[]).filter(Boolean);
+  const isNew = (slot===null || slot===undefined);
+  const idx = isNew ? '' : Math.max(0, Math.min(parseInt(slot)||0, arr.length-1));
+  document.getElementById('mcSlot').value = isNew ? '' : idx;
   const title=document.getElementById('myCharModalTitle');
-  if(title)title.textContent=`캐릭터 ${s+1} 등록`;
-  mcLoadFormFromSlot(s);
+  if(title) title.textContent = isNew ? '캐릭터 등록' : `캐릭터 ${idx+1} 수정`;
+  mcLoadFormFromSlot(isNew ? -1 : idx);
   document.getElementById('myCharModal').classList.add('show');
 }
 function closeMyCharModal(){
@@ -4557,66 +4613,129 @@ function mcLoadFormFromSlot(slot){
   document.getElementById('mcSkillAtk').value=d.skillAtk||'';
   mcSelectRole(d.role||'딜러');
 }
-// 슬롯 카드 UI 업데이트
-function mcRenderSlot(slot, d){
-  const card=document.getElementById('myCharCard'+slot);
-  if(!card)return;
-  const slotLabel=['1번 캐릭터','2번 캐릭터','3번 캐릭터','4번 캐릭터','5번 캐릭터','6번 캐릭터'][slot]||`캐릭터 ${slot+1}`;
-  if(!d){
-    card.innerHTML=`
-      <div style="font-size:var(--text-md);font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
-        <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:var(--text-base);">👤</span>
-        ${slotLabel}
-      </div>
-      <div onclick="openMyCharModal(${slot})" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:32px 16px;border:2px dashed var(--border);border-radius:12px;transition:.15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:36px;margin-bottom:10px;">🍄</div>
-        <p style="font-weight:600;color:var(--accent);font-size:var(--text-base);">캐릭터 등록</p>
-      </div>`;
+// 직업군 → CSS 클래스 suffix (컬러 ramp)
+function mcJobGroup(cls){
+  if(!cls) return null;
+  for(const [g,jobs] of Object.entries(JOB_4TH)){
+    if(jobs.find(j=>j.name===cls)) return g;
+  }
+  // 향후 확장: 해적/제로 등
+  if(cls.includes('해적')) return '해적';
+  if(cls.includes('제로')||cls.includes('제논')) return '제로';
+  return null;
+}
+function mcJobIcon(cls){
+  for(const jobs of Object.values(JOB_4TH)){
+    const j=jobs.find(x=>x.name===cls);
+    if(j) return j.icon;
+  }
+  return '🍄';
+}
+// 개별 카드 HTML
+function mcCardHTML(d, idx, total){
+  const group = mcJobGroup(d.cls);
+  const icon = mcJobIcon(d.cls);
+  const groupClass = group ? 'mc-jg-'+group : '';
+  const isD = d.role==='딜러';
+  const roleBg = isD ? '#ecfdf5' : '#eff6ff';
+  const roleFg = isD ? '#059669' : '#2563eb';
+  return `<div class="panel mc-card" data-idx="${idx}">
+    <div class="mc-card-hd">
+      <span class="mc-small-icon"><span class="material-icons">person</span></span>
+      <span class="mc-slot-label">${idx+1}번 캐릭터</span>
+      <button class="mc-kebab" aria-label="메뉴" onclick="mcToggleKebab(event, ${idx})">⋯</button>
+    </div>
+    <div class="mc-kebab-menu" id="mcKebab${idx}">
+      <button onclick="mcCloseKebabs();openMyCharModal(${idx})"><span class="material-icons">edit</span> 수정</button>
+      <button onclick="mcCloseKebabs();mcMove(${idx},-1)" ${idx===0?'disabled':''}><span class="material-icons">arrow_upward</span> 위로 이동</button>
+      <button onclick="mcCloseKebabs();mcMove(${idx},1)" ${idx===total-1?'disabled':''}><span class="material-icons">arrow_downward</span> 아래로 이동</button>
+      <hr>
+      <button class="danger" onclick="mcCloseKebabs();mcDeleteSlot(${idx})"><span class="material-icons">delete</span> 삭제</button>
+    </div>
+    <div class="mc-card-body">
+      <div class="mc-job-badge ${groupClass}">${icon}</div>
+      <div class="mc-char-name">${d.name||'—'}</div>
+      <div class="mc-char-meta">${d.level?`Lv.${d.level}`:'Lv.—'} · ${d.cls||'직업 미정'}</div>
+      <span class="mc-role-badge" style="background:${roleBg};color:${roleFg};">${d.role||'딜러'}</span>
+      ${d.skillAtk?`<div class="mc-char-meta" style="margin-top:2px;">스공 ${Number(d.skillAtk).toLocaleString()}</div>`:''}
+    </div>
+  </div>`;
+}
+function mcAddSlotHTML(remaining){
+  return `<div class="mc-addslot" onclick="openMyCharModal(null)" role="button" tabindex="0">
+    <div class="mc-addslot-plus">+</div>
+    <div class="mc-addslot-label">캐릭터 추가</div>
+    <div class="mc-addslot-hint">${remaining}개 더 추가 가능</div>
+  </div>`;
+}
+function mcEmptyHeroHTML(){
+  return `<div class="mc-empty-hero">
+    <div class="mc-empty-icon"><span class="material-icons">person</span></div>
+    <div class="mc-empty-title">아직 등록된 캐릭터가 없어요</div>
+    <div class="mc-empty-desc">정산과 공대 참여를 위해 메랜 캐릭터를 등록해 주세요.<br>캐릭터별 수익, 보스 참여 내역이 여기에 쌓입니다.</div>
+    <button class="mc-empty-cta" onclick="openMyCharModal(null)">+ 첫 캐릭터 등록하기</button>
+    <div class="mc-empty-foot">최대 6개까지 등록할 수 있어요</div>
+  </div>`;
+}
+const MC_MAX = 6;
+function mcRenderPage(){
+  const root = document.getElementById('myCharsRoot');
+  if(!root) return;
+  const chars = (window._myCharsData||[]).filter(Boolean);
+  const n = chars.length;
+  const badge = document.getElementById('mcCountBadge');
+  if(badge){
+    if(n>0){ badge.style.display=''; badge.textContent=`${n} / ${MC_MAX}`; }
+    else{ badge.style.display='none'; }
+  }
+  if(n===0){
+    root.innerHTML = mcEmptyHeroHTML();
     return;
   }
-  let icon='🍄';
-  for(const jobs of Object.values(JOB_4TH)){const j=jobs.find(x=>x.name===d.cls);if(j){icon=j.icon;break;}}
-  const isD=d.role==='딜러';
-  const badgeStyle=`padding:4px 12px;border-radius:20px;font-size:var(--text-xs);font-weight:700;background:${isD?'#ecfdf5':'#eff6ff'};color:${isD?'#059669':'#2563eb'};`;
-  card.innerHTML=`
-    <div style="font-size:var(--text-md);font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
-      <span style="width:28px;height:28px;background:var(--accent-light);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:var(--text-base);">👤</span>
-      ${slotLabel}
-      <button onclick="openMyCharModal(${slot})" style="margin-left:auto;padding:4px 10px;border:1.5px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text-sub);font-size:var(--text-xs);cursor:pointer;">수정</button>
-      <button onclick="mcDeleteSlot(${slot})" style="padding:4px 10px;border:1.5px solid #fca5a5;border-radius:6px;background:var(--surface);color:#ef4444;font-size:var(--text-xs);cursor:pointer;">삭제</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);">
-      <div style="width:52px;height:52px;background:var(--accent-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:var(--text-2xl);">${icon}</div>
-      <div>
-        <div style="font-size:var(--text-lg);font-weight:700;color:var(--text);">${d.name||'-'}</div>
-        <div style="font-size:var(--text-sm);color:var(--text-sub);margin-top:2px;">${d.cls||'-'}</div>
-      </div>
-      <div style="${badgeStyle};margin-left:auto;">${d.role||'딜러'}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;">
-        <div style="font-size:var(--text-2xs);font-weight:600;color:var(--text-sub);margin-bottom:4px;letter-spacing:.5px;">레벨</div>
-        <div style="font-size:var(--text-xl);font-weight:700;color:var(--text);">${d.level?`Lv.${d.level}`:'—'}</div>
-      </div>
-      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;">
-        <div style="font-size:var(--text-2xs);font-weight:600;color:var(--text-sub);margin-bottom:4px;letter-spacing:.5px;">스킬공격력</div>
-        <div style="font-size:var(--text-xl);font-weight:700;color:var(--accent);">${d.skillAtk?Number(d.skillAtk).toLocaleString():'—'}</div>
-      </div>
-    </div>`;
+  const cards = chars.map((d,i)=>mcCardHTML(d, i, n)).join('');
+  const add = (n < MC_MAX) ? mcAddSlotHTML(MC_MAX - n) : '';
+  root.innerHTML = `<div id="myCharsGrid">${cards}${add}</div>`;
 }
-function mcRenderAllCards(){
-  const data=window._myCharsData||[null,null,null,null,null,null];
-  for(let i=0;i<6;i++)mcRenderSlot(i,data[i]||null);
+// 하위호환 alias (2884 라인 등에서 호출)
+function mcRenderAllCards(){ mcRenderPage(); }
+// kebab 메뉴 토글
+function mcToggleKebab(e, idx){
+  e.stopPropagation();
+  const menu = document.getElementById('mcKebab'+idx);
+  const wasOpen = menu?.classList.contains('open');
+  mcCloseKebabs();
+  if(!wasOpen && menu) menu.classList.add('open');
 }
-async function mcDeleteSlot(slot){
-  if(!confirm(`${slot+1}번 캐릭터를 삭제할까요?`))return;
-  const arr=window._myCharsData||[null,null,null,null,null,null];
-  arr[slot]=null;
-  window._myCharsData=[...arr];
+function mcCloseKebabs(){
+  document.querySelectorAll('.mc-kebab-menu.open').forEach(m=>m.classList.remove('open'));
+}
+document.addEventListener('click',(e)=>{ if(!e.target.closest('.mc-kebab,.mc-kebab-menu')) mcCloseKebabs(); });
+// 데이터 영속화 도우미
+async function _mcPersist(){
+  const arr = (window._myCharsData||[]).filter(Boolean);
+  window._myCharsData = arr;
   if(currentUser){
-    await db.collection('users').doc(currentUser.uid).set({myChars:window._myCharsData},{merge:true});
+    await db.collection('users').doc(currentUser.uid).set({myChars:arr},{merge:true});
+  } else {
+    try{ localStorage.setItem('myChar_anon', JSON.stringify(arr)); }catch(e){}
   }
-  mcRenderAllCards();
+}
+async function mcDeleteSlot(idx){
+  if(!confirm('이 캐릭터를 삭제할까요?')) return;
+  const arr=(window._myCharsData||[]).filter(Boolean);
+  arr.splice(idx,1);
+  window._myCharsData=arr;
+  await _mcPersist();
+  mcRenderPage();
+}
+async function mcMove(idx, dir){
+  const arr=(window._myCharsData||[]).filter(Boolean);
+  const j = idx + dir;
+  if(j<0 || j>=arr.length) return;
+  [arr[idx], arr[j]] = [arr[j], arr[idx]];
+  window._myCharsData=arr;
+  await _mcPersist();
+  mcRenderPage();
 }
 async function mcSave(){
   const cls=document.getElementById('mcClassCombo').value;
@@ -4624,36 +4743,42 @@ async function mcSave(){
   const level=parseInt(document.getElementById('mcLevel').value)||0;
   const role=document.getElementById('mcRole').value;
   const skillAtk=parseInt(document.getElementById('mcSkillAtk').value)||0;
-  const slot=parseInt(document.getElementById('mcSlot').value)||0;
+  const rawSlot=document.getElementById('mcSlot').value;
   if(!currentUser){discordLogin();return;}
   if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
   const d={cls,name,level,role,skillAtk};
-  const arr=window._myCharsData||[null,null,null,null,null,null];
-  arr[slot]=d;
-  window._myCharsData=[...arr];
-  await db.collection('users').doc(currentUser.uid).set({myChars:window._myCharsData},{merge:true});
-  mcRenderAllCards();
+  const arr=(window._myCharsData||[]).filter(Boolean);
+  if(rawSlot==='' || rawSlot===null){
+    if(arr.length>=MC_MAX){alert('최대 6개까지 등록 가능합니다.');return;}
+    arr.push(d);
+  } else {
+    const slot=parseInt(rawSlot);
+    if(Number.isFinite(slot) && slot>=0 && slot<arr.length) arr[slot]=d;
+    else arr.push(d);
+  }
+  window._myCharsData=arr;
+  await _mcPersist();
+  mcRenderPage();
   closeMyCharModal();
 }
 async function mcLoadMyChar(){
-  let arr=[null,null,null,null,null,null];
+  let arr=[];
   if(currentUser){
     const snap=await db.collection('users').doc(currentUser.uid).get();
     if(snap.exists){
       const data=snap.data();
       if(data.myChars&&Array.isArray(data.myChars)){
-        arr=data.myChars.map(x=>x||null);
-        while(arr.length<6)arr.push(null);
+        arr=data.myChars.filter(Boolean); // sparse → dense 자동 압축
       } else if(data.myChar){
-        arr=[data.myChar,null,null,null,null,null];
+        arr=[data.myChar];
       }
     }
   } else {
     const raw=localStorage.getItem('myChar_anon');
-    if(raw){try{const p=JSON.parse(raw);arr=Array.isArray(p)?p:[p,null,null,null,null,null];}catch(e){}}
+    if(raw){try{const p=JSON.parse(raw);arr=Array.isArray(p)?p.filter(Boolean):(p?[p]:[]);}catch(e){}}
   }
   window._myCharsData=arr;
-  mcRenderAllCards();
+  mcRenderPage();
 }
 
 // =============================================

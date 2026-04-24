@@ -2600,6 +2600,7 @@
         <button class="sa-tab" data-tab="guilds" onclick="showSysAdminTab('guilds',this)">🏰 공대 관리</button>
         <button class="sa-tab" data-tab="logs" onclick="showSysAdminTab('logs',this)">📜 시스템 로그</button>
         <button class="sa-tab" data-tab="notices" onclick="showSysAdminTab('notices',this)">📢 공지사항</button>
+        <button class="sa-tab" data-tab="backup" onclick="showSysAdminTab('backup',this)">💾 데이터 백업</button>
       </div>
 
       <!-- Panel: 권한 관리 -->
@@ -2800,6 +2801,34 @@
             • 팝업 공지 지원<br>
             • 공지 이력 관리
           </p>
+        </div>
+      </div>
+
+      <!-- Panel: 데이터 백업 -->
+      <div class="sa-panel" id="sa-panel-backup">
+        <div class="panel">
+          <div class="panel-header" style="margin-bottom:14px;">
+            <h2 style="font-size:var(--text-md);display:flex;align-items:center;gap:8px;">
+              <span class="material-icons" style="font-size:18px;color:var(--accent);">cloud_download</span>
+              Firestore 전체 백업
+              <span style="font-size:var(--text-xs);color:#dc2626;font-weight:400;">사이트마스터 전용</span>
+            </h2>
+          </div>
+          <p style="font-size:var(--text-sm);color:var(--text-sub);margin:0 0 8px;">
+            모든 컬렉션 (users, raids + 서브컬렉션 전체, linkRequests, auditLogs 등)을 JSON 파일로 다운로드합니다.
+          </p>
+          <p style="font-size:var(--text-xs);color:var(--text-sub);margin:0 0 16px;">
+            파일명: <code>erp-backup-YYYYMMDD-HHMMSS.json</code> &nbsp;•&nbsp; 데이터 양에 따라 수십 초 소요될 수 있습니다.
+          </p>
+          <button class="btn btn-primary" id="btnBackupAll" onclick="backupFirestoreAll()" style="font-size:var(--text-sm);display:flex;align-items:center;gap:6px;">
+            <span class="material-icons" style="font-size:16px;">download</span>
+            Firestore 전체 JSON 다운로드
+          </button>
+          <div id="backupProgress" style="display:none;margin-top:16px;">
+            <div style="background:var(--surface-alt);border-radius:8px;padding:14px;font-size:var(--text-sm);font-family:monospace;line-height:1.8;color:var(--text);white-space:pre-wrap;min-height:60px;">
+              <span id="backupStatus">준비 중...</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -4226,6 +4255,86 @@ async function backupUsersJson(){
   }
 }
 window.backupUsersJson=backupUsersJson;
+
+// ─── Firestore 전체 백업 (사이트마스터 전용) ───
+async function backupFirestoreAll(){
+  const btn=document.getElementById('btnBackupAll');
+  const prog=document.getElementById('backupProgress');
+  const stat=document.getElementById('backupStatus');
+  if(btn) btn.disabled=true;
+  if(prog) prog.style.display='';
+  const setStatus=msg=>{if(stat) stat.textContent=msg;};
+
+  const ROOT_COLS=['users','raids','leader_applications','linkRequests',
+    'auditLogs','activityLogs','settlements','purchases','guildPromos',
+    'raidApplications','loginLogs','stats','customBosses','bossTimers',
+    'myChars','roles','members'];
+
+  const backup={
+    _meta:{
+      exportedAt:new Date().toISOString(),
+      exportedBy:currentUser?.uid||'unknown',
+      version:'1.0'
+    }
+  };
+  let processed=0;
+
+  try{
+    for(const col of ROOT_COLS){
+      setStatus(`[${col}] 읽는 중...`);
+      try{
+        const snap=await db.collection(col).get();
+        if(col==='raids'){
+          backup[col]={};
+          for(const doc of snap.docs){
+            processed++;
+            setStatus(`문서 ${processed}개 처리 중... raids/${doc.id}`);
+            const entry={_doc:doc.data(),_characters:{},_members:{}};
+            // characters 서브컬렉션
+            try{
+              const cs=await db.collection('raids').doc(doc.id).collection('characters').get();
+              cs.docs.forEach(d=>{entry._characters[d.id]=d.data();processed++;});
+              if(!cs.empty) setStatus(`문서 ${processed}개 처리 중... raids/${doc.id}/characters (${cs.size}개)`);
+            }catch(e){}
+            // members 서브컬렉션
+            try{
+              const ms=await db.collection('raids').doc(doc.id).collection('members').get();
+              ms.docs.forEach(d=>{entry._members[d.id]=d.data();processed++;});
+              if(!ms.empty) setStatus(`문서 ${processed}개 처리 중... raids/${doc.id}/members (${ms.size}개)`);
+            }catch(e){}
+            backup[col][doc.id]=entry;
+          }
+        }else{
+          backup[col]={};
+          snap.docs.forEach(d=>{backup[col][d.id]=d.data();processed++;});
+          if(!snap.empty) setStatus(`문서 ${processed}개 처리 중... ${col} (${snap.size}개)`);
+        }
+      }catch(e){
+        // 접근 권한 없거나 컬렉션 없으면 스킵
+        console.warn(`[Backup] ${col} 스킵:`,e.message);
+      }
+    }
+
+    setStatus(`✅ 백업 완료 — 총 ${processed}개 문서 수집\n다운로드 시작...`);
+
+    const now=new Date();
+    const pad=n=>String(n).padStart(2,'0');
+    const ts=`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`erp-backup-${ts}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setStatus(`✅ 백업 완료 — 총 ${processed}개 문서\n파일명: erp-backup-${ts}.json`);
+  }catch(e){
+    setStatus(`❌ 오류 발생: ${e.message}`);
+    console.error('[Backup]',e);
+  }finally{
+    if(btn) btn.disabled=false;
+  }
+}
+window.backupFirestoreAll=backupFirestoreAll;
 
 let _usersUnsub = null;
 function subscribeUsers(){
@@ -8602,7 +8711,7 @@ function _saOnPageShow(){
   const h=location.hash;
   if(h&&h.startsWith('#sysadmin-')){
     const tab=h.replace('#sysadmin-','');
-    if(['permissions','users','guilds','logs','notices'].includes(tab)){
+    if(['permissions','users','guilds','logs','notices','backup'].includes(tab)){
       _saCurrentTab=tab;
     }
   }

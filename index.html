@@ -2975,10 +2975,10 @@ function canManageUsers(){return currentProfile&&['master','leader','vice'].incl
 function canManageMembers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
 function canEditSelf(){return currentProfile&&currentProfile.role==='member';}
 function isAdmin(user){return user?.role==='master';}
-// 단일 권한 판정: 뱃지·공대장 신청 버튼·내 공대 목록의 진실 소스
-// - master/leader/vice: users.role 기반 (권한 태그)
-// - member: members 컬렉션 실제 소속 여부 (users.role의 'member' 무시)
-// - leader는 본인 소유 공대 존재해야 유효. 없으면 guest 로 강등 (role 자체는 유지)
+// 단일 권한 판정: 내부 로직(정산 접근 등)에서 사용
+// - master/leader/vice: users.role 기반
+// - member: members 컬렉션 실제 소속 여부
+// - leader는 본인 소유 공대 존재해야 유효
 function getEffectiveRole(){
   if(!currentProfile || !currentUser) return 'none';
   const role = currentProfile.role;
@@ -2988,6 +2988,23 @@ function getEffectiveRole(){
   if(role === 'vice') return 'vice';
   if(Array.isArray(allMembers) && allMembers.some(m=>(m.uid===uid||m.ownerUid===uid) && m.raidId)) return 'member';
   return 'guest';
+}
+// 우측 상단 뱃지 전용: 사이트마스터/공대장만 표시. 공대원·손님·부공대장은 null (뱃지 없음)
+// 사이트마스터 + 공대장 동시 충족 시 master 우선 (더 상위 권한)
+function getUserBadgeType(){
+  if(!currentProfile || !currentUser) return null;
+  if(currentProfile.role === 'master') return 'master';
+  const uid = currentUser.uid;
+  if(Array.isArray(allRaids) && allRaids.some(r=>r.ownerUid===uid)) return 'leader';
+  return null;
+}
+// 공대장 신청 가능 여부: 사이트마스터·공대장 둘 다 아닐 때만
+function canApplyForLeader(){
+  if(!currentProfile || !currentUser) return false;
+  if(currentProfile.role === 'master') return false;
+  const uid = currentUser.uid;
+  if(Array.isArray(allRaids) && allRaids.some(r=>r.ownerUid===uid)) return false;
+  return true;
 }
 function canEditRaid(){const r=currentProfile?.role;return r==='master'||r==='leader'||r==='vice';}
 function canDestroyRaid(){const r=currentProfile?.role;return r==='master'||r==='leader';}

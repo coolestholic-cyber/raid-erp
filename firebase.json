@@ -1,0 +1,32 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "firestore.rules",
+      ".git/**",
+      ".venv/**",
+      "build/**",
+      "dist/**",
+      "node_modules/**",
+      "*.py",
+      "*.csv",
+      "*.md",
+      "*.spec",
+      "uv.lock",
+      "raid_erp_*.html",
+      "raid_finder_*.html",
+      "index_.html"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

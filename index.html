@@ -2961,7 +2961,7 @@ async function handleDiscordCallback(code){
 }
 let _pendingDiscord=null,_pendingRole=null,_pendingName=null;
 
-function doLogout(){auth.signOut();currentUser=null;currentProfile=null;_bossTimers={};updateLoginUI();renderBossList();}
+function doLogout(){auth.signOut();currentUser=null;currentProfile=null;_bossTimers={};_raidOrder=[];updateLoginUI();renderBossList();renderMyRaidsNav();}
 
 function updateLoginUI(){
   const ok=!!currentProfile;
@@ -3025,7 +3025,7 @@ document.addEventListener('click',function(e){
 });
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharsData=[];mcRenderAllCards();return;}
+  if(!user){currentUser=null;currentProfile=null;_raidOrder=[];updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharsData=[];mcRenderAllCards();renderMyRaidsNav();return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -3126,8 +3126,9 @@ auth.onAuthStateChanged(async(user)=>{
       uids:firebase.firestore.FieldValue.arrayUnion(doc.id)
     },{merge:true}).catch(()=>{});
   }
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
+  // 공대 순서는 subscribe/첫 렌더 전에 먼저 확보 — 레이스 컨디션 방지
   await loadRaidOrder();
+  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
   renderMyRaidsNav();
   await loadBossTimers();
   await loadCustomBosses();
@@ -5925,14 +5926,20 @@ async function _swapRaidOrder(idA,idB){
   _raidOrder=newOrder;
   renderMyRaidsNav();
 
+  if(!currentUser){
+    console.warn('[순서변경] 로그인 상태 아님 - 로컬만 반영');
+    return;
+  }
   try{
-    await db.collection('users').doc(currentUser.uid).update({raidOrder:newOrder});
+    // update → set(merge) 로 교체: user 문서·필드가 없어도 안전
+    await db.collection('users').doc(currentUser.uid).set({raidOrder:newOrder},{merge:true});
+    console.log('[순서변경] 저장 완료', {uid:currentUser.uid, newOrder});
     showToast('순서가 변경되었습니다','success');
   } catch(e){
-    console.error('[순서변경]',e);
+    console.error('[순서변경] Firestore 저장 실패',e);
     _raidOrder=currentOrder;
     renderMyRaidsNav();
-    showToast('순서 저장 실패','error');
+    showToast('순서 저장 실패: '+(e?.message||''),'error');
   }
 }
 
@@ -5956,8 +5963,13 @@ async function loadRaidOrder(){
   if(!currentUser){_raidOrder=[];return;}
   try{
     const doc=await db.collection('users').doc(currentUser.uid).get();
-    _raidOrder=(doc.exists&&doc.data().raidOrder)?doc.data().raidOrder:[];
-  }catch(e){_raidOrder=[];}
+    const loaded=(doc.exists&&Array.isArray(doc.data().raidOrder))?doc.data().raidOrder:[];
+    _raidOrder=loaded;
+    console.log('[loadRaidOrder]', {uid:currentUser.uid, loaded});
+  }catch(e){
+    console.error('[loadRaidOrder] 실패',e);
+    _raidOrder=[];
+  }
 }
 
 async function saveRaidOrder(order){
@@ -5965,7 +5977,7 @@ async function saveRaidOrder(order){
   const prev=[..._raidOrder];
   _raidOrder=order;
   try{
-    await db.collection('users').doc(currentUser.uid).update({raidOrder:order});
+    await db.collection('users').doc(currentUser.uid).set({raidOrder:order},{merge:true});
   }catch(e){
     console.error('[saveRaidOrder]',e);
     _raidOrder=prev;

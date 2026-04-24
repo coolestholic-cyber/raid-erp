@@ -2760,11 +2760,15 @@
       공대원 등록
     </h2>
 
-    <!-- 디스코드 ID (필수) - 유저 연동용 -->
+    <!-- 디스코드 ID (필수) - 유저 연동용, Snowflake User ID 표준 -->
     <div class="form-group">
-      <label>디스코드 ID *</label>
-      <input type="text" id="fDiscordId" placeholder="예: 355991127377313792" autocomplete="off">
-      <div style="font-size:var(--text-xs);color:var(--text-sub);margin-top:4px;">유저가 나중에 디스코드로 로그인하면 자동으로 연결됩니다.</div>
+      <label>디스코드 ID (User ID) *</label>
+      <input type="text" id="fDiscordId" placeholder="예: 355991127377313792 (17~19자리 숫자)" autocomplete="off" inputmode="numeric" pattern="\d{15,20}">
+      <div style="font-size:var(--text-xs);color:var(--text-sub);margin-top:4px;line-height:1.5;">
+        💡 <strong>숫자 형식 User ID만 허용</strong> (username/닉네임 불가)<br>
+        디스코드 앱: <strong>설정 → 고급 → 개발자 모드 ON</strong> → 유저 프로필 우클릭 → <strong>ID 복사</strong><br>
+        유저가 디스코드로 로그인하면 자동으로 연결됩니다.
+      </div>
     </div>
 
     <!-- 직업 선택 (탭 + 콤보) -->
@@ -3881,6 +3885,10 @@ async function saveMember(){
   const name=document.getElementById('fName').value.trim();
   const cls=document.getElementById('fClass').value;
   if(!discordId){alert('디스코드 ID를 입력하세요. (유저 연동에 필수)');return;}
+  if(!/^\d{15,20}$/.test(discordId)){
+    alert('디스코드 ID는 숫자 15~20자리(User ID / Snowflake) 형식이어야 합니다.\nusername 이나 닉네임은 사용할 수 없습니다.\n\n디스코드 앱: 설정 → 고급 → 개발자 모드 ON → 유저 우클릭 → ID 복사');
+    return;
+  }
   if(!name||!cls){alert('캐릭터명과 직업을 입력하세요.');return;}
   // 편집 모드면 기존 문서의 raidId 재사용, 신규면 현재 공대 컨텍스트
   const existing = id ? allMembers.find(x=>x.id===id) : null;
@@ -5180,6 +5188,35 @@ async function tryLinkMember(memberId){
   }
 }
 
+// '내 계정 연결' 버튼: 이 공대의 내 미연결 멤버 일괄 연결
+async function linkAllMyMembers(raidId){
+  if(!currentUser || !currentProfile){ alert('로그인 후 이용해주세요.'); return; }
+  const myDid = currentProfile.discordId;
+  if(!myDid){ alert('본인 디스코드 ID 정보가 없어 연결할 수 없습니다.'); return; }
+  const targets = allMembers.filter(m =>
+    m.raidId === raidId && !m.uid && (m.discordId||'') === myDid
+  );
+  if(!targets.length){
+    alert('연결할 멤버가 없습니다.\n본인의 미연결 캐릭터가 이 공대에 없거나 이미 연결되어 있습니다.');
+    return;
+  }
+  const nameList = targets.map(t=>`- ${t.name}`).join('\n');
+  if(!confirm(`다음 캐릭터를 본인 계정과 연결하시겠습니까?\n${nameList}\n\n총 ${targets.length}개`)) return;
+  try{
+    const batch = db.batch();
+    targets.forEach(t => batch.update(db.collection('members').doc(t.id), {
+      uid: currentUser.uid,
+      linkedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }));
+    await batch.commit();
+    showToast(`${targets.length}개 캐릭터가 연결되었습니다.`, 'success');
+    rdRenderMembers(raidId);
+  }catch(e){
+    console.error('[linkAllMyMembers]', e);
+    showToast('연결 실패: '+(e?.message||''), 'error');
+  }
+}
+
 // 로그인 시 자동 연동 — discordId 일치하고 uid null 인 멤버를 일괄 연결
 async function _autoLinkMyMembers(){
   if(!currentUser || !currentProfile?.discordId) return 0;
@@ -5320,17 +5357,20 @@ function rdRenderMembers(raidId){
   const members=allMembers.filter(m=>m.raidId===raidId);
   const hasActions=canEditOthers||canKick||canSelfEdit;
 
-  const addBtnHtml = canAddMember
-    ? `<div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
-         <button class="btn btn-primary" onclick="openMemberModal()" style="display:flex;align-items:center;gap:6px;font-size:var(--text-sm);padding:8px 14px;">
-           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
-           공대원 등록
-         </button>
-       </div>`
+  // + 새 정산 버튼과 동일한 스타일 (btn btn-primary, 좌측 정렬, 아이콘 없음)
+  const addBtn = canAddMember
+    ? `<button class="btn btn-primary" onclick="openMemberModal()">+ 공대원 등록</button>`
+    : '';
+  // 내 계정 연결: 로그인된 모든 유저에게 노출
+  const linkBtn = currentUser
+    ? `<button class="btn" onclick="linkAllMyMembers('${raidId}')">🔗 내 계정 연결</button>`
+    : '';
+  const headerBar = (addBtn || linkBtn)
+    ? `<div style="margin-bottom:16px;display:flex;gap:8px;align-items:center;">${addBtn}${linkBtn}</div>`
     : '';
 
   if(!members.length){
-    el.innerHTML=`${addBtnHtml}<div style="padding:40px;text-align:center;color:var(--text-sub);">공대원이 없습니다. ${canAddMember?'상단 버튼으로 직접 등록하거나 ':''}공대 찾기에서 신청을 승인해주세요.</div>`;
+    el.innerHTML=`${headerBar}<div style="padding:40px;text-align:center;color:var(--text-sub);">공대원이 없습니다. ${canAddMember?'상단 버튼으로 직접 등록하거나 ':''}공대 찾기에서 신청을 승인해주세요.</div>`;
     return;
   }
 
@@ -5338,7 +5378,7 @@ function rdRenderMembers(raidId){
   const rb={딜러:'badge-green',서폿:'badge-blue'};
 
   el.innerHTML=`
-    ${addBtnHtml}
+    ${headerBar}
     <div class="panel" style="padding:0;overflow:auto;">
       <table>
         <thead><tr>

@@ -5,15 +5,19 @@ service cloud.firestore {
     // ─────────────────────────────────────────
     // 헬퍼 함수
     // ─────────────────────────────────────────
+
+    // userDoc(): leader_applications 등 기존 규칙에서 계속 사용
     function userDoc() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    // LEGACY 기간(D+14까지): 'master' + 'site_master' 둘 다 허용
-    // D+14 코드 정리 시 'master' 조건 제거
+    // [수정 1] get() 중복 호출 방지: request.auth != null 선체크 후 단일 get()
+    // LEGACY(D+14까지): 'master' + 'site_master' 둘 다 허용
+    // D+14 정리 시 'master' 조건 제거
     function isMaster() {
       return request.auth != null
-        && userDoc().role in ['master', 'site_master'];
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+           in ['master', 'site_master'];
     }
 
     function isLeader() {
@@ -21,32 +25,32 @@ service cloud.firestore {
         && userDoc().role in ['leader', 'vice', 'master', 'site_master'];
     }
 
-    // raids/{raidId}/members 서브컬렉션에서 공대 내 역할 확인
-    function getRaidRole(raidId) {
-      return get(/databases/$(database)/documents/raids/$(raidId)/members/$(request.auth.uid)).data.roleInRaid;
-    }
-
+    // [수정 2] exists() 선체크로 문서 없을 때 에러 방지
+    // let으로 경로 캐싱해 get() 중복 호출 방지
     function isRaidLeader(raidId) {
+      let membershipPath =
+        /databases/$(database)/documents/raids/$(raidId)/members/$(request.auth.uid);
       return request.auth != null
-        && getRaidRole(raidId) in ['guild_master', 'vice_guild_master'];
+        && exists(membershipPath)
+        && get(membershipPath).data.roleInRaid in ['guild_master', 'vice_guild_master'];
     }
 
-    function canEditCharacter(raidId) {
-      return isMaster() || isRaidLeader(raidId);
+    // raids/{raidId}/members 쓰기에서 guild_master 역할 단독 확인용
+    function isGuildMaster(raidId) {
+      let membershipPath =
+        /databases/$(database)/documents/raids/$(raidId)/members/$(request.auth.uid);
+      return request.auth != null
+        && exists(membershipPath)
+        && get(membershipPath).data.roleInRaid == 'guild_master';
     }
 
     // ─────────────────────────────────────────
     // leader_applications
     // ─────────────────────────────────────────
     match /leader_applications/{appId} {
-
-      // 읽기: 본인 신청 또는 마스터
       allow read: if request.auth != null
         && (resource.data.uid == request.auth.uid || isMaster());
 
-      // 생성: 인증된 유저 + member/guest + pending 상태
-      //        + hasPendingLeaderApp이 없거나 false
-      //        + leaderAppRejectedAt 기준 24시간 경과
       allow create: if request.auth != null
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'pending'
@@ -61,7 +65,6 @@ service cloud.firestore {
           || request.time > userDoc().leaderAppRejectedAt + duration.value(24, 'h')
         );
 
-      // 수정/삭제: 마스터만
       allow update, delete: if isMaster();
     }
 
@@ -70,19 +73,20 @@ service cloud.firestore {
     // ─────────────────────────────────────────
     match /users/{uid} {
       allow read: if request.auth != null;
-      // 본인 프로필 수정 허용, 단 권한/제재 관련 필드는 마스터만
       allow update: if request.auth != null && (
         (
           request.auth.uid == uid
           && !request.resource.data.diff(resource.data).affectedKeys()
-              .hasAny(['role','status','suspendedUntil','suspendReason','suspendedBy','suspendedAt'])
+              .hasAny(['role','status','suspendedUntil','suspendReason',
+                       'suspendedBy','suspendedAt'])
         )
         || (
           isMaster()
-          // 마스터가 다른 마스터의 제재 필드는 쓸 수 없음
-          && !(resource.data.role in ['master','site_master'] && uid != request.auth.uid
+          && !(resource.data.role in ['master','site_master']
+               && uid != request.auth.uid
                && request.resource.data.diff(resource.data).affectedKeys()
-                  .hasAny(['status','suspendedUntil','suspendReason','suspendedBy','suspendedAt']))
+                  .hasAny(['status','suspendedUntil','suspendReason',
+                           'suspendedBy','suspendedAt']))
         )
       );
       allow create: if request.auth != null && request.auth.uid == uid;
@@ -99,7 +103,7 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────
-    // members (LEGACY: D+10 삭제 예정)
+    // members (LEGACY — D+10 삭제 예정)
     // ─────────────────────────────────────────
     match /members/{memberId} {
       allow read: if request.auth != null;
@@ -122,54 +126,74 @@ service cloud.firestore {
       allow update, delete: if isLeader();
 
       // raids/{raidId}/characters (캐릭터 데이터 — 구 members)
+      // [수정 3] 연결 관련 필드는 승인 플로우에서만 수정 가능
       match /characters/{characterId} {
         allow read: if request.auth != null;
+
         allow create: if request.auth != null
-          && canEditCharacter(raidId);
+          && (isRaidLeader(raidId) || isMaster());
+
+        // 일반 메타 필드만 수정 허용 (연결 관련 필드 클라이언트 직접 수정 불가)
         allow update: if request.auth != null
-          && (canEditCharacter(raidId)
-              // 본인 ownerUid 문서는 일부 필드 본인 수정 허용
-              || resource.data.ownerUid == request.auth.uid);
+          && (isRaidLeader(raidId) || isMaster())
+          && !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['ownerId', 'isLinked', 'linkedAt',
+                       'linkedDiscordId', 'linkMethod',
+                       'reviewedBy', 'reviewerRole']);
+
         allow delete: if request.auth != null
-          && canEditCharacter(raidId);
+          && (isRaidLeader(raidId) || isMaster());
       }
 
       // raids/{raidId}/members (유저 멤버십 — roleInRaid)
+      // [수정 4] 공대 생성 시 본인이 guild_master로 자기 자신 등록 허용 (순환 참조 방지)
       match /members/{userId} {
         allow read: if request.auth != null;
-        // 생성/수정/삭제: 해당 공대 공대장 또는 사이트마스터
-        allow write: if request.auth != null
-          && (isMaster()
-              || (getRaidRole(raidId) == 'guild_master'));
+
+        allow create: if request.auth != null && (
+          // 공대 생성자가 본인을 guild_master로 등록
+          (request.auth.uid == userId
+           && request.resource.data.roleInRaid == 'guild_master')
+          || isGuildMaster(raidId)
+          || isMaster()
+        );
+
+        allow update: if request.auth != null
+          && (isGuildMaster(raidId) || isMaster());
+
+        allow delete: if request.auth != null
+          && (isGuildMaster(raidId) || isMaster());
       }
     }
 
-    // collectionGroup: characters (전체 캐릭터 구독용)
+    // collectionGroup: characters (전체 캐릭터 구독용 — subscribeCharacters())
+    // [수정 5] 읽기만 허용, 쓰기는 raids/{raidId}/characters 규칙에서 처리
     match /{path=**}/characters/{characterId} {
       allow read: if request.auth != null;
     }
 
     // ─────────────────────────────────────────
     // linkRequests (계정 연결 승인 요청)
+    // [수정 6] update 조건 구체화: pending → approved/rejected 전환만 허용
     // ─────────────────────────────────────────
     match /linkRequests/{requestId} {
-      // 읽기: 본인 요청 또는 해당 공대 공대장/부공대장 또는 마스터
       allow read: if request.auth != null
         && (resource.data.requesterId == request.auth.uid
-            || isMaster()
-            || isRaidLeader(resource.data.raidId));
+            || isRaidLeader(resource.data.raidId)
+            || isMaster());
 
-      // 생성: 본인 요청만, pending 상태로
       allow create: if request.auth != null
         && request.resource.data.requesterId == request.auth.uid
         && request.resource.data.status == 'pending';
 
-      // 수정(승인/거부): 해당 공대 공대장/부공대장 또는 마스터
+      // 승인/거부: 해당 공대 리더 또는 마스터 + pending 상태에서만 전환
       allow update: if request.auth != null
-        && (isMaster() || isRaidLeader(resource.data.raidId));
+        && (isRaidLeader(resource.data.raidId) || isMaster())
+        && resource.data.status == 'pending'
+        && request.resource.data.status in ['approved', 'rejected'];
 
-      // 삭제: 마스터만
-      allow delete: if isMaster();
+      // 히스토리 보존 — 삭제 불가
+      allow delete: if false;
     }
 
     // ─────────────────────────────────────────
@@ -223,11 +247,14 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────
-    // auditLogs (감사 로그 — 클라이언트 쓰기 불가)
+    // auditLogs
+    // [수정 7] 클라이언트가 본인 actorId로 create만 가능, 수정/삭제 불가
     // ─────────────────────────────────────────
     match /auditLogs/{logId} {
       allow read: if isMaster();
-      // write는 누구도 직접 불가 (서버 트리거 전용)
+      allow create: if request.auth != null
+        && request.resource.data.actorId == request.auth.uid;
+      allow update, delete: if false;
     }
   }
 }

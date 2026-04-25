@@ -3838,6 +3838,32 @@ function renderBossList() {
   if (tbEl) tbEl.innerHTML = html;
 }
 
+// 내 공대 목록 — 사이드바 로직과 동일 기준, allCharacters 기반
+// renderDashboard 카운트 + 향후 renderMyRaidsNav(영역 C)에서도 활용 예정
+function getMyRaids(){
+  if(typeof allRaids==='undefined'||!currentUser) return [];
+  const uid=currentUser.uid;
+  const role=currentProfile?.role;
+  if(!role) return [];
+  if(['master','vice'].includes(role)) return [...allRaids];
+  if(role==='leader') return allRaids.filter(r=>r.ownerUid===uid);
+  const myIds=new Set(
+    allCharacters.filter(m=>(m.ownerUid===uid||m.uid===uid)&&m.raidId).map(m=>m.raidId)
+  );
+  return allRaids.filter(r=>myIds.has(r.id));
+}
+
+// 내가 운영자인 공대 목록 — 신청 대기 카운트 기반 데이터 (운영자 전용)
+function getMyManagedRaids(uid){
+  if(typeof allRaids==='undefined'||!uid) return [];
+  const role=currentProfile?.role;
+  if(role==='master') return [...allRaids];
+  if(role==='leader'||role==='vice'){
+    return allRaids.filter(r=>r.ownerUid===uid||(r.viceUids||[]).includes(uid));
+  }
+  return [];
+}
+
 function renderDashboard() {
   const isLeader = currentSidebarView === 'leader';
   const memberView = document.getElementById('dashViewMember');
@@ -3900,7 +3926,7 @@ function renderDashMember(){
   const el=id=>document.getElementById(id);
   if(el('dvmMonthTotal')) el('dvmMonthTotal').textContent = uid ? fmtG(monthGold) : '-';
   // 참여 공대 수
-  const myRaids = typeof allRaids!=='undefined' ? allRaids.filter(r=>(r.members||[]).includes(uid)||(r.applicants||[]).some(a=>a.uid===uid&&a.status==='승인')).length : 0;
+  const myRaids = getMyRaids().length;
   if(el('dvmRaidCount')) el('dvmRaidCount').textContent = myRaids+'개';
   // 신청 대기 (내 신청 중 대기 중인 것)
   const pendingCount = typeof allRaidApplications!=='undefined'

@@ -1776,7 +1776,7 @@
           </div>
           <div class="dv-stat">
             <div class="dv-stat-val" id="dvlMemberCount">-</div>
-            <div class="dv-stat-label">공대원</div>
+            <div class="dv-stat-label">내 공대</div>
           </div>
           <div class="dv-stat">
             <div class="dv-stat-val" id="dvlPerGold">-</div>
@@ -1796,15 +1796,6 @@
           <div id="dvlApplicants">
             <div style="padding:24px;text-align:center;color:var(--text-sub);font-size:var(--text-sm);">신청 대기자가 없습니다</div>
           </div>
-        </div>
-        <!-- 공대원 목록 (전체) -->
-        <div class="panel" style="margin-top:0;">
-          <div class="panel-header" style="margin-bottom:12px;">
-            <div style="font-size:var(--text-base);font-weight:600;color:var(--text);">공대원 관리</div>
-            <button class="btn btn-outline" onclick="showPage('members',null)" style="font-size:var(--text-xs);padding:5px 14px;">전체 보기 →</button>
-          </div>
-          <div class="dash-member-stats" id="dashMemberStatRow"></div>
-          <div id="dashMemberList"></div>
         </div>
       </div>
 
@@ -2231,81 +2222,16 @@
       </div>
     </div>
 
-    <!-- 공대원 목록 -->
-    <div id="page-members" class="page-section active">
+    <!-- 공대원 목록 (Area C에서 사이드바 제거 예정) -->
+    <div id="page-members" class="page-section">
       <div class="top-bar">
-        <div><h1 class="page-title">공대원 목록</h1><p class="page-desc">공대원 정보를 등록하고 관리합니다</p></div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button class="btn btn-outline" onclick="exportMembers()" style="display:flex;align-items:center;gap:6px;">📥 내보내기</button>
-          <button class="btn btn-outline" id="btnAddMember" onclick="openMemberModal()" style="display:none;align-items:center;gap:8px;font-size:var(--text-xs);">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>
-            [관리용] 수동 등록
-          </button>
-        </div>
+        <div><h1 class="page-title">공대원 목록</h1><p class="page-desc">공대원 정보는 각 공대 페이지에서 확인하세요</p></div>
       </div>
-      <div class="alert alert-info" id="memberGuideBanner" style="display:none;margin-bottom:16px;">
-        <span>💡</span>
-        <span><strong>공대원 추가 방법이 변경됐어요!</strong><br>
-        공대원은 "공대 찾기" 페이지에서 가입 신청 후 공대장이 승인하는 방식으로 등록됩니다.
-        이 방법으로 등록된 공대원만 정산 내역을 정상적으로 확인할 수 있어요.</span>
-      </div>
-
-      <!-- 요약 카드 -->
-      <div class="cards">
-        <div class="card stat-card">
-          <div><h3 id="statTotal">0</h3><p>전체 공대원</p></div>
-          <div class="stat-icon" style="background:#eff6ff;color:#3b82f6;">👥</div>
-        </div>
-        <div class="card stat-card">
-          <div><h3 id="statActive">0</h3><p>참여 가능</p></div>
-          <div class="stat-icon" style="background:#ecfdf5;color:#059669;">✅</div>
-        </div>
-        <div class="card stat-card">
-          <div><h3 id="statGold">0만</h3><p>총 골드 수입</p></div>
-          <div class="stat-icon" style="background:#fffbeb;color:#d97706;">💰</div>
-        </div>
-        <div class="card stat-card">
-          <div><h3 id="statAvg">0</h3><p>평균 1인 수입</p></div>
-          <div class="stat-icon" style="background:#fef2f2;color:#dc2626;">📊</div>
-        </div>
-      </div>
-
-      <!-- 차트 영역 -->
-      <div class="grid-2" style="margin-bottom:16px;">
-        <div class="panel">
-          <div class="panel-header"><h2>역할 분포</h2></div>
-          <div id="roleChart" style="display:flex;align-items:flex-end;gap:24px;height:140px;padding:10px 30px;"></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><h2>참여 상태 요약</h2></div>
-          <div id="statusSummary" style="padding:8px 0;"></div>
-        </div>
-      </div>
-
-      <!-- 테이블 -->
-      <div class="panel">
-        <div class="filter-bar">
-          <input type="text" class="search-input" placeholder="🔍 캐릭터명, 직업 검색..." id="memberSearch" oninput="renderMemberTable()">
-          <select class="filter-select" id="memberRoleFilter" onchange="renderMemberTable()">
-            <option value="">역할 전체</option><option value="딜러">딜러</option><option value="서폿">서폿</option>
-          </select>
-          <select class="filter-select" id="memberStatusFilter" onchange="renderMemberTable()">
-            <option value="">상태 전체</option><option value="참여">참여</option><option value="미정">미정</option><option value="불참">불참</option>
-          </select>
-          <span style="font-size:var(--text-sm);color:var(--text-sub);" id="memberCount">0명</span>
-          <div class="view-toggle" style="margin-left:auto;">
-            <button id="btnViewTable" class="active" onclick="setMemberView('table')" title="테이블 보기">☰</button>
-            <button id="btnViewGrid" onclick="setMemberView('grid')" title="그리드 보기">⊞</button>
-          </div>
-        </div>
-        <div id="memberTableWrap" class="table-wrap">
-          <table><thead><tr>
-            <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>상태</th>
-          </tr></thead><tbody id="memberTableBody"></tbody></table>
-        </div>
-        <div id="memberGridWrap" style="display:none;">
-          <div id="memberGridBody" class="member-grid"></div>
-        </div>
+      <div class="empty-state" style="margin-top:32px;">
+        <div class="icon">🛡️</div>
+        <h3>공대별로 관리됩니다</h3>
+        <p>공대원 목록은 각 공대 상세 페이지에서 확인할 수 있습니다</p>
+        <button class="btn btn-primary" onclick="showPage('raids',null)" style="margin-top:12px;">공대 찾기 →</button>
       </div>
     </div>
 
@@ -3361,6 +3287,9 @@ function _subscribeCharactersFallback(){
 function _onCharactersUpdated(){
   // 영역 A
   renderGoldTable();
+  // 영역 B
+  renderStats();
+  renderDashboard();
 }
 
 // =============================================
@@ -4019,10 +3948,11 @@ function renderDashLeader(){
   }
 
   // 통계
-  const total = allMembers.length;
-  const active = allMembers.filter(m=>m.status==='참여').length;
-  const undecided = allMembers.filter(m=>m.status==='미정').length;
-  const absent = allMembers.filter(m=>m.status==='불참').length;
+  const myRaidsCount = getMyRaids().length;
+  const total = allCharacters.length;
+  const active = allCharacters.filter(m=>m.status==='참여').length;
+  const undecided = allCharacters.filter(m=>m.status==='미정').length;
+  const absent = allCharacters.filter(m=>m.status==='불참').length;
 
   // 이번 주 총 수익
   const weekStart = new Date(now);
@@ -4036,7 +3966,7 @@ function renderDashLeader(){
   });
   const fmtG=g=>g>=10000?Math.round(g/10000).toLocaleString()+'만':g.toLocaleString();
   if(el('dvlWeekSales')) el('dvlWeekSales').textContent = fmtG(weekSales);
-  if(el('dvlMemberCount')) el('dvlMemberCount').textContent = total+'명';
+  if(el('dvlMemberCount')) el('dvlMemberCount').textContent = myRaidsCount+'개';
 
   // 1인당 분배 (최근 정산 기준)
   const lastSt = typeof allMySettlements!=='undefined'&&allMySettlements.length ? allMySettlements[0] : null;
@@ -4073,36 +4003,6 @@ function renderDashLeader(){
     }
   }
 
-  // 공대원 관리 테이블
-  const statRow = el('dashMemberStatRow');
-  if(statRow){
-    statRow.innerHTML=`
-      <div class="dm-stat"><span class="dm-stat-num">${total}</span><span class="dm-stat-label">전체</span></div>
-      <div class="dm-stat"><span class="dm-stat-num" style="color:#059669">${active}</span><span class="dm-stat-label">참여</span></div>
-      <div class="dm-stat"><span class="dm-stat-num" style="color:#d97706">${undecided}</span><span class="dm-stat-label">미정</span></div>
-      <div class="dm-stat"><span class="dm-stat-num" style="color:#ef4444">${absent}</span><span class="dm-stat-label">불참</span></div>`;
-  }
-  const mlEl = el('dashMemberList');
-  if(mlEl){
-    if(!allMembers.length){
-      mlEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-sub);font-size:var(--text-sm);">등록된 공대원이 없습니다</div>';
-    } else {
-      const sbadge={참여:'badge-green',미정:'badge-yellow',불참:'badge-red'};
-      const rbadge={딜러:'badge-blue',서폿:'badge-purple'};
-      mlEl.innerHTML=`<table class="dash-member-table">
-        <thead><tr><th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>레벨</th><th>상태</th></tr></thead>
-        <tbody>${allMembers.map((m,i)=>`
-          <tr>
-            <td style="color:var(--text-sub)">${i+1}</td>
-            <td><strong>${m.name||'-'}</strong></td>
-            <td style="color:var(--text-sub)">${m.cls||'-'}</td>
-            <td><span class="badge ${rbadge[m.role]||'badge-gray'}">${m.role||'-'}</span></td>
-            <td>${m.level||'-'}</td>
-            <td><span class="badge ${sbadge[m.status]||'badge-gray'}">${m.status||'-'}</span></td>
-          </tr>`).join('')}
-        </tbody></table>`;
-    }
-  }
 }
 
 // =============================================
@@ -4122,19 +4022,19 @@ function _refreshRoleBadge(){
 }
 
 function renderStats(){
-  const t=allMembers.length,a=allMembers.filter(m=>m.status==='참여').length,g=allMembers.reduce((s,m)=>s+(m.gold||0),0);
+  const t=allCharacters.length,a=allCharacters.filter(m=>m.status==='참여').length,g=allCharacters.reduce((s,m)=>s+(m.gold||0),0);
   const el=id=>document.getElementById(id);
   if(el('statTotal'))el('statTotal').textContent=t;
   if(el('statActive'))el('statActive').textContent=a;
   if(el('statGold'))el('statGold').textContent=g.toLocaleString()+'만';
   if(el('statAvg'))el('statAvg').textContent=t?Math.round(g/t)+'만':'0';
   // 역할 분포
-  const dl=allMembers.filter(m=>m.role==='딜러').length,sp=allMembers.filter(m=>m.role==='서폿').length,mx=Math.max(dl,sp,1);
+  const dl=allCharacters.filter(m=>m.role==='딜러').length,sp=allCharacters.filter(m=>m.role==='서폿').length,mx=Math.max(dl,sp,1);
   const rc=document.getElementById('roleChart');
   if(rc)rc.innerHTML=[{l:'딜러',c:dl,co:'#059669'},{l:'서폿',c:sp,co:'#3b82f6'}].map(r=>`<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;"><span style="font-size:var(--text-base);font-weight:700;">${r.c}명</span><div style="width:50px;height:${Math.max((r.c/mx)*100,8)}px;background:${r.co};border-radius:6px 6px 0 0;"></div><span style="font-size:var(--text-xs);color:var(--text-sub);">${r.l}</span></div>`).join('');
   // 상태 요약
   const ss=document.getElementById('statusSummary');
-  if(ss)ss.innerHTML=[{l:'참여',c:a,co:'#059669'},{l:'미정',c:allMembers.filter(m=>m.status==='미정').length,co:'#d97706'},{l:'불참',c:allMembers.filter(m=>m.status==='불참').length,co:'#dc2626'}].map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:10px;height:10px;border-radius:50%;background:${s.co};"></span><span style="flex:1;font-size:var(--text-base);">${s.l}</span><strong style="font-size:var(--text-base);">${s.c}명</strong></div>`).join('');
+  if(ss)ss.innerHTML=[{l:'참여',c:a,co:'#059669'},{l:'미정',c:allCharacters.filter(m=>m.status==='미정').length,co:'#d97706'},{l:'불참',c:allCharacters.filter(m=>m.status==='불참').length,co:'#dc2626'}].map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:10px;height:10px;border-radius:50%;background:${s.co};"></span><span style="flex:1;font-size:var(--text-base);">${s.l}</span><strong style="font-size:var(--text-base);">${s.c}명</strong></div>`).join('');
 }
 
 let memberViewMode='table';

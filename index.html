@@ -3352,14 +3352,8 @@ function _subscribeCharactersFallback(){
 }
 
 function _onCharactersUpdated(){
-  // Step 3에서 allMembers → allCharacters 전환 후 실제 렌더 담당
-  // subscribeMembers() 콜백과 동일 패턴
-  renderMemberTable();
+  // 영역 A
   renderGoldTable();
-  renderStats();
-  renderDashboard();
-  renderMyRaidsNav();
-  _refreshRoleBadge();
 }
 
 // =============================================
@@ -3452,7 +3446,7 @@ document.addEventListener('click',function(e){
 });
 
 auth.onAuthStateChanged(async(user)=>{
-  if(!user){currentUser=null;currentProfile=null;_raidOrder=[];updateLoginUI();subscribeMembers();subscribeGuildPromos();subscribePurchases();window._myCharsData=[];mcRenderAllCards();renderMyRaidsNav();return;}
+  if(!user){currentUser=null;currentProfile=null;_raidOrder=[];updateLoginUI();subscribeMembers();subscribeCharacters();subscribeGuildPromos();subscribePurchases();window._myCharsData=[];mcRenderAllCards();renderMyRaidsNav();return;}
   currentUser=user;
   const userRef=db.collection('users').doc(user.uid);
   let doc=await userRef.get();
@@ -3555,7 +3549,7 @@ auth.onAuthStateChanged(async(user)=>{
   }
   // 공대 순서는 subscribe/첫 렌더 전에 먼저 확보 — 레이스 컨디션 방지
   await loadRaidOrder();
-  updateLoginUI();subscribeMembers();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
+  updateLoginUI();subscribeMembers();subscribeCharacters();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
   renderMyRaidsNav();
   // 내 디스코드 ID로 등록된 미연결 공대원 자동 연결
   _autoLinkMyMembers().then(n=>{ if(n>0) showToast(`${n}개 공대에 자동 연결되었습니다.`, 'success'); });
@@ -4322,7 +4316,7 @@ async function deleteMember(id,name){if(confirm(`"${name}" 삭제?`))await db.co
 // =============================================
 function renderGoldTable(){
   const tb=document.getElementById('goldTableBody');if(!tb)return;
-  tb.innerHTML=allMembers.filter(m=>m.status==='참여').map((m,i)=>{
+  tb.innerHTML=allCharacters.filter(m=>m.status==='참여').map((m,i)=>{
     const b=m.role==='서폿'?20:0;
     return `<tr><td>${i+1}</td><td><strong>${m.name}</strong></td><td><span class="badge ${m.role==='서폿'?'badge-blue':'badge-green'}">${m.role}</span></td><td>${m.gold||0}만</td><td>${b?'+'+b+'만':'-'}</td><td><strong>${(m.gold||0)+b}만</strong></td></tr>`;
   }).join('');
@@ -6299,10 +6293,7 @@ async function rdSaveSettlementForm(raidId){
   // uid 누락 참여자 차단
   const rdMissing=rdResolved.filter(m=>!m.resolvedUid);
   if(rdMissing.length){
-    const names=rdMissing.map(m=>m.name).join(', ');
-    showToast('계정 미연결 캐릭터 포함됨: '+names,'error');
-    alert(`다음 캐릭터는 계정 연결이 안 돼 있어 정산에 포함할 수 없습니다:\n${names}\n\n해당 캐릭터를 실제 유저 계정과 연결한 뒤 다시 시도해 주세요.`);
-    return;
+    showToast('미연결 캐릭터 '+rdMissing.length+'명 포함 — 계정 연결 후 본인 정산 내역에 자동으로 이어집니다.');
   }
   const rdDiscMap=await _rdResolveDiscordMap(rdResolved.map(m=>m.resolvedUid));
 
@@ -7649,9 +7640,7 @@ async function saveSettlement(){
   // uid 누락 참여자 차단
   const missing=resolvedMembers.filter(m=>!m.resolvedUid);
   if(missing.length){
-    const names=missing.map(m=>m.name).join(', ');
-    alert(`다음 캐릭터는 계정 연결이 안 돼 있어 정산에 포함할 수 없습니다:\n${names}\n\n해당 캐릭터를 실제 유저 계정과 연결한 뒤 다시 시도해 주세요.`);
-    return;
+    showToast('미연결 캐릭터 '+missing.length+'명 포함 — 계정 연결 후 본인 정산 내역에 자동으로 이어집니다.');
   }
   // uid → discordId 맵 (users 컬렉션 배치 조회)
   const discMap=await _rdResolveDiscordMap(resolvedMembers.map(m=>m.resolvedUid));

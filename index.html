@@ -1177,6 +1177,7 @@
   .dv-stat{background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px}
   .dv-stat-val{font-size:var(--text-xl);font-weight:700;color:var(--text);line-height:1.1}
   .dv-stat-label{font-size:var(--text-2xs);color:var(--text-sub);margin-top:5px}
+  .dv-stat-sub{font-size:var(--text-2xs);color:var(--text-sub);opacity:.7;margin-top:2px}
   .dv-quicknav{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
   .dv-qn-btn{display:flex;align-items:center;gap:10px;background:var(--card-bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;cursor:pointer;transition:border-color .12s,background .12s;text-align:left;width:100%}
   .dv-qn-btn:hover{border-color:var(--text-sub);background:var(--surface-alt)}
@@ -1699,8 +1700,8 @@
           </div>
           <button class="dv-hero-btn" onclick="showPage('mysettlement',null)">정산 내역 보기 →</button>
         </div>
-        <!-- 통계 3칸 -->
-        <div class="dv-stats">
+        <!-- 통계 3/4칸 (운영자면 4칸, JS에서 dv-stats-4 토글) -->
+        <div class="dv-stats" id="dvmStatsGrid">
           <div class="dv-stat">
             <div class="dv-stat-val" id="dvmMonthTotal">-</div>
             <div class="dv-stat-label">이번달 누적</div>
@@ -1711,7 +1712,13 @@
           </div>
           <div class="dv-stat" id="dvmPendingStat">
             <div class="dv-stat-val" id="dvmPending">-</div>
+            <div class="dv-stat-label">승인 대기</div>
+            <div class="dv-stat-sub">공대 가입 신청</div>
+          </div>
+          <div class="dv-stat" id="dvmOpPendingStat" style="display:none;" onclick="showToast('신청 처리 기능은 곧 제공됩니다.')">
+            <div class="dv-stat-val" id="dvmOpPending">-</div>
             <div class="dv-stat-label">신청 대기</div>
+            <div class="dv-stat-sub">내 공대 신청 처리</div>
           </div>
         </div>
         <!-- 빠른 이동 3칸 -->
@@ -3928,12 +3935,26 @@ function renderDashMember(){
   // 참여 공대 수
   const myRaids = getMyRaids().length;
   if(el('dvmRaidCount')) el('dvmRaidCount').textContent = myRaids+'개';
-  // 신청 대기 (내 신청 중 대기 중인 것)
+  // 승인 대기 (내가 낸 신청 중 대기 중인 것)
   const pendingCount = typeof allRaidApplications!=='undefined'
     ? allRaidApplications.filter(a=>a.uid===uid&&a.status==='대기').length : 0;
   if(el('dvmPending')) el('dvmPending').textContent = pendingCount+'건';
   const pendingStat = el('dvmPendingStat');
   if(pendingStat) pendingStat.style.borderColor = pendingCount>0 ? '#ef4444' : '';
+
+  // 신청 대기 (운영자 — 내 공대로 들어온 신청)
+  const isOperator = ['master','leader','vice'].includes(currentProfile?.role);
+  const statsGrid = el('dvmStatsGrid');
+  const opStat = el('dvmOpPendingStat');
+  if(statsGrid) statsGrid.classList.toggle('dv-stats-4', isOperator);
+  if(opStat) opStat.style.display = isOperator ? '' : 'none';
+  if(isOperator){
+    const managedIds = getMyManagedRaids(uid).map(r=>r.id);
+    const opCount = typeof allRaidApplications!=='undefined'
+      ? allRaidApplications.filter(a=>managedIds.includes(a.raidId)&&a.status==='대기').length : 0;
+    if(el('dvmOpPending')) el('dvmOpPending').textContent = opCount+'건';
+    if(opStat) opStat.style.borderColor = opCount>0 ? '#ef4444' : '';
+  }
 
   // 최근 정산 (3건)
   const dvmS = el('dvmSettlements');

@@ -3506,6 +3506,9 @@ auth.onAuthStateChanged(async(user)=>{
     }
   }
   currentProfile={id:doc.id,...profileData};
+  // [race 회피] 로그인 직후 내 캐릭터 데이터 메모리 로드
+  // saveRaid 등이 _myCharsData를 즉시 사용 가능하게 함
+  mcLoadMyChar().catch(e => console.warn('[mcLoadMyChar] 초기 로드 실패:', e));
   // 프로필 캐시 저장 (빠른 UI 복원용)
   try{localStorage.setItem('_profileCache',JSON.stringify({name:currentProfile.name,photo:currentProfile.photo,role:currentProfile.role}));}catch(e){}
   // 접속 시각 갱신 + 방문자 카운터 업데이트

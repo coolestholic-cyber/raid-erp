@@ -3164,7 +3164,7 @@ const ROLES = {
 function canManageUsers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
 function canManageMembers(){return currentProfile&&['master','leader','vice'].includes(currentProfile.role);}
 function canEditSelf(){return currentProfile&&currentProfile.role==='member';}
-function isAdmin(user){return user?.role==='master';}
+function isAdmin(user){return isSiteMaster(user?.role);}
 // 단일 권한 판정: 내부 로직(정산 접근 등)에서 사용
 // - master/leader/vice: users.role 기반
 // - member: members 컬렉션 실제 소속 여부
@@ -3173,7 +3173,7 @@ function getEffectiveRole(){
   if(!currentProfile || !currentUser) return 'none';
   const role = currentProfile.role;
   const uid = currentUser.uid;
-  if(role === 'master') return 'master';
+  if(isSiteMaster(role)) return 'master';
   if(role === 'leader' && Array.isArray(allRaids) && allRaids.some(r=>r.ownerUid===uid)) return 'leader';
   if(role === 'vice') return 'vice';
   if(Array.isArray(allMembers) && allMembers.some(m=>(m.uid===uid||m.ownerUid===uid) && m.raidId)) return 'member';
@@ -3182,18 +3182,18 @@ function getEffectiveRole(){
 // 우측 상단 뱃지 전용: 사이트마스터만 표시
 function getUserBadgeType(){
   if(!currentProfile || !currentUser) return null;
-  return currentProfile.role === 'master' ? 'master' : null;
+  return isSiteMaster(currentProfile.role) ? 'master' : null;
 }
 // 공대장 신청 가능 여부: 사이트마스터·공대장 둘 다 아닐 때만
 function canApplyForLeader(){
   if(!currentProfile || !currentUser) return false;
-  if(currentProfile.role === 'master') return false;
+  if(isSiteMaster(currentProfile.role)) return false;
   const uid = currentUser.uid;
   if(Array.isArray(allRaids) && allRaids.some(r=>r.ownerUid===uid)) return false;
   return true;
 }
-function canEditRaid(){const r=currentProfile?.role;return r==='master'||r==='leader'||r==='vice';}
-function canDestroyRaid(){const r=currentProfile?.role;return r==='master'||r==='leader';}
+function canEditRaid(){const r=currentProfile?.role;return isSiteMaster(r)||r==='leader'||r==='vice';}
+function canDestroyRaid(){const r=currentProfile?.role;return isSiteMaster(r)||r==='leader';}
 
 // =============================================
 // Step 2: 권한 캐시 시스템 (REMOVE AFTER D+14)
@@ -3333,7 +3333,7 @@ function updateLoginUI(){
     document.getElementById('userName').textContent=currentProfile.name;
     document.getElementById('userPhoto').src=photoSrc;
     // 역할 뱃지: 사이트마스터만 표시
-    const isMaster = currentProfile?.role === 'master';
+    const isMaster = isSiteMaster(currentProfile?.role);
     const badge = document.getElementById('userRoleBadge');
     if(badge){ badge.textContent = isMaster ? '사이트마스터' : ''; badge.style.display = isMaster ? '' : 'none'; }
     // 드롭다운 헤더 동기화
@@ -3786,7 +3786,7 @@ function getMyRaids(){
   const uid=currentUser.uid;
   const role=currentProfile?.role;
   if(!role) return [];
-  if(['master','vice'].includes(role)) return [...allRaids];
+  if(isSiteMaster(role)||role==='vice') return [...allRaids];
   if(role==='leader') return allRaids.filter(r=>r.ownerUid===uid);
   const myIds=new Set(
     allCharacters.filter(m=>(m.ownerUid===uid||m.uid===uid)&&m.raidId).map(m=>m.raidId)
@@ -3798,7 +3798,7 @@ function getMyRaids(){
 function getMyManagedRaids(uid){
   if(typeof allRaids==='undefined'||!uid) return [];
   const role=currentProfile?.role;
-  if(role==='master') return [...allRaids];
+  if(isSiteMaster(role)) return [...allRaids];
   if(role==='leader'||role==='vice'){
     return allRaids.filter(r=>r.ownerUid===uid||(r.viceUids||[]).includes(uid));
   }
@@ -4020,7 +4020,7 @@ function _refreshRoleBadge(){
   const badge = document.getElementById('userRoleBadge');
   const ddRole = document.getElementById('ddUserRole');
   if(!badge && !ddRole) return;
-  const isMaster = currentProfile?.role === 'master';
+  const isMaster = isSiteMaster(currentProfile?.role);
   if(badge){ badge.textContent = isMaster ? '사이트마스터' : ''; badge.style.display = isMaster ? '' : 'none'; }
   if(ddRole){ ddRole.textContent = isMaster ? '사이트마스터' : ''; ddRole.style.display = isMaster ? '' : 'none'; }
   updateApplyLeaderButton();
@@ -4484,7 +4484,7 @@ function renderUserTable(){
     const cr=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko'):'-';
     const la=_fmtRelativeTime(u.lastLoginAt);
     const isSelf=u.id===currentUser?.uid;
-    const isMasterTarget=u.role==='master';
+    const isMasterTarget=isSiteMaster(u.role);
     const ctrl=admin?_amRoleSelect(u.id,u.role||'none',isSelf):`<span class="badge ${r.badge}">${r.label}</span>`;
     const actionCell=_amActionBtn(u,isSelf,isMasterTarget);
     const displayName=_resolveDisplayName(u.name,u.discordId,u.id,u.discordUsername);
@@ -5386,7 +5386,7 @@ function updateRaidNavVisibility(){
 let currentSidebarView = 'member'; // 'member' | 'leader'
 
 function updateSidebarMenuSet(){
-  const isMaster = currentProfile?.role === 'master';
+  const isMaster = isSiteMaster(currentProfile?.role);
   const toolsSection = document.getElementById('navToolsSection');
   const adminSection = document.getElementById('navAdminSection');
   if(toolsSection) toolsSection.style.display = isMaster ? '' : 'none';
@@ -5505,7 +5505,7 @@ subscribeRaids();
 // 1단계: 해시 라우터 + 공대 상세 페이지
 // =============================================
 function canViewTab(tab, role, raid, uid){
-  const isLeaderOfRaid = role==='master'||(role==='leader'&&raid?.ownerUid===uid);
+  const isLeaderOfRaid = isSiteMaster(role)||(role==='leader'&&raid?.ownerUid===uid);
   switch(tab){
     case 'members':      return ['master','leader','vice','member'].includes(role);
     case 'applications': return ['master','leader','vice'].includes(role);
@@ -5758,9 +5758,9 @@ function rdRenderMembers(raidId){
   const canKick=canKickMember(role);                         // master: 강퇴
   const canSelfEdit=['master','leader','vice','member'].includes(role); // 본인 행 수정
   // 공대원 등록 권한: 사이트마스터 OR 해당 공대의 공대장(leader+오너)
-  const isSiteMaster = role === 'master';
+  const userIsSiteMaster = isSiteMaster(role);
   const isRaidOwner = !!(raid && raid.ownerUid === uid && role === 'leader');
-  const canAddMember = isSiteMaster || isRaidOwner;
+  const canAddMember = userIsSiteMaster || isRaidOwner;
   const members=allMembers.filter(m=>m.raidId===raidId);
   const hasActions=canEditOthers||canKick||canSelfEdit;
 
@@ -8908,7 +8908,7 @@ function _saPermUpdateActionBar(){
 }
 
 async function _saPermSave(){
-  if(!currentProfile||currentProfile.role!=='master'){alert('권한 없음');return;}
+  if(!currentProfile||!isSiteMaster(currentProfile.role)){alert('권한 없음');return;}
   const batch=db.batch();
   SA_ROLE_DEFS.forEach(r=>{
     if(r.id==='master') return;
@@ -8938,7 +8938,7 @@ function _saPermRestore(){
 }
 
 async function _saPermRestoreConfirm(){
-  if(!currentProfile||currentProfile.role!=='master'){alert('권한 없음');return;}
+  if(!currentProfile||!isSiteMaster(currentProfile.role)){alert('권한 없음');return;}
   document.getElementById('saRestorePermModal').style.display='none';
   const batch=db.batch();
   SA_ROLE_DEFS.forEach(r=>{
@@ -8976,7 +8976,7 @@ async function hasPermission(role, permId){
 // ── 유저 관리 ──
 function _saUsersInit(){
   renderUserTable();
-  const isMst=currentProfile?.role==='master';
+  const isMst=isSiteMaster(currentProfile?.role);
   const mp=document.getElementById('migrateLogPanel');
   if(mp) mp.style.display=isMst?'':'none';
   if(isMst && typeof actLogsUnsub!=='undefined' && !actLogsUnsub) subscribeActivityLogs();

@@ -5703,7 +5703,7 @@ function rdShowTab(tab, raidId){
   const rdMeta = document.getElementById('rdRaidMeta');
   if(rdMeta){
     if(raid){
-      const mc = allMembers.filter(m=>m.raidId===raidId).length;
+      const mc = allCharacters.filter(m=>m.raidId===raidId).length;
       const parts = [];
       if(raid.boss) parts.push(raid.boss);
       if(raid.ownerName) parts.push('공대장: '+raid.ownerName);
@@ -5745,7 +5745,7 @@ function rdShowTab(tab, raidId){
   // 공대 탈퇴 버튼 표시 여부
   const rdLeaveBtn=document.getElementById('rdLeaveBtn');
   if(rdLeaveBtn){
-    const myMember=allMembers.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
+    const myMember=allCharacters.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
     const isRaidOwner=raid?.ownerUid===uid;
     const showLeave=(!!myMember||isRaidOwner)&&!['none','guest'].includes(role);
     rdLeaveBtn.style.display=showLeave?'':'none';
@@ -5804,7 +5804,7 @@ function rdRenderMembers(raidId){
             const safeName=(m.name||'').replace(/'/g,"\\'");
             const editBtn=canEditThis?`<button class="btn btn-outline" style="font-size:var(--text-2xs);padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`:'';
             const trashBtn=showTrash?`<button class="st-trash-btn" style="margin-left:auto;" title="강퇴" aria-label="공대원 강퇴" onclick="leaveRaid('${m.id}','${safeName}','${raidId}')">${ST_TRASH_SVG}</button>`:'';
-            const unlinkedBadge = !m.uid ? `<span class="st-unlinked-badge clickable" onclick="tryLinkMember('${m.id}')" title="클릭하여 본인 계정과 연결">⚠ 미연결</span>` : '';
+            const unlinkedBadge = !m.uid ? `<span class="st-unlinked-badge" style="cursor:default;" title="Step 7 계정 연결 기능 준비 중">⚠ 미연결</span>` : '';
             return `<tr>
             <td style="color:var(--text-sub)">${i+1}</td>
             <td><strong>${m.name||'-'}</strong>${unlinkedBadge}</td>
@@ -5894,7 +5894,7 @@ async function rdRenderSettlements(raidId){
     return;
   }
 
-  const myMember=allMembers.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
+  const myMember=allCharacters.find(m=>m.raidId===raidId&&(m.uid===uid||m.ownerUid===uid));
   const formOpen=_rdFormOpen&&_rdFormRaidId===raidId;
   const bossList=['자쿰','혼테일','크우파','일반 보스','기타'];
 

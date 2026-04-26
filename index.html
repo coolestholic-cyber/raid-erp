@@ -7339,31 +7339,58 @@ async function approveApp(appId, raidId){
   const appDoc = await db.collection('raidApplications').doc(appId).get();
   const appData = appDoc.data();
   if(!appData) return;
+
+  // discordId 보강
+  let discordId = appData.discordId || null;
+  if(!discordId && appData.uid){
+    try{
+      const uDoc = await db.collection('users').doc(appData.uid).get();
+      if(uDoc.exists) discordId = uDoc.data().discordId || null;
+    }catch(_){}
+  }
+
+  // charSnapshot 우선, 없으면 legacy 필드 폴백 (구버전 신청서 호환)
+  const snap = appData.charSnapshot || {
+    name: appData.name || '',
+    cls: appData.cls || '',
+    role: appData.role || '딜러',
+    level: appData.level || 0,
+    skillAtk: appData.skillAtk || 0
+  };
+
   // 1. 신청 상태 업데이트
   await db.collection('raidApplications').doc(appId).update({status:'승인', userRole:'member'});
-  // 2. 중복 체크 후 members에 uid 포함 자동 등록
-  const existingSnap = await db.collection('members')
-    .where('uid','==',appData.uid)
-    .where('raidId','==',raidId)
-    .get();
-  if(existingSnap.empty){
-    // discordId 보강: 신청 문서에 이미 있으면 재사용, 없으면 users에서 조회
-    let discordId=appData.discordId||null;
-    if(!discordId && appData.uid){
-      try{
-        const uDoc=await db.collection('users').doc(appData.uid).get();
-        if(uDoc.exists) discordId=uDoc.data().discordId||null;
-      }catch(_){}
-    }
-    await db.collection('members').add({
+
+  // 2. raids/{raidId}/characters 매칭 시도 (갈래②) → 없으면 새 add (갈래①)
+  const charsRef = db.collection('raids').doc(raidId).collection('characters');
+  let candidate = null;
+  try{
+    const matchSnap = await charsRef.where('name','==', snap.name).get();
+    candidate = matchSnap.docs.find(d => {
+      const v = d.data();
+      return v.uid == null && (v.cls||'') === (snap.cls||'');
+    }) || null;
+  }catch(e){
+    console.error('[approveApp] match query failed', e);
+  }
+
+  if(candidate){
+    // 갈래②: 기존 캐릭터 doc에 uid/discordId/linkedAt 박기 (룰 [추가 B])
+    await candidate.ref.update({
       uid: appData.uid,
       discordId,
-      raidId: raidId,
-      name: appData.name,
-      cls: appData.cls,
-      role: appData.role,
-      level: appData.level || 0,
-      skillAtk: appData.skillAtk || 0,
+      linkedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } else {
+    // 갈래①: 새 캐릭터 doc 추가
+    await charsRef.add({
+      uid: appData.uid,
+      discordId,
+      name: snap.name,
+      cls: snap.cls,
+      role: snap.role,
+      level: snap.level,
+      skillAtk: snap.skillAtk,
       status: '참여',
       rate: 100,
       ownerUid: appData.uid,
@@ -7371,13 +7398,25 @@ async function approveApp(appId, raidId){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   }
-  // 3. users role 업데이트
+
+  // 3. raids/{raidId}/members 멤버십 추가 (set+merge로 멱등성 확보)
+  if(appData.uid){
+    await db.collection('raids').doc(raidId).collection('members').doc(appData.uid).set({
+      uid: appData.uid,
+      discordId,
+      roleInRaid: 'member',
+      joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge: true});
+  }
+
+  // 4. users role 업데이트 (guest/none → member)
   if(appData.uid){
     const uDoc = await db.collection('users').doc(appData.uid).get();
     if(uDoc.exists && ['guest','none'].includes(uDoc.data().role)){
       await db.collection('users').doc(appData.uid).update({role:'member'});
     }
   }
+
   await renderApplicants(raidId);
   renderRaidList();
 }

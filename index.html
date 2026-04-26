@@ -6172,6 +6172,24 @@ function rdCancelSettlementForm(raidId){
 
 function rdStRevenue(it){return stCalcItem(it).netProfit;}
 
+// 통합 입력 → incentive/penalty 분리 저장 (DB 모델 호환)
+function rdStOnAdjustInput(i, input){
+  const v = parseInt(input.value) || 0;
+  _rdStMembers[i].incentive = v > 0 ? v : 0;
+  _rdStMembers[i].penalty = v < 0 ? -v : 0;
+  input.style.color = v > 0 ? '#0F6E56' : v < 0 ? '#E24B4A' : '';
+  input.style.fontWeight = v !== 0 ? '600' : '';
+  rdStRecalc();
+}
+function stOnAdjustInput(i, input){
+  const v = parseInt(input.value) || 0;
+  stMembers[i].incentive = v > 0 ? v : 0;
+  stMembers[i].penalty = v < 0 ? -v : 0;
+  input.style.color = v > 0 ? '#0F6E56' : v < 0 ? '#E24B4A' : '';
+  input.style.fontWeight = v !== 0 ? '600' : '';
+  stRecalc();
+}
+
 function rdStRecalc(){
   let tNet=0;
   _rdStItems.forEach(it=>{tNet+=stCalcItem(it).netProfit;});
@@ -6275,11 +6293,12 @@ function rdStRenderMembers(){
         <input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="_rdStMembers[${i}].name=this.value">
         ${isUnlinked?'<span class="st-unlinked-badge" title="디스코드 계정과 연결되지 않은 캐릭터입니다. 정산에 포함될 수 없습니다.">⚠ 계정 미연결</span>':''}
       </td>
-      <td class="c-mem-penal" data-label="별금/인센"><div class="st-penal-wrap">
-        <div class="st-penal-item"><span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
-          <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" onchange="_rdStMembers[${i}].incentive=parseInt(this.value)||0;rdStRecalc()"></div>
-        <div class="st-penal-item"><span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
-          <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" onchange="_rdStMembers[${i}].penalty=parseInt(this.value)||0;rdStRecalc()"></div>
+      <td class="c-mem-penal" data-label="±조정"><div class="st-penal-wrap">
+        <input class="st-ti num" type="number" inputmode="numeric"
+          placeholder="+인센 / -벌금"
+          value="${m.incentive>0 ? m.incentive : (m.penalty>0 ? -m.penalty : '')}"
+          style="${m.incentive>0?'color:#0F6E56;font-weight:600;':m.penalty>0?'color:#E24B4A;font-weight:600;':''}"
+          onchange="rdStOnAdjustInput(${i}, this)">
       </div></td>
       <td class="c-mem-alloc" data-label="할당량(%)" style="text-align:right;"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" onchange="_rdStMembers[${i}].alloc=parseInt(this.value)||0;rdStRecalc()"></td>
       <td class="c-mem-note" data-label="비고">
@@ -7757,11 +7776,12 @@ function stRenderMembers(){
         <input class="st-ti" type="text" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="이름" onchange="stMembers[${i}].name=this.value">
         ${isUnlinked?'<span class="st-unlinked-badge" title="디스코드 계정과 연결되지 않은 캐릭터입니다. 정산에 포함될 수 없습니다.">⚠ 계정 미연결</span>':''}
       </td>
-      <td class="c-mem-penal" data-label="별금/인센"><div class="st-penal-wrap">
-        <div class="st-penal-item"><span style="color:#0F6E56;font-size:10px;flex-shrink:0;">인센+</span>
-          <input class="st-ti num" type="number" inputmode="numeric" value="${m.incentive||0}" min="0" onchange="stMembers[${i}].incentive=parseInt(this.value)||0;stRecalc()"></div>
-        <div class="st-penal-item"><span style="color:#E24B4A;font-size:10px;flex-shrink:0;">벌금-</span>
-          <input class="st-ti num" type="number" inputmode="numeric" value="${m.penalty||0}" min="0" onchange="stMembers[${i}].penalty=parseInt(this.value)||0;stRecalc()"></div>
+      <td class="c-mem-penal" data-label="±조정"><div class="st-penal-wrap">
+        <input class="st-ti num" type="number" inputmode="numeric"
+          placeholder="+인센 / -벌금"
+          value="${m.incentive>0 ? m.incentive : (m.penalty>0 ? -m.penalty : '')}"
+          style="${m.incentive>0?'color:#0F6E56;font-weight:600;':m.penalty>0?'color:#E24B4A;font-weight:600;':''}"
+          onchange="stOnAdjustInput(${i}, this)">
       </div></td>
       <td class="c-mem-alloc" data-label="할당량(%)"><input class="st-ti num" type="number" inputmode="numeric" value="${m.alloc||100}" min="0" max="200" onchange="stMembers[${i}].alloc=parseInt(this.value)||0;stRecalc()"></td>
       <td class="c-mem-note" data-label="비고">

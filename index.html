@@ -5810,27 +5810,39 @@ function rdShowTab(tab, raidId){
   }
 }
 
-function rdRenderMembers(raidId){
+async function rdRenderMembers(raidId){
   const el=document.getElementById('rdPanel-members');
   if(!el) return;
   const role=currentProfile?.role||'none';
   const uid=currentUser?.uid;
   const raid=allRaids.find(r=>r.id===raidId);
-  const canEditOthers=canEditTab('members',role,raid,uid);   // MLV: 다른 사람도 수정
-  const canKick=canKickMember(role);                         // master: 강퇴
-  const canSelfEdit=isSiteMaster(role)||['leader','vice','member'].includes(role); // 본인 행 수정
-  // 공대원 등록 권한: 사이트마스터 OR 해당 공대의 공대장(leader+오너)
+  const canEditOthers=canEditTab('members',role,raid,uid);
+  const canKick=canKickMember(role);
+  const canSelfEdit=isSiteMaster(role)||['leader','vice','member'].includes(role);
   const userIsSiteMaster = isSiteMaster(role);
   const isRaidOwner = !!(raid && raid.ownerUid === uid && role === 'leader');
   const canAddMember = userIsSiteMaster || isRaidOwner;
   const members=allCharacters.filter(m=>m.raidId===raidId);
   const hasActions=canEditOthers||canKick||canSelfEdit;
 
-  // + 새 정산 버튼과 동일한 스타일 (btn btn-primary, 좌측 정렬, 아이콘 없음)
+  // [부공대장 콤보] 멤버십 doc 일괄 fetch
+  let memberships = {};   // uid -> roleInRaid
+  let canManageRoles = false;
+  try{
+    const memSnap = await db.collection('raids').doc(raidId).collection('members').get();
+    memSnap.docs.forEach(d => {
+      memberships[d.id] = d.data().roleInRaid || 'member';
+    });
+    const myRoleInRaid = uid ? memberships[uid] : null;
+    canManageRoles = userIsSiteMaster
+      || ['guild_master','vice_guild_master'].includes(myRoleInRaid);
+  }catch(e){
+    console.warn('[rdRenderMembers] memberships fetch 실패', e);
+  }
+
   const addBtn = canAddMember
     ? `<button class="btn btn-primary" onclick="openMemberModal()">+ 공대원 등록</button>`
     : '';
-  // 내 계정 연결: 로그인된 모든 유저에게 노출
   const linkBtn = currentUser
     ? `<button class="btn" onclick="linkAllMyMembers('${raidId}')">🔗 내 계정 연결</button>`
     : '';
@@ -5846,12 +5858,33 @@ function rdRenderMembers(raidId){
   const sb={참여:'badge-green',미정:'badge-yellow',불참:'badge-red'};
   const rb={딜러:'badge-green',서폿:'badge-blue'};
 
+  // 권한 셀 렌더 헬퍼
+  function renderRoleCell(m, isMine){
+    if(!m.uid) return '<span style="color:var(--text-sub);">—</span>';
+    const r = memberships[m.uid];
+    if(!r) return '<span style="color:var(--text-sub);">—</span>';
+    if(r === 'guild_master'){
+      return '<span class="badge" style="background:#fef3c7;color:#92400e;font-weight:700;">공대장</span>';
+    }
+    const showCombo = canManageRoles && !isMine;
+    if(showCombo){
+      return `<select class="st-ti" style="font-size:var(--text-2xs);padding:3px 8px;min-width:110px;" onchange="changeRaidMemberRole('${raidId}','${m.uid}',this.value)">
+        <option value="member"${r==='member'?' selected':''}>공대원</option>
+        <option value="vice_guild_master"${r==='vice_guild_master'?' selected':''}>부공대장</option>
+      </select>`;
+    }
+    if(r === 'vice_guild_master'){
+      return '<span class="badge" style="background:#ede9fe;color:#7c3aed;font-weight:700;">부공대장</span>';
+    }
+    return '<span class="badge" style="background:#f3f4f6;color:#6b7280;">공대원</span>';
+  }
+
   el.innerHTML=`
     ${headerBar}
     <div class="panel" style="padding:0;overflow:auto;">
       <table>
         <thead><tr>
-          <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>레벨</th><th>스킬공격력</th><th>상태</th>
+          <th>#</th><th>캐릭터명</th><th>직업</th><th>역할</th><th>레벨</th><th>스킬공격력</th><th>상태</th><th>권한</th>
           ${hasActions?'<th>관리</th>':''}
         </tr></thead>
         <tbody>
@@ -5863,6 +5896,7 @@ function rdRenderMembers(raidId){
             const editBtn=canEditThis?`<button class="btn btn-outline" style="font-size:var(--text-2xs);padding:3px 8px;" onclick="editMember('${m.id}')">수정</button>`:'';
             const trashBtn=showTrash?`<button class="st-trash-btn" style="margin-left:auto;" title="강퇴" aria-label="공대원 강퇴" onclick="leaveRaid('${m.id}','${safeName}','${raidId}')">${ST_TRASH_SVG}</button>`:'';
             const unlinkedBadge = !m.uid ? `<span class="st-unlinked-badge" style="cursor:default;" title="Step 7 계정 연결 기능 준비 중">⚠ 미연결</span>` : '';
+            const roleCell = renderRoleCell(m, isMine);
             return `<tr>
             <td style="color:var(--text-sub)">${i+1}</td>
             <td><strong>${m.name||'-'}</strong>${unlinkedBadge}</td>
@@ -5871,12 +5905,32 @@ function rdRenderMembers(raidId){
             <td>${m.level||0}</td>
             <td>${(m.skillAtk||0).toLocaleString()}</td>
             <td><span class="badge ${sb[m.status]||'badge-yellow'}">${m.status||'-'}</span></td>
+            <td>${roleCell}</td>
             ${hasActions?`<td><div style="display:flex;align-items:center;gap:8px;">${editBtn}${trashBtn}</div></td>`:''}
           </tr>`;
           }).join('')}
         </tbody>
       </table>
     </div>`;
+}
+
+async function changeRaidMemberRole(raidId, targetUid, newRole){
+  if(!['member','vice_guild_master'].includes(newRole)){
+    alert('잘못된 권한 값입니다.'); return;
+  }
+  const label = newRole==='vice_guild_master' ? '부공대장' : '공대원';
+  if(!confirm(`이 사용자를 ${label}(으)로 변경하시겠습니까?`)) return;
+  try{
+    await db.collection('raids').doc(raidId).collection('members').doc(targetUid).update({
+      roleInRaid: newRole
+    });
+    showToast(`${label}(으)로 변경됐습니다.`, 'success');
+    rdRenderMembers(raidId);
+  }catch(e){
+    console.error('[changeRaidMemberRole]', e);
+    alert('변경 실패: ' + (e?.message||''));
+    rdRenderMembers(raidId);
+  }
 }
 
 async function rdRenderApplications(raidId){

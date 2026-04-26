@@ -3290,6 +3290,8 @@ function _onCharactersUpdated(){
   // 영역 B
   renderStats();
   renderDashboard();
+  // 영역 C
+  if(currentRaidId) rdRenderMembers(currentRaidId);
 }
 
 // =============================================
@@ -5761,7 +5763,7 @@ function rdRenderMembers(raidId){
   const userIsSiteMaster = isSiteMaster(role);
   const isRaidOwner = !!(raid && raid.ownerUid === uid && role === 'leader');
   const canAddMember = userIsSiteMaster || isRaidOwner;
-  const members=allMembers.filter(m=>m.raidId===raidId);
+  const members=allCharacters.filter(m=>m.raidId===raidId);
   const hasActions=canEditOthers||canKick||canSelfEdit;
 
   // + 새 정산 버튼과 동일한 스타일 (btn btn-primary, 좌측 정렬, 아이콘 없음)

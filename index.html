@@ -6093,10 +6093,10 @@ function rdToggleSettlementForm(raidId){
   }
   _rdFormOpen=true; _rdFormRaidId=raidId; _rdFormMode='create'; _rdEditId=null; _rdStItems=[];
   const toM=m=>({id:m.uid||m.id,memberId:m.id,uid:m.uid||null,name:m.name||'',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false,isLinked:!!m.uid});
-  const pool=allMembers.filter(m=>m.raidId===raidId);
+  const pool=allCharacters.filter(m=>m.raidId===raidId);
   _rdStMembers=pool.filter(m=>m.status==='참여').map(toM);
   if(!_rdStMembers.length) _rdStMembers=pool.map(toM);
-  // 공대장 자동 포함: allMembers에 등록되지 않은 경우 본인을 목록에 추가
+  // 공대장 자동 포함: allCharacters에 등록되지 않은 경우 본인을 목록에 추가
   if(currentUser && currentProfile && !_rdStMembers.some(m=>m.uid===currentUser.uid)){
     _rdStMembers.push({id:currentUser.uid,memberId:null,uid:currentUser.uid,name:currentProfile.name||'공대장',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false,isLinked:true});
   }
@@ -6192,7 +6192,7 @@ function rdStRenderMembers(){
   _rdStMembers.forEach((m,i)=>{
     const bg=stPartyBg(m.party||'1'),fg=stPartyFg(m.party||'1');
     const hasName=(m.name||'').trim();
-    const resolvedUid=m.uid||(hasName?allMembers.find(am=>am.name===m.name&&am.uid)?.uid:null)||null;
+    const resolvedUid=m.uid||(hasName?allCharacters.find(am=>am.name===m.name&&am.uid)?.uid:null)||null;
     const isUnlinked=hasName && !resolvedUid;
     const tr=document.createElement('tr');
     if(isUnlinked) tr.classList.add('st-mem-unlinked');
@@ -6243,7 +6243,7 @@ async function rdSaveSettlementForm(raidId){
 
   const rdNamedMembers=_rdStMembers.filter(m=>(m.name||'').trim());
   const rdResolved=rdNamedMembers.map(m=>{
-    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
+    const resolvedUid=m.uid||allCharacters.find(am=>am.name===m.name&&am.uid)?.uid||null;
     return {...m, resolvedUid};
   });
   // uid 누락 참여자 차단
@@ -7450,7 +7450,7 @@ function stRenderMembers(){
   stMembers.forEach((m,i)=>{
     const bg=stPartyBg(m.party||'1'),fg=stPartyFg(m.party||'1');
     const hasName=(m.name||'').trim();
-    const resolvedUid=m.uid||(hasName?allMembers.find(am=>am.name===m.name&&am.uid)?.uid:null)||null;
+    const resolvedUid=m.uid||(hasName?allCharacters.find(am=>am.name===m.name&&am.uid)?.uid:null)||null;
     const isUnlinked=hasName && !resolvedUid;
     const tr=document.createElement('tr');
     if(isUnlinked) tr.classList.add('st-mem-unlinked');
@@ -7525,10 +7525,10 @@ function openSettlementForm(){
     alloc: 100, note: '', conf: false, isLinked: !!m.uid
   });
   // 공대 컨텍스트면 해당 공대원만, 아니면 전체 참여 공대원
-  const pool = stRaidId ? allMembers.filter(m=>m.raidId===stRaidId) : allMembers;
+  const pool = stRaidId ? allCharacters.filter(m=>m.raidId===stRaidId) : allCharacters;
   stMembers = pool.filter(m=>m.status==='참여').map(toStMember);
   if(!stMembers.length){ stMembers = pool.map(toStMember); }
-  // 공대장 자동 포함: allMembers에 등록되지 않은 경우 본인을 목록에 추가
+  // 공대장 자동 포함: allCharacters에 등록되지 않은 경우 본인을 목록에 추가
   if(currentUser && currentProfile && !stMembers.some(m=>m.uid===currentUser.uid)){
     stMembers.push({id:currentUser.uid,memberId:null,uid:currentUser.uid,name:currentProfile.name||'공대장',party:'1',incentive:0,penalty:0,alloc:100,note:'',conf:false,isLinked:true});
   }
@@ -7588,9 +7588,9 @@ async function saveSettlement(){
   const itemsData=stItems.map(it=>{const c=stCalcItem(it);tNet+=c.netProfit;return {kind:it.kind||'item',name:it.name||'',price:it.price||0,supplyCount:it.supplyCount||1,remainder:it.remainder||0,sellMethod:it.sellMethod||'교환',note:it.note||'',sales:c.sales,fee:c.fee,netProfit:c.netProfit};});
 
   const namedMembers=stMembers.filter(m=>(m.name||'').trim());
-  // uid 해결: m.uid 우선, 없으면 allMembers name 역조회
+  // uid 해결: m.uid 우선, 없으면 allCharacters name 역조회
   const resolvedMembers=namedMembers.map(m=>{
-    const resolvedUid=m.uid||allMembers.find(am=>am.name===m.name&&am.uid)?.uid||null;
+    const resolvedUid=m.uid||allCharacters.find(am=>am.name===m.name&&am.uid)?.uid||null;
     return {...m, resolvedUid};
   });
   // uid 누락 참여자 차단

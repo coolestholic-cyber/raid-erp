@@ -1877,6 +1877,11 @@
         </h2>
         <input type="hidden" id="applyRaidId">
         <div style="font-size:var(--text-base);font-weight:600;color:var(--text-sub);margin-bottom:14px;">공대: <span id="applyRaidNameLabel" style="color:var(--text);"></span></div>
+        <!-- 신청 캐릭터 선택 -->
+        <div class="form-group" style="margin-bottom:14px;">
+          <label>신청 캐릭터</label>
+          <select id="applyCharSelect" onchange="onApplyCharChange()"></select>
+        </div>
         <!-- 내 캐릭터 정보 카드 -->
         <div style="background:var(--bg);border-radius:10px;padding:14px 16px;margin-bottom:14px;border:1px solid var(--border);">
           <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-sub);margin-bottom:10px;letter-spacing:.5px;">내 캐릭터 정보</div>
@@ -6818,32 +6823,63 @@ async function deleteRaid(id){
 // 공대원 신청 팝업 열기
 function openApplyModal(raidId, raidName){
   if(!currentUser){discordLogin();return;}
-  const mc=window._myCharsData&&window._myCharsData[0];
-  if(!mc||!mc.name){alert('먼저 내 캐릭터 정보를 등록해주세요.');showPage('mychar',null);return;}
+  const chars=(window._myCharsData||[]).filter(Boolean);
+  if(!chars.length){alert('먼저 내 캐릭터 정보를 등록해주세요.');showPage('mychar',null);return;}
+  // 차단 체크
+  const raid=allRaids.find(r=>r.id===raidId);
+  if(raid && Array.isArray(raid.blockedUids) && raid.blockedUids.includes(currentUser.uid)){
+    alert('이 공대에서 차단된 사용자입니다. 신청할 수 없습니다.');
+    return;
+  }
   document.getElementById('applyRaidId').value=raidId;
   document.getElementById('applyRaidNameLabel').textContent=raidName;
-  document.getElementById('applyCharName').textContent=mc.name;
+  // 드롭다운 채우기
+  const sel=document.getElementById('applyCharSelect');
+  sel.innerHTML=chars.map((c,i)=>{
+    const lvl=c.level?` · Lv.${c.level}`:'';
+    return `<option value="${i}">${(c.name||'(이름 없음)')} · ${(c.cls||'-')}${lvl}</option>`;
+  }).join('');
+  sel.value='0';
+  onApplyCharChange();
+  document.getElementById('applyMemo').value='';
+  document.getElementById('applyRaidModal').classList.add('show');
+}
+
+// 드롭다운 변경 시 정보 카드 갱신
+function onApplyCharChange(){
+  const sel=document.getElementById('applyCharSelect');
+  const idx=parseInt(sel?.value||'0',10);
+  const chars=(window._myCharsData||[]).filter(Boolean);
+  const mc=chars[idx]||chars[0];
+  if(!mc) return;
+  document.getElementById('applyCharName').textContent=mc.name||'';
   document.getElementById('applyCharCls').textContent=mc.cls||'-';
   document.getElementById('applyCharLevel').textContent=mc.level?`Lv.${mc.level}`:'—';
   document.getElementById('applyCharRole').textContent=mc.role||'딜러';
   const isD=mc.role!=='서폿';
   document.getElementById('applyCharSkillAtkRow').style.display=isD?'':'none';
   document.getElementById('applyCharSkillAtk').textContent=mc.skillAtk?(Number(mc.skillAtk).toLocaleString()):'—';
-  document.getElementById('applyMemo').value='';
-  document.getElementById('applyRaidModal').classList.add('show');
 }
 function closeApplyModal(){document.getElementById('applyRaidModal').classList.remove('show');}
 async function confirmApply(){
   const raidId=document.getElementById('applyRaidId').value;
   const memo=document.getElementById('applyMemo').value.trim();
   if(!currentUser){discordLogin();return;}
-  const mc=window._myCharsData&&window._myCharsData[0];
+  // 선택된 캐릭터 가져오기 (드롭다운 기반)
+  const chars=(window._myCharsData||[]).filter(Boolean);
+  const sel=document.getElementById('applyCharSelect');
+  const idx=parseInt(sel?.value||'0',10);
+  const mc=chars[idx]||chars[0];
   if(!mc||!mc.name){alert('먼저 내 캐릭터 정보를 등록해주세요.');return;}
-  // 1. 공대 정원 초과 체크
+  // 차단 체크 (이중 안전망)
   const raid=allRaids.find(r=>r.id===raidId);
+  if(raid && Array.isArray(raid.blockedUids) && raid.blockedUids.includes(currentUser.uid)){
+    alert('이 공대에서 차단된 사용자입니다.');closeApplyModal();return;
+  }
+  // 1. 공대 정원 초과 체크 (raids/{raidId}/characters 기준으로 정정)
   const maxCount=(raid&&raid.maxCount)||6;
-  const memSnap=await db.collection('members').where('raidId','==',raidId).where('status','==','참여').get();
-  if(memSnap.size>=maxCount){alert(`공대 정원(${maxCount}/${maxCount})이 가득 찼습니다.`);closeApplyModal();return;}
+  const charCntSnap=await db.collection('raids').doc(raidId).collection('characters').get();
+  if(charCntSnap.size>=maxCount){alert(`공대 정원(${maxCount}/${maxCount})이 가득 찼습니다.`);closeApplyModal();return;}
   // 2. 완전 동일 pending (같은 uid + 같은 name + 대기) 차단
   const dupSnap=await db.collection('raidApplications')
     .where('raidId','==',raidId).where('uid','==',currentUser.uid).get();
@@ -6858,9 +6894,18 @@ async function confirmApply(){
     const uDoc=await db.collection('users').doc(currentUser.uid).get();
     if(uDoc.exists) discordId=uDoc.data().discordId||null;
   }catch(_){}
+  // charSnapshot: 신청 시점 캐릭터 스냅 (승인 시 name 매칭에 사용)
+  const charSnapshot={
+    name:mc.name||'',
+    cls:mc.cls||'',
+    role:mc.role||'딜러',
+    level:mc.level||0,
+    skillAtk:mc.skillAtk||0
+  };
   await db.collection('raidApplications').add({
     raidId, uid:currentUser.uid, discordId,
     name:mc.name, cls:mc.cls, role:mc.role, level:mc.level, skillAtk:mc.skillAtk,
+    charSnapshot,
     memo, status:'대기',
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });

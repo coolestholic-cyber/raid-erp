@@ -179,7 +179,7 @@ service cloud.firestore {
           // 공대 생성자가 본인을 guild_master로 등록
           (request.auth.uid == userId
            && request.resource.data.roleInRaid == 'guild_master')
-          || isGuildMaster(raidId)
+          || isRaidLeader(raidId)
           || isMaster()
         );
 

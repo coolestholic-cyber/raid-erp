@@ -3409,8 +3409,6 @@ auth.onAuthStateChanged(async(user)=>{
         const pd=dupSnap.docs[0].data();
         existingMyChars=existingMyChars||(pd.myChars||(pd.myChar?[pd.myChar,null,null]:null));
         existingBossTimers=existingBossTimers||(pd.bossTimers||null);
-        // 이전 중복 문서들 삭제
-        for(const dd of dupSnap.docs){await db.collection('users').doc(dd.id).delete();}
       }
       const _resolvedName=d.global_name||d.username||`Discord유저_${(d.id||'').substring(0,4)}`;
       const newData={name:_resolvedName,email:d.email||'',photo:d.avatar||'',role,discordId:d.id,discordUsername:d.username||'',isAnonymous:true,loginType:'discord',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
@@ -3418,6 +3416,13 @@ auth.onAuthStateChanged(async(user)=>{
       if(existingBossTimers)newData.bossTimers=existingBossTimers;
       await userRef.set(newData);
       doc=await userRef.get();
+      // 새 doc 생성 후 이전 중복 문서 정리 (같은 discordId 가진 익명 doc 삭제 허용 규칙 필요)
+      if(dupSnap&&!dupSnap.empty){
+        for(const dd of dupSnap.docs){
+          await db.collection('users').doc(dd.id).delete()
+            .catch(e=>console.warn('[Discord cleanup] 이전 doc 삭제 실패 (무시):', e.code));
+        }
+      }
     }else if(user.isAnonymous&&_pendingRole){
       await userRef.set({name:_pendingName||'방문자',email:'',photo:'',role:_pendingRole,isAnonymous:true,loginType:'anonymous',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
       _pendingRole=null;_pendingName=null;doc=await userRef.get();

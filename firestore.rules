@@ -90,7 +90,15 @@ service cloud.firestore {
         )
       );
       allow create: if request.auth != null && request.auth.uid == uid;
-      allow delete: if isMaster();
+      allow delete: if isMaster()
+        // Discord 재로그인 시 이전 익명 doc 자기 정리 허용
+        // 조건: 삭제 대상 doc이 익명이고, 자신의 새 doc과 동일한 discordId를 가짐
+        || (request.auth != null
+            && uid != request.auth.uid
+            && resource.data.isAnonymous == true
+            && resource.data.discordId != null
+            && resource.data.discordId
+               == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.discordId);
     }
 
     // ─────────────────────────────────────────

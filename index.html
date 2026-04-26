@@ -3279,8 +3279,17 @@ function subscribeCharacters(){
   // orderBy 미사용 → collection group 인덱스 불필요, 클라이언트 정렬
   db.collectionGroup('characters').onSnapshot(
     snap => {
-      allCharacters = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      allCharacters = snap.docs.map(d => {
+        const data = d.data();
+        // path: raids/{raidId}/characters/{charId} → ref.parent.parent.id == raidId
+        // data에 raidId가 박혀있으면 그대로 우선, 없으면 path에서 추출
+        const raidIdFromPath = d.ref.parent?.parent?.id || null;
+        return {
+          id: d.id,
+          ...data,
+          raidId: data.raidId || raidIdFromPath
+        };
+      }).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
       _onCharactersUpdated();
     },
     err => {

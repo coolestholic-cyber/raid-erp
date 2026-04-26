@@ -6783,16 +6783,41 @@ async function saveRaid(){
       roleInRaid:'guild_master', uid:currentUser.uid,
       joinedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    // 본인 캐릭터 자동 등록 (선택 입력 시)
+    // 본인 캐릭터 자동 등록 — 우선순위: 모달 입력 > _myCharsData[0]
     const charName=(document.getElementById('rCharName')?.value||'').trim();
     const charCls=(document.getElementById('rCharCls')?.value||'').trim();
-    if(charName&&charCls){
+    let ownerChar = null;
+    if(charName && charCls){
+      // 모달에서 직접 입력한 경우 (기존 동작 유지)
+      ownerChar = { name:charName, cls:charCls, role:'딜러', level:0, skillAtk:0 };
+    } else {
+      // B 폴백: 내 캐릭터 첫 번째 자동 사용
+      const myFirst = (window._myCharsData||[]).filter(Boolean)[0];
+      if(myFirst && myFirst.name && myFirst.cls){
+        ownerChar = {
+          name: myFirst.name,
+          cls: myFirst.cls,
+          role: myFirst.role || '딜러',
+          level: myFirst.level || 0,
+          skillAtk: myFirst.skillAtk || 0
+        };
+      }
+    }
+    if(ownerChar){
       await db.collection('raids').doc(raidId).collection('characters').add({
-        name:charName, cls:charCls, role:'딜러', level:0, status:'참여',
+        name: ownerChar.name,
+        cls: ownerChar.cls,
+        role: ownerChar.role,
+        level: ownerChar.level,
+        skillAtk: ownerChar.skillAtk,
+        status:'참여',
         note:'', rate:100, raidId,
-        uid:currentUser.uid, ownerUid:currentUser.uid,
+        uid:currentUser.uid,
+        discordId: currentProfile?.discordId || null,
+        ownerUid:currentUser.uid,
         isOwnerCharacter:true, isManualEntry:false,
         createdBy:currentUser.uid,
+        linkedAt:firebase.firestore.FieldValue.serverTimestamp(),
         createdAt:firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt:firebase.firestore.FieldValue.serverTimestamp()
       });

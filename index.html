@@ -7829,7 +7829,7 @@ function renderMySettlements(){
             <strong>아이템 목록</strong>
             <div class="ms-item-list">${
               (s.items||[]).filter(it=>it.name).map(it=>`
-                <span class="ms-item-chip">${it.name} (${it.method}) ${Math.round((it.revenue||0)/10000)}만</span>
+                <span class="ms-item-chip">${it.name} (${it.sellMethod||'-'}) ${Math.round((it.netProfit||0)/10000)}만</span>
               `).join('')||'<span style="color:var(--text-sub)">-</span>'
             }</div>
             ${s.note?`<div style="margin-top:8px;color:var(--text-sub);">메모: ${s.note}</div>`:''}

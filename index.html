@@ -6872,12 +6872,32 @@ async function saveRaid(){
       // 모달에서 직접 입력한 경우 (기존 동작 유지)
       ownerChar = { name:charName, cls:charCls, role:'딜러', level:0, skillAtk:0 };
     } else {
-      // B 폴백 1: _myCharsData[0]
+      // 폴백 1: _myCharsData (mcSubscribe 캐시)
       let myFirst = (window._myCharsData||[]).filter(Boolean)[0];
-      // B 폴백 2: _myCharsData가 비어있으면 allCharacters에서 본인 uid 매칭
+
+      // 폴백 2: allCharacters (subscribeCharacters 캐시)에서 본인 uid 매칭
       if(!myFirst && currentUser?.uid && Array.isArray(allCharacters)){
         myFirst = allCharacters.find(c => c.uid === currentUser.uid && c.name && c.cls);
       }
+
+      // 폴백 3 (race 회피): Firestore에서 직접 fetch
+      // collectionGroup으로 본인 uid 가진 character doc 1개 가져옴
+      if(!myFirst && currentUser?.uid){
+        try{
+          const fetchSnap = await db.collectionGroup('characters')
+            .where('uid', '==', currentUser.uid)
+            .limit(1)
+            .get();
+          if(!fetchSnap.empty){
+            const doc = fetchSnap.docs[0];
+            myFirst = doc.data();
+            console.log('[saveRaid] Firestore 직접 fetch로 캐릭터 확보:', myFirst.name);
+          }
+        }catch(e){
+          console.warn('[saveRaid] 직접 fetch 실패 (인덱스 미생성?):', e.code, e.message);
+        }
+      }
+
       if(myFirst && myFirst.name && myFirst.cls){
         ownerChar = {
           name: myFirst.name,

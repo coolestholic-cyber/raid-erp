@@ -3293,6 +3293,7 @@ function _onCharactersUpdated(){
   // 영역 C
   if(currentRaidId) rdRenderMembers(currentRaidId);
   renderRaidList();
+  renderMyRaidsNav();
 }
 
 // =============================================
@@ -6420,7 +6421,7 @@ function renderMyRaidsNav(){
   } else if(role==='leader'){
     myRaids=allRaids.filter(r=>r.ownerUid===uid);
   } else {
-    const myIds=new Set(allMembers.filter(m=>(m.ownerUid===uid||m.uid===uid)&&m.raidId).map(m=>m.raidId));
+    const myIds=new Set(allCharacters.filter(m=>(m.ownerUid===uid||m.uid===uid)&&m.raidId).map(m=>m.raidId));
     myRaids=allRaids.filter(r=>myIds.has(r.id));
   }
 

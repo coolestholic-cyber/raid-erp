@@ -6884,24 +6884,34 @@ async function saveRaid(){
         };
       }
     }
+    console.log('[saveRaid] ownerChar:', ownerChar);
+    console.log('[saveRaid] _myCharsData:', window._myCharsData);
     if(ownerChar){
-      await db.collection('raids').doc(raidId).collection('characters').add({
-        name: ownerChar.name,
-        cls: ownerChar.cls,
-        role: ownerChar.role,
-        level: ownerChar.level,
-        skillAtk: ownerChar.skillAtk,
-        status:'참여',
-        note:'', rate:100, raidId,
-        uid:currentUser.uid,
-        discordId: currentProfile?.discordId || null,
-        ownerUid:currentUser.uid,
-        isOwnerCharacter:true, isManualEntry:false,
-        createdBy:currentUser.uid,
-        linkedAt:firebase.firestore.FieldValue.serverTimestamp(),
-        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-      });
+      try{
+        const newCharRef = await db.collection('raids').doc(raidId).collection('characters').add({
+          name: ownerChar.name,
+          cls: ownerChar.cls,
+          role: ownerChar.role,
+          level: ownerChar.level,
+          skillAtk: ownerChar.skillAtk,
+          status:'참여',
+          note:'', rate:100, raidId,
+          uid:currentUser.uid,
+          discordId: currentProfile?.discordId || null,
+          ownerUid:currentUser.uid,
+          isOwnerCharacter:true, isManualEntry:false,
+          createdBy:currentUser.uid,
+          linkedAt:firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('[saveRaid] 본인 캐릭터 등록 성공:', newCharRef.id);
+      }catch(e){
+        console.error('[saveRaid] 본인 캐릭터 등록 실패:', e.code, e.message, e);
+        alert('본인 캐릭터 등록 실패: ' + e.message);
+      }
+    } else {
+      console.warn('[saveRaid] ownerChar 없음 — 자동 등록 스킵');
     }
     // 공대 생성자 → 공대장 롤 자동 부여
     if(currentUser && currentProfile && ['guest','none'].includes(currentProfile.role)){

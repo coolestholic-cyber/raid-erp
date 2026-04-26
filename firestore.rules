@@ -143,7 +143,9 @@ service cloud.firestore {
                        'reviewedBy', 'reviewerRole']);
 
         allow delete: if request.auth != null
-          && (isRaidLeader(raidId) || isMaster());
+          && (isRaidLeader(raidId) || isMaster()
+              || resource.data.ownerUid == request.auth.uid
+              || resource.data.uid == request.auth.uid);
       }
 
       // raids/{raidId}/members (유저 멤버십 — roleInRaid)

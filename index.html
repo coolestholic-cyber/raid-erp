@@ -6911,8 +6911,6 @@ async function saveRaid(){
         };
       }
     }
-    console.log('[saveRaid] ownerChar:', ownerChar);
-    console.log('[saveRaid] _myCharsData:', window._myCharsData);
     if(ownerChar){
       try{
         const newCharRef = await db.collection('raids').doc(raidId).collection('characters').add({

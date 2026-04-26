@@ -124,7 +124,13 @@ service cloud.firestore {
     match /raids/{raidId} {
       allow read: if true;
       allow create: if isLeader();
-      allow update, delete: if isLeader();
+      // [추가] isRaidLeader가 blockedUids 필드 1개만 변경하는 update 허용 (차단/해제용)
+      allow update: if isLeader()
+        || (
+          isRaidLeader(raidId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['blockedUids'])
+        );
+      allow delete: if isLeader();
 
       // raids/{raidId}/characters (캐릭터 데이터 — 구 members)
       // [수정 3] 연결 관련 필드는 승인 플로우에서만 수정 가능
@@ -141,6 +147,22 @@ service cloud.firestore {
               .hasAny(['ownerId', 'isLinked', 'linkedAt',
                        'linkedDiscordId', 'linkMethod',
                        'reviewedBy', 'reviewerRole']);
+
+        // [추가 A] 본인 self-link: uid==null이고 discordId가 본인이면 자기 uid 박기 허용
+        //         (manualAutoLinkMyChars / _autoLinkMyMembers 용)
+        allow update: if request.auth != null
+          && resource.data.uid == null
+          && resource.data.discordId != null
+          && resource.data.discordId == userDoc().discordId
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['uid', 'linkedAt']);
+
+        // [추가 B] 승인 흐름: isRaidLeader가 연결 3종 필드(uid/discordId/linkedAt)만 박는 update 허용
+        //         (approveApp의 갈래② name 매칭 후 uid 박기)
+        allow update: if request.auth != null
+          && (isRaidLeader(raidId) || isMaster())
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['uid', 'discordId', 'linkedAt']);
 
         allow delete: if request.auth != null
           && (isRaidLeader(raidId) || isMaster()

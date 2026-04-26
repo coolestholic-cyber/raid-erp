@@ -3269,14 +3269,16 @@ function canEditRaidById(userId, raidId){
 // 작업 7: characters 구독 (collectionGroup + LEGACY 폴백)
 // 호출은 Step 3에서 — 지금은 정의만
 function subscribeCharacters(){
-  db.collectionGroup('characters').orderBy('name').onSnapshot(
+  // orderBy 미사용 → collection group 인덱스 불필요, 클라이언트 정렬
+  db.collectionGroup('characters').onSnapshot(
     snap => {
-      allCharacters = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allCharacters = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a,b)=>(a.name||'').localeCompare(b.name||''));
       _onCharactersUpdated();
     },
     err => {
       if(err.code === 'failed-precondition'){
-        console.warn('[subscribeCharacters] collectionGroup 인덱스 미생성, members 폴백');
+        console.warn('[subscribeCharacters] collectionGroup 오류, members 폴백');
         if(LEGACY_FALLBACK) _subscribeCharactersFallback();
       } else {
         console.error('[subscribeCharacters] error:', err);
@@ -4135,7 +4137,7 @@ function renderMemberTable(){
       }).join('');
     }
   }
-  document.getElementById('memberCount').textContent=f.length+'명';
+  const mc=document.getElementById('memberCount');if(mc)mc.textContent=f.length+'명';
 }
 
 // 메이플랜드 4차 직업 목록

@@ -5911,6 +5911,8 @@ async function rdRenderApplications(raidId){
                 onclick="(async()=>{await approveApp('${a.id}','${raidId}');rdRenderApplications('${raidId}');renderMyRaidsNav();})()">승인</button>
               <button class="btn btn-danger" style="font-size:var(--text-xs);padding:5px 12px;"
                 onclick="(async()=>{await rejectApp('${a.id}','${raidId}');rdRenderApplications('${raidId}');renderMyRaidsNav();})()">거절</button>
+              ${a.uid?`<button class="btn btn-outline" style="font-size:var(--text-xs);padding:5px 12px;color:#dc2626;border-color:#dc2626;"
+                onclick="rejectAndBlockApp('${a.id}','${raidId}')">거절+차단</button>`:''}
             `:''}
           </div>
         </div>
@@ -6414,6 +6416,23 @@ function rdRenderSettings(raidId){
           <div class="rd-todo-badge-text"><strong>부공대장 지명</strong> — 공대별 부공대장 지명 기능은 향후 별도 작업에서 구현 예정입니다.</div>
         </div>
       </div>
+
+      ${canEdit?`
+      <div class="panel" style="margin-top:16px;">
+        <div style="font-size:var(--text-md);font-weight:700;margin-bottom:8px;color:var(--text);">차단된 사용자</div>
+        <div style="font-size:var(--text-xs);color:var(--text-sub);margin-bottom:14px;">차단된 사용자는 이 공대에 다시 신청할 수 없습니다.</div>
+        <div id="rdBlockedList-${raidId}">
+          ${(raid.blockedUids||[]).length===0
+            ? '<div style="padding:12px;text-align:center;color:var(--text-sub);font-size:var(--text-sm);background:var(--bg);border-radius:8px;">차단된 사용자가 없습니다.</div>'
+            : (raid.blockedUids||[]).map(buid=>`
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);margin-bottom:8px;">
+                  <div style="font-family:monospace;font-size:var(--text-xs);color:var(--text-sub);overflow-wrap:anywhere;flex:1;min-width:0;">${buid}</div>
+                  <button class="btn btn-outline" style="font-size:var(--text-xs);padding:4px 10px;flex-shrink:0;" onclick="unblockRaidUser('${raidId}','${buid}')">차단 해제</button>
+                </div>
+              `).join('')
+          }
+        </div>
+      </div>`:''}
 
       ${canDestroy?`
       <div class="rd-danger-zone">
@@ -7319,6 +7338,7 @@ async function renderApplicants(raidId){
               ${a.status==='대기'?`
                 <button class="btn btn-primary" style="font-size:var(--text-xs);padding:5px 12px;" onclick="approveApp('${a.id}','${raidId}')">승인</button>
                 <button class="btn btn-danger" style="font-size:var(--text-xs);padding:5px 12px;" onclick="rejectApp('${a.id}','${raidId}')">거절</button>
+                ${a.uid?`<button class="btn btn-outline" style="font-size:var(--text-xs);padding:5px 12px;color:#dc2626;border-color:#dc2626;" onclick="rejectAndBlockApp('${a.id}','${raidId}')">거절+차단</button>`:''}
               `:''}
               ${a.status==='승인'&&a.uid?`
                 ${a.userRole==='vice'
@@ -7425,6 +7445,54 @@ async function rejectApp(appId, raidId){
   await db.collection('raidApplications').doc(appId).update({status:'거절'});
   await renderApplicants(raidId);
   renderRaidList();
+}
+
+// 거절 + raid blockedUids 차단 (arrayUnion)
+async function rejectAndBlockApp(appId, raidId){
+  if(!confirm('이 신청자를 거절하고 공대에서 차단하시겠습니까?\n차단된 사용자는 다시 신청할 수 없습니다.')) return;
+  const appDoc = await db.collection('raidApplications').doc(appId).get();
+  const appData = appDoc.data();
+  if(!appData){ alert('신청 정보를 찾을 수 없습니다.'); return; }
+  if(!appData.uid){ alert('익명 신청은 차단할 수 없습니다.'); return; }
+  try{
+    await db.collection('raidApplications').doc(appId).update({status:'거절'});
+    await db.collection('raids').doc(raidId).update({
+      blockedUids: firebase.firestore.FieldValue.arrayUnion(appData.uid)
+    });
+    // 로컬 캐시 즉시 반영 (onSnapshot 따라잡기 전 UX)
+    const raid = allRaids.find(r => r.id === raidId);
+    if(raid){
+      raid.blockedUids = [...new Set([...(raid.blockedUids||[]), appData.uid])];
+    }
+  }catch(e){
+    console.error('[rejectAndBlockApp]', e);
+    alert('처리 실패: ' + (e?.message||''));
+    return;
+  }
+  // 두 신청자 화면 모두 갱신 (어느 쪽에서 호출됐는지 모름)
+  if(document.getElementById('rdPanel-applications')) await rdRenderApplications(raidId);
+  if(document.getElementById('raidApplicantsList'))   await renderApplicants(raidId);
+  if(typeof renderMyRaidsNav === 'function') renderMyRaidsNav();
+  if(typeof renderRaidList === 'function') renderRaidList();
+}
+
+// 차단 해제 (arrayRemove)
+async function unblockRaidUser(raidId, uid){
+  if(!confirm('이 사용자의 차단을 해제하시겠습니까?')) return;
+  try{
+    await db.collection('raids').doc(raidId).update({
+      blockedUids: firebase.firestore.FieldValue.arrayRemove(uid)
+    });
+    const raid = allRaids.find(r => r.id === raidId);
+    if(raid){
+      raid.blockedUids = (raid.blockedUids||[]).filter(u => u !== uid);
+    }
+  }catch(e){
+    console.error('[unblockRaidUser]', e);
+    alert('해제 실패: ' + (e?.message||''));
+    return;
+  }
+  rdRenderSettings(raidId);
 }
 
 async function changeAppRole(appId, uid, newRole, raidId){

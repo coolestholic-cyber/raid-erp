@@ -2770,6 +2770,24 @@
             </div>
           </div>
         </div>
+
+        <!-- 위험 영역 -->
+        <div class="panel" style="margin-top:16px;border:2px solid #dc2626;">
+          <div class="panel-header" style="margin-bottom:10px;">
+            <h2 style="font-size:var(--text-md);color:#dc2626;display:flex;align-items:center;gap:8px;">
+              <span class="material-icons" style="font-size:18px;">warning</span>
+              위험 영역
+            </h2>
+          </div>
+          <p style="font-size:var(--text-sm);color:var(--text-sub);margin:0 0 12px;">
+            raids / members / settlements / raidApplications 전체 삭제.
+            users 및 권한 정보는 보존됩니다. 백업 후 사용 권장.
+          </p>
+          <button class="btn btn-danger" id="btnResetAll" onclick="openResetModal()" style="font-size:var(--text-sm);">
+            ⚠️ 전체 데이터 초기화
+          </button>
+          <div id="resetStatus" style="display:none;margin-top:12px;background:var(--surface-alt);border-radius:8px;padding:12px;font-size:var(--text-sm);font-family:monospace;white-space:pre-wrap;"></div>
+        </div>
       </div>
 
     </div>
@@ -2924,6 +2942,25 @@
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button class="btn btn-outline" onclick="closeDeleteSettleModal()">취소</button>
       <button class="btn btn-danger" onclick="executeDeleteSettlement()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 전체 초기화 확인 Modal -->
+<div class="modal-overlay" id="resetConfirmModal">
+  <div class="modal" style="max-width:440px;">
+    <h2 style="font-size:var(--text-lg);margin-bottom:8px;color:#dc2626;">⚠️ 전체 데이터 초기화</h2>
+    <p style="font-size:var(--text-sm);color:var(--text-sub);line-height:1.7;margin-bottom:16px;">
+      raids, members, settlements, raidApplications 전체를 삭제합니다.<br>
+      users 정보는 보존됩니다. 이 작업은 되돌릴 수 없습니다.
+    </p>
+    <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:8px;">계속하려면 본인 닉네임을 입력하세요.</p>
+    <input type="text" id="resetConfirmInput" placeholder="닉네임 입력"
+      oninput="checkResetInput()"
+      style="width:100%;padding:10px 14px;border:1.5px solid #dc2626;border-radius:8px;font-size:var(--text-base);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:16px;">
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeResetModal()">취소</button>
+      <button class="btn btn-danger" id="resetConfirmBtn" disabled onclick="executeReset()" style="opacity:.45;cursor:not-allowed;">초기화 실행</button>
     </div>
   </div>
 </div>
@@ -4413,6 +4450,54 @@ async function backupFirestoreAll(){
   }
 }
 window.backupFirestoreAll=backupFirestoreAll;
+
+// ─── 전체 데이터 초기화 (사이트마스터 전용) ───
+function openResetModal(){
+  if(!isSiteMaster(currentProfile?.role)){alert('권한 없음');return;}
+  document.getElementById('resetConfirmInput').value='';
+  const btn=document.getElementById('resetConfirmBtn');
+  btn.disabled=true;btn.style.opacity='.45';btn.style.cursor='not-allowed';
+  document.getElementById('resetConfirmModal').classList.add('show');
+}
+function closeResetModal(){document.getElementById('resetConfirmModal').classList.remove('show');}
+function checkResetInput(){
+  const val=document.getElementById('resetConfirmInput').value;
+  const name=currentProfile?.name||'';
+  const btn=document.getElementById('resetConfirmBtn');
+  const ok=val===name&&name.length>0;
+  btn.disabled=!ok;btn.style.opacity=ok?'1':'.45';btn.style.cursor=ok?'pointer':'not-allowed';
+}
+async function executeReset(){
+  if(!isSiteMaster(currentProfile?.role)){alert('권한 없음');return;}
+  closeResetModal();
+  const btn=document.getElementById('btnResetAll');
+  if(btn)btn.disabled=true;
+  const setStatus=msg=>{const el=document.getElementById('resetStatus');if(el){el.style.display='';el.textContent=msg;}};
+  setStatus('초기화 시작...');
+  try{
+    setStatus('raids 삭제 중 (서브컬렉션 포함)...');
+    const raidsSnap=await db.collection('raids').get();
+    for(const raid of raidsSnap.docs){
+      for(const sub of ['characters','members']){
+        const s=await raid.ref.collection(sub).get();
+        if(s.size){const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));await b.commit();}
+      }
+      await raid.ref.delete();
+    }
+    for(const col of ['members','settlements','raidApplications']){
+      setStatus(col+' 삭제 중...');
+      const s=await db.collection(col).get();
+      if(s.size){const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));await b.commit();}
+    }
+    setStatus('✅ 초기화 완료 — 페이지를 새로고침하세요.');
+    showToast('전체 데이터 초기화 완료','success');
+  }catch(e){
+    setStatus('❌ 오류: '+e.message);
+    console.error('[Reset]',e);
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
 
 let _usersUnsub = null;
 function subscribeUsers(){

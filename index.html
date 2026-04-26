@@ -1994,10 +1994,11 @@
               <th>총 매출</th>
               <th>내 배분</th>
               <th style="color:#BA7517;">내 수령액</th>
+              <th style="width:40px;text-align:center;">관리</th>
             </tr>
           </thead>
           <tbody id="msTableBody">
-            <tr><td colspan="7" class="ms-empty">불러오는 중…</td></tr>
+            <tr><td colspan="8" class="ms-empty">불러오는 중…</td></tr>
           </tbody>
         </table>
       </div>
@@ -2771,23 +2772,6 @@
           </div>
         </div>
 
-        <!-- 위험 영역 -->
-        <div class="panel" style="margin-top:16px;border:2px solid #dc2626;">
-          <div class="panel-header" style="margin-bottom:10px;">
-            <h2 style="font-size:var(--text-md);color:#dc2626;display:flex;align-items:center;gap:8px;">
-              <span class="material-icons" style="font-size:18px;">warning</span>
-              위험 영역
-            </h2>
-          </div>
-          <p style="font-size:var(--text-sm);color:var(--text-sub);margin:0 0 12px;">
-            raids / members / settlements / raidApplications 전체 삭제.
-            users 및 권한 정보는 보존됩니다. 백업 후 사용 권장.
-          </p>
-          <button class="btn btn-danger" id="btnResetAll" onclick="openResetModal()" style="font-size:var(--text-sm);">
-            ⚠️ 전체 데이터 초기화
-          </button>
-          <div id="resetStatus" style="display:none;margin-top:12px;background:var(--surface-alt);border-radius:8px;padding:12px;font-size:var(--text-sm);font-family:monospace;white-space:pre-wrap;"></div>
-        </div>
       </div>
 
     </div>
@@ -2942,25 +2926,6 @@
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button class="btn btn-outline" onclick="closeDeleteSettleModal()">취소</button>
       <button class="btn btn-danger" onclick="executeDeleteSettlement()">삭제</button>
-    </div>
-  </div>
-</div>
-
-<!-- 전체 초기화 확인 Modal -->
-<div class="modal-overlay" id="resetConfirmModal">
-  <div class="modal" style="max-width:440px;">
-    <h2 style="font-size:var(--text-lg);margin-bottom:8px;color:#dc2626;">⚠️ 전체 데이터 초기화</h2>
-    <p style="font-size:var(--text-sm);color:var(--text-sub);line-height:1.7;margin-bottom:16px;">
-      raids, members, settlements, raidApplications 전체를 삭제합니다.<br>
-      users 정보는 보존됩니다. 이 작업은 되돌릴 수 없습니다.
-    </p>
-    <p style="font-size:var(--text-sm);font-weight:600;margin-bottom:8px;">계속하려면 본인 닉네임을 입력하세요.</p>
-    <input type="text" id="resetConfirmInput" placeholder="닉네임 입력"
-      oninput="checkResetInput()"
-      style="width:100%;padding:10px 14px;border:1.5px solid #dc2626;border-radius:8px;font-size:var(--text-base);background:var(--surface);color:var(--text);box-sizing:border-box;margin-bottom:16px;">
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button class="btn btn-outline" onclick="closeResetModal()">취소</button>
-      <button class="btn btn-danger" id="resetConfirmBtn" disabled onclick="executeReset()" style="opacity:.45;cursor:not-allowed;">초기화 실행</button>
     </div>
   </div>
 </div>
@@ -4450,54 +4415,6 @@ async function backupFirestoreAll(){
   }
 }
 window.backupFirestoreAll=backupFirestoreAll;
-
-// ─── 전체 데이터 초기화 (사이트마스터 전용) ───
-function openResetModal(){
-  if(!isSiteMaster(currentProfile?.role)){alert('권한 없음');return;}
-  document.getElementById('resetConfirmInput').value='';
-  const btn=document.getElementById('resetConfirmBtn');
-  btn.disabled=true;btn.style.opacity='.45';btn.style.cursor='not-allowed';
-  document.getElementById('resetConfirmModal').classList.add('show');
-}
-function closeResetModal(){document.getElementById('resetConfirmModal').classList.remove('show');}
-function checkResetInput(){
-  const val=document.getElementById('resetConfirmInput').value;
-  const name=currentProfile?.name||'';
-  const btn=document.getElementById('resetConfirmBtn');
-  const ok=val===name&&name.length>0;
-  btn.disabled=!ok;btn.style.opacity=ok?'1':'.45';btn.style.cursor=ok?'pointer':'not-allowed';
-}
-async function executeReset(){
-  if(!isSiteMaster(currentProfile?.role)){alert('권한 없음');return;}
-  closeResetModal();
-  const btn=document.getElementById('btnResetAll');
-  if(btn)btn.disabled=true;
-  const setStatus=msg=>{const el=document.getElementById('resetStatus');if(el){el.style.display='';el.textContent=msg;}};
-  setStatus('초기화 시작...');
-  try{
-    setStatus('raids 삭제 중 (서브컬렉션 포함)...');
-    const raidsSnap=await db.collection('raids').get();
-    for(const raid of raidsSnap.docs){
-      for(const sub of ['characters','members']){
-        const s=await raid.ref.collection(sub).get();
-        if(s.size){const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));await b.commit();}
-      }
-      await raid.ref.delete();
-    }
-    for(const col of ['members','settlements','raidApplications']){
-      setStatus(col+' 삭제 중...');
-      const s=await db.collection(col).get();
-      if(s.size){const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));await b.commit();}
-    }
-    setStatus('✅ 초기화 완료 — 페이지를 새로고침하세요.');
-    showToast('전체 데이터 초기화 완료','success');
-  }catch(e){
-    setStatus('❌ 오류: '+e.message);
-    console.error('[Reset]',e);
-  }finally{
-    if(btn)btn.disabled=false;
-  }
-}
 
 let _usersUnsub = null;
 function subscribeUsers(){
@@ -7877,17 +7794,43 @@ function msFilter(boss, btn){
   renderMySettlements();
 }
 
+function filterVisibleSettlements(list){
+  const hidden = currentProfile?.hiddenSettlements || [];
+  return list.filter(s=>!hidden.includes(s.id));
+}
+
+function toggleHiddenSettlement(id){
+  if(!currentUser) return;
+  const hidden = currentProfile?.hiddenSettlements || [];
+  const isHidden = hidden.includes(id);
+  const op = isHidden
+    ? firebase.firestore.FieldValue.arrayRemove(id)
+    : firebase.firestore.FieldValue.arrayUnion(id);
+  db.collection('users').doc(currentUser.uid).update({ hiddenSettlements: op })
+    .then(()=>{
+      if(!currentProfile.hiddenSettlements) currentProfile.hiddenSettlements = [];
+      if(isHidden){
+        currentProfile.hiddenSettlements = currentProfile.hiddenSettlements.filter(x=>x!==id);
+      } else {
+        currentProfile.hiddenSettlements.push(id);
+      }
+      renderMySettlements();
+    })
+    .catch(e=>console.error('[toggleHiddenSettlement]',e));
+}
+
 function renderMySettlements(){
   const uid = currentUser?.uid;
+  const hidden = currentProfile?.hiddenSettlements || [];
   const list = msFilterBoss==='all'
     ? allMySettlements
     : allMySettlements.filter(s=>s.boss===msFilterBoss);
 
-  // 요약 집계
+  // 요약 집계 — 숨김 제외
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   let totalGold=0, monthGold=0, monthCount=0;
-  allMySettlements.forEach(s=>{
+  allMySettlements.filter(s=>!hidden.includes(s.id)).forEach(s=>{
     const me = (s.participants||[]).find(p=>_matchesMe(p, uid, currentProfile?.discordId));
     const gold = me?.perGold || 0;
     totalGold += gold;
@@ -7899,18 +7842,24 @@ function renderMySettlements(){
   document.getElementById('msMonthGold').textContent = fmt(monthGold);
   document.getElementById('msMonthCount').textContent = monthCount+'건';
   document.getElementById('msTotalGold').textContent  = fmt(totalGold);
-  document.getElementById('msTotalCount').textContent = '총 '+allMySettlements.length+'건';
-  if(allMySettlements.length){
-    const last = allMySettlements[0];
-    document.getElementById('msLastDate').textContent = last.date||'-';
-    document.getElementById('msLastBoss').textContent = last.boss||'-';
+  const visibleCount = allMySettlements.filter(s=>!hidden.includes(s.id)).length;
+  const hiddenCount = allMySettlements.length - visibleCount;
+  document.getElementById('msTotalCount').textContent = hiddenCount > 0
+    ? `표시 ${visibleCount}건 (숨김 ${hiddenCount}건)`
+    : '총 '+allMySettlements.length+'건';
+  // 최근 정산: 숨기지 않은 첫 항목 기준
+  const firstVisible = allMySettlements.find(s=>!hidden.includes(s.id));
+  const lastForDisplay = firstVisible || (allMySettlements.length ? allMySettlements[0] : null);
+  if(lastForDisplay){
+    document.getElementById('msLastDate').textContent = lastForDisplay.date||'-';
+    document.getElementById('msLastBoss').textContent = lastForDisplay.boss||'-';
   }
 
   // 테이블 렌더
   const tbody = document.getElementById('msTableBody');
   if(!tbody) return;
   if(!list.length){
-    tbody.innerHTML=`<tr><td colspan="7" class="ms-empty"><span class="material-icons" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px;">receipt_long</span>정산 내역이 없습니다</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="8" class="ms-empty"><span class="material-icons" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px;">receipt_long</span>정산 내역이 없습니다</td></tr>`;
     return;
   }
 
@@ -7923,8 +7872,9 @@ function renderMySettlements(){
   });
 
   tbody.innerHTML = Object.entries(groups).map(([ym, rows])=>{
-    const monthLabel = `<tr><td colspan="7" class="ms-month-label">${ym.replace('-','년 ')}월</td></tr>`;
-    const dataRows = rows.map((s,idx)=>{
+    const monthLabel = `<tr><td colspan="8" class="ms-month-label">${ym.replace('-','년 ')}월</td></tr>`;
+    const dataRows = rows.map(s=>{
+      const isHidden = hidden.includes(s.id);
       const me = (s.participants||[]).find(p=>_matchesMe(p, uid, currentProfile?.discordId));
       const myGold = me?.perGold || 0;
       const myAlloc = me?.alloc ?? '-';
@@ -7933,19 +7883,31 @@ function renderMySettlements(){
       const itemNames = (s.items||[]).map(it=>it.name).filter(Boolean).join(', ')||'-';
       const shortItems = itemNames.length>20 ? itemNames.slice(0,20)+'…' : itemNames;
       const detailId = `msDetail_${s.id}`;
-      return `<tr>
+      const rowStyle = isHidden ? 'opacity:0.45;background:var(--surface-alt);' : '';
+      const badgeStyle = isHidden ? 'filter:grayscale(1);' : '';
+      const eyeIcon = isHidden ? 'visibility_off' : 'visibility';
+      const eyeTitle = isHidden ? '다시 표시' : '이 정산 숨기기';
+      return `<tr style="${rowStyle}">
         <td><button class="ms-expand-btn" onclick="msToggleDetail('${s.id}')" title="상세보기">
           <span class="material-icons" id="msExp_${s.id}" style="font-size:15px;vertical-align:middle;">expand_more</span>
         </button></td>
         <td style="white-space:nowrap;color:var(--text-sub);font-size:var(--text-xs);">${s.date||'-'}</td>
-        <td><span class="ms-boss-badge">${s.boss||'-'}</span></td>
+        <td>
+          <span class="ms-boss-badge" style="${badgeStyle}">${s.boss||'-'}</span>
+          ${isHidden?'<span style="font-size:var(--text-xs);color:var(--text-sub);margin-left:4px;">통계 제외</span>':''}
+        </td>
         <td style="font-size:var(--text-xs);color:var(--text-sub);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemNames}">${shortItems}</td>
         <td style="text-align:right;white-space:nowrap;">${totalM.toLocaleString()}만</td>
         <td style="text-align:right;white-space:nowrap;color:var(--text-sub);">${myAlloc}%</td>
-        <td style="text-align:right;white-space:nowrap;" class="ms-gold">${myM.toLocaleString()}만</td>
+        <td style="text-align:right;white-space:nowrap;" class="ms-gold">${isHidden?'<span style="color:var(--text-sub);">-</span>':myM.toLocaleString()+'만'}</td>
+        <td style="text-align:center;">
+          <button class="ms-expand-btn" onclick="toggleHiddenSettlement('${s.id}')" title="${eyeTitle}">
+            <span class="material-icons" style="font-size:15px;vertical-align:middle;color:var(--text-sub);">${eyeIcon}</span>
+          </button>
+        </td>
       </tr>
       <tr id="${detailId}" style="display:none;" class="ms-detail-row">
-        <td colspan="7">
+        <td colspan="8">
           <div class="ms-detail-inner">
             <strong>아이템 목록</strong>
             <div class="ms-item-list">${

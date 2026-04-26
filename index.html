@@ -3292,6 +3292,7 @@ function _onCharactersUpdated(){
   renderDashboard();
   // 영역 C
   if(currentRaidId) rdRenderMembers(currentRaidId);
+  renderRaidList();
 }
 
 // =============================================
@@ -6981,7 +6982,7 @@ async function renderRaidList(){
   pendingSnap.docs.forEach(d=>{const rid=d.data().raidId;pendingCount[rid]=(pendingCount[rid]||0)+1;});
   // 승인 인원 수: raidId 기준으로 공대별 집계 (raidId 없는 멤버는 카드에 표시하지 않음)
   const approvedCount={};
-  allMembers.filter(m=>m.raidId&&m.status==='참여')
+  allCharacters.filter(m=>m.raidId&&m.status==='참여')
     .forEach(m=>{approvedCount[m.raidId]=(approvedCount[m.raidId]||0)+1;});
 
   const isMaster=canEditRaid();

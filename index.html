@@ -3509,7 +3509,7 @@ auth.onAuthStateChanged(async(user)=>{
   updateLoginUI();subscribeMembers();subscribeCharacters();subscribeUsers();subscribePurchases();subscribeGuildPromos();subscribeRaidApplications();subscribeLeaderApplications();updateMyRaidNavVisibility();loadMySettlements();
   renderMyRaidsNav();
   // 내 디스코드 ID로 등록된 미연결 공대원 자동 연결
-  _autoLinkMyMembers().then(n=>{ if(n>0) showToast(`${n}개 공대에 자동 연결되었습니다.`, 'success'); });
+  _autoLinkMyMembers().then(n=>{ if(n>0) showToast(`${n}개 캐릭터에 자동 연결되었습니다.`, 'success'); });
   await loadBossTimers();
   await loadCustomBosses();
   renderBossList();
@@ -5302,7 +5302,12 @@ function mcRenderPage(){
   }
   const cards = chars.map((d,i)=>mcCardHTML(d, i, n)).join('');
   const add = (n < MC_MAX) ? mcAddSlotHTML(MC_MAX - n) : '';
-  root.innerHTML = `<div id="myCharsGrid">${cards}${add}</div>`;
+  // 자동 연결 버튼: 디스코드 로그인된 경우만 노출
+  const autoLinkBar = (currentUser && currentProfile?.discordId) ? `
+    <div style="margin-bottom:14px;display:flex;justify-content:flex-end;">
+      <button id="btnManualAutoLink" class="btn btn-outline" style="font-size:var(--text-xs);padding:6px 14px;" onclick="manualAutoLinkMyChars()">🔗 내 캐릭터 자동 연결</button>
+    </div>` : '';
+  root.innerHTML = `${autoLinkBar}<div id="myCharsGrid">${cards}${add}</div>`;
 }
 // 하위호환 alias (2884 라인 등에서 호출)
 function mcRenderAllCards(){ mcRenderPage(); }
@@ -5648,7 +5653,7 @@ async function _autoLinkMyMembers(){
   if(!currentUser || !currentProfile?.discordId) return 0;
   const myDid = currentProfile.discordId;
   try{
-    const snap = await db.collection('members')
+    const snap = await db.collectionGroup('characters')
       .where('discordId','==', myDid)
       .get();
     const targets = snap.docs.filter(d => !d.data().uid);
@@ -5659,11 +5664,35 @@ async function _autoLinkMyMembers(){
       linkedAt: firebase.firestore.FieldValue.serverTimestamp()
     }));
     await batch.commit();
-    console.log('[autoLink]', targets.length, '개 멤버 자동 연결');
+    console.log('[autoLink]', targets.length, '개 캐릭터 자동 연결');
     return targets.length;
   }catch(e){
     console.error('[_autoLinkMyMembers]',e);
     return 0;
+  }
+}
+
+// 수동 자동 연결 — 내 캐릭터 페이지 버튼에서 호출
+async function manualAutoLinkMyChars(){
+  if(!currentUser){discordLogin();return;}
+  if(!currentProfile?.discordId){
+    showToast('Discord 계정 연결이 필요합니다.', 'error');
+    return;
+  }
+  const btn = document.getElementById('btnManualAutoLink');
+  if(btn){ btn.disabled = true; btn.textContent = '연결 중...'; }
+  try{
+    const n = await _autoLinkMyMembers();
+    if(n > 0){
+      showToast(`${n}개 캐릭터를 내 계정에 연결했습니다.`, 'success');
+    } else {
+      showToast('연결할 캐릭터가 없습니다.', 'info');
+    }
+  }catch(e){
+    console.error('[manualAutoLinkMyChars]', e);
+    showToast('연결 실패: ' + (e?.message || ''), 'error');
+  }finally{
+    if(btn){ btn.disabled = false; btn.textContent = '🔗 내 캐릭터 자동 연결'; }
   }
 }
 

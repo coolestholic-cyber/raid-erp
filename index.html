@@ -5053,7 +5053,7 @@ function toggleSidebarCollapse(){
 
 function exportMembers(){
   let csv='번호,캐릭터명,직업,역할,아이템레벨,주급골드,참여율,상태,비고\n';
-  allMembers.forEach((m,i)=>{csv+=`${i+1},${m.name},${m.cls},${m.role},${m.level},${m.gold},${m.rate},${m.status},${m.note}\n`;});
+  allCharacters.forEach((m,i)=>{csv+=`${i+1},${m.name},${m.cls},${m.role},${m.level},${m.gold},${m.rate},${m.status},${m.note}\n`;});
   const b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='공대원목록.csv';a.click();
 }
 async function backupMembersJson(){
